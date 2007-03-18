@@ -11,6 +11,6 @@
   <artifactId>wrap-jar-archetype</artifactId>
   <version>0.1.0-SNAPSHOT</version>
 
-  <name>Archetype - OSGi wrapping for third-party jar</name>
+  <name>Archetype - OSGi wrapper for third-party jar(s)</name>
 
 </project>

@@ -1,0 +1,111 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project>
+  <parent>
+    <groupId>${package}.build</groupId>
+    <artifactId>bundles</artifactId>
+    <version>0.1.0-SNAPSHOT</version>
+  </parent>
+
+  <modelVersion>4.0.0</modelVersion>
+  <artifactId>wrap-jar-as-bundle</artifactId>
+
+  <name>OSGi wrappers for third-party jar(s)</name>
+
+  <organization/>
+  <description>
+    Simple OSGi wrapper around third-party jar(s)
+  </description>
+  <licenses>
+    <license/>
+  </licenses>
+
+  <packaging>pom</packaging>
+
+  <properties>
+    <bundle.location>${project.build.directory}/${project.build.finalName}.jar</bundle.location>
+  </properties>
+
+  <modules>
+  </modules>
+
+  <build>
+    <!--
+      wrapper specific plugin configuration
+    -->
+    <pluginManagement>
+      <plugins>
+        <plugin>
+          <artifactId>maven-dependency-plugin</artifactId>
+          <configuration>
+            <!--
+              default is one jar per bundle, but this can be overriden in sub-projects
+            -->
+            <artifactItems>
+              <artifactItem>
+                <groupId>${jar.groupId}</groupId>
+                <artifactId>${jar.artifactId}</artifactId>
+                <version>${jar.version}</version>
+              </artifactItem>
+            </artifactItems>
+          </configuration>
+          <executions>
+            <execution>
+              <id>copy</id>
+              <phase>generate-resources</phase>
+              <goals>
+                <goal>copy</goal>
+              </goals>
+              <configuration>
+                <outputDirectory>lib</outputDirectory>
+                <excludeTransitive>true</excludeTransitive>
+              </configuration>
+            </execution>
+          </executions>
+        </plugin>
+        <plugin>
+          <!--
+            use embedded ant task to copy bnd files: if we did this using
+            resources then the maven eclipse plugin would add a bad path
+            to the generated .classpath
+          -->
+          <artifactId>maven-antrun-plugin</artifactId>
+          <executions>
+            <execution>
+              <id>copy-bnd-files</id>
+              <phase>generate-resources</phase>
+              <goals>
+                <goal>run</goal>
+              </goals>
+              <configuration>
+                <tasks>
+                  <!--
+                    copy default bnd configuration files - sub-projects can define
+                    local settings in src/main/resources/details.bnd, which will be
+                    copied over after the default files.
+                  -->
+                  <copy todir="${project.build.outputDirectory}">
+                    <fileset dir="../../resources"/>
+                  </copy>
+                </tasks>
+              </configuration>
+            </execution>
+          </executions>
+        </plugin>
+        <plugin>
+          <groupId>org.apache.felix</groupId>
+          <artifactId>maven-bundle-plugin</artifactId>
+          <extensions>true</extensions>
+          <configuration>
+            <instructions>
+              <!--
+                main bnd configuration that pulls in specific details.bnd
+              -->
+              <_include>${project.build.outputDirectory}/wrap.bnd</_include>
+            </instructions>
+          </configuration>
+        </plugin>
+      </plugins>
+    </pluginManagement>
+  </build>
+
+</project>

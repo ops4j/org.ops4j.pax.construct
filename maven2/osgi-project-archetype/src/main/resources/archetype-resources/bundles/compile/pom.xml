@@ -1,0 +1,129 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project>
+  <parent>
+    <groupId>${package}.build</groupId>
+    <artifactId>bundles</artifactId>
+    <version>0.1.0-SNAPSHOT</version>
+  </parent>
+
+  <modelVersion>4.0.0</modelVersion>
+  <artifactId>compile-bundle</artifactId>
+
+  <name>OSGi bundles compiled from source</name>
+
+  <packaging>pom</packaging>
+
+  <properties>
+    <bundle.location>${project.build.directory}/${project.build.finalName}.jar</bundle.location>
+  </properties>
+
+  <modules>
+  </modules>
+
+  <!--
+    common test dependencies
+  -->
+  <dependencies>
+    <dependency>
+      <groupId>junit</groupId>
+      <artifactId>junit</artifactId>
+      <scope>test</scope>
+    </dependency>
+  </dependencies>
+
+  <build>
+    <!--
+      source specific plugin configuration
+    -->
+    <pluginManagement>
+      <plugins>
+        <plugin>
+          <!--
+            use embedded ant task to copy bnd files: if we did this using
+            resources then the maven eclipse plugin would add a bad path
+            to the generated .classpath
+          -->
+          <artifactId>maven-antrun-plugin</artifactId>
+          <executions>
+            <execution>
+              <id>copy-bnd-files</id>
+              <phase>generate-resources</phase>
+              <goals>
+                <goal>run</goal>
+              </goals>
+              <configuration>
+                <tasks>
+                  <!--
+                    copy default bnd configuration files - sub-projects can define
+                    local settings in src/main/resources/details.bnd, which will be
+                    copied over after the default files.
+                  -->
+                  <copy todir="${project.build.outputDirectory}">
+                    <fileset dir="../resources"/>
+                  </copy>
+                </tasks>
+              </configuration>
+            </execution>
+          </executions>
+        </plugin>
+<!------[ uncomment to enforce 1.4 compiler settings ]------
+        <plugin>
+          <artifactId>maven-compiler-plugin</artifactId>
+          <configuration>
+            <source>1.4</source>
+            <target>1.4</target>
+            <debug>true</debug>
+          </configuration>
+        </plugin>
+----------------------------------------------------------->
+        <plugin>
+          <groupId>org.apache.felix</groupId>
+          <artifactId>maven-bundle-plugin</artifactId>
+          <extensions>true</extensions>
+          <configuration>
+            <instructions>
+              <!--
+                main bnd configuration that pulls in specific details.bnd
+              -->
+              <_include>${project.build.outputDirectory}/compile.bnd</_include>
+            </instructions>
+          </configuration>
+        </plugin>
+        <plugin>
+          <artifactId>maven-surefire-plugin</artifactId>
+        </plugin>
+      </plugins>
+    </pluginManagement>
+  </build>
+
+  <profiles>
+    <profile>
+      <!--
+        provide equinox test framework
+      -->
+      <id>equinox</id>
+      <activation>
+        <activeByDefault>true</activeByDefault>
+      </activation>
+      <dependencies>
+        <dependency>
+          <groupId>org.eclipse.osgi</groupId>
+          <artifactId>org.eclipse.osgi</artifactId>
+          <scope>provided</scope>
+        </dependency>
+      </dependencies>
+      <properties>
+        <osgi.test.platform>equinox</osgi.test.platform>
+        <log4j.ignoreTCL>true</log4j.ignoreTCL>
+      </properties>
+      <repositories>
+        <repository>
+          <id>eclipse-repository</id>
+          <name>Eclipse Repository</name>
+          <url>http://repo1.maven.org/eclipse/</url>
+        </repository>
+      </repositories>
+    </profile>
+  </profiles>
+
+</project>

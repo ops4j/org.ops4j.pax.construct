@@ -1,0 +1,156 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project>
+  <parent>
+    <groupId>${package}.build</groupId>
+    <artifactId>${artifactId}</artifactId>
+    <version>0.1.0-SNAPSHOT</version>
+  </parent>
+
+  <modelVersion>4.0.0</modelVersion>
+  <artifactId>bundles</artifactId>
+
+  <name/>
+
+  <packaging>pom</packaging>
+
+  <modules>
+    <!--
+      installs patched version of maven-bundle-plugin (FELIX-218)
+    -->
+    <module>bundle_plugin_patch</module>
+
+    <module>wrap</module>
+    <module>install</module>
+    <module>compile</module>
+  </modules>
+
+  <build>
+    <!--
+      define version and default configuration of plugins used in bundle creation
+    --> 
+    <pluginManagement>
+      <plugins>
+        <plugin>
+          <groupId>org.apache.felix</groupId>
+          <artifactId>maven-bundle-plugin</artifactId>
+          <version>0.9.0-FELIX-218-SNAPSHOT</version>
+        </plugin>
+        <plugin>
+          <artifactId>maven-eclipse-plugin</artifactId>
+          <configuration>
+            <pde>true</pde>
+            <!--
+              pde setting breaks manifest (adds invalid empty line)
+              so for now give it a non-existent file to play with
+            -->
+            <manifest>ignore.me</manifest>
+          </configuration>
+          <executions>
+            <execution>
+              <id>generate-elipse-project</id>
+              <phase>package</phase>
+              <goals>
+                <goal>eclipse</goal>
+              </goals>
+            </execution>
+            <execution>
+              <id>clean-eclipse-project</id>
+              <phase>clean</phase>
+              <goals>
+                <goal>clean</goal>
+              </goals>
+            </execution>
+          </executions>
+        </plugin>
+        <plugin>
+          <artifactId>maven-antrun-plugin</artifactId>
+          <executions>
+            <execution>
+              <id>patch-eclipse-files</id>
+              <phase>package</phase>
+              <goals>
+                <goal>run</goal>
+              </goals>
+              <configuration>
+                <tasks>
+
+                  <!--
+                    extract actual manifest to where eclipse expects it
+                  -->
+                  <unjar src="${bundle.location}" dest="${project.basedir}">
+                    <patternset>
+                      <include name="META-INF/MANIFEST.MF"/>
+                    </patternset>
+                  </unjar>
+
+                  <taskdef resource="net/sf/antcontrib/antlib.xml"/>
+
+                  <if>
+                    <!--
+                      only need to patch .classpath for bundle projects
+                    -->
+                    <equals arg1="${project.packaging}" arg2="bundle"/>
+                    <then>
+
+                      <fileset dir="${project.basedir}" id="lib.files">
+                        <include name="lib/*.jar"/>
+                      </fileset>
+
+                      <pathconvert property="jar.list" refid="lib.files">
+                        <flattenmapper/>
+                      </pathconvert>
+
+                      <property name="entry.target" value="&lt;classpath&gt;"/>
+                      <property name="entry.prefix" value="&lt;classpathentry kind=&quot;lib&quot; path=&quot;"/>
+                      <property name="entry.suffix" value="&quot;/&gt;"/>
+
+                      <!--
+                        add classpath entries for all jarfiles located in the lib folder
+                      -->
+                      <var name="cp.patch" value="${entry.target}"/>
+                      <for param="jar" list="${jar.list}" delimiter="${path.separator}">
+                        <sequential>
+                          <var name="cp.patch" value="${cp.patch} ${entry.prefix}lib/@{jar}${entry.suffix}"/>
+                        </sequential>
+                      </for>
+
+                      <echo>Adding ${jar.list} to eclipse .classpath</echo>
+                      <replace file=".classpath" token="${entry.target}" value="${cp.patch}"/>
+
+                    </then>
+                  </if>
+
+                </tasks>
+              </configuration>
+            </execution>
+          </executions>
+          <dependencies>
+            <dependency>
+              <groupId>ant-contrib</groupId>
+              <artifactId>ant-contrib</artifactId>
+              <scope>runtime</scope>
+            </dependency>
+          </dependencies>
+        </plugin>
+        <plugin>
+          <artifactId>maven-clean-plugin</artifactId>
+          <configuration>
+            <filesets>
+              <fileset>
+                <directory>${project.basedir}</directory>
+                <includes>
+                  <!--
+                    remove generated bundle files
+                  -->
+                  <include>META-INF</include>
+                  <include>lib</include>
+                </includes>
+              </fileset>
+            </filesets>
+          </configuration>
+        </plugin>
+      </plugins>
+    </pluginManagement>
+  </build>
+
+</project>
