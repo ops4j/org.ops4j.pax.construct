@@ -1,0 +1,4 @@
+<archetype>
+  <id>wrap-jar-archetype</id>
+  <allowPartial>true</allowPartial>
+</archetype>

@@ -1,0 +1,4 @@
+<archetype>
+  <id>compile-bundle-archetype</id>
+  <allowPartial>true</allowPartial>
+</archetype>
