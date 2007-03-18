@@ -1,13 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project>
   <parent>
-    <groupId>${package}.build</groupId>
-    <artifactId>bundles</artifactId>
+    <groupId>org.ops4j.osgi.build</groupId>
+    <artifactId>tools</artifactId>
     <version>0.1.0-SNAPSHOT</version>
   </parent>
 
   <modelVersion>4.0.0</modelVersion>
-  <groupId>${package}.build</groupId>
+  <groupId>org.ops4j.osgi.build</groupId>
   <artifactId>bundle_plugin_patch</artifactId>
   <version>0.1.0-SNAPSHOT</version>
 
@@ -23,7 +23,7 @@
     <pluginRepository>
       <id>felix-218-patch</id>
       <name>FELIX-218 (patched artifacts)</name>
-      <url>file://${basedir}/../../tools/maven2/FELIX-218</url>
+      <url>file://${project.basedir}/src/main/resources/FELIX-218</url>
       <releases>
         <updatePolicy>never</updatePolicy>
       </releases>
@@ -35,6 +35,7 @@
       <plugin>
         <groupId>org.apache.felix</groupId>
         <artifactId>maven-bundle-plugin</artifactId>
+        <version>0.9.0-FELIX-218-SNAPSHOT</version>
         <extensions>true</extensions>
         <inherited>false</inherited>
       </plugin>

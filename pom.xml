@@ -48,6 +48,7 @@ limitations under the License.
   <packaging>pom</packaging>
 
   <modules>
+    <module>maven2/bundle_plugin_patch</module>
     <module>maven2/osgi-project-archetype</module>
     <module>maven2/compile-bundle-archetype</module>
     <module>maven2/install-bundle-archetype</module>

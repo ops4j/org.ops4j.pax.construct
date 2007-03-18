@@ -1,3 +1,13 @@
 <archetype>
   <id>osgi-project-archetype</id>
+  <resources>
+    <resource>bundles/pom.xml</resource>
+    <resource>bundles/wrap/pom.xml</resource>
+    <resource>bundles/wrap/resources/wrap.bnd</resource>
+    <resource>bundles/wrap/resources/details.bnd</resource>
+    <resource>bundles/install/pom.xml</resource>
+    <resource>bundles/compile/pom.xml</resource>
+    <resource>bundles/compile/resources/compile.bnd</resource>
+    <resource>bundles/compile/resources/details.bnd</resource>
+  </resources>
 </archetype>
