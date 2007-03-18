@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project>
   <parent>
-    <groupId>${package}.build</groupId>
-    <artifactId>${artifactId}</artifactId>
+    <groupId>${package}</groupId>
+    <artifactId>build</artifactId>
     <version>0.1.0-SNAPSHOT</version>
   </parent>
 
