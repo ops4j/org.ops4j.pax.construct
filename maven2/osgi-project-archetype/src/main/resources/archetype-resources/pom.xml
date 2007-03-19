@@ -36,4 +36,24 @@
     <module>bundles</module>
   </modules>
 
+  <repositories>
+    <repository>
+      <id>eclipse</id>
+      <url>http://repo1.maven.org/eclipse</url>
+    </repository>
+    <repository>
+      <id>safehaus</id>
+      <url>http://m2.safehaus.org</url>
+    </repository>
+    <repository>
+      <id>java.net</id>
+      <url>https://maven-repository.dev.java.net/nonav/repository</url>
+      <layout>legacy</layout>
+    </repository>
+    <repository>
+      <id>apache.m2.snapshot</id>
+      <url>http://people.apache.org/repo/m2-snapshot-repository/</url>
+    </repository>
+  </repositories>
+
 </project>

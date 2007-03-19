@@ -27,7 +27,7 @@
     <dependency>
       <groupId>junit</groupId>
       <artifactId>junit</artifactId>
-      <version>LATEST</version>
+      <version>3.8.1</version>
       <scope>test</scope>
     </dependency>
   </dependencies>
@@ -111,7 +111,7 @@
         <dependency>
           <groupId>org.eclipse.osgi</groupId>
           <artifactId>org.eclipse.osgi</artifactId>
-          <version>LATEST</version>
+          <version>3.2.1</version>
           <scope>provided</scope>
         </dependency>
       </dependencies>

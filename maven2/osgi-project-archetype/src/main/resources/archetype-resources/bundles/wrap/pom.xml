@@ -84,7 +84,7 @@
                     copied over after the default files.
                   -->
                   <copy todir="${project.build.outputDirectory}">
-                    <fileset dir="../../resources"/>
+                    <fileset dir="../resources"/>
                   </copy>
                 </tasks>
               </configuration>
