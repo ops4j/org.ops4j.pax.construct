@@ -39,6 +39,11 @@ public abstract class AbstractArchetypeMojo
     private File mvn;
 
     /**
+     * @parameter expression="${debug}" default-value="false"
+     */
+    private boolean debug;
+
+    /**
      * The containing OSGi project
      *
      * @parameter expression="${project}"
@@ -76,7 +81,10 @@ public abstract class AbstractArchetypeMojo
 
         try
         {
-            int result = CommandLineUtils.executeCommandLine( commandLine, null, consumer );
+            StreamConsumer stdOut = debug ? consumer : null;
+            StreamConsumer stdErr = consumer;
+
+            int result = CommandLineUtils.executeCommandLine( commandLine, stdOut, stdErr );
 
             if ( result != 0 )
             {
