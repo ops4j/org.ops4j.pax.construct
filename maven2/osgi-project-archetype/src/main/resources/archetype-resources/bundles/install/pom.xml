@@ -21,16 +21,12 @@
 
   <packaging>pom</packaging>
 
-  <properties>
-    <bundle.location>lib/${project.build.finalName}.jar</bundle.location>
-  </properties>
-
   <modules>
   </modules>
 
   <build>
     <!--
-      configure dependency plugin to copy jarfile into lib folder for wrapping
+      configure dependency plugin to unpack jarfile into build directory for eclipse
     -->
     <pluginManagement>
       <plugins>
@@ -50,10 +46,10 @@
               <id>install-bundle</id>
               <phase>package</phase>
               <goals>
-                <goal>copy</goal>
+                <goal>unpack</goal>
               </goals>
               <configuration>
-                <outputDirectory>lib</outputDirectory>
+                <outputDirectory>${project.build.directory}</outputDirectory>
                 <excludeTransitive>true</excludeTransitive>
               </configuration>
             </execution>

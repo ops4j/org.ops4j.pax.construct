@@ -70,23 +70,23 @@
               <configuration>
                 <tasks>
 
-                  <!--
-                    extract actual manifest to where eclipse expects it
-                  -->
-                  <unjar src="${bundle.location}" dest="${project.basedir}">
-                    <patternset>
-                      <include name="META-INF/MANIFEST.MF"/>
-                    </patternset>
-                  </unjar>
-
                   <taskdef resource="net/sf/antcontrib/antlib.xml"/>
 
                   <if>
                     <!--
-                      only need to patch .classpath for bundle projects
+                      only need to generate eclipse files for bundle projects
                     -->
                     <equals arg1="${project.packaging}" arg2="bundle"/>
                     <then>
+
+                      <!--
+                        extract actual manifest to where eclipse expects it
+                      -->
+                      <unjar src="${bundle.location}" dest="${project.basedir}">
+                        <patternset>
+                          <include name="META-INF/MANIFEST.MF"/>
+                        </patternset>
+                      </unjar>
 
                       <fileset dir="${project.basedir}" id="lib.files">
                         <include name="lib/*.jar"/>
@@ -117,16 +117,16 @@
                     <else>
 
                       <!--
-                        copy and patch eclipse project templates for pom projects
+                        copy and patch eclipse project templates for 'install' pom projects
                       -->
-                      <copy todir="${project.basedir}" overwrite="true">
+                      <copy todir="${project.build.directory}" overwrite="true">
+                        <globmapper from="*.xml" to=".*"/>
                         <filterset begintoken="$${" endtoken="}">
                           <filter token="bundle.artifactId" value="${bundle.artifactId}"/>
-                          <filter token="bundle.location" value="${bundle.location}"/>
                         </filterset>
-                        <fileset dir="${project.basedir}/src/main/resources">
-                          <include name=".project"/>
-                          <include name=".classpath"/>
+                        <fileset dir="../resources">
+                          <include name="project.xml"/>
+                          <include name="classpath.xml"/>
                         </fileset>
                       </copy>
 

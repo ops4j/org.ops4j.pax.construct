@@ -1,12 +1,4 @@
 <archetype>
   <id>install-bundle-archetype</id>
   <allowPartial>true</allowPartial>
-  <!--
-    maven-eclipse-plugin doesn't generate project files for the pom packaging
-    type, as used in the install-bundle-archetype, so provide templates here.
-  -->
-  <resources>
-    <resource>src/main/resources/.classpath</resource>
-    <resource>src/main/resources/.project</resource>
-  </resources>
 </archetype>
