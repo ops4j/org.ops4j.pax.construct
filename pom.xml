@@ -31,7 +31,7 @@ limitations under the License.
     </license>
   </licenses>
 
-  <name>Maven archetypes to help setup quick OSGi projects</name>
+  <name>Maven tools to help setup quick OSGi projects</name>
 
   <description>
     A series of tools to help piece together code, jars, and
