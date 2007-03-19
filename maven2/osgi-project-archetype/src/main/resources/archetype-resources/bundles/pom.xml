@@ -114,6 +114,24 @@
                       <replace file=".classpath" token="${entry.target}" value="${cp.patch}"/>
 
                     </then>
+                    <else>
+
+                      <!--
+                        copy and patch eclipse project templates for pom projects
+                      -->
+                      <copy todir="${project.basedir}" overwrite="true">
+                        <filterset begintoken="$${" endtoken="}">
+                          <filter token="bundle.artifactId" value="${bundle.artifactId}"/>
+                          <filter token="bundle.location" value="${bundle.location}"/>
+                        </filterset>
+                        <fileset dir="${project.basedir}/src/main/resources">
+                          <include name=".project"/>
+                          <include name=".classpath"/>
+                        </fileset>
+                      </copy>
+
+                    </else>
+
                   </if>
 
                 </tasks>
