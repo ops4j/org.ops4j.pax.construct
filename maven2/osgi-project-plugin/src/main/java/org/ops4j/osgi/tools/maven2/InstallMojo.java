@@ -16,20 +16,58 @@ package org.ops4j.osgi.tools.maven2;
  * limitations under the License.
  */
 
-import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
+import org.codehaus.plexus.util.cli.Commandline;
 
 /**
- * Goal which adds a installed bundle to the current OSGi project.
+ * Goal which adds an installed bundle to an existing OSGi project.
  *
  * @goal install
  */
 public class InstallMojo
-    extends AbstractMojo
+    extends AbstractArchetypeMojo
 {
-    public void execute()
+    /**
+     * The groupId of the bundle to install.
+     * 
+     * @parameter expression="${groupId}"
+     * @required
+     */
+    private String groupId;
+
+    /**
+     * The artifactId of the bundle to install.
+     * 
+     * @parameter expression="${artifactId}"
+     * @required
+     */
+    private String artifactId;
+
+    /**
+     * The version of the bundle to install.
+     * 
+     * @parameter expression="${version}"
+     * @required
+     */
+    private String version;
+
+    protected boolean checkEnvironment()
         throws MojoExecutionException
     {
+        return project.getArtifactId().equals("install-bundle");
+    }
+
+    protected void createSubArguments( Commandline commandLine )
+    {
+        commandLine.createArgument().setValue( "-DarchetypeArtifactId=install-bundle-archetype" );
+
+        commandLine.createArgument().setValue( "-DgroupId="+project.getGroupId() );
+
+        commandLine.createArgument().setValue( "-DpackageName="+groupId );
+        commandLine.createArgument().setValue( "-DartifactId="+artifactId );
+        commandLine.createArgument().setValue( "-Dversion="+version );
+
+        commandLine.createArgument().setValue( "-Duser.dir="+project.getBasedir() );
     }
 }
 
