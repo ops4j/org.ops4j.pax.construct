@@ -18,6 +18,7 @@ package org.ops4j.osgi.tools.maven2;
 
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
+import org.apache.maven.project.MavenProject;
 import org.codehaus.plexus.util.cli.CommandLineException;
 import org.codehaus.plexus.util.cli.CommandLineUtils;
 import org.codehaus.plexus.util.cli.Commandline;
@@ -37,20 +38,30 @@ public abstract class AbstractArchetypeMojo
      */
     private File mvn;
 
-    private final static String archetypeGroupId    = "org.ops4j.osgi.tools.maven2";
-    private final static String archetypeArtifactId = "osgi-project-archetype";
-    private final static String archetypeVersion    = "0.1.0-SNAPSHOT"; // TODO: use RELEASE/LATEST when deployed?
+    /**
+     * The containing OSGi project
+     *
+     * @parameter expression="${project}"
+     */
+    protected MavenProject project;
+
+    private final static String archetypeGroupId = "org.ops4j.osgi.tools.maven2";
+    private final static String archetypeVersion = "0.1.0-SNAPSHOT"; // TODO: use RELEASE/LATEST when deployed?
 
     public void execute()
         throws MojoExecutionException
     {
+        if ( checkEnvironment() == false )
+        {
+            return;
+        }
+
         Commandline commandLine = new Commandline();
 
         commandLine.setExecutable( mvn.getAbsolutePath() );
 
         commandLine.createArgument().setValue( "archetype:create" );
         commandLine.createArgument().setValue( "-DarchetypeGroupId="+archetypeGroupId );
-        commandLine.createArgument().setValue( "-DarchetypeArtifactId="+archetypeArtifactId );
         commandLine.createArgument().setValue( "-DarchetypeVersion="+archetypeVersion );
 
         createSubArguments( commandLine );
@@ -76,6 +87,12 @@ public abstract class AbstractArchetypeMojo
         {
             throw new MojoExecutionException( "Command execution failed.", e );
         }
+    }
+
+    protected boolean checkEnvironment()
+        throws MojoExecutionException
+    {
+        return false;
     }
 
     abstract protected void createSubArguments( Commandline commandLine );

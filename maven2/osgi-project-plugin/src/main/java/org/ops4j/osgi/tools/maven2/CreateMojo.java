@@ -16,13 +16,13 @@ package org.ops4j.osgi.tools.maven2;
  * limitations under the License.
  */
 
+import org.apache.maven.plugin.MojoExecutionException;
 import org.codehaus.plexus.util.cli.Commandline;
 
 /**
  * Goal which creates a new OSGi project.
  *
  * @requiresProject false
- *
  * @goal create
  */
 public class CreateMojo
@@ -44,8 +44,21 @@ public class CreateMojo
      */
     private String artifactId;
 
+    protected boolean checkEnvironment()
+        throws MojoExecutionException
+    {
+        if ( project.getFile() != null )
+        {
+            throw new MojoExecutionException( "Cannot use this plugin inside an existing project." );
+        }
+
+        return true;
+    }
+
     protected void createSubArguments( Commandline commandLine )
     {
+        commandLine.createArgument().setValue( "-DarchetypeArtifactId=osgi-project-archetype" );
+
         commandLine.createArgument().setValue( "-DgroupId="+groupId+"."+artifactId );
         commandLine.createArgument().setValue( "-DartifactId="+artifactId.replace('.','-') );
     }
