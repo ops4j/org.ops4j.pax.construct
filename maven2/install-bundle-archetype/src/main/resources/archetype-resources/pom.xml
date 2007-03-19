@@ -1,19 +1,19 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project>
   <parent>
-    <groupId>${package}.build</groupId>
+    <groupId>${groupId}.build</groupId>
     <artifactId>install-bundle</artifactId>
     <version>0.1.0-SNAPSHOT</version>
   </parent>
 
   <properties>
-    <bundle.groupId>${groupId}</bundle.groupId>
+    <bundle.groupId>${package}</bundle.groupId>
     <bundle.artifactId>${artifactId}</bundle.artifactId>
     <bundle.version>${version}</bundle.version>
   </properties>
 
   <modelVersion>4.0.0</modelVersion>
-  <groupId>${package}.dependencies</groupId>
+  <groupId>${groupId}.dependencies</groupId>
   <artifactId>${bundle.artifactId}</artifactId>
   <version>${bundle.version}</version>
 

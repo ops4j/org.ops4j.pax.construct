@@ -1,19 +1,19 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project>
   <parent>
-    <groupId>${package}.build</groupId>
+    <groupId>${groupId}.build</groupId>
     <artifactId>wrap-jar-as-bundle</artifactId>
     <version>0.1.0-SNAPSHOT</version>
   </parent>
 
   <properties>
-    <jar.groupId>${groupId}</jar.groupId>
+    <jar.groupId>${package}</jar.groupId>
     <jar.artifactId>${artifactId}</jar.artifactId>
     <jar.version>${version}</jar.version>
   </properties>
 
   <modelVersion>4.0.0</modelVersion>
-  <groupId>${package}.bundles</groupId>
+  <groupId>${groupId}.bundles</groupId>
   <artifactId>${jar.artifactId}.osgi</artifactId>
   <version>${jar.version}</version>
 

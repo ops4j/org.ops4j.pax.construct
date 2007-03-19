@@ -1,4 +1,12 @@
 <archetype>
   <id>compile-bundle-archetype</id>
   <allowPartial>true</allowPartial>
+  <sources>
+    <source>src/main/java/Service.java</source>
+    <source>src/main/java/internal/ServiceImpl.java</source>
+    <source>src/main/java/internal/Activator.java</source>
+  </sources>
+  <resources>
+    <resource>src/main/resources/details.bnd</resource>
+  </resources>
 </archetype>

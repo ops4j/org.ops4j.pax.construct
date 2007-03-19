@@ -1,13 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project>
   <parent>
-    <groupId>${package}</groupId>
+    <groupId>${groupId}</groupId>
     <artifactId>build</artifactId>
     <version>0.1.0-SNAPSHOT</version>
   </parent>
 
   <modelVersion>4.0.0</modelVersion>
-  <groupId>${package}.build</groupId>
+  <groupId>${groupId}.build</groupId>
   <artifactId>bundles</artifactId>
 
   <name/>
