@@ -57,7 +57,7 @@ public class WrapMojo
         return project.getArtifactId().equals("wrap-jar-as-bundle");
     }
 
-    protected void createSubArguments( Commandline commandLine )
+    protected void addAdditionalArguments( Commandline commandLine )
     {
         commandLine.createArgument().setValue( "-DarchetypeArtifactId=wrap-jar-archetype" );
 

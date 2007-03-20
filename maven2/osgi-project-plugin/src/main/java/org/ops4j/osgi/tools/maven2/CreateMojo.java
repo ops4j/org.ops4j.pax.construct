@@ -55,7 +55,7 @@ public class CreateMojo
         return true;
     }
 
-    protected void createSubArguments( Commandline commandLine )
+    protected void addAdditionalArguments( Commandline commandLine )
     {
         commandLine.createArgument().setValue( "-DarchetypeArtifactId=osgi-project-archetype" );
 

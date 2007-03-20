@@ -21,7 +21,12 @@ import org.apache.maven.model.Model;
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.project.MavenProject;
+import org.codehaus.plexus.util.cli.CommandLineException;
+import org.codehaus.plexus.util.cli.CommandLineUtils;
+import org.codehaus.plexus.util.cli.Commandline;
 
+import java.io.File;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -36,11 +41,17 @@ public class RunnerMojo
     extends AbstractMojo
 {
     /**
+     * @parameter expression="${maven.home}/bin/mvn"
+     * @required
+     */
+    private File mvn;
+
+    /**
      * The containing OSGi project
      *
      * @parameter expression="${project}"
      */
-    protected MavenProject project;
+    private MavenProject project;
 
     private static MavenProject m_runnerPom;
     private static List m_dependencies;
@@ -63,7 +74,7 @@ public class RunnerMojo
         if ( parentProject == null )
         {
             m_runnerPom.setGroupId( project.getGroupId() );
-            m_runnerPom.setArtifactId( "runner-config" );
+            m_runnerPom.setArtifactId( "runner" );
             m_runnerPom.setVersion( project.getVersion() );
 
             m_runnerPom.setName( project.getName() );
@@ -72,6 +83,13 @@ public class RunnerMojo
             m_runnerPom.setPackaging( "pom" );
 
             m_runnerPom.getModel().setProperties( project.getProperties() );
+
+            String targetPath = project.getFile().getParent() + File.separator + "target";
+            String runnerPath = targetPath + File.separator + "runner" + File.separator + "pom.xml";
+
+            File runnerPomFile = new File( runnerPath );
+            runnerPomFile.getParentFile().mkdirs();
+            m_runnerPom.setFile( runnerPomFile );
         }
         else
         {
@@ -106,9 +124,18 @@ public class RunnerMojo
             try
             {
                 m_runnerPom.setDependencies( m_dependencies );
-                m_runnerPom.writeModel( new java.io.PrintWriter( System.out ) );
+                m_runnerPom.writeModel( new FileWriter( m_runnerPom.getFile() ) );
+
+                Commandline installPomCmd = new Commandline();
+                installPomCmd.setExecutable( mvn.getAbsolutePath() );
+                installPomCmd.createArgument().setValue( "-N" );
+                installPomCmd.createArgument().setValue( "-f" );
+                installPomCmd.createArgument().setValue( m_runnerPom.getFile().getAbsolutePath() );
+                installPomCmd.createArgument().setValue( "install" );
+
+                CommandLineUtils.executeCommandLine( installPomCmd, null, null );
             }
-            catch ( IOException ex )
+            catch ( Exception ex )
             {
                 getLog().error( ex );
             }

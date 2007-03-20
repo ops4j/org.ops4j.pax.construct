@@ -57,7 +57,7 @@ public class CompileMojo
         return project.getArtifactId().equals("compile-bundle");
     }
 
-    protected void createSubArguments( Commandline commandLine )
+    protected void addAdditionalArguments( Commandline commandLine )
     {
         commandLine.createArgument().setValue( "-DarchetypeArtifactId=compile-bundle-archetype" );
 

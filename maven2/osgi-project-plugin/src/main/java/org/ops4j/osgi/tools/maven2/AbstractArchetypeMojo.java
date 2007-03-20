@@ -69,7 +69,7 @@ public abstract class AbstractArchetypeMojo
         commandLine.createArgument().setValue( "-DarchetypeGroupId="+archetypeGroupId );
         commandLine.createArgument().setValue( "-DarchetypeVersion="+archetypeVersion );
 
-        createSubArguments( commandLine );
+        addAdditionalArguments( commandLine );
 
         StreamConsumer consumer = new StreamConsumer()
         {
@@ -103,6 +103,6 @@ public abstract class AbstractArchetypeMojo
         return false;
     }
 
-    abstract protected void createSubArguments( Commandline commandLine );
+    abstract protected void addAdditionalArguments( Commandline commandLine );
 }
 

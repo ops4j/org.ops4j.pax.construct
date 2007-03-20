@@ -57,7 +57,7 @@ public class InstallMojo
         return project.getArtifactId().equals("install-bundle");
     }
 
-    protected void createSubArguments( Commandline commandLine )
+    protected void addAdditionalArguments( Commandline commandLine )
     {
         commandLine.createArgument().setValue( "-DarchetypeArtifactId=install-bundle-archetype" );
 
