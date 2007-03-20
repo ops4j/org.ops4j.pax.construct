@@ -121,6 +121,9 @@
           <id>eclipse-repository</id>
           <name>Eclipse Repository</name>
           <url>http://repo1.maven.org/eclipse/</url>
+          <snapshots>
+            <enabled>false</enabled>
+          </snapshots>
         </repository>
       </repositories>
     </profile>
