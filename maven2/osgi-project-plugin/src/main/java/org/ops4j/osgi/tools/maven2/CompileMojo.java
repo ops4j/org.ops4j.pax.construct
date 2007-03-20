@@ -61,7 +61,7 @@ public class CompileMojo
     {
         commandLine.createArgument().setValue( "-DarchetypeArtifactId=compile-bundle-archetype" );
 
-        commandLine.createArgument().setValue( "-DgroupId="+project.getGroupId() );
+        commandLine.createArgument().setValue( "-DgroupId="+project.getGroupId().replaceFirst( ".build$", "" ) );
 
         commandLine.createArgument().setValue( "-DpackageName="+groupId );
         commandLine.createArgument().setValue( "-DartifactId="+artifactId );
