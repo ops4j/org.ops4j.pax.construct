@@ -53,9 +53,26 @@ public class RunnerMojo
      */
     private MavenProject project;
 
+    /**
+     * @parameter default-value="${reactorProjects}"
+     * @required
+     * @readonly
+     */
+    private List reactorProjects;
+
+    /**
+     * @parameter expression="${deploy}" default-value="false"
+     */
+    private boolean deploy;
+
+    /**
+     * @parameter expression="${platform}" default-value="equinox"
+     */
+    private String platform;
+
     private static MavenProject m_runnerPom;
     private static List m_dependencies;
-    private static Thread m_shutdownHook;
+    private static int m_projectCount;
 
     public void execute()
         throws MojoExecutionException
@@ -64,81 +81,103 @@ public class RunnerMojo
         {
             m_runnerPom = new MavenProject( new Model() );
             m_dependencies = new ArrayList();
-
-            m_shutdownHook = new Thread( new WriteRunnerPom() );
-            Runtime.getRuntime().addShutdownHook( m_shutdownHook );
+            m_projectCount = 0;
         }
 
-        MavenProject parentProject = project.getParent();
-
-        if ( parentProject == null )
+        if ( project.hasParent() )
         {
-            m_runnerPom.setGroupId( project.getGroupId() );
-            m_runnerPom.setArtifactId( "runner" );
-            m_runnerPom.setVersion( project.getVersion() );
-
-            m_runnerPom.setName( project.getName() );
-            m_runnerPom.setDescription( project.getDescription() );
-            m_runnerPom.setModelVersion( "4.0.0" );
-            m_runnerPom.setPackaging( "pom" );
-
-            m_runnerPom.getModel().setProperties( project.getProperties() );
-
-            String targetPath = project.getFile().getParent() + File.separator + "target";
-            String runnerPath = targetPath + File.separator + "runner" + File.separator + "pom.xml";
-
-            File runnerPomFile = new File( runnerPath );
-            runnerPomFile.getParentFile().mkdirs();
-            m_runnerPom.setFile( runnerPomFile );
+            addBundleDependency();
         }
         else
         {
-            String thisGroupId = project.getGroupId();
+            initializeRunnerPom();
+        }
 
-            if ( thisGroupId.endsWith( ".dependencies" ) )
-            {
-                Properties props = project.getProperties();
-
-                Dependency dependency = new Dependency();
-                dependency.setGroupId( props.getProperty( "bundle.groupId" ) );
-                dependency.setArtifactId( props.getProperty( "bundle.artifactId" ) );
-                dependency.setVersion( props.getProperty( "bundle.version" ) );
-                m_dependencies.add( dependency );
-            }
-            else if ( thisGroupId.endsWith( ".bundles" ) )
-            {
-                Dependency dependency = new Dependency();
-                dependency.setGroupId( project.getGroupId() );
-                dependency.setArtifactId( project.getArtifactId() );
-                dependency.setVersion( project.getVersion() );
-                m_dependencies.add( dependency );
-            }
+        if ( ++m_projectCount == reactorProjects.size() )
+        {
+            installRunnerPom();
         }
     }
 
-    private final class WriteRunnerPom
-        implements Runnable
+    private void initializeRunnerPom()
     {
-        public void run()
+        m_runnerPom.setGroupId( project.getGroupId() );
+        m_runnerPom.setArtifactId( "runner" );
+        m_runnerPom.setVersion( project.getVersion() );
+
+        m_runnerPom.setName( project.getName() );
+        m_runnerPom.setDescription( project.getDescription() );
+        m_runnerPom.setModelVersion( "4.0.0" );
+        m_runnerPom.setPackaging( "pom" );
+
+        m_runnerPom.getModel().setProperties( project.getProperties() );
+
+        String targetPath = project.getFile().getParent() + File.separator + "target";
+        String runnerPath = targetPath + File.separator + "runner" + File.separator + "pom.xml";
+
+        File runnerPomFile = new File( runnerPath );
+        runnerPomFile.getParentFile().mkdirs();
+        m_runnerPom.setFile( runnerPomFile );
+    }
+
+    private void addBundleDependency()
+    {
+        String thisGroupId = project.getGroupId();
+
+        if ( thisGroupId.endsWith( ".dependencies" ) )
         {
-            try
-            {
-                m_runnerPom.setDependencies( m_dependencies );
-                m_runnerPom.writeModel( new FileWriter( m_runnerPom.getFile() ) );
+            Properties props = project.getProperties();
 
-                Commandline installPomCmd = new Commandline();
-                installPomCmd.setExecutable( mvn.getAbsolutePath() );
-                installPomCmd.createArgument().setValue( "-N" );
-                installPomCmd.createArgument().setValue( "-f" );
-                installPomCmd.createArgument().setValue( m_runnerPom.getFile().getAbsolutePath() );
-                installPomCmd.createArgument().setValue( "install" );
+            Dependency dependency = new Dependency();
+            dependency.setGroupId( props.getProperty( "bundle.groupId" ) );
+            dependency.setArtifactId( props.getProperty( "bundle.artifactId" ) );
+            dependency.setVersion( props.getProperty( "bundle.version" ) );
+            m_dependencies.add( dependency );
+        }
+        else if ( thisGroupId.endsWith( ".bundles" ) )
+        {
+            Dependency dependency = new Dependency();
+            dependency.setGroupId( project.getGroupId() );
+            dependency.setArtifactId( project.getArtifactId() );
+            dependency.setVersion( project.getVersion() );
+            m_dependencies.add( dependency );
+        }
+    }
 
-                CommandLineUtils.executeCommandLine( installPomCmd, null, null );
-            }
-            catch ( Exception ex )
+    private void installRunnerPom()
+        throws MojoExecutionException
+    {
+        try
+        {
+            m_runnerPom.setDependencies( m_dependencies );
+            m_runnerPom.writeModel( new FileWriter( m_runnerPom.getFile() ) );
+
+            Commandline installPomCmd = new Commandline();
+            installPomCmd.setExecutable( mvn.getAbsolutePath() );
+            installPomCmd.createArgument().setValue( "-N" );
+            installPomCmd.createArgument().setValue( "-f" );
+            installPomCmd.createArgument().setValue( m_runnerPom.getFile().getAbsolutePath() );
+            installPomCmd.createArgument().setValue( "install" );
+
+            CommandLineUtils.executeCommandLine( installPomCmd, null, null );
+
+            if ( deploy )
             {
-                getLog().error( ex );
+                String[] deployAppCmds =
+                {
+                    "--clean", "--no-md5",
+                    "--platform="+platform,
+                    m_runnerPom.getGroupId(),
+                    m_runnerPom.getArtifactId(),
+                    m_runnerPom.getVersion()
+                };
+
+                org.ops4j.pax.runner.Run.main( deployAppCmds );
             }
+        }
+        catch ( Exception ex )
+        {
+            throw new MojoExecutionException( "Installation error", ex );
         }
     }
 }
