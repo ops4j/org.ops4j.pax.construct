@@ -16,9 +16,13 @@ public final class Activator
     public void start( BundleContext bc )
         throws Exception
     {
+        System.out.println( "STARTING ${package}" ); // TODO: use logging service :)
+
         m_service = new ServiceImpl();
 
         Dictionary props = new Hashtable<String, String>();
+
+        System.out.println( "REGISTER ${package}.Service" );
 
         bc.registerService( Service.class.getName(), m_service, props );
     }
@@ -26,6 +30,7 @@ public final class Activator
     public void stop( BundleContext bc )
         throws Exception
     {
+        System.out.println( "STOPPING ${package}" );
     }
 }
 

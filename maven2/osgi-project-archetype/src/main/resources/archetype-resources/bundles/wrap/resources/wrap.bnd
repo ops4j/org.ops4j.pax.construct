@@ -2,7 +2,7 @@
   convert maven identifiers to OSGi format
 -->
 Bundle-Version: $(replace;${jar.version};(\\d+(\\.\\d+)*)[-_]?([^.].*);$1.$3)
-Bundle-SymbolicName: $(replace;${jar.artifactId};-;_)
+Bundle-SymbolicName: $(replace;${project.artifactId};-;_)
 
 <!--
   wrap third-party (non-OSGi) jarfile without unpacking it

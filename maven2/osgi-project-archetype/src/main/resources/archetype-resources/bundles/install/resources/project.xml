@@ -1,5 +1,5 @@
 <projectDescription>
-  <name>${bundle.artifactId}</name>
+  <name>${project.artifactId}</name>
   <comment>Pre-built OSGi bundle</comment>
   <projects/>
   <buildSpec>

@@ -14,10 +14,10 @@
 
   <modelVersion>4.0.0</modelVersion>
   <groupId>${groupId}.bundles</groupId>
-  <artifactId>${jar.artifactId}.osgi</artifactId>
+  <artifactId>${jar.groupId}.${jar.artifactId}</artifactId>
   <version>${jar.version}</version>
 
-  <name>${jar.artifactId} (wrapped)</name>
+  <name>${project.artifactId} (wrapped)</name>
 
   <packaging>bundle</packaging>
 

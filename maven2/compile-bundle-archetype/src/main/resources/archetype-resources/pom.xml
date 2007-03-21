@@ -6,9 +6,13 @@
     <version>0.1.0-SNAPSHOT</version>
   </parent>
 
+  <properties>
+    <bundle.package>${package}</bundle.package>
+  </properties>
+
   <modelVersion>4.0.0</modelVersion>
   <groupId>${groupId}.bundles</groupId>
-  <artifactId>${artifactId}</artifactId>
+  <artifactId>${bundle.package}-${artifactId}</artifactId>
   <version>${version}</version>
 
   <name>${project.artifactId} (compiled)</name>

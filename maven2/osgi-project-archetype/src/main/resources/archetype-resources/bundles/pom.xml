@@ -122,7 +122,7 @@
                       <copy todir="${project.build.directory}" overwrite="true">
                         <globmapper from="*.xml" to=".*"/>
                         <filterset begintoken="$${" endtoken="}">
-                          <filter token="bundle.artifactId" value="${bundle.artifactId}"/>
+                          <filter token="project.artifactId" value="${project.artifactId}"/>
                         </filterset>
                         <fileset dir="../resources">
                           <include name="project.xml"/>

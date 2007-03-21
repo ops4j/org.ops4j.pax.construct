@@ -5,9 +5,11 @@ Bundle-Version: $(replace;${project.version};(\\d+(\\.\\d+)*)[-_]?([^.].*);$1.$3
 Bundle-SymbolicName: $(replace;${project.artifactId};-;_)
 
 <!--
-  by default, version and export all packages from the compilation classpath
+  by default, version and export all public packages from the compilation classpath
 -->
-Export-Package: *;version="$(replace;${project.version};(\\d+(\\.\\d+)?).*;$1)"
+Private-Package: ${bundle.package}.internal
+Export-Package: !${bundle.package}.internal,\
+  ${bundle.package}.*;version="$(replace;${project.version};(\\d+(\\.\\d+)?).*;$1)"
 
 <!--
   load project specific settings

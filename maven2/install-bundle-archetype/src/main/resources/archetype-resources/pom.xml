@@ -14,10 +14,10 @@
 
   <modelVersion>4.0.0</modelVersion>
   <groupId>${groupId}.dependencies</groupId>
-  <artifactId>${bundle.artifactId}</artifactId>
+  <artifactId>${bundle.groupId}.${bundle.artifactId}</artifactId>
   <version>${bundle.version}</version>
 
-  <name>${bundle.artifactId} (installed)</name>
+  <name>${project.artifactId} (installed)</name>
 
   <packaging>pom</packaging>
 
