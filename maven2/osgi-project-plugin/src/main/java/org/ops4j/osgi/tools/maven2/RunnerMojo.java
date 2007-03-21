@@ -149,22 +149,27 @@ public class RunnerMojo
     {
         try
         {
+            File pomFile = m_runnerPom.getFile();
+
             m_runnerPom.setDependencies( m_dependencies );
-            m_runnerPom.writeModel( new FileWriter( m_runnerPom.getFile() ) );
+            m_runnerPom.writeModel( new FileWriter( pomFile ) );
 
             Commandline installPomCmd = new Commandline();
             installPomCmd.setExecutable( mvn.getAbsolutePath() );
             installPomCmd.createArgument().setValue( "-N" );
             installPomCmd.createArgument().setValue( "-f" );
-            installPomCmd.createArgument().setValue( m_runnerPom.getFile().getAbsolutePath() );
+            installPomCmd.createArgument().setValue( pomFile.getAbsolutePath() );
             installPomCmd.createArgument().setValue( "install" );
 
             CommandLineUtils.executeCommandLine( installPomCmd, null, null );
 
             if ( deploy )
             {
+                String workDir = pomFile.getParent() + File.separator + "work";
+
                 String[] deployAppCmds =
                 {
+                    "--dir="+workDir,
                     "--clean", "--no-md5",
                     "--platform="+platform,
                     m_runnerPom.getGroupId(),
