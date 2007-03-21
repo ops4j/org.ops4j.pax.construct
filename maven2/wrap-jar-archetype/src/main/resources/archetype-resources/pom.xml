@@ -6,9 +6,10 @@
     <version>0.1.0-SNAPSHOT</version>
   </parent>
 
+#set( $trim = $package.length() + 1 )
   <properties>
     <jar.groupId>${package}</jar.groupId>
-    <jar.artifactId>${artifactId}</jar.artifactId>
+    <jar.artifactId>$artifactId.substring($trim)</jar.artifactId>
     <jar.version>${version}</jar.version>
   </properties>
 

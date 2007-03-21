@@ -64,7 +64,7 @@ public class InstallMojo
         commandLine.createArgument().setValue( "-DgroupId="+project.getGroupId().replaceFirst( "\\.build$", "" ) );
 
         commandLine.createArgument().setValue( "-DpackageName="+groupId );
-        commandLine.createArgument().setValue( "-DartifactId="+artifactId );
+        commandLine.createArgument().setValue( "-DartifactId="+groupId+"."+artifactId );
         commandLine.createArgument().setValue( "-Dversion="+version );
 
         commandLine.createArgument().setValue( "-Duser.dir="+project.getBasedir() );
