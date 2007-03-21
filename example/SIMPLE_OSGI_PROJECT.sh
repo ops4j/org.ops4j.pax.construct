@@ -28,3 +28,5 @@ cd ../..
 
 mvn install
 
+mvn -s ${SETTINGS} osgi-project:runner -Ddeploy=true
+
