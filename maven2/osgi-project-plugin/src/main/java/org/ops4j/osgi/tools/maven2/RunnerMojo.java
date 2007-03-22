@@ -101,7 +101,7 @@ public class RunnerMojo
 
     private void initializeRunnerPom()
     {
-        m_runnerPom.setGroupId( project.getGroupId() );
+        m_runnerPom.setGroupId( project.getGroupId()+"."+project.getArtifactId() );
         m_runnerPom.setArtifactId( "runner" );
         m_runnerPom.setVersion( project.getVersion() );
 
