@@ -21,11 +21,10 @@ import org.codehaus.plexus.util.cli.Commandline;
 
 /**
  * Create a new skeleton bundle and add it to an existing OSGi project.
- *
+ * 
  * @goal create-bundle
  */
-public class OSGiBundleArchetypeMojo
-    extends AbstractArchetypeMojo
+public class OSGiBundleArchetypeMojo extends AbstractArchetypeMojo
 {
     /**
      * The package of the new bundle.
@@ -54,20 +53,20 @@ public class OSGiBundleArchetypeMojo
     protected boolean checkEnvironment()
         throws MojoExecutionException
     {
-        return project.getArtifactId().equals("compile-bundle");
+        return project.getArtifactId().equals( "compile-bundle" );
     }
 
     protected void addAdditionalArguments( Commandline commandLine )
     {
         commandLine.createArgument().setValue( "-DarchetypeArtifactId=maven-archetype-osgi-bundle" );
 
-        commandLine.createArgument().setValue( "-DgroupId="+project.getGroupId().replaceFirst( "\\.build$", ".bundles" ) );
+        commandLine.createArgument().setValue(
+            "-DgroupId=" + project.getGroupId().replaceFirst( "\\.build$", ".bundles" ) );
 
-        commandLine.createArgument().setValue( "-DpackageName="+packageName );
-        commandLine.createArgument().setValue( "-DartifactId="+bundleName );
-        commandLine.createArgument().setValue( "-Dversion="+version );
+        commandLine.createArgument().setValue( "-DpackageName=" + packageName );
+        commandLine.createArgument().setValue( "-DartifactId=" + bundleName );
+        commandLine.createArgument().setValue( "-Dversion=" + version );
 
-        commandLine.createArgument().setValue( "-Duser.dir="+project.getBasedir() );
+        commandLine.createArgument().setValue( "-Duser.dir=" + project.getBasedir() );
     }
 }
-

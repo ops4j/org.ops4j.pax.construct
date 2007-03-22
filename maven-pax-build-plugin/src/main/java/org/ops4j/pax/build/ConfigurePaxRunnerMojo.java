@@ -16,29 +16,26 @@ package org.ops4j.pax.build;
  * limitations under the License.
  */
 
+import java.io.File;
+import java.io.FileWriter;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Properties;
+
 import org.apache.maven.model.Dependency;
 import org.apache.maven.model.Model;
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.project.MavenProject;
-import org.codehaus.plexus.util.cli.CommandLineException;
 import org.codehaus.plexus.util.cli.CommandLineUtils;
 import org.codehaus.plexus.util.cli.Commandline;
 
-import java.io.File;
-import java.io.FileWriter;
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Properties;
-
 /**
  * Create configuration pom file for provisioning via Pax-Runner
- *
+ * 
  * @goal provision
  */
-public class ConfigurePaxRunnerMojo
-    extends AbstractMojo
+public class ConfigurePaxRunnerMojo extends AbstractMojo
 {
     /**
      * @parameter expression="${maven.home}/bin/mvn"
@@ -48,7 +45,7 @@ public class ConfigurePaxRunnerMojo
 
     /**
      * The target OSGi project
-     *
+     * 
      * @parameter expression="${project}"
      */
     private MavenProject project;
@@ -101,7 +98,7 @@ public class ConfigurePaxRunnerMojo
 
     private void initializeRunnerPom()
     {
-        m_runnerPom.setGroupId( project.getGroupId()+"."+project.getArtifactId() );
+        m_runnerPom.setGroupId( project.getGroupId() + "." + project.getArtifactId() );
         m_runnerPom.setArtifactId( "runner" );
         m_runnerPom.setVersion( project.getVersion() );
 
@@ -151,6 +148,13 @@ public class ConfigurePaxRunnerMojo
         {
             File pomFile = m_runnerPom.getFile();
 
+            if ( m_dependencies.size() == 0 )
+            {
+                getLog().info( "~~~~~~~~~~~~~~~~~~~" );
+                getLog().info( " No bundles found! " );
+                getLog().info( "~~~~~~~~~~~~~~~~~~~" );
+            }
+
             m_runnerPom.setDependencies( m_dependencies );
             m_runnerPom.writeModel( new FileWriter( pomFile ) );
 
@@ -163,15 +167,15 @@ public class ConfigurePaxRunnerMojo
 
             CommandLineUtils.executeCommandLine( installPomCmd, null, null );
 
-            if ( deploy )
+            if ( m_dependencies.size() > 0 && deploy )
             {
                 String workDir = pomFile.getParent() + File.separator + "work";
 
                 String[] deployAppCmds =
                 {
-                    "--dir="+workDir,
+                    "--dir=" + workDir,
                     "--clean", "--no-md5",
-                    "--platform="+platform,
+                    "--platform=" + platform,
                     m_runnerPom.getGroupId(),
                     m_runnerPom.getArtifactId(),
                     m_runnerPom.getVersion()
@@ -186,4 +190,3 @@ public class ConfigurePaxRunnerMojo
         }
     }
 }
-

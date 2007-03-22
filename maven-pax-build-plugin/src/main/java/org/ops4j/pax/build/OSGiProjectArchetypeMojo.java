@@ -21,12 +21,11 @@ import org.codehaus.plexus.util.cli.Commandline;
 
 /**
  * Creates a new skeleton OSGi project.
- *
+ * 
  * @requiresProject false
  * @goal create-project
  */
-public class OSGiProjectArchetypeMojo
-    extends AbstractArchetypeMojo
+public class OSGiProjectArchetypeMojo extends AbstractArchetypeMojo
 {
     /**
      * The groupId of the new OSGi project.
@@ -59,10 +58,9 @@ public class OSGiProjectArchetypeMojo
     {
         commandLine.createArgument().setValue( "-DarchetypeArtifactId=maven-archetype-osgi-project" );
 
-        commandLine.createArgument().setValue( "-DgroupId="+groupId );
-        commandLine.createArgument().setValue( "-DartifactId="+artifactId );
+        commandLine.createArgument().setValue( "-DgroupId=" + groupId );
+        commandLine.createArgument().setValue( "-DartifactId=" + artifactId );
 
-        commandLine.createArgument().setValue( "-DpackageName="+groupId+"."+artifactId );
+        commandLine.createArgument().setValue( "-DpackageName=" + groupId + "." + artifactId );
     }
 }
-

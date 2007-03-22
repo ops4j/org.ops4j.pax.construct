@@ -16,6 +16,8 @@ package org.ops4j.pax.build;
  * limitations under the License.
  */
 
+import java.io.File;
+
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.project.MavenProject;
@@ -24,13 +26,10 @@ import org.codehaus.plexus.util.cli.CommandLineUtils;
 import org.codehaus.plexus.util.cli.Commandline;
 import org.codehaus.plexus.util.cli.StreamConsumer;
 
-import java.io.File;
-
 /**
  * Foundation for all OSGi project goals that use archetypes.
  */
-public abstract class AbstractArchetypeMojo
-    extends AbstractMojo
+public abstract class AbstractArchetypeMojo extends AbstractMojo
 {
     /**
      * @parameter expression="${maven.home}/bin/mvn"
@@ -45,7 +44,7 @@ public abstract class AbstractArchetypeMojo
 
     /**
      * The containing OSGi project
-     *
+     * 
      * @parameter expression="${project}"
      */
     protected MavenProject project;
@@ -66,8 +65,8 @@ public abstract class AbstractArchetypeMojo
         commandLine.setExecutable( mvn.getAbsolutePath() );
 
         commandLine.createArgument().setValue( "archetype:create" );
-        commandLine.createArgument().setValue( "-DarchetypeGroupId="+archetypeGroupId );
-        commandLine.createArgument().setValue( "-DarchetypeVersion="+archetypeVersion );
+        commandLine.createArgument().setValue( "-DarchetypeGroupId=" + archetypeGroupId );
+        commandLine.createArgument().setValue( "-DarchetypeVersion=" + archetypeVersion );
 
         addAdditionalArguments( commandLine );
 
@@ -105,4 +104,3 @@ public abstract class AbstractArchetypeMojo
 
     abstract protected void addAdditionalArguments( Commandline commandLine );
 }
-

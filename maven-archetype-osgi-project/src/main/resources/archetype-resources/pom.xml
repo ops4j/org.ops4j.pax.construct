@@ -42,6 +42,16 @@
     <module>bundles</module>
   </modules>
 
+  <build>
+    <plugins>
+      <plugin>
+        <groupId>org.ops4j.pax.build</groupId>
+        <artifactId>maven-pax-build-plugin</artifactId>
+        <inherited>false</inherited>
+      </plugin>
+    </plugins>
+  </build>
+
   <repositories>
     <repository>
       <id>ops4j</id>
