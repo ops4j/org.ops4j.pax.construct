@@ -1,4 +1,4 @@
-package org.ops4j.osgi.tools.maven2;
+package org.ops4j.pax.build;
 
 /*
  * Copyright 2007 Stuart McCulloch
@@ -24,7 +24,7 @@ import org.codehaus.plexus.util.cli.Commandline;
  *
  * @goal create-bundle
  */
-public class CompileMojo
+public class OSGiBundleArchetypeMojo
     extends AbstractArchetypeMojo
 {
     /**

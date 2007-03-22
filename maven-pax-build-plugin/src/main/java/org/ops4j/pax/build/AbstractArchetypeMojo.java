@@ -1,4 +1,4 @@
-package org.ops4j.osgi.tools.maven2;
+package org.ops4j.pax.build;
 
 /*
  * Copyright 2007 Stuart McCulloch

@@ -1,4 +1,4 @@
-package org.ops4j.osgi.tools.maven2;
+package org.ops4j.pax.build;
 
 /*
  * Copyright 2007 Stuart McCulloch
@@ -37,7 +37,7 @@ import java.util.Properties;
  *
  * @goal provision
  */
-public class RunnerMojo
+public class ConfigurePaxRunnerMojo
     extends AbstractMojo
 {
     /**
