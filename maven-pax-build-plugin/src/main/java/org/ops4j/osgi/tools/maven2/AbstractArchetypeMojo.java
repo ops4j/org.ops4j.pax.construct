@@ -50,7 +50,7 @@ public abstract class AbstractArchetypeMojo
      */
     protected MavenProject project;
 
-    private final static String archetypeGroupId = "org.ops4j.osgi.tools.maven2";
+    private final static String archetypeGroupId = "org.ops4j.pax.build";
     private final static String archetypeVersion = "0.1.0-SNAPSHOT"; // TODO: use RELEASE/LATEST when deployed?
 
     public void execute()

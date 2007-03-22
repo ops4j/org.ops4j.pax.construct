@@ -20,15 +20,15 @@ import org.apache.maven.plugin.MojoExecutionException;
 import org.codehaus.plexus.util.cli.Commandline;
 
 /**
- * Goal which adds an installed bundle to an existing OSGi project.
+ * Goal which adds a wrapped jarfile to an existing OSGi project.
  *
- * @goal install
+ * @goal wrap
  */
-public class InstallMojo
+public class WrapMojo
     extends AbstractArchetypeMojo
 {
     /**
-     * The groupId of the bundle to install.
+     * The groupId of the jarfile to wrap.
      * 
      * @parameter expression="${groupId}"
      * @required
@@ -36,7 +36,7 @@ public class InstallMojo
     private String groupId;
 
     /**
-     * The artifactId of the bundle to install.
+     * The artifactId of the jarfile to wrap.
      * 
      * @parameter expression="${artifactId}"
      * @required
@@ -44,7 +44,7 @@ public class InstallMojo
     private String artifactId;
 
     /**
-     * The version of the bundle to install.
+     * The version of the jarfile to wrap.
      * 
      * @parameter expression="${version}"
      * @required
@@ -54,14 +54,14 @@ public class InstallMojo
     protected boolean checkEnvironment()
         throws MojoExecutionException
     {
-        return project.getArtifactId().equals("install-bundle");
+        return project.getArtifactId().equals("wrap-jar-as-bundle");
     }
 
     protected void addAdditionalArguments( Commandline commandLine )
     {
-        commandLine.createArgument().setValue( "-DarchetypeArtifactId=install-bundle-archetype" );
+        commandLine.createArgument().setValue( "-DarchetypeArtifactId=maven-archetype-osgi-wrapper" );
 
-        commandLine.createArgument().setValue( "-DgroupId="+project.getGroupId().replaceFirst( "\\.build$", ".dependencies" ) );
+        commandLine.createArgument().setValue( "-DgroupId="+project.getGroupId().replaceFirst( "\\.build$", ".bundles" ) );
 
         commandLine.createArgument().setValue( "-DpackageName="+groupId );
         commandLine.createArgument().setValue( "-DartifactId="+groupId+"."+artifactId );

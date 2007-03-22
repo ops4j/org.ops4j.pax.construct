@@ -1,14 +1,14 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project>
   <parent>
-    <groupId>org.ops4j.osgi.build</groupId>
-    <artifactId>tools</artifactId>
+    <groupId>org.ops4j.pax</groupId>
+    <artifactId>build</artifactId>
     <version>0.1.0-SNAPSHOT</version>
   </parent>
 
   <modelVersion>4.0.0</modelVersion>
-  <groupId>org.ops4j.osgi.tools.maven2</groupId>
-  <artifactId>osgi-project-plugin</artifactId>
+  <groupId>org.ops4j.pax.build</groupId>
+  <artifactId>maven-pax-build-plugin</artifactId>
   <version>0.1.0-SNAPSHOT</version>
 
   <name>Maven Mojo - OSGi project shortcuts</name>
@@ -44,12 +44,5 @@
       <scope>runtime</scope>
     </dependency>
   </dependencies>
-
-  <repositories>
-    <repository>
-      <id>ops4j</id>
-      <url>http://repository.ops4j.org/maven2/</url>
-    </repository>
-  </repositories>
 
 </project>

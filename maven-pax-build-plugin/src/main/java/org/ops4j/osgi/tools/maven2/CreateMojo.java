@@ -20,15 +20,16 @@ import org.apache.maven.plugin.MojoExecutionException;
 import org.codehaus.plexus.util.cli.Commandline;
 
 /**
- * Goal which adds a wrapped jarfile to an existing OSGi project.
+ * Goal which creates a new OSGi project.
  *
- * @goal wrap
+ * @requiresProject false
+ * @goal create
  */
-public class WrapMojo
+public class CreateMojo
     extends AbstractArchetypeMojo
 {
     /**
-     * The groupId of the jarfile to wrap.
+     * The groupId of the OSGi project to create.
      * 
      * @parameter expression="${groupId}"
      * @required
@@ -36,38 +37,32 @@ public class WrapMojo
     private String groupId;
 
     /**
-     * The artifactId of the jarfile to wrap.
+     * The artifactId of the OSGi project to create.
      * 
      * @parameter expression="${artifactId}"
      * @required
      */
     private String artifactId;
 
-    /**
-     * The version of the jarfile to wrap.
-     * 
-     * @parameter expression="${version}"
-     * @required
-     */
-    private String version;
-
     protected boolean checkEnvironment()
         throws MojoExecutionException
     {
-        return project.getArtifactId().equals("wrap-jar-as-bundle");
+        if ( project.getFile() != null )
+        {
+            throw new MojoExecutionException( "Cannot use this plugin inside an existing project." );
+        }
+
+        return true;
     }
 
     protected void addAdditionalArguments( Commandline commandLine )
     {
-        commandLine.createArgument().setValue( "-DarchetypeArtifactId=wrap-jar-archetype" );
+        commandLine.createArgument().setValue( "-DarchetypeArtifactId=maven-archetype-osgi-project" );
 
-        commandLine.createArgument().setValue( "-DgroupId="+project.getGroupId().replaceFirst( "\\.build$", ".bundles" ) );
+        commandLine.createArgument().setValue( "-DgroupId="+groupId );
+        commandLine.createArgument().setValue( "-DartifactId="+artifactId );
 
-        commandLine.createArgument().setValue( "-DpackageName="+groupId );
-        commandLine.createArgument().setValue( "-DartifactId="+groupId+"."+artifactId );
-        commandLine.createArgument().setValue( "-Dversion="+version );
-
-        commandLine.createArgument().setValue( "-Duser.dir="+project.getBasedir() );
+        commandLine.createArgument().setValue( "-DpackageName="+groupId+"."+artifactId );
     }
 }
 
