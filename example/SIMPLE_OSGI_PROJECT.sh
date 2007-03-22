@@ -22,7 +22,7 @@ mvn -s ${SETTINGS} osgi-project:install -DgroupId=org.ungoverned.osgi.bundle -Da
 
 cd ../compile
 
-mvn -s ${SETTINGS} osgi-project:compile -DgroupId=my.osgi.code.myBundle -DartifactId=myBundle -Dversion=0.1.0-SNAPSHOT
+mvn -s ${SETTINGS} osgi-project:compile -Dpackage=my.osgi.code.myBundle -Dname=myBundle -Dversion=0.1.0-SNAPSHOT
 
 cd ../..
 

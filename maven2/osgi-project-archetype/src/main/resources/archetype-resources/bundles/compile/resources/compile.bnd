@@ -8,8 +8,8 @@ Bundle-SymbolicName: $(replace;${dollar}{project.artifactId};-;_)
 <!--
   by default, version and export all public packages from the compilation classpath
 -->
-Private-Package: ${dollar}{bundle.package}.internal
-Export-Package: !${dollar}{bundle.package}.internal,\
+Private-Package: *.internal*
+Export-Package: !*.internal*,\
   ${dollar}{bundle.package}.*;version="$(replace;${dollar}{project.version};(\\d+(\\.\\d+)?).*;$1)"
 
 <!--

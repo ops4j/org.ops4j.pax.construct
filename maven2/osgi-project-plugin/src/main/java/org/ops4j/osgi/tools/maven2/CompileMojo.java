@@ -28,20 +28,20 @@ public class CompileMojo
     extends AbstractArchetypeMojo
 {
     /**
-     * The groupId of the bundle to compile.
+     * The package of the bundle to compile.
      * 
-     * @parameter expression="${groupId}"
+     * @parameter expression="${package}"
      * @required
      */
-    private String groupId;
+    private String packageName;
 
     /**
-     * The artifactId of the bundle to compile.
+     * The name of the bundle to compile.
      * 
-     * @parameter expression="${artifactId}"
+     * @parameter expression="${name}"
      * @required
      */
-    private String artifactId;
+    private String bundleName;
 
     /**
      * The version of the bundle to compile.
@@ -61,10 +61,10 @@ public class CompileMojo
     {
         commandLine.createArgument().setValue( "-DarchetypeArtifactId=compile-bundle-archetype" );
 
-        commandLine.createArgument().setValue( "-DgroupId="+project.getGroupId().replaceFirst( "\\.build$", "" ) );
+        commandLine.createArgument().setValue( "-DgroupId="+project.getGroupId().replaceFirst( "\\.build$", ".bundles" ) );
 
-        commandLine.createArgument().setValue( "-DpackageName="+groupId );
-        commandLine.createArgument().setValue( "-DartifactId="+artifactId );
+        commandLine.createArgument().setValue( "-DpackageName="+packageName );
+        commandLine.createArgument().setValue( "-DartifactId="+bundleName );
         commandLine.createArgument().setValue( "-Dversion="+version );
 
         commandLine.createArgument().setValue( "-Duser.dir="+project.getBasedir() );

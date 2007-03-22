@@ -1,1 +1,3 @@
-Bundle-Activator: ${package}.internal.Activator
+#literal()
+Bundle-Activator: ${bundle.package}.internal.Activator
+#end

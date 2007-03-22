@@ -61,7 +61,7 @@ public class InstallMojo
     {
         commandLine.createArgument().setValue( "-DarchetypeArtifactId=install-bundle-archetype" );
 
-        commandLine.createArgument().setValue( "-DgroupId="+project.getGroupId().replaceFirst( "\\.build$", "" ) );
+        commandLine.createArgument().setValue( "-DgroupId="+project.getGroupId().replaceFirst( "\\.build$", ".dependencies" ) );
 
         commandLine.createArgument().setValue( "-DpackageName="+groupId );
         commandLine.createArgument().setValue( "-DartifactId="+groupId+"."+artifactId );
