@@ -20,16 +20,16 @@ import org.apache.maven.plugin.MojoExecutionException;
 import org.codehaus.plexus.util.cli.Commandline;
 
 /**
- * Goal which creates a new OSGi project.
+ * Creates a new skeleton OSGi project.
  *
  * @requiresProject false
- * @goal create
+ * @goal create-project
  */
 public class CreateMojo
     extends AbstractArchetypeMojo
 {
     /**
-     * The groupId of the OSGi project to create.
+     * The groupId of the new OSGi project.
      * 
      * @parameter expression="${groupId}"
      * @required
@@ -37,7 +37,7 @@ public class CreateMojo
     private String groupId;
 
     /**
-     * The artifactId of the OSGi project to create.
+     * The artifactId of the new OSGi project.
      * 
      * @parameter expression="${artifactId}"
      * @required

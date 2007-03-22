@@ -20,15 +20,15 @@ import org.apache.maven.plugin.MojoExecutionException;
 import org.codehaus.plexus.util.cli.Commandline;
 
 /**
- * Goal which adds an compiled bundle to an existing OSGi project.
+ * Create a new skeleton bundle and add it to an existing OSGi project.
  *
- * @goal compile
+ * @goal create-bundle
  */
 public class CompileMojo
     extends AbstractArchetypeMojo
 {
     /**
-     * The package of the bundle to compile.
+     * The package of the new bundle.
      * 
      * @parameter expression="${package}"
      * @required
@@ -36,7 +36,7 @@ public class CompileMojo
     private String packageName;
 
     /**
-     * The name of the bundle to compile.
+     * The name of the new bundle.
      * 
      * @parameter expression="${name}"
      * @required
@@ -44,7 +44,7 @@ public class CompileMojo
     private String bundleName;
 
     /**
-     * The version of the bundle to compile.
+     * The version of the new bundle.
      * 
      * @parameter expression="${version}"
      * @required

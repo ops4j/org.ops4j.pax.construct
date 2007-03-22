@@ -15,7 +15,7 @@
   <artifactId>${artifactId}</artifactId>
   <version>${dollar}{bundle.version}</version>
 
-  <name>${dollar}{project.artifactId} (installed)</name>
+  <name>${dollar}{project.artifactId} (imported)</name>
 
   <packaging>pom</packaging>
 

@@ -2,31 +2,31 @@
 
 SETTINGS=`dirname $0`/settings.xml
 
-mvn -s ${SETTINGS} pax-build:create -DgroupId=simple.project -DartifactId=osgi-web-app
+mvn -s ${SETTINGS} pax-build:create-project -DgroupId=simple.project -DartifactId=osgi-web-app
 
 cd osgi-web-app
 
 mvn install
 
-cd bundles/wrap
+cd bundles/wrappers
 
-mvn -s ${SETTINGS} pax-build:wrap -DgroupId=javax.servlet -DartifactId=servlet-api -Dversion=2.5
+mvn -s ${SETTINGS} pax-build:wrap-jar -DgroupId=javax.servlet -DartifactId=servlet-api -Dversion=2.5
 
-cd ../install
+cd ../imported
 
-mvn -s ${SETTINGS} pax-build:install -DgroupId=org.ops4j.pax.logging -DartifactId=api -Dversion=0.9.4
-mvn -s ${SETTINGS} pax-build:install -DgroupId=org.ops4j.pax.logging -DartifactId=jcl -Dversion=0.9.4
-mvn -s ${SETTINGS} pax-build:install -DgroupId=org.ops4j.pax.logging -DartifactId=slf4j -Dversion=0.9.4
+mvn -s ${SETTINGS} pax-build:import-bundle -DgroupId=org.ops4j.pax.logging -DartifactId=api -Dversion=0.9.4
+mvn -s ${SETTINGS} pax-build:import-bundle -DgroupId=org.ops4j.pax.logging -DartifactId=jcl -Dversion=0.9.4
+mvn -s ${SETTINGS} pax-build:import-bundle -DgroupId=org.ops4j.pax.logging -DartifactId=slf4j -Dversion=0.9.4
 
-mvn -s ${SETTINGS} pax-build:install -DgroupId=org.ungoverned.osgi.bundle -DartifactId=http -Dversion=1.1.2
+mvn -s ${SETTINGS} pax-build:import-bundle -DgroupId=org.ungoverned.osgi.bundle -DartifactId=http -Dversion=1.1.2
 
-cd ../compile
+cd ../compiled
 
-mvn -s ${SETTINGS} pax-build:compile -Dpackage=my.osgi.code.myBundle -Dname=myBundle -Dversion=0.1.0-SNAPSHOT
+mvn -s ${SETTINGS} pax-build:create-bundle -Dpackage=my.osgi.code.myBundle -Dname=myBundle -Dversion=0.1.0-SNAPSHOT
 
 cd ../..
 
 mvn install
 
-mvn -s ${SETTINGS} pax-build:runner -Ddeploy=true
+mvn -s ${SETTINGS} pax-build:provision
 

@@ -1,4 +1,4 @@
 <archetype>
-  <id>wrap-jar-archetype</id>
+  <id>maven-archetype-osgi-wrapper</id>
   <allowPartial>true</allowPartial>
 </archetype>

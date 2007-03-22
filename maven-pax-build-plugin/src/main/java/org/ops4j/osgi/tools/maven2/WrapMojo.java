@@ -20,9 +20,9 @@ import org.apache.maven.plugin.MojoExecutionException;
 import org.codehaus.plexus.util.cli.Commandline;
 
 /**
- * Goal which adds a wrapped jarfile to an existing OSGi project.
+ * Wrap a third-party jar as a bundle and add it to an existing OSGi project.
  *
- * @goal wrap
+ * @goal wrap-jar
  */
 public class WrapMojo
     extends AbstractArchetypeMojo

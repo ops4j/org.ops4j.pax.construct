@@ -16,9 +16,9 @@
   <packaging>pom</packaging>
 
   <modules>
-    <module>wrap</module>
-    <module>install</module>
-    <module>compile</module>
+    <module>wrappers</module>
+    <module>imported</module>
+    <module>compiled</module>
   </modules>
 
   <build>
@@ -118,7 +118,7 @@
                     <else>
 
                       <!--
-                        copy and patch eclipse project templates for 'install' pom projects
+                        copy and patch eclipse project templates for imported pom projects
                       -->
                       <copy todir="${project.build.directory}" overwrite="true">
                         <globmapper from="*.xml" to=".*"/>

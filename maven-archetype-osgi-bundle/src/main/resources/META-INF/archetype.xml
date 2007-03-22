@@ -1,5 +1,5 @@
 <archetype>
-  <id>compile-bundle-archetype</id>
+  <id>maven-archetype-osgi-bundle</id>
   <allowPartial>true</allowPartial>
   <sources>
     <source>src/main/java/Service.java</source>

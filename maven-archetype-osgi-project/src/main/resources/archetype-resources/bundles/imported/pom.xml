@@ -8,9 +8,9 @@
 #literal()
 
   <modelVersion>4.0.0</modelVersion>
-  <artifactId>install-bundle</artifactId>
+  <artifactId>import-bundle</artifactId>
 
-  <name>OSGi bundles installed from Maven/OBR</name>
+  <name>OSGi bundles imported from Maven/OBR</name>
 
   <organization/>
   <description>
@@ -44,7 +44,7 @@
           </configuration>
           <executions>
             <execution>
-              <id>install-bundle</id>
+              <id>import-bundle</id>
               <phase>package</phase>
               <goals>
                 <goal>unpack</goal>

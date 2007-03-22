@@ -33,9 +33,9 @@ import java.util.List;
 import java.util.Properties;
 
 /**
- * Create pom file for Pax-Runner, to enable provisioning
+ * Create configuration pom file for provisioning via Pax-Runner
  *
- * @goal runner
+ * @goal provision
  */
 public class RunnerMojo
     extends AbstractMojo
@@ -47,7 +47,7 @@ public class RunnerMojo
     private File mvn;
 
     /**
-     * The containing OSGi project
+     * The target OSGi project
      *
      * @parameter expression="${project}"
      */
@@ -61,7 +61,7 @@ public class RunnerMojo
     private List reactorProjects;
 
     /**
-     * @parameter expression="${deploy}" default-value="false"
+     * @parameter expression="${deploy}" default-value="true"
      */
     private boolean deploy;
 
@@ -124,7 +124,7 @@ public class RunnerMojo
     {
         String thisGroupId = project.getGroupId();
 
-        if ( thisGroupId.endsWith( ".dependencies" ) )
+        if ( thisGroupId.endsWith( ".imports" ) )
         {
             Properties props = project.getProperties();
 

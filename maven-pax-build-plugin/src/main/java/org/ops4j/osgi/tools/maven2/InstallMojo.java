@@ -20,15 +20,15 @@ import org.apache.maven.plugin.MojoExecutionException;
 import org.codehaus.plexus.util.cli.Commandline;
 
 /**
- * Goal which adds an installed bundle to an existing OSGi project.
+ * Import a bundle from Maven/OBR and add it to an existing OSGi project.
  *
- * @goal install
+ * @goal import-bundle
  */
 public class InstallMojo
     extends AbstractArchetypeMojo
 {
     /**
-     * The groupId of the bundle to install.
+     * The groupId of the bundle to import.
      * 
      * @parameter expression="${groupId}"
      * @required
@@ -36,7 +36,7 @@ public class InstallMojo
     private String groupId;
 
     /**
-     * The artifactId of the bundle to install.
+     * The artifactId of the bundle to import.
      * 
      * @parameter expression="${artifactId}"
      * @required
@@ -44,7 +44,7 @@ public class InstallMojo
     private String artifactId;
 
     /**
-     * The version of the bundle to install.
+     * The version of the bundle to import.
      * 
      * @parameter expression="${version}"
      * @required
@@ -54,14 +54,14 @@ public class InstallMojo
     protected boolean checkEnvironment()
         throws MojoExecutionException
     {
-        return project.getArtifactId().equals("install-bundle");
+        return project.getArtifactId().equals("import-bundle");
     }
 
     protected void addAdditionalArguments( Commandline commandLine )
     {
         commandLine.createArgument().setValue( "-DarchetypeArtifactId=maven-archetype-osgi-import" );
 
-        commandLine.createArgument().setValue( "-DgroupId="+project.getGroupId().replaceFirst( "\\.build$", ".dependencies" ) );
+        commandLine.createArgument().setValue( "-DgroupId="+project.getGroupId().replaceFirst( "\\.build$", ".imports" ) );
 
         commandLine.createArgument().setValue( "-DpackageName="+groupId );
         commandLine.createArgument().setValue( "-DartifactId="+groupId+"."+artifactId );
