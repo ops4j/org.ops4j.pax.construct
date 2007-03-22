@@ -59,8 +59,10 @@ public class CreateMojo
     {
         commandLine.createArgument().setValue( "-DarchetypeArtifactId=osgi-project-archetype" );
 
-        commandLine.createArgument().setValue( "-DgroupId="+groupId+"."+artifactId );
-        commandLine.createArgument().setValue( "-DartifactId="+artifactId.replace('.','-') );
+        commandLine.createArgument().setValue( "-DgroupId="+groupId );
+        commandLine.createArgument().setValue( "-DartifactId="+artifactId );
+
+        commandLine.createArgument().setValue( "-DpackageName="+groupId+"."+artifactId );
     }
 }
 

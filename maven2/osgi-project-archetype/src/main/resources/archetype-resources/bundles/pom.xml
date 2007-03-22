@@ -2,13 +2,14 @@
 <project>
   <parent>
     <groupId>${groupId}</groupId>
-    <artifactId>build</artifactId>
+    <artifactId>${artifactId}</artifactId>
     <version>0.1.0-SNAPSHOT</version>
   </parent>
 
   <modelVersion>4.0.0</modelVersion>
-  <groupId>${groupId}.build</groupId>
+  <groupId>${package}.build</groupId>
   <artifactId>bundles</artifactId>
+#literal()
 
   <name/>
 
@@ -168,4 +169,5 @@
     </pluginManagement>
   </build>
 
+#end
 </project>

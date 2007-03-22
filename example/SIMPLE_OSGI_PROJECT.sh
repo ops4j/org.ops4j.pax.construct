@@ -2,7 +2,7 @@
 
 SETTINGS=`dirname $0`/settings.xml
 
-mvn -s ${SETTINGS} osgi-project:create -DgroupId=simple.project -DartifactId=osgi.web.app
+mvn -s ${SETTINGS} osgi-project:create -DgroupId=simple.project -DartifactId=osgi-web-app
 
 cd osgi-web-app
 
