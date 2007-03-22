@@ -49,11 +49,11 @@ limitations under the License.
 
   <modules>
     <module>maven2/bundle_plugin_patch</module>
-    <module>maven2/osgi-project-plugin</module>
-    <module>maven2/osgi-project-archetype</module>
-    <module>maven2/compile-bundle-archetype</module>
-    <module>maven2/install-bundle-archetype</module>
-    <module>maven2/wrap-jar-archetype</module>
+    <module>maven2/maven-archetype-osgi-project</module>
+    <module>maven2/maven-archetype-osgi-bundle</module>
+    <module>maven2/maven-archetype-osgi-dependency</module>
+    <module>maven2/maven-archetype-osgi-wrapper</module>
+    <module>maven2/maven-pax-build-plugin</module>
   </modules>
 
 </project>
