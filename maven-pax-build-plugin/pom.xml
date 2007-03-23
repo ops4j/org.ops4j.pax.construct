@@ -35,6 +35,12 @@
       <groupId>org.ops4j.pax</groupId>
       <artifactId>runner</artifactId>
       <version>0.2.0</version>
+      <exclusions>
+        <exclusion>
+          <artifactId>junit</artifactId>
+          <groupId>junit</groupId>
+        </exclusion>
+      </exclusions>
     </dependency>
     <dependency>
       <groupId>org.apache.maven.plugins</groupId>
