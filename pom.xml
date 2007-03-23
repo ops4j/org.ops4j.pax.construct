@@ -56,17 +56,24 @@ limitations under the License.
     <module>maven-pax-build-plugin</module>
   </modules>
 
-  <url>http://wiki.ops4j.org/dokuwiki/doku.php?id=pax:build</url>
-
   <organization>
     <name>OPS4J</name>
     <url>http://www.ops4j.org</url>
   </organization>
 
+  <inceptionYear>2007</inceptionYear>
+
+  <url>http://www.ops4j.org/projects/pax/build</url>
+
   <scm>
     <connection>scm:svn:https://scm.ops4j.org/repos/ops4j/projects/pax/build</connection>
     <developerConnection>scm:svn:https://scm.ops4j.org/repos/ops4j/projects/pax/build</developerConnection>
   </scm>
+
+  <issueManagement>
+    <system>jira</system>
+    <url>http://issues.ops4j.org/jira/browse/PAXBUILD</url>
+  </issueManagement>
 
   <repositories>
     <repository>
