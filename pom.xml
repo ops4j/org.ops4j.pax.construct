@@ -37,7 +37,7 @@ limitations under the License.
   <artifactId>build</artifactId>
   <version>0.1.0-SNAPSHOT</version>
 
-  <name>Pax Build</name>
+  <name>OPS4J - Pax Build</name>
 
   <description>
     A series of tools to help piece together code, jars, and

@@ -11,7 +11,7 @@
   <artifactId>bundle_plugin_patch</artifactId>
   <version>0.1.0-SNAPSHOT</version>
 
-  <name>Maven bundle plugin patch (FELIX-218)</name>
+  <name>OPS4J - Maven bundle plugin patch (FELIX-218)</name>
 
   <description>
     Use bundle dependency to copy patched bundle plugin into local repository

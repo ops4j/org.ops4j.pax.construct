@@ -11,6 +11,6 @@
   <artifactId>maven-archetype-osgi-import</artifactId>
   <version>0.1.0-SNAPSHOT</version>
 
-  <name>Archetype - OSGi bundle imported from Maven/OBR</name>
+  <name>OPS4J - Archetype - OSGi bundle imported from Maven/OBR</name>
 
 </project>

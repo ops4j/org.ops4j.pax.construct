@@ -11,7 +11,7 @@
   <artifactId>maven-pax-build-plugin</artifactId>
   <version>0.1.0-SNAPSHOT</version>
 
-  <name>Maven Mojo - OSGi project shortcuts</name>
+  <name>OPS4J - Maven Mojo - OSGi project shortcuts</name>
 
   <packaging>maven-plugin</packaging>
 
