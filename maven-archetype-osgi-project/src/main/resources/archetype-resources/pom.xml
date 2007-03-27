@@ -45,8 +45,8 @@
   <build>
     <plugins>
       <plugin>
-        <groupId>org.ops4j.pax.build</groupId>
-        <artifactId>maven-pax-build-plugin</artifactId>
+        <groupId>org.ops4j.pax.construct</groupId>
+        <artifactId>maven-pax-plugin</artifactId>
         <inherited>false</inherited>
       </plugin>
     </plugins>

@@ -34,10 +34,10 @@ limitations under the License.
 
   <modelVersion>4.0.0</modelVersion>
   <groupId>org.ops4j.pax</groupId>
-  <artifactId>build</artifactId>
+  <artifactId>construct</artifactId>
   <version>0.1.0-SNAPSHOT</version>
 
-  <name>OPS4J - Pax Build</name>
+  <name>OPS4J - Pax Construct</name>
 
   <description>
     A series of tools to help piece together code, jars, and
@@ -62,16 +62,16 @@ limitations under the License.
 
   <inceptionYear>2007</inceptionYear>
 
-  <url>http://www.ops4j.org/projects/pax/build</url>
+  <url>http://www.ops4j.org/projects/pax/construct</url>
 
   <scm>
-    <connection>scm:svn:https://scm.ops4j.org/repos/ops4j/projects/pax/build</connection>
-    <developerConnection>scm:svn:https://scm.ops4j.org/repos/ops4j/projects/pax/build</developerConnection>
+    <connection>scm:svn:https://scm.ops4j.org/repos/ops4j/projects/pax/construct</connection>
+    <developerConnection>scm:svn:https://scm.ops4j.org/repos/ops4j/projects/pax/construct</developerConnection>
   </scm>
 
   <issueManagement>
     <system>jira</system>
-    <url>http://issues.ops4j.org/jira/browse/PAXBUILD</url>
+    <url>http://issues.ops4j.org/jira/browse/PAXCONSTRUCT</url>
   </issueManagement>
 
   <repositories>

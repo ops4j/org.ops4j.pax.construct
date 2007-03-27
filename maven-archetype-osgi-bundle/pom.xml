@@ -2,12 +2,12 @@
 <project>
   <parent>
     <groupId>org.ops4j.pax</groupId>
-    <artifactId>build</artifactId>
+    <artifactId>construct</artifactId>
     <version>0.1.0-SNAPSHOT</version>
   </parent>
 
   <modelVersion>4.0.0</modelVersion>
-  <groupId>org.ops4j.pax.build</groupId>
+  <groupId>org.ops4j.pax.construct</groupId>
   <artifactId>maven-archetype-osgi-bundle</artifactId>
   <version>0.1.0-SNAPSHOT</version>
 

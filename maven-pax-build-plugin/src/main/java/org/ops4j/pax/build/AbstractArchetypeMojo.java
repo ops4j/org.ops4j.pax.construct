@@ -49,7 +49,7 @@ public abstract class AbstractArchetypeMojo extends AbstractMojo
      */
     protected MavenProject project;
 
-    private final static String archetypeGroupId = "org.ops4j.pax.build";
+    private final static String archetypeGroupId = "org.ops4j.pax.construct";
     private final static String archetypeVersion = "0.1.0-SNAPSHOT"; // TODO: use RELEASE/LATEST when deployed?
 
     public void execute()

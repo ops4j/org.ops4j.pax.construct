@@ -1,5 +1,5 @@
 <projectDescription>
-  <name>maven-pax-build-plugin</name>
+  <name>maven-pax-plugin</name>
   <comment>A series of tools to help piece together code, jars, and
     bundles from different places into a single OSGi project
     built and managed by Maven</comment>
