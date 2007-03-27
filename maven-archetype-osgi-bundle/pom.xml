@@ -11,6 +11,6 @@
   <artifactId>maven-archetype-osgi-bundle</artifactId>
   <version>0.1.0-SNAPSHOT</version>
 
-  <name>OPS4J - Archetype - OSGi bundle compiled from source</name>
+  <name>OPS4J - Archetype: OSGi bundle compiled from source</name>
 
 </project>

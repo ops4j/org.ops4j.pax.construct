@@ -1,4 +1,4 @@
-package org.ops4j.pax.build;
+package org.ops4j.pax.construct;
 
 /*
  * Copyright 2007 Stuart McCulloch

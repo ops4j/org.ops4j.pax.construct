@@ -1,4 +1,4 @@
-package org.ops4j.pax.build;
+package org.ops4j.pax.construct;
 
 /*
  * Copyright 2007 Stuart McCulloch
@@ -20,15 +20,14 @@ import org.apache.maven.plugin.MojoExecutionException;
 import org.codehaus.plexus.util.cli.Commandline;
 
 /**
- * Creates a new skeleton OSGi project.
+ * Import a bundle from Maven/OBR and add it to an existing OSGi project.
  * 
- * @requiresProject false
- * @goal create-project
+ * @goal import-bundle
  */
-public class OSGiProjectArchetypeMojo extends AbstractArchetypeMojo
+public class OSGiImportArchetypeMojo extends AbstractArchetypeMojo
 {
     /**
-     * The groupId of the new OSGi project.
+     * The groupId of the bundle to import.
      * 
      * @parameter expression="${groupId}"
      * @required
@@ -36,31 +35,38 @@ public class OSGiProjectArchetypeMojo extends AbstractArchetypeMojo
     private String groupId;
 
     /**
-     * The artifactId of the new OSGi project.
+     * The artifactId of the bundle to import.
      * 
      * @parameter expression="${artifactId}"
      * @required
      */
     private String artifactId;
 
+    /**
+     * The version of the bundle to import.
+     * 
+     * @parameter expression="${version}"
+     * @required
+     */
+    private String version;
+
     protected boolean checkEnvironment()
         throws MojoExecutionException
     {
-        if ( project.getFile() != null )
-        {
-            throw new MojoExecutionException( "Cannot use this plugin inside an existing project." );
-        }
-
-        return true;
+        return project.getArtifactId().equals( "import-bundle" );
     }
 
     protected void addAdditionalArguments( Commandline commandLine )
     {
-        commandLine.createArgument().setValue( "-DarchetypeArtifactId=maven-archetype-osgi-project" );
+        commandLine.createArgument().setValue( "-DarchetypeArtifactId=maven-archetype-osgi-import" );
 
-        commandLine.createArgument().setValue( "-DgroupId=" + groupId );
-        commandLine.createArgument().setValue( "-DartifactId=" + artifactId );
+        commandLine.createArgument().setValue(
+            "-DgroupId=" + project.getGroupId().replaceFirst( "\\.build$", ".imports" ) );
 
-        commandLine.createArgument().setValue( "-DpackageName=" + groupId + "." + artifactId );
+        commandLine.createArgument().setValue( "-DpackageName=" + groupId );
+        commandLine.createArgument().setValue( "-DartifactId=" + groupId + "." + artifactId );
+        commandLine.createArgument().setValue( "-Dversion=" + version );
+
+        commandLine.createArgument().setValue( "-Duser.dir=" + project.getBasedir() );
     }
 }

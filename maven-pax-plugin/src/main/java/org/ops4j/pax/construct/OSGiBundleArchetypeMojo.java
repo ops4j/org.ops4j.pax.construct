@@ -1,4 +1,4 @@
-package org.ops4j.pax.build;
+package org.ops4j.pax.construct;
 
 /*
  * Copyright 2007 Stuart McCulloch
@@ -20,30 +20,30 @@ import org.apache.maven.plugin.MojoExecutionException;
 import org.codehaus.plexus.util.cli.Commandline;
 
 /**
- * Wrap a third-party jar as a bundle and add it to an existing OSGi project.
+ * Create a new skeleton bundle and add it to an existing OSGi project.
  * 
- * @goal wrap-jar
+ * @goal create-bundle
  */
-public class OSGiWrapperArchetypeMojo extends AbstractArchetypeMojo
+public class OSGiBundleArchetypeMojo extends AbstractArchetypeMojo
 {
     /**
-     * The groupId of the jarfile to wrap.
+     * The package of the new bundle.
      * 
-     * @parameter expression="${groupId}"
+     * @parameter expression="${package}"
      * @required
      */
-    private String groupId;
+    private String packageName;
 
     /**
-     * The artifactId of the jarfile to wrap.
+     * The name of the new bundle.
      * 
-     * @parameter expression="${artifactId}"
+     * @parameter expression="${name}"
      * @required
      */
-    private String artifactId;
+    private String bundleName;
 
     /**
-     * The version of the jarfile to wrap.
+     * The version of the new bundle.
      * 
      * @parameter expression="${version}"
      * @required
@@ -53,18 +53,18 @@ public class OSGiWrapperArchetypeMojo extends AbstractArchetypeMojo
     protected boolean checkEnvironment()
         throws MojoExecutionException
     {
-        return project.getArtifactId().equals( "wrap-jar-as-bundle" );
+        return project.getArtifactId().equals( "compile-bundle" );
     }
 
     protected void addAdditionalArguments( Commandline commandLine )
     {
-        commandLine.createArgument().setValue( "-DarchetypeArtifactId=maven-archetype-osgi-wrapper" );
+        commandLine.createArgument().setValue( "-DarchetypeArtifactId=maven-archetype-osgi-bundle" );
 
         commandLine.createArgument().setValue(
             "-DgroupId=" + project.getGroupId().replaceFirst( "\\.build$", ".bundles" ) );
 
-        commandLine.createArgument().setValue( "-DpackageName=" + groupId );
-        commandLine.createArgument().setValue( "-DartifactId=" + groupId + "." + artifactId );
+        commandLine.createArgument().setValue( "-DpackageName=" + packageName );
+        commandLine.createArgument().setValue( "-DartifactId=" + bundleName );
         commandLine.createArgument().setValue( "-Dversion=" + version );
 
         commandLine.createArgument().setValue( "-Duser.dir=" + project.getBasedir() );

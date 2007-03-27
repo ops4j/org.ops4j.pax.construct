@@ -11,6 +11,6 @@
   <artifactId>maven-archetype-osgi-project</artifactId>
   <version>0.1.0-SNAPSHOT</version>
 
-  <name>OPS4J - Archetype - Skeleton OSGi project</name>
+  <name>OPS4J - Archetype: Skeleton OSGi project</name>
 
 </project>
