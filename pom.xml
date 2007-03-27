@@ -48,7 +48,6 @@ limitations under the License.
   <packaging>pom</packaging>
 
   <modules>
-    <module>bundle_plugin_patch</module>
     <module>maven-archetype-osgi-project</module>
     <module>maven-archetype-osgi-wrapper</module>
     <module>maven-archetype-osgi-import</module>

@@ -83,7 +83,7 @@
           </configuration>
         </plugin>
         <plugin>
-          <groupId>org.apache.felix</groupId>
+          <groupId>org.ops4j.pax.maven</groupId>
           <artifactId>maven-bundle-plugin</artifactId>
           <extensions>true</extensions>
           <configuration>
