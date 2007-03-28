@@ -36,6 +36,7 @@
           <artifactId>maven-eclipse-plugin</artifactId>
           <configuration>
             <pde>true</pde>
+            <downloadSources>true</downloadSources>
             <!--
               pde setting breaks manifest (adds invalid empty line)
               so for now give it a non-existent file to play with
