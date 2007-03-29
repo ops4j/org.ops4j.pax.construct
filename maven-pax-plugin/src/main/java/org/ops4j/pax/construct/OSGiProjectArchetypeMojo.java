@@ -61,6 +61,6 @@ public class OSGiProjectArchetypeMojo extends AbstractArchetypeMojo
         commandLine.createArgument().setValue( "-DgroupId=" + groupId );
         commandLine.createArgument().setValue( "-DartifactId=" + artifactId );
 
-        commandLine.createArgument().setValue( "-DpackageName=" + groupId + "." + artifactId );
+        commandLine.createArgument().setValue( "-DpackageName=" + getCompoundName( groupId, artifactId ) );
     }
 }

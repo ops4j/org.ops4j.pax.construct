@@ -43,6 +43,11 @@ public abstract class AbstractArchetypeMojo extends AbstractMojo
     private boolean debug;
 
     /**
+     * @parameter expression="${compactNames}" default-value="true"
+     */
+    private boolean compactNames;
+
+    /**
      * The containing OSGi project
      * 
      * @parameter expression="${project}"
@@ -51,6 +56,16 @@ public abstract class AbstractArchetypeMojo extends AbstractMojo
 
     private final static String archetypeGroupId = "org.ops4j.pax.construct";
     private final static String archetypeVersion = "0.1.0-SNAPSHOT"; // TODO: use RELEASE/LATEST when deployed?
+
+    protected String getCompoundName( String groupId, String artifactId )
+    {
+        if ( compactNames && artifactId.startsWith( groupId ) )
+        {
+            return artifactId;
+        }
+
+        return groupId + "." + artifactId;
+    }
 
     public void execute()
         throws MojoExecutionException

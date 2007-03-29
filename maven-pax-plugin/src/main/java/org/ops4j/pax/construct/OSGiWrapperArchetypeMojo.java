@@ -64,7 +64,7 @@ public class OSGiWrapperArchetypeMojo extends AbstractArchetypeMojo
             "-DgroupId=" + project.getGroupId().replaceFirst( "\\.build$", ".bundles" ) );
 
         commandLine.createArgument().setValue( "-DpackageName=" + groupId );
-        commandLine.createArgument().setValue( "-DartifactId=" + groupId + "." + artifactId );
+        commandLine.createArgument().setValue( "-DartifactId=" + getCompoundName( groupId, artifactId ) );
         commandLine.createArgument().setValue( "-Dversion=" + version );
 
         commandLine.createArgument().setValue( "-Duser.dir=" + project.getBasedir() );

@@ -20,29 +20,152 @@ import java.io.File;
 import java.io.FileFilter;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.jar.JarFile;
 import java.util.jar.Manifest;
 
+import org.apache.maven.artifact.factory.ArtifactFactory;
+import org.apache.maven.artifact.metadata.ArtifactMetadataSource;
+import org.apache.maven.artifact.repository.ArtifactRepository;
+import org.apache.maven.artifact.resolver.ArtifactCollector;
+import org.apache.maven.artifact.resolver.ArtifactResolver;
 import org.apache.maven.plugin.MojoExecutionException;
+import org.apache.maven.plugin.eclipse.EclipsePlugin;
 import org.apache.maven.plugin.eclipse.EclipseSourceDir;
 import org.apache.maven.plugin.eclipse.writers.EclipseClasspathWriter;
 import org.apache.maven.plugin.eclipse.writers.EclipseProjectWriter;
 import org.apache.maven.plugin.eclipse.writers.EclipseSettingsWriter;
 import org.apache.maven.plugin.eclipse.writers.EclipseWriterConfig;
 import org.apache.maven.plugin.ide.IdeDependency;
-import org.ops4j.pax.construct.facades.EclipsePluginFacade;
+import org.apache.maven.project.MavenProject;
 
 /**
  * Extend maven-eclipse-plugin to get better classpath generation.
  * 
  * @goal eclipse
  */
-public class EclipseMojo extends EclipsePluginFacade
+public class EclipseMojo extends EclipsePlugin
 {
-    protected static class JarFileFilter implements FileFilter
+    /**
+     * @parameter expression="${project}"
+     * @required
+     * @readonly
+     */
+    protected MavenProject project;
+
+    /**
+     * @parameter expression="${project}"
+     * @readonly
+     */
+    protected MavenProject executedProject;
+
+    /**
+     * @component role="org.apache.maven.artifact.factory.ArtifactFactory"
+     * @required
+     * @readonly
+     */
+    protected ArtifactFactory artifactFactory;
+
+    /**
+     * @component role="org.apache.maven.artifact.resolver.ArtifactResolver"
+     * @required
+     * @readonly
+     */
+    protected ArtifactResolver artifactResolver;
+
+    /**
+     * @component role="org.apache.maven.artifact.resolver.ArtifactCollector"
+     * @required
+     * @readonly
+     */
+    protected ArtifactCollector artifactCollector;
+
+    /**
+     * @component role="org.apache.maven.artifact.metadata.ArtifactMetadataSource" hint="maven"
+     */
+    protected ArtifactMetadataSource artifactMetadataSource;
+
+    /**
+     * @parameter expression="${project.remoteArtifactRepositories}"
+     * @required
+     * @readonly
+     */
+    protected List remoteArtifactRepositories;
+
+    /**
+     * @parameter expression="${localRepository}"
+     * @required
+     * @readonly
+     */
+    protected ArtifactRepository localRepository;
+
+    /**
+     * @parameter expression="${outputDirectory}" alias="outputDirectory"
+     *            default-value="${project.build.outputDirectory}"
+     * @required
+     */
+    protected File buildOutputDirectory;
+
+    protected boolean isWrappedJarFile = false;
+    protected boolean isImportedBundle = false;
+
+    public boolean setup()
+        throws MojoExecutionException
+    {
+        project = super.project;
+        setWtpversion( "none" );
+        setDownloadSources( true );
+
+        String parentArtifactId = project.getParent().getArtifactId();
+
+        isWrappedJarFile = parentArtifactId.equals( "wrap-jar-as-bundle" );
+        isImportedBundle = parentArtifactId.equals( "import-bundle" );
+
+        if ( isImportedBundle )
+        {
+            setEclipseProjectDir( project.getFile().getParentFile() );
+        }
+
+        return super.setup();
+    }
+
+    protected void setupExtras()
+        throws MojoExecutionException
+    {
+        setArtifactFactory( artifactFactory );
+        setArtifactResolver( artifactResolver );
+        setArtifactMetadataSource( artifactMetadataSource );
+        super.artifactCollector = artifactCollector;
+
+        try
+        {
+            setField( "isJavaProject", true );
+            setField( "pde", true );
+        }
+        catch ( Exception e )
+        {
+        }
+    }
+
+    private final void setField( String name, boolean flag )
+    {
+        try
+        {
+            Field f = EclipsePlugin.class.getDeclaredField( name );
+            f.setAccessible( true );
+            f.setBoolean( this, flag );
+        }
+        catch ( Exception e )
+        {
+            System.out.println( "Cannot set " + name + " to " + flag + " exception=" + e );
+        }
+    }
+
+    protected static class JarFileFilter
+        implements FileFilter
     {
         public boolean accept( File file )
         {
@@ -50,22 +173,20 @@ public class EclipseMojo extends EclipsePluginFacade
         }
     }
 
-    protected IdeDependency[] addClassFolder(IdeDependency[] dependencies)
+    protected IdeDependency[] addClassFolder( IdeDependency[] dependencies )
     {
         IdeDependency[] newDeps = new IdeDependency[dependencies.length + 1];
         System.arraycopy( dependencies, 0, newDeps, 1, dependencies.length );
 
         File clazzFolder = new File( project.getBuild().getDirectory() );
 
-        newDeps[0] = new IdeDependency(
-                "groupId", "artifactId", "version",
-                false, false, true, true, true, clazzFolder, "folder",
-                false, null, 0 );
+        newDeps[0] = new IdeDependency( "groupId", "artifactId", "version", false, false, true, true, true,
+            clazzFolder, "folder", false, null, 0 );
 
         return newDeps;
     }
 
-    protected IdeDependency[] addLocalLibs(IdeDependency[] dependencies)
+    protected IdeDependency[] addLocalLibs( IdeDependency[] dependencies )
     {
         File lib = new File( project.getBuild().getDirectory(), "lib" );
 
@@ -76,11 +197,9 @@ public class EclipseMojo extends EclipsePluginFacade
             FileFilter filter = new JarFileFilter();
             for ( File jar : lib.listFiles( filter ) )
             {
-                IdeDependency pseudoDep = new IdeDependency(
-                    "groupId", "artifactId", "version",
-                    false, false, true, true, true, jar, "jar",
-                    false, null, 0 );
-    
+                IdeDependency pseudoDep = new IdeDependency( "groupId", "artifactId", "version", false, false, true,
+                    true, true, jar, "jar", false, null, 0 );
+
                 deps.add( pseudoDep );
             }
 
@@ -136,17 +255,14 @@ public class EclipseMojo extends EclipsePluginFacade
 
         if ( !isImportedBundle )
         {
+            File manifestFile = new File( config.getEclipseProjectDirectory(), "META-INF" + File.separator
+                + "MANIFEST.MF" );
+
             try
             {
-                JarFile bundle = new JarFile(
-                    project.getBuild().getDirectory() +
-                        File.separator +
-                            project.getBuild().getFinalName()+".jar" );
-    
-                File manifestFile = new File(
-                    config.getEclipseProjectDirectory(),
-                        "META-INF"+File.separator+"MANIFEST.MF" );
-    
+                JarFile bundle = new JarFile( project.getBuild().getDirectory() + File.separator
+                    + project.getBuild().getFinalName() + ".jar" );
+
                 manifestFile.mkdirs();
                 manifestFile.delete();
 
@@ -155,7 +271,7 @@ public class EclipseMojo extends EclipsePluginFacade
             }
             catch ( IOException e )
             {
-                System.out.println("oops"+e);
+                System.out.println( "Cannot write manifest to " + manifestFile + " exception=" + e );
             }
         }
     }
