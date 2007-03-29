@@ -29,6 +29,7 @@
       <groupId>org.osgi</groupId>
       <artifactId>osgi_R4_core</artifactId>
       <version>1.0</version>
+      <scope>provided</scope>
     </dependency>
     <dependency>
       <groupId>junit</groupId>
@@ -41,6 +42,10 @@
   <build>
     <resources>
       <resource>
+        <directory>../resources</directory>
+        <filtering>true</filtering>
+      </resource>
+      <resource>
         <directory>src/main/resources</directory>
         <filtering>true</filtering>
       </resource>
@@ -50,35 +55,6 @@
     -->
     <pluginManagement>
       <plugins>
-        <plugin>
-          <!--
-            use embedded ant task to copy bnd files: if we did this using
-            resources then the maven eclipse plugin would add a bad path
-            to the generated .classpath
-          -->
-          <artifactId>maven-antrun-plugin</artifactId>
-          <executions>
-            <execution>
-              <id>copy-bnd-files</id>
-              <phase>generate-resources</phase>
-              <goals>
-                <goal>run</goal>
-              </goals>
-              <configuration>
-                <tasks>
-                  <!--
-                    copy default bnd configuration files - sub-projects can define
-                    local settings in src/main/resources/details.bnd, which will be
-                    copied over after the default files.
-                  -->
-                  <copy todir="${project.build.outputDirectory}">
-                    <fileset dir="../resources"/>
-                  </copy>
-                </tasks>
-              </configuration>
-            </execution>
-          </executions>
-        </plugin>
         <plugin>
           <artifactId>maven-compiler-plugin</artifactId>
           <configuration>
@@ -93,15 +69,22 @@
           <extensions>true</extensions>
           <configuration>
             <instructions>
-              <!--
-                main bnd configuration that pulls in specific details.bnd
-              -->
-              <_include>${project.build.outputDirectory}/compile.bnd</_include>
+              <_include>${project.build.outputDirectory}/META-INF/compile.bnd</_include>
             </instructions>
           </configuration>
         </plugin>
         <plugin>
-          <artifactId>maven-surefire-plugin</artifactId>
+          <groupId>org.ops4j.pax.construct</groupId>
+          <artifactId>maven-pax-plugin</artifactId>
+          <executions>
+            <execution>
+              <id>clean-project</id>
+              <phase>clean</phase>
+              <goals>
+                <goal>clean</goal>
+              </goals>
+            </execution>
+          </executions>
         </plugin>
       </plugins>
     </pluginManagement>

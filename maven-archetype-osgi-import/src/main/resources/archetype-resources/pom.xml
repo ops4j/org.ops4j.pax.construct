@@ -25,7 +25,8 @@
         <artifactId>maven-dependency-plugin</artifactId>
       </plugin>
       <plugin>
-        <artifactId>maven-antrun-plugin</artifactId>
+        <groupId>org.ops4j.pax.construct</groupId>
+        <artifactId>maven-pax-plugin</artifactId>
       </plugin>
     </plugins>
   </build>

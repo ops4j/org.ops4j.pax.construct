@@ -32,6 +32,10 @@
   <build>
     <resources>
       <resource>
+        <directory>../resources</directory>
+        <filtering>true</filtering>
+      </resource>
+      <resource>
         <directory>src/main/resources</directory>
         <filtering>true</filtering>
       </resource>
@@ -63,37 +67,8 @@
                 <goal>copy</goal>
               </goals>
               <configuration>
-                <outputDirectory>lib</outputDirectory>
+                <outputDirectory>${project.build.directory}/lib</outputDirectory>
                 <excludeTransitive>true</excludeTransitive>
-              </configuration>
-            </execution>
-          </executions>
-        </plugin>
-        <plugin>
-          <!--
-            use embedded ant task to copy bnd files: if we did this using
-            resources then the maven eclipse plugin would add a bad path
-            to the generated .classpath
-          -->
-          <artifactId>maven-antrun-plugin</artifactId>
-          <executions>
-            <execution>
-              <id>copy-bnd-files</id>
-              <phase>generate-resources</phase>
-              <goals>
-                <goal>run</goal>
-              </goals>
-              <configuration>
-                <tasks>
-                  <!--
-                    copy default bnd configuration files - sub-projects can define
-                    local settings in src/main/resources/details.bnd, which will be
-                    copied over after the default files.
-                  -->
-                  <copy todir="${project.build.outputDirectory}">
-                    <fileset dir="../resources"/>
-                  </copy>
-                </tasks>
               </configuration>
             </execution>
           </executions>
@@ -104,10 +79,7 @@
           <extensions>true</extensions>
           <configuration>
             <instructions>
-              <!--
-                main bnd configuration that pulls in specific details.bnd
-              -->
-              <_include>${project.build.outputDirectory}/wrap.bnd</_include>
+              <_include>${project.build.outputDirectory}/META-INF/wrapper.bnd</_include>
             </instructions>
           </configuration>
         </plugin>

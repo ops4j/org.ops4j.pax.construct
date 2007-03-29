@@ -3,13 +3,11 @@
   <resources>
     <resource>bundles/pom.xml</resource>
     <resource>bundles/wrappers/pom.xml</resource>
-    <resource>bundles/wrappers/resources/wrap.bnd</resource>
-    <resource>bundles/wrappers/resources/details.bnd</resource>
-    <resource>bundles/imported/pom.xml</resource>
-    <resource>bundles/imported/resources/project.xml</resource>
-    <resource>bundles/imported/resources/classpath.xml</resource>
+    <resource>bundles/wrappers/resources/META-INF/wrapper.bnd</resource>
+    <resource>bundles/wrappers/resources/META-INF/details.bnd</resource>
     <resource>bundles/compiled/pom.xml</resource>
-    <resource>bundles/compiled/resources/compile.bnd</resource>
-    <resource>bundles/compiled/resources/details.bnd</resource>
+    <resource>bundles/compiled/resources/META-INF/compile.bnd</resource>
+    <resource>bundles/compiled/resources/META-INF/details.bnd</resource>
+    <resource>bundles/imported/pom.xml</resource>
   </resources>
 </archetype>

@@ -35,7 +35,7 @@ import org.codehaus.plexus.util.cli.Commandline;
  * 
  * @goal provision
  */
-public class ConfigurePaxRunnerMojo extends AbstractMojo
+public class ProvisionMojo extends AbstractMojo
 {
     /**
      * @parameter expression="${maven.home}/bin/mvn"
@@ -68,7 +68,7 @@ public class ConfigurePaxRunnerMojo extends AbstractMojo
     private String platform;
 
     private static MavenProject m_runnerPom;
-    private static List m_dependencies;
+    private static List<Dependency> m_dependencies;
     private static int m_projectCount;
 
     public void execute()
@@ -77,7 +77,7 @@ public class ConfigurePaxRunnerMojo extends AbstractMojo
         if ( m_runnerPom == null )
         {
             m_runnerPom = new MavenProject( new Model() );
-            m_dependencies = new ArrayList();
+            m_dependencies = new ArrayList<Dependency>();
             m_projectCount = 0;
         }
 
@@ -173,12 +173,8 @@ public class ConfigurePaxRunnerMojo extends AbstractMojo
 
                 String[] deployAppCmds =
                 {
-                    "--dir=" + workDir,
-                    "--clean", "--no-md5",
-                    "--platform=" + platform,
-                    m_runnerPom.getGroupId(),
-                    m_runnerPom.getArtifactId(),
-                    m_runnerPom.getVersion()
+                    "--dir=" + workDir, "--clean", "--no-md5", "--platform=" + platform, m_runnerPom.getGroupId(),
+                    m_runnerPom.getArtifactId(), m_runnerPom.getVersion()
                 };
 
                 org.ops4j.pax.runner.Run.main( deployAppCmds );
