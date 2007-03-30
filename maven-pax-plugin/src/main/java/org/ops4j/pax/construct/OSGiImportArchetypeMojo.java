@@ -63,7 +63,7 @@ public class OSGiImportArchetypeMojo extends AbstractArchetypeMojo
         commandLine.createArgument().setValue(
             "-DgroupId=" + project.getGroupId().replaceFirst( "\\.build$", ".imports" ) );
 
-        commandLine.createArgument().setValue( "-DpackageName=" + groupId );
+        commandLine.createArgument().setValue( "-DpackageName=" + getGroupMarker( groupId, artifactId ) );
         commandLine.createArgument().setValue( "-DartifactId=" + getCompoundName( groupId, artifactId ) );
         commandLine.createArgument().setValue( "-Dversion=" + version );
 

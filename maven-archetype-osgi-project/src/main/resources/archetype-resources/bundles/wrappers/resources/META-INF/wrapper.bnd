@@ -6,11 +6,6 @@ Bundle-Version: $(replace;${dollar}{project.version};(\\d+(\\.\\d+)*)[-_]?([^.].
 Bundle-SymbolicName: $(replace;${dollar}{project.artifactId};-;_)
 
 <!--
-  wrap third-party (non-OSGi) jarfile (inline it so bundles can compile against it)
--->
-Include-Resource: @target/lib/${dollar}{jar.artifactId}-${dollar}{jar.version}.jar
-
-<!--
   by default, version and export all packages from the wrapped jarfile
 -->
 Private-Package: *.internal*

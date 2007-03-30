@@ -2,10 +2,15 @@
 <project>
 
 #set( $dollar = '$' )
-#set( $trim = $package.length() + 1 )
+
+#if( $package.startsWith("+") )
+#set( $trim = $package.length() )
+#else
+#set( $trim = 0 )
+#end
 
   <properties>
-    <jar.groupId>${package}</jar.groupId>
+    <jar.groupId>$package.substring(1)</jar.groupId>
     <jar.artifactId>$artifactId.substring($trim)</jar.artifactId>
     <jar.version>${version}</jar.version>
   </properties>

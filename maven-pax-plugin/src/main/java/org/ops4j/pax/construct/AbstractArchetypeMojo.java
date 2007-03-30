@@ -57,6 +57,16 @@ public abstract class AbstractArchetypeMojo extends AbstractMojo
     private final static String archetypeGroupId = "org.ops4j.pax.construct";
     private final static String archetypeVersion = "0.1.0-SNAPSHOT"; // TODO: use RELEASE/LATEST when deployed?
 
+    protected String getGroupMarker( String groupId, String artifactId )
+    {
+        if ( compactNames && artifactId.startsWith( groupId ) )
+        {
+            return "-"+groupId;
+        }
+
+        return "+"+groupId;
+    }
+
     protected String getCompoundName( String groupId, String artifactId )
     {
         if ( compactNames && artifactId.startsWith( groupId ) )

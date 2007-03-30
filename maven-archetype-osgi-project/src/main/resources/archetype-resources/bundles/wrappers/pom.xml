@@ -61,13 +61,13 @@
           </configuration>
           <executions>
             <execution>
-              <id>copy</id>
+              <id>unpack-jar</id>
               <phase>generate-resources</phase>
               <goals>
-                <goal>copy</goal>
+                <goal>unpack</goal>
               </goals>
               <configuration>
-                <outputDirectory>${project.build.directory}/lib</outputDirectory>
+                <outputDirectory>${project.build.outputDirectory}</outputDirectory>
                 <excludeTransitive>true</excludeTransitive>
               </configuration>
             </execution>

@@ -173,40 +173,15 @@ public class EclipseMojo extends EclipsePlugin
         }
     }
 
-    protected IdeDependency[] addClassFolder( IdeDependency[] dependencies )
+    protected IdeDependency[] addClassFolder( IdeDependency[] dependencies, String folderPath )
     {
         IdeDependency[] newDeps = new IdeDependency[dependencies.length + 1];
         System.arraycopy( dependencies, 0, newDeps, 1, dependencies.length );
 
-        File clazzFolder = new File( project.getBuild().getDirectory() );
-
         newDeps[0] = new IdeDependency( "groupId", "artifactId", "version", false, false, true, true, true,
-            clazzFolder, "folder", false, null, 0 );
+            new File( folderPath ), "classFolder", false, null, 0 );
 
         return newDeps;
-    }
-
-    protected IdeDependency[] addLocalLibs( IdeDependency[] dependencies )
-    {
-        File lib = new File( project.getBuild().getDirectory(), "lib" );
-
-        if ( lib.exists() )
-        {
-            List<IdeDependency> deps = new ArrayList<IdeDependency>( Arrays.asList( dependencies ) );
-
-            FileFilter filter = new JarFileFilter();
-            for ( File jar : lib.listFiles( filter ) )
-            {
-                IdeDependency pseudoDep = new IdeDependency( "groupId", "artifactId", "version", false, false, true,
-                    true, true, jar, "jar", false, null, 0 );
-
-                deps.add( pseudoDep );
-            }
-
-            return deps.toArray( new IdeDependency[deps.size()] );
-        }
-
-        return dependencies;
     }
 
     public void writeConfiguration( IdeDependency[] deps )
@@ -216,12 +191,12 @@ public class EclipseMojo extends EclipsePlugin
 
         if ( isWrappedJarFile )
         {
-            config.setDeps( addLocalLibs( config.getDeps() ) );
+            config.setDeps( addClassFolder( config.getDeps(), project.getBuild().getOutputDirectory() ) );
         }
 
         if ( isImportedBundle )
         {
-            config.setDeps( addClassFolder( config.getDeps() ) );
+            config.setDeps( addClassFolder( config.getDeps(), project.getBuild().getDirectory() ) );
         }
 
         if ( isWrappedJarFile || isImportedBundle )

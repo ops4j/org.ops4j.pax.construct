@@ -2,10 +2,15 @@
 <project>
 
 #set( $dollar = '$' )
-#set( $trim = $package.length() + 1 )
+
+#if( $package.startsWith("+") )
+#set( $trim = $package.length() )
+#else
+#set( $trim = 0 )
+#end
 
   <properties>
-    <bundle.groupId>${package}</bundle.groupId>
+    <bundle.groupId>$package.substring(1)</bundle.groupId>
     <bundle.artifactId>$artifactId.substring($trim)</bundle.artifactId>
     <bundle.version>${version}</bundle.version>
   </properties>
