@@ -21,8 +21,6 @@ import java.io.FileFilter;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.lang.reflect.Field;
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.jar.JarFile;
 import java.util.jar.Manifest;
@@ -178,8 +176,8 @@ public class EclipseMojo extends EclipsePlugin
         IdeDependency[] newDeps = new IdeDependency[dependencies.length + 1];
         System.arraycopy( dependencies, 0, newDeps, 1, dependencies.length );
 
-        newDeps[0] = new IdeDependency( "groupId", "artifactId", "version", false, false, true, true, true,
-            new File( folderPath ), "classFolder", false, null, 0 );
+        newDeps[0] = new IdeDependency( "groupId", "artifactId", "version", false, false, true, true, true, new File(
+            folderPath ), "classFolder", false, null, 0 );
 
         return newDeps;
     }

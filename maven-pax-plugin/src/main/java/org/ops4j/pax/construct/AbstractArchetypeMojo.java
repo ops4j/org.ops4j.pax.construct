@@ -61,10 +61,10 @@ public abstract class AbstractArchetypeMojo extends AbstractMojo
     {
         if ( compactNames && artifactId.startsWith( groupId ) )
         {
-            return "-"+groupId;
+            return "-" + groupId;
         }
 
-        return "+"+groupId;
+        return "+" + groupId;
     }
 
     protected String getCompoundName( String groupId, String artifactId )
