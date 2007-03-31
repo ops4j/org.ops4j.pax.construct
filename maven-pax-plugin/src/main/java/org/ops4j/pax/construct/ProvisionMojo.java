@@ -171,6 +171,12 @@ public class ProvisionMojo extends AbstractMojo
             {
                 String workDir = pomFile.getParent() + File.separator + "work";
 
+                File cachedPomFile = new File( workDir + File.separator + "lib" + File.separator
+                    + m_runnerPom.getArtifactId() + "_" + m_runnerPom.getVersion() + ".pom" );
+
+                // Force reload of pom
+                cachedPomFile.delete();
+
                 String[] deployAppCmds =
                 {
                     "--dir=" + workDir, "--clean", "--no-md5", "--platform=" + platform, m_runnerPom.getGroupId(),
