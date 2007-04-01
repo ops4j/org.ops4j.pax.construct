@@ -107,6 +107,11 @@ public class EclipseMojo extends EclipsePlugin
      */
     protected File buildOutputDirectory;
 
+    /**
+     * @parameter expression="${downloadSources}" default-value="false"
+     */
+    protected boolean downloadSources;
+
     protected boolean isWrappedJarFile = false;
     protected boolean isImportedBundle = false;
 
@@ -115,7 +120,7 @@ public class EclipseMojo extends EclipsePlugin
     {
         project = super.project;
         setWtpversion( "none" );
-        setDownloadSources( true );
+        setDownloadSources( downloadSources );
 
         String parentArtifactId = project.getParent().getArtifactId();
 
