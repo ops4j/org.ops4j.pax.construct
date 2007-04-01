@@ -31,11 +31,18 @@ import org.codehaus.plexus.util.cli.StreamConsumer;
  */
 public abstract class AbstractArchetypeMojo extends AbstractMojo
 {
+    private final static String archetypeGroupId = "org.ops4j.pax.construct";
+
     /**
      * @parameter expression="${maven.home}/bin/mvn"
      * @required
      */
     private File mvn;
+
+    /**
+     * @parameter expression="${archetypeVersion}" default-value="LATEST"
+     */
+    private String archetypeVersion;
 
     /**
      * @parameter expression="${debug}" default-value="false"
@@ -53,9 +60,6 @@ public abstract class AbstractArchetypeMojo extends AbstractMojo
      * @parameter expression="${project}"
      */
     protected MavenProject project;
-
-    private final static String archetypeGroupId = "org.ops4j.pax.construct";
-    private final static String archetypeVersion = "0.1.0-SNAPSHOT"; // TODO: use RELEASE/LATEST when deployed?
 
     protected String getGroupMarker( String groupId, String artifactId )
     {

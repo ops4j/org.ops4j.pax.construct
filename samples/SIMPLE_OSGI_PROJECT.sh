@@ -10,7 +10,7 @@ mvn pax:import-bundle -DgroupId=org.ops4j.pax.logging -DartifactId=api -Dversion
 mvn pax:import-bundle -DgroupId=org.ops4j.pax.logging -DartifactId=jcl -Dversion=0.9.4
 mvn pax:import-bundle -DgroupId=org.ops4j.pax.logging -DartifactId=slf4j -Dversion=0.9.4
 mvn pax:import-bundle -DgroupId=org.ungoverned.osgi.bundle -DartifactId=http -Dversion=1.1.2
-mvn pax:create-bundle -Dpackage=my.osgi.code.myBundle -Dname=myBundle -Dversion=0.1.0-SNAPSHOT
+mvn pax:create-bundle -Dpackage=my.osgi.code.myBundle -Dname=myBundle
 
 mvn install pax:provision
 

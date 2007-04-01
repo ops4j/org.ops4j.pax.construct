@@ -43,6 +43,13 @@ public class OSGiProjectArchetypeMojo extends AbstractArchetypeMojo
      */
     private String artifactId;
 
+    /**
+     * The version of the new OSGi project.
+     *
+     * @parameter expression="${version}" default-value="0.1.0-SNAPSHOT"
+     */
+    private String version;
+
     protected boolean checkEnvironment()
         throws MojoExecutionException
     {
@@ -60,6 +67,7 @@ public class OSGiProjectArchetypeMojo extends AbstractArchetypeMojo
 
         commandLine.createArgument().setValue( "-DgroupId=" + groupId );
         commandLine.createArgument().setValue( "-DartifactId=" + artifactId );
+        commandLine.createArgument().setValue( "-Dversion=" + version );
 
         String bundleGroupId = getCompoundName( groupId, artifactId );
         commandLine.createArgument().setValue( "-DpackageName=" + bundleGroupId );

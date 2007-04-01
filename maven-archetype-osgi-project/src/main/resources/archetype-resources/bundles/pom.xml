@@ -3,7 +3,7 @@
   <parent>
     <groupId>${groupId}</groupId>
     <artifactId>${artifactId}</artifactId>
-    <version>0.1.0-SNAPSHOT</version>
+    <version>${version}</version>
   </parent>
 
   <modelVersion>4.0.0</modelVersion>
@@ -28,6 +28,7 @@
     <pluginManagement>
       <plugins>
         <plugin>
+          <!-- use local snapshot for now -->
           <groupId>org.ops4j.pax.maven</groupId>
           <artifactId>maven-bundle-plugin</artifactId>
           <version>0.9.0-SNAPSHOT</version>
@@ -35,7 +36,6 @@
         <plugin>
           <groupId>org.ops4j.pax.construct</groupId>
           <artifactId>maven-pax-plugin</artifactId>
-          <version>0.1.0-SNAPSHOT</version>
           <executions>
             <execution>
               <id>add-ide-support</id>
