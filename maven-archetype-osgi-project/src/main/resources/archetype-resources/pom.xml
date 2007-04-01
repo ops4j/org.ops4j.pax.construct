@@ -57,6 +57,9 @@
     <repository>
       <id>ops4j</id>
       <url>http://repository.ops4j.org/maven2/</url>
+      <snapshots>
+        <enabled>false</enabled>
+      </snapshots>
     </repository>
   </repositories>
 
@@ -64,6 +67,9 @@
     <pluginRepository>
       <id>ops4j</id>
       <url>http://repository.ops4j.org/maven2/</url>
+      <snapshots>
+        <enabled>false</enabled>
+      </snapshots>
     </pluginRepository>
   </pluginRepositories>
 

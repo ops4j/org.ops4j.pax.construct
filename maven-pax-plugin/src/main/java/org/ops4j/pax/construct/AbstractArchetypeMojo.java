@@ -40,7 +40,7 @@ public abstract class AbstractArchetypeMojo extends AbstractMojo
     private File mvn;
 
     /**
-     * @parameter expression="${archetypeVersion}" default-value="LATEST"
+     * @parameter expression="${archetypeVersion}" default-value="RELEASE"
      */
     private String archetypeVersion;
 
@@ -96,6 +96,7 @@ public abstract class AbstractArchetypeMojo extends AbstractMojo
         commandLine.createArgument().setValue( "archetype:create" );
         commandLine.createArgument().setValue( "-DarchetypeGroupId=" + archetypeGroupId );
         commandLine.createArgument().setValue( "-DarchetypeVersion=" + archetypeVersion );
+        commandLine.createArgument().setValue( "-DremoteRepositories=http://repository.ops4j.org/maven2" );
 
         addAdditionalArguments( commandLine );
 
