@@ -48,6 +48,7 @@ public class CleanMojo extends AbstractMojo
     {
         FileSet generatedPaxFiles = new FileSet();
         generatedPaxFiles.setDirectory( basedir.getPath() );
+
         generatedPaxFiles.addInclude( "META-INF" );
         generatedPaxFiles.addInclude( ".project" );
         generatedPaxFiles.addInclude( ".classpath" );

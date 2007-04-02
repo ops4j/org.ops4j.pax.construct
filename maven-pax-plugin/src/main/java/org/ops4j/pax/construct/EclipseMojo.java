@@ -17,11 +17,15 @@ package org.ops4j.pax.construct;
  */
 
 import java.io.File;
-import java.io.FileFilter;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
+import java.io.FileReader;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.lang.reflect.Field;
 import java.util.List;
+import java.util.jar.Attributes;
 import java.util.jar.JarFile;
 import java.util.jar.Manifest;
 
@@ -39,6 +43,12 @@ import org.apache.maven.plugin.eclipse.writers.EclipseSettingsWriter;
 import org.apache.maven.plugin.eclipse.writers.EclipseWriterConfig;
 import org.apache.maven.plugin.ide.IdeDependency;
 import org.apache.maven.project.MavenProject;
+import org.codehaus.plexus.util.IOUtil;
+import org.codehaus.plexus.util.xml.PrettyPrintXMLWriter;
+import org.codehaus.plexus.util.xml.Xpp3Dom;
+import org.codehaus.plexus.util.xml.Xpp3DomBuilder;
+import org.codehaus.plexus.util.xml.Xpp3DomWriter;
+import org.codehaus.plexus.util.xml.pull.XmlPullParserException;
 
 /**
  * Extend maven-eclipse-plugin to get better classpath generation.
@@ -119,6 +129,7 @@ public class EclipseMojo extends EclipsePlugin
         throws MojoExecutionException
     {
         project = super.project;
+
         setWtpversion( "none" );
         setDownloadSources( downloadSources );
 
@@ -127,6 +138,7 @@ public class EclipseMojo extends EclipsePlugin
 
         if ( isImportedBundle )
         {
+            // This forces eclipse plugin to work on pom packaging
             setEclipseProjectDir( project.getFile().getParentFile() );
         }
 
@@ -141,13 +153,11 @@ public class EclipseMojo extends EclipsePlugin
         setArtifactMetadataSource( artifactMetadataSource );
         super.artifactCollector = artifactCollector;
 
-        try
+        if ( project.getPackaging().equals( "bundle" ) || isImportedBundle )
         {
+            // Inject values into private flags
             setField( "isJavaProject", true );
             setField( "pde", true );
-        }
-        catch ( Exception e )
-        {
         }
     }
 
@@ -155,6 +165,7 @@ public class EclipseMojo extends EclipsePlugin
     {
         try
         {
+            // Attempt to bypass normal private field protection
             Field f = EclipsePlugin.class.getDeclaredField( name );
             f.setAccessible( true );
             f.setBoolean( this, flag );
@@ -165,90 +176,161 @@ public class EclipseMojo extends EclipsePlugin
         }
     }
 
-    protected static class JarFileFilter
-        implements FileFilter
+    protected final static EclipseSourceDir[] rejectLinkedSources( EclipseSourceDir[] sources )
     {
-        public boolean accept( File file )
+        int nonLinkedCount = 0;
+        for ( int i = 0; i < sources.length; i++ )
         {
-            return file.getName().endsWith( ".jar" );
+            // Remove external resources as these result in bogus links
+            if ( new File( sources[i].getPath() ).isAbsolute() == false )
+            {
+                sources[nonLinkedCount++] = sources[i];
+            }
         }
+
+        EclipseSourceDir[] nonLinkedSources = new EclipseSourceDir[nonLinkedCount];
+        System.arraycopy( sources, 0, nonLinkedSources, 0, nonLinkedCount );
+
+        return nonLinkedSources;
     }
 
-    protected IdeDependency[] addClassFolder( IdeDependency[] dependencies, String folderPath )
+    protected final static IdeDependency[] rejectLinkedDependencies( IdeDependency[] deps )
     {
-        IdeDependency[] newDeps = new IdeDependency[dependencies.length + 1];
-        System.arraycopy( dependencies, 0, newDeps, 1, dependencies.length );
+        int nonLinkedCount = 0;
+        for ( int i = 0; i < deps.length; i++ )
+        {
+            // Remove external compile/runtime dependencies as these result in bogus links
+            if ( deps[i].isProvided() || deps[i].isTestDependency() || deps[i].getFile().isAbsolute() == false )
+            {
+                deps[nonLinkedCount++] = deps[i];
+            }
+        }
 
-        newDeps[0] = new IdeDependency( "groupId", "artifactId", "version", false, false, true, true, true, new File(
-            folderPath ), "classFolder", false, null, 0 );
+        IdeDependency[] nonLinkedDeps = new IdeDependency[nonLinkedCount];
+        System.arraycopy( deps, 0, nonLinkedDeps, 0, nonLinkedCount );
 
-        return newDeps;
+        return nonLinkedDeps;
+    }
+
+    protected final Manifest extractManifest( File projectFolder )
+        throws FileNotFoundException,
+        IOException
+    {
+        Manifest manifest = null;
+
+        // Eclipse wants bundle manifests at the top of the project directory
+        String manifestPath = "META-INF" + File.separator + "MANIFEST.MF";
+        File manifestFile = new File( projectFolder, manifestPath );
+
+        if ( isImportedBundle )
+        {
+            // Existing manifest, unpacked from imported bundle
+            manifest = new Manifest( new FileInputStream( manifestFile ) );
+
+            Attributes attributes = manifest.getMainAttributes();
+            if ( attributes.getValue( "Bundle-SymbolicName" ) == null )
+            {
+                // Eclipse mis-behaves if the bundle has no symbolic name :(
+                attributes.putValue( "Bundle-SymbolicName", project.getArtifactId() );
+            }
+        }
+        else
+        {
+            // Manifest (generated by bnd) can simply be extracted from the new bundle
+            JarFile bundle = new JarFile( project.getBuild().getDirectory() + File.separator
+                + project.getBuild().getFinalName() + ".jar" );
+
+            manifestFile.mkdirs();
+            manifestFile.delete();
+
+            manifest = bundle.getManifest();
+        }
+
+        manifest.write( new FileOutputStream( manifestFile ) );
+
+        return manifest;
+    }
+
+    protected final void patchClassPath( File projectFolder, String bundleClassPath )
+        throws FileNotFoundException,
+        XmlPullParserException,
+        IOException
+    {
+        String[] paths =
+        {
+            "." // default classpath
+        };
+
+        if ( bundleClassPath != null )
+        {
+            paths = bundleClassPath.split( "," );
+        }
+
+        if ( isWrappedJarFile || isImportedBundle || paths.length > 1 )
+        {
+            File classPathFile = new File( projectFolder, ".classpath" );
+
+            Xpp3Dom classPathXML = Xpp3DomBuilder.build( new FileReader( classPathFile ) );
+
+            for ( int i = 0; i < paths.length; i++ )
+            {
+                if ( paths[i].equals( "." ) && !isWrappedJarFile && !isImportedBundle )
+                {
+                    continue;
+                }
+
+                // Add non-default bundle classpath entry
+                Xpp3Dom classPathDot = new Xpp3Dom( "classpathentry" );
+                classPathDot.setAttribute( "exported", "true" );
+                classPathDot.setAttribute( "kind", "lib" );
+                classPathDot.setAttribute( "path", paths[i] );
+                classPathXML.addChild( classPathDot );
+            }
+
+            FileWriter writer = new FileWriter( classPathFile );
+            Xpp3DomWriter.write( new PrettyPrintXMLWriter( writer ), classPathXML );
+            IOUtil.close( writer );
+        }
     }
 
     public void writeConfiguration( IdeDependency[] deps )
         throws MojoExecutionException
     {
-        EclipseWriterConfig config = createEclipseWriterConfig( deps );
-
-        if ( isWrappedJarFile )
+        try
         {
-            config.setDeps( addClassFolder( config.getDeps(), project.getBuild().getOutputDirectory() ) );
-        }
+            EclipseWriterConfig config = createEclipseWriterConfig( deps );
 
-        if ( isImportedBundle )
-        {
-            config.setDeps( addClassFolder( config.getDeps(), project.getBuild().getDirectory() ) );
-        }
-
-        if ( isWrappedJarFile || isImportedBundle )
-        {
-            config.setEclipseProjectDirectory( new File( project.getBuild().getDirectory() ) );
-            config.setProjectBaseDir( config.getEclipseProjectDirectory() );
-            config.setSourceDirs( new EclipseSourceDir[0] );
-        }
-        else
-        {
-            EclipseSourceDir[] sourceDirs = config.getSourceDirs();
-
-            int localDirCount = 0;
-            for ( int i = 0; i < sourceDirs.length; i++ )
+            if ( isWrappedJarFile || isImportedBundle )
             {
-                if ( new File( sourceDirs[i].getPath() ).isAbsolute() == false )
-                {
-                    sourceDirs[localDirCount++] = sourceDirs[i];
-                }
+                // Fudge directories so project is in the build directory without requiring extra links
+                config.setEclipseProjectDirectory( new File( project.getBuild().getOutputDirectory() ) );
+                config.setBuildOutputDirectory( new File( config.getEclipseProjectDirectory(), "temp" ) );
+                config.setProjectBaseDir( config.getEclipseProjectDirectory() );
+
+                // No sources required to build these bundles
+                config.setSourceDirs( new EclipseSourceDir[0] );
+            }
+            else
+            {
+                // Avoid links wherever possible, as they're a real pain
+                config.setSourceDirs( rejectLinkedSources( config.getSourceDirs() ) );
+                config.setDeps( rejectLinkedDependencies( config.getDeps() ) );
             }
 
-            EclipseSourceDir[] localSourceDirs = new EclipseSourceDir[localDirCount];
-            System.arraycopy( sourceDirs, 0, localSourceDirs, 0, localDirCount );
+            new EclipseSettingsWriter().init( getLog(), config ).write();
+            new EclipseClasspathWriter().init( getLog(), config ).write();
+            new EclipseProjectWriter().init( getLog(), config ).write();
 
-            config.setSourceDirs( localSourceDirs );
+            // Handle embedded jarfiles, etc...
+            Manifest manifest = extractManifest( config.getEclipseProjectDirectory() );
+            String classPath = manifest.getMainAttributes().getValue( "Bundle-ClassPath" );
+            patchClassPath( config.getEclipseProjectDirectory(), classPath );
         }
-
-        new EclipseSettingsWriter().init( getLog(), config ).write();
-        new EclipseClasspathWriter().init( getLog(), config ).write();
-        new EclipseProjectWriter().init( getLog(), config ).write();
-
-        if ( !isImportedBundle )
+        catch ( Exception e )
         {
-            File manifestFile = new File( config.getEclipseProjectDirectory(), "META-INF" + File.separator
-                + "MANIFEST.MF" );
+            getLog().error( e );
 
-            try
-            {
-                JarFile bundle = new JarFile( project.getBuild().getDirectory() + File.separator
-                    + project.getBuild().getFinalName() + ".jar" );
-
-                manifestFile.mkdirs();
-                manifestFile.delete();
-
-                Manifest manifest = bundle.getManifest();
-                manifest.write( new FileOutputStream( manifestFile ) );
-            }
-            catch ( IOException e )
-            {
-                System.out.println( "Cannot write manifest to " + manifestFile + " exception=" + e );
-            }
+            throw new MojoExecutionException( "ERROR creating Eclipse files", e );
         }
     }
 }
