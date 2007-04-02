@@ -122,10 +122,8 @@ public class EclipseMojo extends EclipsePlugin
         setWtpversion( "none" );
         setDownloadSources( downloadSources );
 
-        String parentArtifactId = project.getParent().getArtifactId();
-
-        isWrappedJarFile = parentArtifactId.equals( "wrap-jar-as-bundle" );
-        isImportedBundle = parentArtifactId.equals( "import-bundle" );
+        isWrappedJarFile = project.getProperties().containsKey( "jar.artifactId" );
+        isImportedBundle = project.getProperties().containsKey( "bundle.artifactId" );
 
         if ( isImportedBundle )
         {
