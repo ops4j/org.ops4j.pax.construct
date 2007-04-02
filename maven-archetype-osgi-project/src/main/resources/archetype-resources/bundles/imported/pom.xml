@@ -50,7 +50,7 @@
                 <goal>unpack</goal>
               </goals>
               <configuration>
-                <outputDirectory>${project.build.directory}</outputDirectory>
+                <outputDirectory>${project.build.outputDirectory}</outputDirectory>
                 <excludeTransitive>true</excludeTransitive>
               </configuration>
             </execution>

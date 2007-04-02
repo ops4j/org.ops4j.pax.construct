@@ -8,8 +8,9 @@ Bundle-SymbolicName: $(replace;${dollar}{project.artifactId};-;_)
 <!--
   by default, version and export all packages from the wrapped jarfile
 -->
-Private-Package: *.internal*
-Export-Package: !*.internal*,\
+-classpath: target/classes
+Private-Package: *.internal*, META-INF*
+Export-Package: !*.internal*,!META-INF*, \
   *;version="$(replace;${dollar}{jar.version};(\\d+(\\.\\d+)?).*;$1)"
 
 <!--
