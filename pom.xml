@@ -34,7 +34,7 @@ limitations under the License.
   <modelVersion>4.0.0</modelVersion>
   <groupId>org.ops4j.pax</groupId>
   <artifactId>construct</artifactId>
-  <version>0.1.1-SNAPSHOT</version>
+  <version>0.1.1</version>
 
   <name>OPS4J - Pax Construct</name>
 
@@ -64,8 +64,8 @@ limitations under the License.
   <url>http://www.ops4j.org/projects/pax/construct</url>
 
   <scm>
-    <connection>scm:svn:https://scm.ops4j.org/repos/ops4j/projects/pax/construct</connection>
-    <developerConnection>scm:svn:https://scm.ops4j.org/repos/ops4j/projects/pax/construct</developerConnection>
+    <connection>scm:svn:https://scm.ops4j.org/repos/ops4j/qa/pax/construct-0.1.1</connection>
+    <developerConnection>scm:svn:https://scm.ops4j.org/repos/ops4j/qa/pax/construct-0.1.1</developerConnection>
   </scm>
 
   <issueManagement>
