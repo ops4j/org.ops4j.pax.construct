@@ -11,7 +11,7 @@ Bundle-SymbolicName: $(replace;${dollar}{project.artifactId};-;_)
 -classpath: target/classes
 Private-Package: *.internal*, META-INF*
 Export-Package: !*.internal*,!META-INF*, \
-  *;version="$(replace;${dollar}{jar.version};(\\d+(\\.\\d+)?).*;$1)"
+  *;version="$(replace;${dollar}{jar.version};(\\d+(\\.\\d+)*).*;$1)"
 
 <!--
   load project specific settings

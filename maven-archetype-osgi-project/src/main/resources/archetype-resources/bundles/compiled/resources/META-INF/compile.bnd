@@ -10,7 +10,7 @@ Bundle-SymbolicName: $(replace;${dollar}{bundle.package}_${dollar}{project.artif
 -->
 Private-Package: ${dollar}{bundle.package}.internal
 Export-Package: !${dollar}{bundle.package}.internal,\
-  ${dollar}{bundle.package}.*;version="$(replace;${dollar}{project.version};(\\d+(\\.\\d+)?).*;$1)"
+  ${dollar}{bundle.package}.*;version="$(replace;${dollar}{project.version};(\\d+(\\.\\d+)*).*;$1)"
 
 <!--
   load project specific settings

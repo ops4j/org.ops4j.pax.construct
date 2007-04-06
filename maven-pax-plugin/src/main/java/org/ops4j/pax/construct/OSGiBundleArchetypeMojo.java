@@ -16,7 +16,12 @@ package org.ops4j.pax.construct;
  * limitations under the License.
  */
 
+import java.io.File;
+import java.io.IOException;
+
 import org.apache.maven.plugin.MojoExecutionException;
+import org.apache.maven.shared.model.fileset.FileSet;
+import org.apache.maven.shared.model.fileset.util.FileSetManager;
 import org.codehaus.plexus.util.cli.Commandline;
 
 /**
@@ -49,6 +54,11 @@ public class OSGiBundleArchetypeMojo extends AbstractArchetypeMojo
      */
     private String version;
 
+    /**
+     * @parameter expression="${activator}" default-value="true"
+     */
+    private boolean activator;
+
     protected boolean checkEnvironment()
         throws MojoExecutionException
     {
@@ -67,5 +77,27 @@ public class OSGiBundleArchetypeMojo extends AbstractArchetypeMojo
         commandLine.createArgument().setValue( "-Dversion=" + version );
 
         commandLine.createArgument().setValue( "-Duser.dir=" + project.getBasedir() );
+    }
+
+    protected void postProcess()
+        throws MojoExecutionException
+    {
+        if ( activator == false )
+        {
+            FileSet activatorFiles = new FileSet();
+            activatorFiles.setDirectory( project.getBasedir() + File.separator + bundleName );
+            activatorFiles.addInclude( "src/main/java/**/Activator.java" );
+            activatorFiles.addInclude( "src/main/java/**/ServiceImpl.java" );
+            activatorFiles.addInclude( "src/main/resources/META-INF/details.bnd" );
+
+            try
+            {
+                new FileSetManager( getLog(), debug ).delete( activatorFiles );
+            }
+            catch ( IOException e )
+            {
+                throw new MojoExecutionException( "I/O error while deleting files", e );
+            }
+        }
     }
 }

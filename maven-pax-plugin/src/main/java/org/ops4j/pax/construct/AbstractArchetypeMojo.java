@@ -47,7 +47,7 @@ public abstract class AbstractArchetypeMojo extends AbstractMojo
     /**
      * @parameter expression="${debug}" default-value="false"
      */
-    private boolean debug;
+    protected boolean debug;
 
     /**
      * @parameter expression="${compactNames}" default-value="true"
@@ -124,6 +124,8 @@ public abstract class AbstractArchetypeMojo extends AbstractMojo
         {
             throw new MojoExecutionException( "Command execution failed.", e );
         }
+
+        postProcess();
     }
 
     protected boolean checkEnvironment()
@@ -133,4 +135,9 @@ public abstract class AbstractArchetypeMojo extends AbstractMojo
     }
 
     abstract protected void addAdditionalArguments( Commandline commandLine );
+
+    protected void postProcess()
+        throws MojoExecutionException
+    {
+    }
 }
