@@ -22,6 +22,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
 
+import org.apache.maven.artifact.repository.ArtifactRepository;
 import org.apache.maven.model.Dependency;
 import org.apache.maven.model.Model;
 import org.apache.maven.plugin.AbstractMojo;
@@ -66,6 +67,20 @@ public class ProvisionMojo extends AbstractMojo
      * @parameter expression="${platform}" default-value="equinox"
      */
     private String platform;
+
+    /**
+     * @parameter expression="${project.remoteArtifactRepositories}"
+     * @required
+     * @readonly
+     */
+    private List remoteArtifactRepositories;
+
+    /**
+     * @parameter expression="${localRepository}"
+     * @required
+     * @readonly
+     */
+    private ArtifactRepository localRepository;
 
     private static MavenProject m_runnerPom;
     private static List<Dependency> m_dependencies;
@@ -153,6 +168,13 @@ public class ProvisionMojo extends AbstractMojo
                 getLog().info( "~~~~~~~~~~~~~~~~~~~" );
                 getLog().info( " No bundles found! " );
                 getLog().info( "~~~~~~~~~~~~~~~~~~~" );
+
+                // use a common bundle as a placeholder...
+                Dependency dependency = new Dependency();
+                dependency.setGroupId( "org.eclipse.equinox.servlet" );
+                dependency.setArtifactId( "api" );
+                dependency.setVersion( "1.0.0.v20060601" );
+                m_dependencies.add( dependency );
             }
 
             m_runnerPom.setDependencies( m_dependencies );
@@ -167,7 +189,7 @@ public class ProvisionMojo extends AbstractMojo
 
             CommandLineUtils.executeCommandLine( installPomCmd, null, null );
 
-            if ( m_dependencies.size() > 0 && deploy )
+            if ( deploy )
             {
                 String workDir = pomFile.getParent() + File.separator + "work";
 
@@ -177,10 +199,22 @@ public class ProvisionMojo extends AbstractMojo
                 // Force reload of pom
                 cachedPomFile.delete();
 
+                // Pass on current repo list to Pax-Runner
+                StringBuilder repoListBuilder = new StringBuilder();
+                for ( Object repo : remoteArtifactRepositories )
+                {
+                    if ( repoListBuilder.length() > 0 )
+                    {
+                        repoListBuilder.append( ',' );
+                    }
+                    repoListBuilder.append( ((ArtifactRepository) repo).getUrl() );
+                }
+
                 String[] deployAppCmds =
                 {
-                    "--dir=" + workDir, "--clean", "--no-md5", "--platform=" + platform, m_runnerPom.getGroupId(),
-                    m_runnerPom.getArtifactId(), m_runnerPom.getVersion()
+                    "--dir=" + workDir, "--clean", "--no-md5", "--platform=" + platform,
+                    "--repository=" + repoListBuilder.toString(), "--localRepository=" + localRepository.getBasedir(),
+                    m_runnerPom.getGroupId(), m_runnerPom.getArtifactId(), m_runnerPom.getVersion()
                 };
 
                 org.ops4j.pax.runner.Run.main( deployAppCmds );
