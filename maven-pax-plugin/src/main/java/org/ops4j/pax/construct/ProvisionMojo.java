@@ -168,13 +168,6 @@ public class ProvisionMojo extends AbstractMojo
                 getLog().info( "~~~~~~~~~~~~~~~~~~~" );
                 getLog().info( " No bundles found! " );
                 getLog().info( "~~~~~~~~~~~~~~~~~~~" );
-
-                // use a common bundle as a placeholder...
-                Dependency dependency = new Dependency();
-                dependency.setGroupId( "org.eclipse.equinox.servlet" );
-                dependency.setArtifactId( "api" );
-                dependency.setVersion( "1.0.0.v20060601" );
-                m_dependencies.add( dependency );
             }
 
             m_runnerPom.setDependencies( m_dependencies );
