@@ -1,36 +1,45 @@
 package ${package}.internal;
 
 import java.util.Dictionary;
-import java.util.Hashtable;
+import java.util.Properties;
 
 import org.osgi.framework.BundleActivator;
 import org.osgi.framework.BundleContext;
 
-import ${package}.Service;
+import ${package}.ExampleService;
 
+/**
+ * Extension of the default OSGi bundle activator
+ */
 public final class Activator
     implements BundleActivator
 {
-    private Service m_service;
-
+    /**
+     * Called whenever the OSGi framework starts our bundle
+     */
     public void start( BundleContext bc )
         throws Exception
     {
-        System.out.println( "STARTING ${package}" ); // TODO: use logging service :)
+        System.out.println( "STARTING ${package}" );
 
-        m_service = new ServiceImpl();
+        Dictionary props = new Properties();
+        // add specific service properties here...
 
-        Dictionary props = new Hashtable<String, String>();
+        System.out.println( "REGISTER ${package}.ExampleService" );
 
-        System.out.println( "REGISTER ${package}.Service" );
-
-        bc.registerService( Service.class.getName(), m_service, props );
+        // Register our example service implementation in the OSGi service registry
+        bc.registerService( ExampleService.class.getName(), new ExampleServiceImpl(), props );
     }
 
+    /**
+     * Called whenever the OSGi framework stops our bundle
+     */
     public void stop( BundleContext bc )
         throws Exception
     {
         System.out.println( "STOPPING ${package}" );
+
+        // no need to unregister our service - the OSGi framework handles it for us
     }
 }
 
