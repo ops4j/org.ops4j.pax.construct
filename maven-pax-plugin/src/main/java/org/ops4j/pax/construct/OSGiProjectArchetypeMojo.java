@@ -17,7 +17,6 @@ package org.ops4j.pax.construct;
  */
 
 import org.apache.maven.plugin.MojoExecutionException;
-import org.codehaus.plexus.util.cli.Commandline;
 
 /**
  * Creates a new skeleton OSGi project.
@@ -25,7 +24,7 @@ import org.codehaus.plexus.util.cli.Commandline;
  * @requiresProject false
  * @goal create-project
  */
-public class OSGiProjectArchetypeMojo extends AbstractArchetypeMojo
+public final class OSGiProjectArchetypeMojo extends AbstractArchetypeMojo
 {
     /**
      * The groupId of the new OSGi project.
@@ -61,15 +60,15 @@ public class OSGiProjectArchetypeMojo extends AbstractArchetypeMojo
         return true;
     }
 
-    protected void addAdditionalArguments( Commandline commandLine )
+    protected void updateExtensionFields()
+        throws MojoExecutionException
     {
-        commandLine.createArgument().setValue( "-DarchetypeArtifactId=maven-archetype-osgi-project" );
+        setField( "archetypeArtifactId", "maven-archetype-osgi-project" );
 
-        commandLine.createArgument().setValue( "-DgroupId=" + groupId );
-        commandLine.createArgument().setValue( "-DartifactId=" + artifactId );
-        commandLine.createArgument().setValue( "-Dversion=" + version );
+        setField( "groupId", groupId );
+        setField( "artifactId", artifactId );
+        setField( "version", version );
 
-        String bundleGroupId = getCompoundName( groupId, artifactId );
-        commandLine.createArgument().setValue( "-DpackageName=" + bundleGroupId );
+        setField( "packageName", getCompoundName( groupId, artifactId ) );
     }
 }

@@ -22,14 +22,13 @@ import java.io.IOException;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.shared.model.fileset.FileSet;
 import org.apache.maven.shared.model.fileset.util.FileSetManager;
-import org.codehaus.plexus.util.cli.Commandline;
 
 /**
  * Create a new skeleton bundle and add it to an existing OSGi project.
  * 
  * @goal create-bundle
  */
-public class OSGiBundleArchetypeMojo extends AbstractArchetypeMojo
+public final class OSGiBundleArchetypeMojo extends AbstractArchetypeMojo
 {
     /**
      * The package of the new bundle.
@@ -55,9 +54,14 @@ public class OSGiBundleArchetypeMojo extends AbstractArchetypeMojo
     private String version;
 
     /**
+     * @parameter expression="${interface}" default-value="true"
+     */
+    private boolean provideInterface;
+
+    /**
      * @parameter expression="${activator}" default-value="true"
      */
-    private boolean activator;
+    private boolean provideActivator;
 
     protected boolean checkEnvironment()
         throws MojoExecutionException
@@ -65,39 +69,45 @@ public class OSGiBundleArchetypeMojo extends AbstractArchetypeMojo
         return project.getArtifactId().equals( "compile-bundle" );
     }
 
-    protected void addAdditionalArguments( Commandline commandLine )
+    protected void updateExtensionFields()
+        throws MojoExecutionException
     {
-        commandLine.createArgument().setValue( "-DarchetypeArtifactId=maven-archetype-osgi-bundle" );
+        setField( "archetypeArtifactId", "maven-archetype-osgi-bundle" );
 
-        commandLine.createArgument().setValue(
-            "-DgroupId=" + project.getGroupId().replaceFirst( "\\.build$", ".bundles" ) );
+        setField( "groupId", project.getGroupId().replaceFirst( "\\.build$", ".bundles" ) );
+        setField( "artifactId", bundleName );
+        setField( "version", version );
 
-        commandLine.createArgument().setValue( "-DpackageName=" + packageName );
-        commandLine.createArgument().setValue( "-DartifactId=" + bundleName );
-        commandLine.createArgument().setValue( "-Dversion=" + version );
-
-        commandLine.createArgument().setValue( "-Duser.dir=" + project.getBasedir() );
+        setField( "packageName", packageName );
     }
 
     protected void postProcess()
         throws MojoExecutionException
     {
-        if ( activator == false )
-        {
-            FileSet activatorFiles = new FileSet();
-            activatorFiles.setDirectory( project.getBasedir() + File.separator + bundleName );
-            activatorFiles.addInclude( "src/main/java/**/Activator.java" );
-            activatorFiles.addInclude( "src/main/java/**/ServiceImpl.java" );
-            activatorFiles.addInclude( "src/main/resources/META-INF/details.bnd" );
+        FileSet activatorFiles = new FileSet();
+        activatorFiles.setDirectory( project.getBasedir() + File.separator + bundleName );
 
-            try
+        if ( provideInterface == false )
+        {
+            activatorFiles.addInclude( "src/main/java/**/ExampleService.java" );
+        }
+
+        if ( provideActivator == false )
+        {
+            activatorFiles.addInclude( "src/main/java/**/internal" );
+            activatorFiles.addInclude( "src/main/resources" );
+        }
+
+        try
+        {
+            if ( activatorFiles.getIncludes() != null && !activatorFiles.getIncludes().isEmpty() )
             {
-                new FileSetManager( getLog(), debug ).delete( activatorFiles );
+                new FileSetManager( getLog(), false ).delete( activatorFiles );
             }
-            catch ( IOException e )
-            {
-                throw new MojoExecutionException( "I/O error while deleting files", e );
-            }
+        }
+        catch ( IOException e )
+        {
+            throw new MojoExecutionException( "I/O error while deleting files", e );
         }
     }
 }

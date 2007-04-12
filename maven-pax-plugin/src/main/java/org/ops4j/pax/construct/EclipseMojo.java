@@ -55,7 +55,7 @@ import org.codehaus.plexus.util.xml.pull.XmlPullParserException;
  * 
  * @goal eclipse
  */
-public class EclipseMojo extends EclipsePlugin
+public final class EclipseMojo extends EclipsePlugin
 {
     /**
      * @parameter expression="${project}"
@@ -161,7 +161,7 @@ public class EclipseMojo extends EclipsePlugin
         }
     }
 
-    private final void setField( String name, boolean flag )
+    private void setField( String name, boolean flag )
     {
         try
         {
@@ -176,7 +176,7 @@ public class EclipseMojo extends EclipsePlugin
         }
     }
 
-    protected final static EclipseSourceDir[] rejectLinkedSources( EclipseSourceDir[] sources )
+    protected static EclipseSourceDir[] rejectLinkedSources( EclipseSourceDir[] sources )
     {
         int nonLinkedCount = 0;
         for ( int i = 0; i < sources.length; i++ )
@@ -194,7 +194,7 @@ public class EclipseMojo extends EclipsePlugin
         return nonLinkedSources;
     }
 
-    protected final static IdeDependency[] rejectLinkedDependencies( IdeDependency[] deps )
+    protected static IdeDependency[] rejectLinkedDependencies( IdeDependency[] deps )
     {
         int nonLinkedCount = 0;
         for ( int i = 0; i < deps.length; i++ )
@@ -212,7 +212,7 @@ public class EclipseMojo extends EclipsePlugin
         return nonLinkedDeps;
     }
 
-    protected final Manifest extractManifest( File projectFolder )
+    protected Manifest extractManifest( File projectFolder )
         throws FileNotFoundException,
         IOException
     {
@@ -251,7 +251,7 @@ public class EclipseMojo extends EclipsePlugin
         return manifest;
     }
 
-    protected final void patchClassPath( File projectFolder, String bundleClassPath )
+    protected void patchClassPath( File projectFolder, String bundleClassPath )
         throws FileNotFoundException,
         XmlPullParserException,
         IOException

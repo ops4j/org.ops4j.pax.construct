@@ -29,7 +29,7 @@ import org.apache.maven.shared.model.fileset.util.FileSetManager;
  * 
  * @goal clean
  */
-public class CleanMojo extends AbstractMojo
+public final class CleanMojo extends AbstractMojo
 {
     /**
      * The directory containing generated pax files

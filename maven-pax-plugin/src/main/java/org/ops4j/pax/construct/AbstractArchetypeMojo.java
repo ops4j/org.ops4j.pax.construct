@@ -17,42 +17,65 @@ package org.ops4j.pax.construct;
  */
 
 import java.io.File;
+import java.lang.reflect.Field;
+import java.util.List;
 
-import org.apache.maven.plugin.AbstractMojo;
+import org.apache.maven.archetype.Archetype;
+import org.apache.maven.artifact.repository.ArtifactRepository;
+import org.apache.maven.artifact.repository.ArtifactRepositoryFactory;
+import org.apache.maven.artifact.repository.layout.ArtifactRepositoryLayout;
 import org.apache.maven.plugin.MojoExecutionException;
+import org.apache.maven.plugin.archetype.MavenArchetypeMojo;
 import org.apache.maven.project.MavenProject;
-import org.codehaus.plexus.util.cli.CommandLineException;
-import org.codehaus.plexus.util.cli.CommandLineUtils;
-import org.codehaus.plexus.util.cli.Commandline;
-import org.codehaus.plexus.util.cli.StreamConsumer;
 
 /**
  * Foundation for all OSGi project goals that use archetypes.
  */
-public abstract class AbstractArchetypeMojo extends AbstractMojo
+public abstract class AbstractArchetypeMojo extends MavenArchetypeMojo
 {
     private final static String archetypeGroupId = "org.ops4j.pax.construct";
 
     /**
-     * @parameter expression="${maven.home}/bin/mvn"
-     * @required
-     */
-    private File mvn;
-
-    /**
-     * @parameter expression="${archetypeVersion}" default-value="RELEASE"
+     * @parameter expression="${archetypeVersion}" default-value="0.1.3-SNAPSHOT"
      */
     private String archetypeVersion;
-
-    /**
-     * @parameter expression="${debug}" default-value="false"
-     */
-    protected boolean debug;
 
     /**
      * @parameter expression="${compactNames}" default-value="true"
      */
     private boolean compactNames;
+
+    /**
+     * @component
+     */
+    protected Archetype archetype;
+
+    /**
+     * @component
+     */
+    protected ArtifactRepositoryFactory artifactRepositoryFactory;
+
+    /**
+     * @component role="org.apache.maven.artifact.repository.layout.ArtifactRepositoryLayout" roleHint="default"
+     */
+    protected ArtifactRepositoryLayout defaultArtifactRepositoryLayout;
+
+    /**
+     * @parameter expression="${localRepository}"
+     * @required
+     */
+    protected ArtifactRepository localRepository;
+
+    /**
+     * @parameter expression="${project.remoteArtifactRepositories}"
+     * @required
+     */
+    protected List pomRemoteRepositories;
+
+    /**
+     * @parameter expression="${remoteRepositories}" default-value="http://repository.ops4j.org/maven2"
+     */
+    protected String remoteRepositories;
 
     /**
      * The containing OSGi project
@@ -61,7 +84,29 @@ public abstract class AbstractArchetypeMojo extends AbstractMojo
      */
     protected MavenProject project;
 
-    protected String getGroupMarker( String groupId, String artifactId )
+    /**
+     * The containing OSGi project's base directory
+     * 
+     * @parameter expression="${targetDirectory}" default-value="${project.basedir}"
+     */
+    protected File targetDirectory;
+
+    protected final void setField( String name, Object value )
+    {
+        try
+        {
+            // Attempt to bypass normal private field protection
+            Field f = MavenArchetypeMojo.class.getDeclaredField( name );
+            f.setAccessible( true );
+            f.set( this, value );
+        }
+        catch ( Exception e )
+        {
+            System.out.println( "Cannot set " + name + " to " + value + " exception=" + e );
+        }
+    }
+
+    protected final String getGroupMarker( String groupId, String artifactId )
     {
         if ( compactNames && artifactId.startsWith( groupId ) )
         {
@@ -71,7 +116,7 @@ public abstract class AbstractArchetypeMojo extends AbstractMojo
         return "+" + groupId;
     }
 
-    protected String getCompoundName( String groupId, String artifactId )
+    protected final String getCompoundName( String groupId, String artifactId )
     {
         if ( compactNames && artifactId.startsWith( groupId ) )
         {
@@ -89,43 +134,21 @@ public abstract class AbstractArchetypeMojo extends AbstractMojo
             return;
         }
 
-        Commandline commandLine = new Commandline();
+        final String userDir = System.getProperty( "user.dir" );
 
-        commandLine.setExecutable( mvn.getAbsolutePath() );
-
-        commandLine.createArgument().setValue( "archetype:create" );
-        commandLine.createArgument().setValue( "-DarchetypeGroupId=" + archetypeGroupId );
-        commandLine.createArgument().setValue( "-DarchetypeVersion=" + archetypeVersion );
-        commandLine.createArgument().setValue( "-DremoteRepositories=http://repository.ops4j.org/maven2" );
-
-        addAdditionalArguments( commandLine );
-
-        StreamConsumer consumer = new StreamConsumer()
+        if ( targetDirectory != null )
         {
-            public void consumeLine( String line )
-            {
-                getLog().info( line );
-            }
-        };
-
-        try
-        {
-            StreamConsumer stdOut = debug ? consumer : null;
-            StreamConsumer stdErr = consumer;
-
-            int result = CommandLineUtils.executeCommandLine( commandLine, stdOut, stdErr );
-
-            if ( result != 0 )
-            {
-                throw new MojoExecutionException( "Result of " + commandLine + " execution is: '" + result + "'." );
-            }
-        }
-        catch ( CommandLineException e )
-        {
-            throw new MojoExecutionException( "Command execution failed.", e );
+            System.setProperty( "user.dir", targetDirectory.getPath() );
         }
 
+        updateFields();
+        super.execute();
         postProcess();
+
+        if ( targetDirectory != null )
+        {
+            System.setProperty( "user.dir", userDir );
+        }
     }
 
     protected boolean checkEnvironment()
@@ -134,7 +157,31 @@ public abstract class AbstractArchetypeMojo extends AbstractMojo
         return false;
     }
 
-    abstract protected void addAdditionalArguments( Commandline commandLine );
+    private final void updateFields()
+        throws MojoExecutionException
+    {
+        setField( "archetype", archetype );
+        setField( "artifactRepositoryFactory", artifactRepositoryFactory );
+        setField( "defaultArtifactRepositoryLayout", defaultArtifactRepositoryLayout );
+        setField( "localRepository", localRepository );
+        setField( "archetypeGroupId", archetypeGroupId );
+        setField( "archetypeVersion", archetypeVersion );
+        setField( "pomRemoteRepositories", pomRemoteRepositories );
+        setField( "remoteRepositories", remoteRepositories );
+        setField( "project", project );
+
+        // to be set by the various OSGi archetype sub-classes
+        // setField( "archetypeArtifactId", archetypeArtifactId );
+        // setField( "groupId", groupId );
+        // setField( "artifactId", artifactId );
+        // setField( "version", version );
+        // setField( "packageName", packageName );
+
+        updateExtensionFields();
+    }
+
+    protected abstract void updateExtensionFields()
+        throws MojoExecutionException;
 
     protected void postProcess()
         throws MojoExecutionException

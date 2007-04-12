@@ -23,7 +23,7 @@ import org.apache.maven.plugin.AbstractMojo;
  * 
  * @goal validate
  */
-public class ValidateMojo extends AbstractMojo
+public final class ValidateMojo extends AbstractMojo
 {
     public void execute()
     {

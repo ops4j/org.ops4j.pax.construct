@@ -17,14 +17,13 @@ package org.ops4j.pax.construct;
  */
 
 import org.apache.maven.plugin.MojoExecutionException;
-import org.codehaus.plexus.util.cli.Commandline;
 
 /**
  * Wrap a third-party jar as a bundle and add it to an existing OSGi project.
  * 
  * @goal wrap-jar
  */
-public class OSGiWrapperArchetypeMojo extends AbstractArchetypeMojo
+public final class OSGiWrapperArchetypeMojo extends AbstractArchetypeMojo
 {
     /**
      * The groupId of the jarfile to wrap.
@@ -56,17 +55,15 @@ public class OSGiWrapperArchetypeMojo extends AbstractArchetypeMojo
         return project.getArtifactId().equals( "wrap-jar-as-bundle" );
     }
 
-    protected void addAdditionalArguments( Commandline commandLine )
+    protected void updateExtensionFields()
+        throws MojoExecutionException
     {
-        commandLine.createArgument().setValue( "-DarchetypeArtifactId=maven-archetype-osgi-wrapper" );
+        setField( "archetypeArtifactId", "maven-archetype-osgi-wrapper" );
 
-        commandLine.createArgument().setValue(
-            "-DgroupId=" + project.getGroupId().replaceFirst( "\\.build$", ".bundles" ) );
+        setField( "groupId", project.getGroupId().replaceFirst( "\\.build$", ".bundles" ) );
+        setField( "artifactId", getCompoundName( groupId, artifactId ) );
+        setField( "version", version );
 
-        commandLine.createArgument().setValue( "-DpackageName=" + getGroupMarker( groupId, artifactId ) );
-        commandLine.createArgument().setValue( "-DartifactId=" + getCompoundName( groupId, artifactId ) );
-        commandLine.createArgument().setValue( "-Dversion=" + version );
-
-        commandLine.createArgument().setValue( "-Duser.dir=" + project.getBasedir() );
+        setField( "packageName", getGroupMarker( groupId, artifactId ) );
     }
 }

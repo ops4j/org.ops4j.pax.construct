@@ -36,7 +36,7 @@ import org.codehaus.plexus.util.cli.Commandline;
  * 
  * @goal provision
  */
-public class ProvisionMojo extends AbstractMojo
+public final class ProvisionMojo extends AbstractMojo
 {
     /**
      * @parameter expression="${maven.home}/bin/mvn"
@@ -205,7 +205,7 @@ public class ProvisionMojo extends AbstractMojo
 
                 String[] deployAppCmds =
                 {
-                    "--dir=" + workDir, "--clean", "--no-md5", "--platform=" + platform, "--profile=default",
+                    "--dir=" + workDir, "--no-md5", "--platform=" + platform, "--profile=default",
                     "--repository=" + repoListBuilder.toString(), "--localRepository=" + localRepository.getBasedir(),
                     m_runnerPom.getGroupId(), m_runnerPom.getArtifactId(), m_runnerPom.getVersion()
                 };
