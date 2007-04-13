@@ -1,8 +1,5 @@
 #set( $dollar = '$' )
-<!--
-  convert maven identifiers to OSGi format
--->
-Bundle-Version: $(replace;${dollar}{project.version};(\\d+(\\.\\d+)*)[-_]?([^.].*);$1.$3)
+Bundle-Version: ${dollar}{project.version}
 Bundle-SymbolicName: $(replace;${dollar}{bundle.package}_${dollar}{project.artifactId};-;_)
 
 <!--
@@ -10,7 +7,7 @@ Bundle-SymbolicName: $(replace;${dollar}{bundle.package}_${dollar}{project.artif
 -->
 Private-Package: ${dollar}{bundle.package}.internal
 Export-Package: !${dollar}{bundle.package}.internal,\
-  ${dollar}{bundle.package}.*;version="$(replace;${dollar}{project.version};(\\d+(\\.\\d+)*).*;$1)"
+  ${dollar}{bundle.package}.*;version="${dollar}{project.version}"
 
 <!--
   load project specific settings

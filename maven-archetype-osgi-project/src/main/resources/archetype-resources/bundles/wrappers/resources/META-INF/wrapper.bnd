@@ -1,17 +1,12 @@
 #set( $dollar = '$' )
-<!--
-  convert maven identifiers to OSGi format
--->
-Bundle-Version: $(replace;${dollar}{project.version};(\\d+(\\.\\d+)*)[-_]?([^.].*);$1.$3)
+Bundle-Version: ${dollar}{project.version}
 Bundle-SymbolicName: $(replace;${dollar}{project.artifactId};-;_)
 
 <!--
   by default, version and export all packages from the wrapped jarfile
 -->
 -classpath: target/classes
-Private-Package: *.internal*, META-INF*
-Export-Package: !*.internal*,!META-INF*, \
-  *;version="$(replace;${dollar}{jar.version};(\\d+(\\.\\d+)*).*;$1)"
+Export-Package: *;version="${dollar}{jar.version}"
 
 <!--
   load project specific settings
