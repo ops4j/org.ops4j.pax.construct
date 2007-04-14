@@ -42,9 +42,19 @@
       </exclusions>
     </dependency>
     <dependency>
+      <groupId>org.apache.maven.archetype</groupId>
+      <artifactId>maven-archetype-core</artifactId>
+      <version>RELEASE</version>
+    </dependency>
+    <dependency>
       <groupId>org.apache.maven.shared</groupId>
       <artifactId>file-management</artifactId>
-      <version>1.1</version>
+      <version>RELEASE</version>
+    </dependency>
+    <dependency>
+      <groupId>plexus</groupId>
+      <artifactId>plexus-utils</artifactId>
+      <version>RELEASE</version>
     </dependency>
     <dependency>
       <groupId>org.apache.maven.plugins</groupId>
