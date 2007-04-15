@@ -79,7 +79,7 @@
           <extensions>true</extensions>
           <configuration>
             <instructions>
-              <_include>${project.build.outputDirectory}/META-INF/wrapper.bnd</_include>
+              <_include>target/classes/META-INF/wrapper.bnd</_include>
             </instructions>
           </configuration>
         </plugin>

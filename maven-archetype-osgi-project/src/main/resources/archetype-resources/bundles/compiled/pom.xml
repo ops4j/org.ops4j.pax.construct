@@ -75,7 +75,7 @@
           <extensions>true</extensions>
           <configuration>
             <instructions>
-              <_include>${project.build.outputDirectory}/META-INF/compile.bnd</_include>
+              <_include>target/classes/META-INF/compile.bnd</_include>
             </instructions>
           </configuration>
         </plugin>

@@ -23,7 +23,6 @@ import java.io.IOException;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.shared.model.fileset.FileSet;
 import org.apache.maven.shared.model.fileset.util.FileSetManager;
-
 import org.codehaus.plexus.util.IOUtil;
 
 /**
@@ -114,10 +113,10 @@ public final class OSGiBundleArchetypeMojo extends AbstractArchetypeMojo
             {
                 /*
                  * Interface x.Y will be in another bundle, so null the export packages (default is export package x)
-                 *
+                 * 
                  * If we don't do this then BND will automatically add interface Y to our generated bundle, as without
                  * interface Y we'd only be exporting part of package x, which is bad as it leads to a split package.
-                 *
+                 * 
                  * We only want interface Y in one bundle (the other one), so we reset our Export-Package setting...
                  */
                 out = new FileWriter( activatorFiles.getDirectory() + "/src/main/resources/META-INF/details.bnd", true );
