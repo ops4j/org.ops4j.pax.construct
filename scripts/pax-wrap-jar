@@ -1,0 +1,39 @@
+#!/bin/sh
+SCRIPTS=`dirname $0`
+. ${SCRIPTS}/pax-validate
+
+while
+  getopts g:a:v:h- SETTING
+do
+  case ${SETTING} in
+    h|\?) echo "pax-wrap-jar -g groupId -a artifactId -v version [-- mvnopts ...]" ; exit ;;
+
+    g) GROUPID=${OPTARG} ;;
+    a) ARTIFACTID=${OPTARG} ;;
+    v) VERSION=${OPTARG} ;;
+
+    -) break ;;
+  esac
+done
+
+shift $((${OPTIND}-1))
+EXTRA=$*
+
+if [ -z "${GROUPID}" ]
+then
+  read -p "library groupId (org.ops4j.example) ? " GROUPID
+fi
+if [ -z "${ARTIFACTID}" ]
+then
+  read -p "library artifactId (myJarFile) ? " ARTIFACTID
+fi
+if [ -z "${VERSION}" ]
+then
+  read -p "library version (0.1.0-SNAPSHOT) ? " VERSION
+fi
+
+mvn pax:wrap-jar \
+  -DgroupId=${GROUPID:=org.ops4j.example} \
+  -DartifactId=${ARTIFACTID:=myJarFile} \
+  -Dversion=${VERSION:=0.1.0-SNAPSHOT} ${EXTRA}
+

@@ -1,0 +1,12 @@
+#!/bin/sh
+SCRIPTS=`dirname $0`
+
+if mvn -q -o -npu -N -f ${SCRIPTS}/pax-bootstrap-pom.xml validate
+then
+  : # already installed and validated
+else
+  echo BOOTSTRAP PAX-CONSTRUCT PLUGIN
+  echo ==============================
+  mvn -up -N -f ${SCRIPTS}/pax-bootstrap-pom.xml validate
+fi
+

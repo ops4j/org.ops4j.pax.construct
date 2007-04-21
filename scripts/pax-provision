@@ -1,0 +1,26 @@
+#!/bin/sh
+SCRIPTS=`dirname $0`
+. ${SCRIPTS}/pax-validate
+
+while
+  getopts p:h- SETTING
+do
+  case ${SETTING} in
+    h|\?) echo "pax-provision -p platform [-- mvnopts ...]" ; exit ;;
+
+    p) PLATFORM=${OPTARG} ;;
+
+    -) break ;;
+  esac
+done
+
+shift $((${OPTIND}-1))
+EXTRA=$*
+
+if [ -z "${PLATFORM}" ]
+then
+  read -p "OSGi platform (equinox/knopflerfish/felix) ? " PLATFORM
+fi
+
+mvn pax:provision -Dplatform=${PLATFORM:=equinox} ${EXTRA}
+

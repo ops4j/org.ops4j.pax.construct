@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+
+  <modelVersion>4.0.0</modelVersion>
+  <groupId>org.ops4j.pax.construct</groupId>
+  <artifactId>scripts</artifactId>
+  <version>0.1.0</version>
+
+  <name>OPS4J - bootstrap POM to download initial plugin binary</name>
+
+  <build>
+    <plugins>
+      <plugin>
+        <groupId>org.ops4j.pax.construct</groupId>
+        <artifactId>maven-pax-plugin</artifactId>
+        <inherited>false</inherited>
+      </plugin>
+    </plugins>
+  </build>
+
+  <pluginRepositories>
+    <pluginRepository>
+      <id>ops4j-repository</id>
+      <name>The OPS4J Repository</name>
+      <url>http://repository.ops4j.org/maven2/</url>
+      <releases>
+        <updatePolicy>always</updatePolicy>
+      </releases>
+    </pluginRepository>
+  </pluginRepositories>
+
+</project>
