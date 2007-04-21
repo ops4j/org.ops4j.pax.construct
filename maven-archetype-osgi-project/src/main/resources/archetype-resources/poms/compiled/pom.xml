@@ -50,7 +50,7 @@
   <build>
     <resources>
       <resource>
-        <directory>../resources</directory>
+        <directory>../bnd</directory>
         <filtering>true</filtering>
       </resource>
       <resource>
