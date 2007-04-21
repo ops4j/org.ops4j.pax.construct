@@ -39,13 +39,13 @@
   <packaging>pom</packaging>
 
   <modules>
-    <module>bundles</module>
+    <module>poms</module>
   </modules>
 
   <build>
     <plugins>
       <plugin>
-        <!-- for easy project construction -->
+        <!-- help find the right 'pax' plugin -->
         <groupId>org.ops4j.pax.construct</groupId>
         <artifactId>maven-pax-plugin</artifactId>
         <inherited>false</inherited>
