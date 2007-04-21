@@ -3,13 +3,11 @@
   xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 
 #set( $dollar = '$' )
-
 #if( $package.startsWith("+") )
 #set( $trim = $package.length() )
 #else
 #set( $trim = 0 )
 #end
-
   <properties>
     <jar.groupId>$package.substring(1)</jar.groupId>
     <jar.artifactId>$artifactId.substring($trim)</jar.artifactId>
