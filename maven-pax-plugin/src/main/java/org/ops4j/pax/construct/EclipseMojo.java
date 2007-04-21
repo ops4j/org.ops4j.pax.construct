@@ -161,7 +161,7 @@ public final class EclipseMojo extends EclipsePlugin
         }
     }
 
-    private void setField( String name, boolean flag )
+    private void setField( final String name, final boolean flag )
     {
         try
         {
@@ -212,7 +212,7 @@ public final class EclipseMojo extends EclipsePlugin
         return nonLinkedDeps;
     }
 
-    protected Manifest extractManifest( File projectFolder )
+    protected Manifest extractManifest( final File projectFolder )
         throws FileNotFoundException,
         IOException
     {
@@ -251,7 +251,7 @@ public final class EclipseMojo extends EclipsePlugin
         return manifest;
     }
 
-    protected void patchClassPath( File projectFolder, String bundleClassPath )
+    protected void patchClassPath( final File projectFolder, final String bundleClassPath )
         throws FileNotFoundException,
         XmlPullParserException,
         IOException

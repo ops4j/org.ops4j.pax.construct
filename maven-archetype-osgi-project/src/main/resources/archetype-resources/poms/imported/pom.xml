@@ -24,9 +24,6 @@
 
   <packaging>pom</packaging>
 
-  <modules>
-  </modules>
-
   <build>
     <!--
       configure dependency plugin to unpack jarfile into build directory for eclipse

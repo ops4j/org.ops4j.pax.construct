@@ -28,9 +28,6 @@
     <bundle.location>${project.build.directory}/${project.build.finalName}.jar</bundle.location>
   </properties>
 
-  <modules>
-  </modules>
-
   <build>
     <resources>
       <resource>

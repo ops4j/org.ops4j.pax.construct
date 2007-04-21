@@ -2,6 +2,7 @@
 <classpath>
 	<classpathentry kind="src" path="src/main/java"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
+	<classpathentry kind="var" path="M2_REPO/net/sf/kxml/kxml2/2.2.2/kxml2-2.2.2.jar"/>
 	<classpathentry kind="var" path="M2_REPO/org/apache/maven/maven-artifact/2.0.6/maven-artifact-2.0.6.jar"/>
 	<classpathentry kind="var" path="M2_REPO/org/apache/maven/maven-model/2.0.6/maven-model-2.0.6.jar"/>
 	<classpathentry kind="var" path="M2_REPO/org/apache/maven/maven-plugin-api/2.0.6/maven-plugin-api-2.0.6.jar"/>

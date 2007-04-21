@@ -91,7 +91,7 @@ public abstract class AbstractArchetypeMojo extends MavenArchetypeMojo
      */
     protected File targetDirectory;
 
-    protected final void setField( String name, Object value )
+    protected final void setField( final String name, final Object value )
     {
         try
         {
@@ -106,7 +106,7 @@ public abstract class AbstractArchetypeMojo extends MavenArchetypeMojo
         }
     }
 
-    protected final String getGroupMarker( String groupId, String artifactId )
+    protected final String getGroupMarker( final String groupId, final String artifactId )
     {
         if ( compactNames && artifactId.startsWith( groupId ) )
         {
@@ -116,7 +116,7 @@ public abstract class AbstractArchetypeMojo extends MavenArchetypeMojo
         return "+" + groupId;
     }
 
-    protected final String getCompoundName( String groupId, String artifactId )
+    protected final String getCompoundName( final String groupId, final String artifactId )
     {
         if ( compactNames && artifactId.startsWith( groupId ) )
         {

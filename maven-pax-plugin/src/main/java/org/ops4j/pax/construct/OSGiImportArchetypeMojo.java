@@ -23,7 +23,7 @@ import org.apache.maven.plugin.MojoExecutionException;
  * 
  * @goal import-bundle
  */
-public final class OSGiImportArchetypeMojo extends AbstractArchetypeMojo
+public final class OSGiImportArchetypeMojo extends AbstractChildArchetypeMojo
 {
     /**
      * The groupId of the bundle to import.
@@ -52,18 +52,28 @@ public final class OSGiImportArchetypeMojo extends AbstractArchetypeMojo
     protected boolean checkEnvironment()
         throws MojoExecutionException
     {
-        return project.getArtifactId().equals( "import-bundle" );
+        // this is the logical parent of the new bundle project
+        if ( project.getArtifactId().equals( "import-bundle" ) )
+        {
+            linkChildToParent();
+        }
+
+        // only create archetype under physical parent (ie. the _root_ project)
+        return super.checkEnvironment();
     }
 
     protected void updateExtensionFields()
         throws MojoExecutionException
     {
         setField( "archetypeArtifactId", "maven-archetype-osgi-import" );
+        final String compoundName = getCompoundName( groupId, artifactId );
 
-        setField( "groupId", project.getGroupId().replaceFirst( "\\.build$", ".imports" ) );
-        setField( "artifactId", getCompoundName( groupId, artifactId ) );
+        setField( "groupId", project.getGroupId() + "." + project.getArtifactId() + ".imports" );
+        setField( "artifactId", compoundName );
         setField( "version", version );
 
         setField( "packageName", getGroupMarker( groupId, artifactId ) );
+
+        setChildProjectName( compoundName );
     }
 }

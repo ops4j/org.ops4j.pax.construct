@@ -23,7 +23,7 @@ import org.apache.maven.plugin.MojoExecutionException;
  * 
  * @goal wrap-jar
  */
-public final class OSGiWrapperArchetypeMojo extends AbstractArchetypeMojo
+public final class OSGiWrapperArchetypeMojo extends AbstractChildArchetypeMojo
 {
     /**
      * The groupId of the jarfile to wrap.
@@ -52,18 +52,28 @@ public final class OSGiWrapperArchetypeMojo extends AbstractArchetypeMojo
     protected boolean checkEnvironment()
         throws MojoExecutionException
     {
-        return project.getArtifactId().equals( "wrap-jar-as-bundle" );
+        // this is the logical parent of the new bundle project
+        if ( project.getArtifactId().equals( "wrap-jar-as-bundle" ) )
+        {
+            linkChildToParent();
+        }
+
+        // only create archetype under physical parent (ie. the _root_ project)
+        return super.checkEnvironment();
     }
 
     protected void updateExtensionFields()
         throws MojoExecutionException
     {
         setField( "archetypeArtifactId", "maven-archetype-osgi-wrapper" );
+        final String compoundName = getCompoundName( groupId, artifactId );
 
-        setField( "groupId", project.getGroupId().replaceFirst( "\\.build$", ".bundles" ) );
-        setField( "artifactId", getCompoundName( groupId, artifactId ) );
+        setField( "groupId", project.getGroupId() + "." + project.getArtifactId() + ".bundles" );
+        setField( "artifactId", compoundName );
         setField( "version", version );
 
         setField( "packageName", getGroupMarker( groupId, artifactId ) );
+
+        setChildProjectName( compoundName );
     }
 }

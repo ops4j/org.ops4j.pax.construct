@@ -30,7 +30,7 @@ import org.codehaus.plexus.util.IOUtil;
  * 
  * @goal create-bundle
  */
-public final class OSGiBundleArchetypeMojo extends AbstractArchetypeMojo
+public final class OSGiBundleArchetypeMojo extends AbstractChildArchetypeMojo
 {
     /**
      * The package of the new bundle.
@@ -68,7 +68,14 @@ public final class OSGiBundleArchetypeMojo extends AbstractArchetypeMojo
     protected boolean checkEnvironment()
         throws MojoExecutionException
     {
-        return project.getArtifactId().equals( "compile-bundle" );
+        // this is the logical parent of the new bundle project
+        if ( project.getArtifactId().equals( "compile-bundle" ) )
+        {
+            linkChildToParent();
+        }
+
+        // only create archetype under physical parent (ie. the _root_ project)
+        return super.checkEnvironment();
     }
 
     protected void updateExtensionFields()
@@ -76,11 +83,13 @@ public final class OSGiBundleArchetypeMojo extends AbstractArchetypeMojo
     {
         setField( "archetypeArtifactId", "maven-archetype-osgi-bundle" );
 
-        setField( "groupId", project.getGroupId().replaceFirst( "\\.build$", ".bundles" ) );
+        setField( "groupId", project.getGroupId() + "." + project.getArtifactId() + ".bundles" );
         setField( "artifactId", bundleName );
         setField( "version", version );
 
         setField( "packageName", packageName );
+
+        setChildProjectName( bundleName );
     }
 
     protected void postProcess()
