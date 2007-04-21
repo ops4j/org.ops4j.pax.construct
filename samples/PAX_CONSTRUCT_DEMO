@@ -1,0 +1,16 @@
+
+pax-create-project -g simple.project -a osgi-web-app
+
+cd osgi-web-app
+
+mvn install
+
+pax-wrap-jar -g javax.servlet -a servlet-api -v 2.5
+pax-import-bundle -g org.ops4j.pax.logging -a api -v 0.9.4
+pax-import-bundle -g org.ops4j.pax.logging -a jcl -v 0.9.4
+pax-import-bundle -g org.ops4j.pax.logging -a slf4j -v 0.9.4
+pax-import-bundle -g org.ungoverned.osgi.bundle -a http -v 1.1.2
+pax-create-bundle -p my.osgi.code.myBundle -n myBundle
+
+mvn install pax:provision
+

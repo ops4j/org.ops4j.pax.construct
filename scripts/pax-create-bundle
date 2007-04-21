@@ -2,6 +2,7 @@
 SCRIPTS=`dirname $0`
 . ${SCRIPTS}/pax-validate
 
+NUMOPTS=$#
 while
   getopts p:n:v:h- SETTING
 do
@@ -27,7 +28,7 @@ if [ -z "${NAME}" ]
 then
   read -p "bundle name (myBundle) ? " NAME
 fi
-if [ $# -eq 0 ]
+if [ ${NUMOPTS} -eq 0 ]
 then
   read -p "bundle version (0.1.0-SNAPSHOT) ? " VERSION
 fi

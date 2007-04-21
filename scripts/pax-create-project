@@ -2,6 +2,7 @@
 SCRIPTS=`dirname $0`
 . ${SCRIPTS}/pax-validate
 
+NUMOPTS=$#
 while
   getopts g:a:v:h- SETTING
 do
@@ -27,12 +28,12 @@ if [ -z "${ARTIFACTID}" ]
 then
   read -p "project artifactId (myProject) ? " ARTIFACTID
 fi
-if [ $# -eq 0 ]
+if [ ${NUMOPTS} -eq 0 ]
 then
   read -p "project version (0.1.0-SNAPSHOT) ? " VERSION
 fi
 
-mvn pax:create-project \
+mvn org.ops4j.pax.construct:maven-pax-plugin:0.1.3:create-project \
   -DgroupId=${GROUPID:=org.ops4j.example} \
   -DartifactId=${ARTIFACTID:=myProject} \
   -Dversion=${VERSION:=0.1.0-SNAPSHOT} ${EXTRA}
