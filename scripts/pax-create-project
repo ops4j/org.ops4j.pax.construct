@@ -25,19 +25,18 @@ EXTRA=$*
 
 if [[ -z "${GROUPID}" || -z "${ARTIFACTID}" ]]
 then
-  REQUEST_INPUT=true
-fi
-if [ -z "${GROUPID}" ]
-then
-  read -p "project groupId (org.ops4j.example) ? " GROUPID
-fi
-if [ -z "${ARTIFACTID}" ]
-then
-  read -p "project artifactId (myProject) ? " ARTIFACTID
-fi
-if [[ -z "${VERSION}" && ${REQUEST_INPUT} ]]
-then
-  read -p "project version (0.1.0-SNAPSHOT) ? " VERSION
+  if [ -z "${GROUPID}" ]
+  then
+    read -p "project groupId (org.ops4j.example) ? " GROUPID
+  fi
+  if [ -z "${ARTIFACTID}" ]
+  then
+    read -p "project artifactId (myProject) ? " ARTIFACTID
+  fi
+  if [ -z "${VERSION}" ]
+  then
+    read -p "project version (0.1.0-SNAPSHOT) ? " VERSION
+  fi
 fi
 
 mvn org.ops4j.pax.construct:maven-pax-plugin:0.1.3:create-project \

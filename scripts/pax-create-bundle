@@ -25,19 +25,18 @@ EXTRA=$*
 
 if [[ -z "${PACKAGE}" || -z "${NAME}" ]]
 then
-  REQUEST_INPUT=true
-fi
-if [ -z "${PACKAGE}" ]
-then
-  read -p "java package (org.ops4j.example) ? " PACKAGE
-fi
-if [ -z "${NAME}" ]
-then
-  read -p "bundle name (myBundle) ? " NAME
-fi
-if [[ -z "${VERSION}" && ${REQUEST_INPUT} ]]
-then
-  read -p "bundle version (0.1.0-SNAPSHOT) ? " VERSION
+  if [ -z "${PACKAGE}" ]
+  then
+    read -p "java package (org.ops4j.example) ? " PACKAGE
+  fi
+  if [ -z "${NAME}" ]
+  then
+    read -p "bundle name (myBundle) ? " NAME
+  fi
+  if [ -z "${VERSION}" ]
+  then
+    read -p "bundle version (0.1.0-SNAPSHOT) ? " VERSION
+  fi
 fi
 
 mvn pax:create-bundle \

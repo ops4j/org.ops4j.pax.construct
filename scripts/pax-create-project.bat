@@ -3,7 +3,9 @@ SETLOCAL
 set _SCRIPTS_=%~dp0
 call "%_SCRIPTS_%\pax-validate"
 
-set _FIRSTOPT_=%1
+set _GROUPID_=
+set _ARTIFACTID_=
+set _VERSION_=
 
 
 
@@ -32,9 +34,15 @@ REM shift $((${OPTIND}-1))
 
 set _EXTRA_=%*
 
+if ""=="%_GROUPID_%" goto request_input
+if ""=="%_ARTIFACTID_%" goto request_input
+goto skip_input
+
+:request_input
 if ""=="%_GROUPID_%" set /p _GROUPID_="project groupId (org.ops4j.example) ? "
 if ""=="%_ARTIFACTID_%" set /p _ARTIFACTID_="project artifactId (myProject) ? "
-if ""=="%_FIRSTOPT_%" set /p _VERSION_="project version (0.1.0-SNAPSHOT) ? "
+if ""=="%_VERSION_%" set /p _VERSION_="project version (0.1.0-SNAPSHOT) ? "
+:skip_input
 
 if ""=="%_GROUPID_%" set _GROUPID_=org.ops4j.example
 if ""=="%_ARTIFACTID_%" set _ARTIFACTID_=myProject

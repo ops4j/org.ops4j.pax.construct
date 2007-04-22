@@ -3,7 +3,9 @@ SETLOCAL
 set _SCRIPTS_=%~dp0
 call "%_SCRIPTS_%\pax-validate"
 
-set _FIRSTOPT_=%1
+set _PACKAGE_=
+set _NAME_=
+set _VERSION_=
 
 
 
@@ -32,9 +34,15 @@ REM shift $((${OPTIND}-1))
 
 set _EXTRA_=%*
 
+if ""=="%_PACKAGE_%" goto request_input
+if ""=="%_NAME_%" goto request_input
+goto skip_input
+
+:request_input
 if ""=="%_PACKAGE_%" set /p _PACKAGE_="java package (org.ops4j.example) ? "
 if ""=="%_NAME_%" set /p _NAME_="bundle name (myBundle) ? "
-if ""=="%_FIRSTOPT_%" set /p _VERSION_="bundle version (0.1.0-SNAPSHOT) ? "
+if ""=="%_VERSION_%" set /p _VERSION_="bundle version (0.1.0-SNAPSHOT) ? "
+:skip_input
 
 if ""=="%_PACKAGE_%" set _PACKAGE_=org.ops4j.example
 if ""=="%_NAME_%" set _NAME_=myBundle

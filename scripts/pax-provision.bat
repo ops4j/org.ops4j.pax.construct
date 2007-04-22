@@ -3,6 +3,8 @@ SETLOCAL
 set _SCRIPTS_=%~dp0
 call "%_SCRIPTS_%\pax-validate"
 
+set _PLATFORM_=
+
 
 
 
