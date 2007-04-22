@@ -1,0 +1,12 @@
+<assembly>
+  <formats>
+    <format>zip</format>
+  </formats>
+  <fileSets>
+    <fileSet>
+      <includes>
+        <include>bin/*</include>
+      </includes>
+    </fileSet>
+  </fileSets>
+</assembly>
