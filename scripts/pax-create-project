@@ -2,7 +2,10 @@
 SCRIPTS=`dirname $0`
 . ${SCRIPTS}/pax-validate
 
-NUMOPTS=$#
+unset GROUPID
+unset ARTIFACTID
+unset VERSION
+
 while
   getopts g:a:v:h- SETTING
 do
@@ -20,6 +23,10 @@ done
 shift $((${OPTIND}-1))
 EXTRA=$*
 
+if [[ -z "${GROUPID}" || -z "${ARTIFACTID}" ]]
+then
+  REQUEST_INPUT=true
+fi
 if [ -z "${GROUPID}" ]
 then
   read -p "project groupId (org.ops4j.example) ? " GROUPID
@@ -28,7 +35,7 @@ if [ -z "${ARTIFACTID}" ]
 then
   read -p "project artifactId (myProject) ? " ARTIFACTID
 fi
-if [ ${NUMOPTS} -eq 0 ]
+if [[ -z "${VERSION}" && ${REQUEST_INPUT} ]]
 then
   read -p "project version (0.1.0-SNAPSHOT) ? " VERSION
 fi

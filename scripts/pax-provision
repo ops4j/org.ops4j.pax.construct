@@ -2,6 +2,8 @@
 SCRIPTS=`dirname $0`
 . ${SCRIPTS}/pax-validate
 
+unset PLATFORM
+
 while
   getopts p:h- SETTING
 do

@@ -2,6 +2,10 @@
 SCRIPTS=`dirname $0`
 . ${SCRIPTS}/pax-validate
 
+unset GROUPID
+unset ARTIFACTID
+unset VERSION
+
 while
   getopts g:a:v:h- SETTING
 do
