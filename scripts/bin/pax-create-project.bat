@@ -3,6 +3,9 @@ SETLOCAL
 set _SCRIPTS_=%~dp0
 call "%_SCRIPTS_%\pax-validate"
 
+if ""=="%PAX_CONSTRUCT_VERSION%" set PAX_CONSTRUCT_VERSION=${project.version}
+set PAX_PLUGIN=org.ops4j.pax.construct:maven-pax-plugin:%PAX_CONSTRUCT_VERSION%
+
 set _BATFILE_=%0
 set _GROUPID_=
 set _ARTIFACTID_=
@@ -34,7 +37,7 @@ goto done
 shift
 shift
 
-set _EXTRA_=%0 %1 %2 %3 %4 %5 %6 %7 %8 %9
+set _EXTRA_=%PAX_CONSTRUCT_OPTIONS% %0 %1 %2 %3 %4 %5 %6 %7 %8 %9
 
 if ""=="%_GROUPID_%" goto request_input
 if ""=="%_ARTIFACTID_%" goto request_input
@@ -51,5 +54,5 @@ if ""=="%_ARTIFACTID_%" set _ARTIFACTID_=myProject
 if ""=="%_VERSION_%" set _VERSION_=0.1.0-SNAPSHOT
 
 @echo on
-mvn org.ops4j.pax.construct:maven-pax-plugin:0.1.3:create-project -DgroupId=%_GROUPID_% -DartifactId=%_ARTIFACTID_% -Dversion=%_VERSION_% %_EXTRA_%
+mvn %PAX_PLUGIN%:create-project -DgroupId=%_GROUPID_% -DartifactId=%_ARTIFACTID_% -Dversion=%_VERSION_% %_EXTRA_%
 :done

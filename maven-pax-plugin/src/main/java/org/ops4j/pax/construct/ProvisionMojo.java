@@ -134,8 +134,6 @@ public final class ProvisionMojo extends AbstractMojo
 
     private void addBundleDependency()
     {
-        String thisGroupId = project.getGroupId();
-
         if ( "bundle".equals( project.getPackaging() ) )
         {
             Dependency dependency = new Dependency();

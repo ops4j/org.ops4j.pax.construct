@@ -52,6 +52,7 @@ limitations under the License.
     <module>maven-archetype-osgi-import</module>
     <module>maven-archetype-osgi-bundle</module>
     <module>maven-pax-plugin</module>
+    <module>scripts</module>
   </modules>
 
   <organization>

@@ -28,7 +28,7 @@ goto done
 shift
 shift
 
-set _EXTRA_=%0 %1 %2 %3 %4 %5 %6 %7 %8 %9
+set _EXTRA_=%PAX_CONSTRUCT_OPTIONS% %0 %1 %2 %3 %4 %5 %6 %7 %8 %9
 
 if ""=="%_PLATFORM_%" set /p _PLATFORM_="OSGi platform (equinox/knopflerfish/felix) ? "
 if ""=="%_PLATFORM_%" set _PLATFORM_=equinox

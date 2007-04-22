@@ -2,6 +2,13 @@
 SCRIPTS=`dirname $0`
 . ${SCRIPTS}/pax-validate
 
+if [ -z "${PAX_CONSTRUCT_VERSION}" ]
+then
+  PAX_CONSTRUCT_VERSION=${project.version}
+fi
+
+PAX_PLUGIN=org.ops4j.pax.construct:maven-pax-plugin:${PAX_CONSTRUCT_VERSION}
+
 unset GROUPID
 unset ARTIFACTID
 unset VERSION
@@ -21,7 +28,7 @@ do
 done
 
 shift $((${OPTIND}-1))
-EXTRA=$*
+EXTRA=${PAX_CONSTRUCT_OPTIONS} $*
 
 if [[ -z "${GROUPID}" || -z "${ARTIFACTID}" ]]
 then
@@ -39,7 +46,7 @@ then
   fi
 fi
 
-mvn org.ops4j.pax.construct:maven-pax-plugin:0.1.3:create-project \
+mvn ${PAX_PLUGIN}:create-project \
   -DgroupId=${GROUPID:=org.ops4j.example} \
   -DartifactId=${ARTIFACTID:=myProject} \
   -Dversion=${VERSION:=0.1.0-SNAPSHOT} ${EXTRA}

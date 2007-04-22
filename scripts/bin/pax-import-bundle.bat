@@ -34,7 +34,7 @@ goto done
 shift
 shift
 
-set _EXTRA_=%0 %1 %2 %3 %4 %5 %6 %7 %8 %9
+set _EXTRA_=%PAX_CONSTRUCT_OPTIONS% %0 %1 %2 %3 %4 %5 %6 %7 %8 %9
 
 if ""=="%_GROUPID_%" set /p _GROUPID_="bundle groupId (org.ops4j.example) ? "
 if ""=="%_ARTIFACTID_%" set /p _ARTIFACTID_="bundle artifactId (myBundle) ? "

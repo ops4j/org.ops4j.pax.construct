@@ -17,7 +17,7 @@ do
 done
 
 shift $((${OPTIND}-1))
-EXTRA=$*
+EXTRA=${PAX_CONSTRUCT_OPTIONS} $*
 
 if [ -z "${PLATFORM}" ]
 then

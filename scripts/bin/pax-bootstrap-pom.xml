@@ -13,6 +13,7 @@
       <plugin>
         <groupId>org.ops4j.pax.construct</groupId>
         <artifactId>maven-pax-plugin</artifactId>
+        <version>${PAX_CONSTRUCT_VERSION}</version>
         <inherited>false</inherited>
       </plugin>
     </plugins>
