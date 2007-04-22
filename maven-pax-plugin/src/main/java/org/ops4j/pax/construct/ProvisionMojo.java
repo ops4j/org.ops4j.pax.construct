@@ -136,23 +136,26 @@ public final class ProvisionMojo extends AbstractMojo
     {
         String thisGroupId = project.getGroupId();
 
-        if ( thisGroupId.endsWith( ".imports" ) )
-        {
-            Properties props = project.getProperties();
-
-            Dependency dependency = new Dependency();
-            dependency.setGroupId( props.getProperty( "bundle.groupId" ) );
-            dependency.setArtifactId( props.getProperty( "bundle.artifactId" ) );
-            dependency.setVersion( props.getProperty( "bundle.version" ) );
-            m_dependencies.add( dependency );
-        }
-        else if ( thisGroupId.endsWith( ".bundles" ) )
+        if ( "bundle".equals( project.getPackaging() ) )
         {
             Dependency dependency = new Dependency();
             dependency.setGroupId( project.getGroupId() );
             dependency.setArtifactId( project.getArtifactId() );
             dependency.setVersion( project.getVersion() );
             m_dependencies.add( dependency );
+        }
+        else
+        {
+            Properties props = project.getProperties();
+
+            if ( props.containsKey( "bundle.artifactId" ) )
+            {
+                Dependency dependency = new Dependency();
+                dependency.setGroupId( props.getProperty( "bundle.groupId" ) );
+                dependency.setArtifactId( props.getProperty( "bundle.artifactId" ) );
+                dependency.setVersion( props.getProperty( "bundle.version" ) );
+                m_dependencies.add( dependency );
+            }
         }
     }
 

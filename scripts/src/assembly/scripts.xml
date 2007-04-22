@@ -4,6 +4,8 @@
   </formats>
   <fileSets>
     <fileSet>
+      <directoryMode>0555</directoryMode>
+      <fileMode>0555</fileMode>
       <includes>
         <include>bin/*</include>
       </includes>
