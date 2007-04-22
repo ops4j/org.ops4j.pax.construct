@@ -21,7 +21,7 @@ do
 done
 
 shift $((${OPTIND}-1))
-EXTRA=${PAX_CONSTRUCT_OPTIONS} $*
+EXTRA=$*
 
 if [ -z "${GROUPID}" ]
 then
@@ -39,5 +39,6 @@ fi
 mvn pax:import-bundle \
   -DgroupId=${GROUPID:=org.ops4j.example} \
   -DartifactId=${ARTIFACTID:=myBundle} \
-  -Dversion=${VERSION:=0.1.0-SNAPSHOT} ${EXTRA}
+  -Dversion=${VERSION:=0.1.0-SNAPSHOT} \
+  ${PAX_CONSTRUCT_OPTIONS} ${EXTRA}
 

@@ -21,7 +21,7 @@ do
 done
 
 shift $((${OPTIND}-1))
-EXTRA=${PAX_CONSTRUCT_OPTIONS} $*
+EXTRA=$*
 
 if [[ -z "${PACKAGE}" || -z "${NAME}" ]]
 then
@@ -42,5 +42,6 @@ fi
 mvn pax:create-bundle \
   -Dpackage=${PACKAGE:=org.ops4j.example} \
   -Dname=${NAME:=myBundle} \
-  -Dversion=${VERSION:=0.1.0-SNAPSHOT} ${EXTRA}
+  -Dversion=${VERSION:=0.1.0-SNAPSHOT} \
+  ${PAX_CONSTRUCT_OPTIONS} ${EXTRA}
 
