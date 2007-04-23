@@ -17,12 +17,11 @@ do
 done
 
 shift $((${OPTIND}-1))
-EXTRA=$*
 
 if [ -z "${PLATFORM}" ]
 then
   read -p "OSGi platform (equinox/knopflerfish/felix) ? " PLATFORM
 fi
 
-mvn pax:provision -Dplatform=${PLATFORM:=equinox} ${PAX_CONSTRUCT_OPTIONS} ${EXTRA}
+mvn pax:provision -Dplatform=${PLATFORM:=equinox} ${PAX_CONSTRUCT_OPTIONS} "$@"
 

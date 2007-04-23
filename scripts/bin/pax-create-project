@@ -28,7 +28,6 @@ do
 done
 
 shift $((${OPTIND}-1))
-EXTRA=$*
 
 if [[ -z "${GROUPID}" || -z "${ARTIFACTID}" ]]
 then
@@ -50,5 +49,5 @@ mvn ${PAX_PLUGIN}:create-project \
   -DgroupId=${GROUPID:=org.ops4j.example} \
   -DartifactId=${ARTIFACTID:=myProject} \
   -Dversion=${VERSION:=0.1.0-SNAPSHOT} \
-  ${PAX_CONSTRUCT_OPTIONS} ${EXTRA}
+  ${PAX_CONSTRUCT_OPTIONS} "$@"
 

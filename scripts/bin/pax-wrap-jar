@@ -21,7 +21,6 @@ do
 done
 
 shift $((${OPTIND}-1))
-EXTRA=$*
 
 if [ -z "${GROUPID}" ]
 then
@@ -40,5 +39,5 @@ mvn pax:wrap-jar \
   -DgroupId=${GROUPID:=org.ops4j.example} \
   -DartifactId=${ARTIFACTID:=myJarFile} \
   -Dversion=${VERSION:=0.1.0-SNAPSHOT} \
-  ${PAX_CONSTRUCT_OPTIONS} ${EXTRA}
+  ${PAX_CONSTRUCT_OPTIONS} "$@"
 
