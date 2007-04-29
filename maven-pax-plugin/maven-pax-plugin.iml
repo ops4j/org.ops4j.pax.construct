@@ -1,0 +1,320 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<module version="4" relativePaths="true" type="JAVA_MODULE">
+  <component name="ModuleRootManager" />
+  <component name="NewModuleRootManager" inherit-compiler-output="true">
+    <exclude-output />
+    <content url="file://$MODULE_DIR$">
+      <sourceFolder url="file://$MODULE_DIR$/src/main/java" isTestSource="false" />
+    </content>
+    <orderEntry type="inheritedJdk" />
+    <orderEntry type="sourceFolder" forTests="false" />
+    <orderEntry type="module-library">
+      <library name="Maven Dependency: org.apache.maven:maven-archiver:jar:2.2:compile">
+        <CLASSES>
+          <root url="jar://$M2_REPO$/org/apache/maven/maven-archiver/2.2/maven-archiver-2.2.jar!/" />
+        </CLASSES>
+        <JAVADOC />
+        <SOURCES />
+      </library>
+    </orderEntry>
+    <orderEntry type="module-library">
+      <library name="Maven Dependency: org.codehaus.plexus:plexus-container-default:jar:1.0-alpha-9-stable-1:compile">
+        <CLASSES>
+          <root url="jar://$M2_REPO$/org/codehaus/plexus/plexus-container-default/1.0-alpha-9-stable-1/plexus-container-default-1.0-alpha-9-stable-1.jar!/" />
+        </CLASSES>
+        <JAVADOC />
+        <SOURCES />
+      </library>
+    </orderEntry>
+    <orderEntry type="module-library">
+      <library name="Maven Dependency: org.apache.maven:maven-profile:jar:2.0.6:compile">
+        <CLASSES>
+          <root url="jar://$M2_REPO$/org/apache/maven/maven-profile/2.0.6/maven-profile-2.0.6.jar!/" />
+        </CLASSES>
+        <JAVADOC />
+        <SOURCES />
+      </library>
+    </orderEntry>
+    <orderEntry type="module-library">
+      <library name="Maven Dependency: org.apache.maven.archetype:maven-archetype-creator:jar:1.0-alpha-4:compile">
+        <CLASSES>
+          <root url="jar://$M2_REPO$/org/apache/maven/archetype/maven-archetype-creator/1.0-alpha-4/maven-archetype-creator-1.0-alpha-4.jar!/" />
+        </CLASSES>
+        <JAVADOC />
+        <SOURCES />
+      </library>
+    </orderEntry>
+    <orderEntry type="module-library">
+      <library name="Maven Dependency: org.apache.maven:maven-plugin-registry:jar:2.0.6:compile">
+        <CLASSES>
+          <root url="jar://$M2_REPO$/org/apache/maven/maven-plugin-registry/2.0.6/maven-plugin-registry-2.0.6.jar!/" />
+        </CLASSES>
+        <JAVADOC />
+        <SOURCES />
+      </library>
+    </orderEntry>
+    <orderEntry type="module-library">
+      <library name="Maven Dependency: org.apache.maven:maven-project:jar:2.0.6:compile">
+        <CLASSES>
+          <root url="jar://$M2_REPO$/org/apache/maven/maven-project/2.0.6/maven-project-2.0.6.jar!/" />
+        </CLASSES>
+        <JAVADOC />
+        <SOURCES />
+      </library>
+    </orderEntry>
+    <orderEntry type="module-library">
+      <library name="Maven Dependency: oro:oro:jar:2.0.8:compile">
+        <CLASSES>
+          <root url="jar://$M2_REPO$/oro/oro/2.0.8/oro-2.0.8.jar!/" />
+        </CLASSES>
+        <JAVADOC />
+        <SOURCES />
+      </library>
+    </orderEntry>
+    <orderEntry type="module-library">
+      <library name="Maven Dependency: org.codehaus.plexus:plexus-velocity:jar:1.1.2:compile">
+        <CLASSES>
+          <root url="jar://$M2_REPO$/org/codehaus/plexus/plexus-velocity/1.1.2/plexus-velocity-1.1.2.jar!/" />
+        </CLASSES>
+        <JAVADOC />
+        <SOURCES />
+      </library>
+    </orderEntry>
+    <orderEntry type="module-library">
+      <library name="Maven Dependency: org.apache.maven:maven-settings:jar:2.0.6:compile">
+        <CLASSES>
+          <root url="jar://$M2_REPO$/org/apache/maven/maven-settings/2.0.6/maven-settings-2.0.6.jar!/" />
+        </CLASSES>
+        <JAVADOC />
+        <SOURCES />
+      </library>
+    </orderEntry>
+    <orderEntry type="module-library">
+      <library name="Maven Dependency: commons-collections:commons-collections:jar:2.0:compile">
+        <CLASSES>
+          <root url="jar://$M2_REPO$/commons-collections/commons-collections/2.0/commons-collections-2.0.jar!/" />
+        </CLASSES>
+        <JAVADOC />
+        <SOURCES />
+      </library>
+    </orderEntry>
+    <orderEntry type="module-library">
+      <library name="Maven Dependency: org.apache.maven:maven-artifact-manager:jar:2.0.6:compile">
+        <CLASSES>
+          <root url="jar://$M2_REPO$/org/apache/maven/maven-artifact-manager/2.0.6/maven-artifact-manager-2.0.6.jar!/" />
+        </CLASSES>
+        <JAVADOC />
+        <SOURCES />
+      </library>
+    </orderEntry>
+    <orderEntry type="module-library">
+      <library name="Maven Dependency: org.apache.maven:maven-plugin-api:jar:2.0.6:compile">
+        <CLASSES>
+          <root url="jar://$M2_REPO$/org/apache/maven/maven-plugin-api/2.0.6/maven-plugin-api-2.0.6.jar!/" />
+        </CLASSES>
+        <JAVADOC />
+        <SOURCES />
+      </library>
+    </orderEntry>
+    <orderEntry type="module-library">
+      <library name="Maven Dependency: org.apache.maven.wagon:wagon-provider-api:jar:1.0-beta-2:compile">
+        <CLASSES>
+          <root url="jar://$M2_REPO$/org/apache/maven/wagon/wagon-provider-api/1.0-beta-2/wagon-provider-api-1.0-beta-2.jar!/" />
+        </CLASSES>
+        <JAVADOC />
+        <SOURCES />
+      </library>
+    </orderEntry>
+    <orderEntry type="module-library">
+      <library name="Maven Dependency: org.codehaus.plexus:plexus-interactivity-jline:jar:1.0-alpha-5:compile">
+        <CLASSES>
+          <root url="jar://$M2_REPO$/org/codehaus/plexus/plexus-interactivity-jline/1.0-alpha-5/plexus-interactivity-jline-1.0-alpha-5.jar!/" />
+        </CLASSES>
+        <JAVADOC />
+        <SOURCES />
+      </library>
+    </orderEntry>
+    <orderEntry type="module-library">
+      <library name="Maven Dependency: plexus:plexus-utils:jar:1.0.3:compile">
+        <CLASSES>
+          <root url="jar://$M2_REPO$/plexus/plexus-utils/1.0.3/plexus-utils-1.0.3.jar!/" />
+        </CLASSES>
+        <JAVADOC />
+        <SOURCES />
+      </library>
+    </orderEntry>
+    <orderEntry type="module-library">
+      <library name="Maven Dependency: velocity:velocity-dep:jar:1.4:runtime">
+        <CLASSES>
+          <root url="jar://$M2_REPO$/velocity/velocity-dep/1.4/velocity-dep-1.4.jar!/" />
+        </CLASSES>
+        <JAVADOC />
+        <SOURCES />
+      </library>
+    </orderEntry>
+    <orderEntry type="module-library">
+      <library name="Maven Dependency: classworlds:classworlds:jar:1.1-alpha-2:compile">
+        <CLASSES>
+          <root url="jar://$M2_REPO$/classworlds/classworlds/1.1-alpha-2/classworlds-1.1-alpha-2.jar!/" />
+        </CLASSES>
+        <JAVADOC />
+        <SOURCES />
+      </library>
+    </orderEntry>
+    <orderEntry type="module-library">
+      <library name="Maven Dependency: org.apache.maven.shared:file-management:jar:1.1:compile">
+        <CLASSES>
+          <root url="jar://$M2_REPO$/org/apache/maven/shared/file-management/1.1/file-management-1.1.jar!/" />
+        </CLASSES>
+        <JAVADOC />
+        <SOURCES />
+      </library>
+    </orderEntry>
+    <orderEntry type="module-library">
+      <library name="Maven Dependency: org.apache.maven.shared:maven-shared-io:jar:1.0:compile">
+        <CLASSES>
+          <root url="jar://$M2_REPO$/org/apache/maven/shared/maven-shared-io/1.0/maven-shared-io-1.0.jar!/" />
+        </CLASSES>
+        <JAVADOC />
+        <SOURCES />
+      </library>
+    </orderEntry>
+    <orderEntry type="module-library">
+      <library name="Maven Dependency: dom4j:dom4j:jar:1.6.1:compile">
+        <CLASSES>
+          <root url="jar://$M2_REPO$/dom4j/dom4j/1.6.1/dom4j-1.6.1.jar!/" />
+        </CLASSES>
+        <JAVADOC />
+        <SOURCES />
+      </library>
+    </orderEntry>
+    <orderEntry type="module-library">
+      <library name="Maven Dependency: org.apache.maven:maven-repository-metadata:jar:2.0.6:compile">
+        <CLASSES>
+          <root url="jar://$M2_REPO$/org/apache/maven/maven-repository-metadata/2.0.6/maven-repository-metadata-2.0.6.jar!/" />
+        </CLASSES>
+        <JAVADOC />
+        <SOURCES />
+      </library>
+    </orderEntry>
+    <orderEntry type="module-library">
+      <library name="Maven Dependency: org.codehaus.plexus:plexus-utils:jar:1.4.1:compile">
+        <CLASSES>
+          <root url="jar://$M2_REPO$/org/codehaus/plexus/plexus-utils/1.4.1/plexus-utils-1.4.1.jar!/" />
+        </CLASSES>
+        <JAVADOC />
+        <SOURCES />
+      </library>
+    </orderEntry>
+    <orderEntry type="module-library">
+      <library name="Maven Dependency: org.ops4j.pax:runner:jar:0.3.1:compile">
+        <CLASSES>
+          <root url="jar://$M2_REPO$/org/ops4j/pax/runner/0.3.1/runner-0.3.1.jar!/" />
+        </CLASSES>
+        <JAVADOC />
+        <SOURCES />
+      </library>
+    </orderEntry>
+    <orderEntry type="module-library">
+      <library name="Maven Dependency: org.codehaus.plexus:plexus-interactivity-api:jar:1.0-alpha-5:compile">
+        <CLASSES>
+          <root url="jar://$M2_REPO$/org/codehaus/plexus/plexus-interactivity-api/1.0-alpha-5/plexus-interactivity-api-1.0-alpha-5.jar!/" />
+        </CLASSES>
+        <JAVADOC />
+        <SOURCES />
+      </library>
+    </orderEntry>
+    <orderEntry type="module-library">
+      <library name="Maven Dependency: velocity:velocity:jar:1.4:compile">
+        <CLASSES>
+          <root url="jar://$M2_REPO$/velocity/velocity/1.4/velocity-1.4.jar!/" />
+        </CLASSES>
+        <JAVADOC />
+        <SOURCES />
+      </library>
+    </orderEntry>
+    <orderEntry type="module-library">
+      <library name="Maven Dependency: org.apache.maven.archetype:maven-archetype-core:jar:1.0-alpha-4:compile">
+        <CLASSES>
+          <root url="jar://$M2_REPO$/org/apache/maven/archetype/maven-archetype-core/1.0-alpha-4/maven-archetype-core-1.0-alpha-4.jar!/" />
+        </CLASSES>
+        <JAVADOC />
+        <SOURCES />
+      </library>
+    </orderEntry>
+    <orderEntry type="module-library">
+      <library name="Maven Dependency: junit:junit:jar:4.1:test">
+        <CLASSES>
+          <root url="jar://$M2_REPO$/junit/junit/4.1/junit-4.1.jar!/" />
+        </CLASSES>
+        <JAVADOC />
+        <SOURCES />
+      </library>
+    </orderEntry>
+    <orderEntry type="module-library">
+      <library name="Maven Dependency: jline:jline:jar:0.9.1:compile">
+        <CLASSES>
+          <root url="jar://$M2_REPO$/jline/jline/0.9.1/jline-0.9.1.jar!/" />
+        </CLASSES>
+        <JAVADOC />
+        <SOURCES />
+      </library>
+    </orderEntry>
+    <orderEntry type="module-library">
+      <library name="Maven Dependency: org.codehaus.plexus:plexus-archiver:jar:1.0-alpha-7:compile">
+        <CLASSES>
+          <root url="jar://$M2_REPO$/org/codehaus/plexus/plexus-archiver/1.0-alpha-7/plexus-archiver-1.0-alpha-7.jar!/" />
+        </CLASSES>
+        <JAVADOC />
+        <SOURCES />
+      </library>
+    </orderEntry>
+    <orderEntry type="module-library">
+      <library name="Maven Dependency: org.apache.maven:maven-artifact:jar:2.0.6:compile">
+        <CLASSES>
+          <root url="jar://$M2_REPO$/org/apache/maven/maven-artifact/2.0.6/maven-artifact-2.0.6.jar!/" />
+        </CLASSES>
+        <JAVADOC />
+        <SOURCES />
+      </library>
+    </orderEntry>
+    <orderEntry type="module-library">
+      <library name="Maven Dependency: xml-apis:xml-apis:jar:1.0.b2:compile">
+        <CLASSES>
+          <root url="jar://$M2_REPO$/xml-apis/xml-apis/1.0.b2/xml-apis-1.0.b2.jar!/" />
+        </CLASSES>
+        <JAVADOC />
+        <SOURCES />
+      </library>
+    </orderEntry>
+    <orderEntry type="module-library">
+      <library name="Maven Dependency: commons-logging:commons-logging-api:jar:1.0.4:compile">
+        <CLASSES>
+          <root url="jar://$M2_REPO$/commons-logging/commons-logging-api/1.0.4/commons-logging-api-1.0.4.jar!/" />
+        </CLASSES>
+        <JAVADOC />
+        <SOURCES />
+      </library>
+    </orderEntry>
+    <orderEntry type="module-library">
+      <library name="Maven Dependency: org.apache.maven.archetype:maven-archetype-model:jar:1.0-alpha-4:compile">
+        <CLASSES>
+          <root url="jar://$M2_REPO$/org/apache/maven/archetype/maven-archetype-model/1.0-alpha-4/maven-archetype-model-1.0-alpha-4.jar!/" />
+        </CLASSES>
+        <JAVADOC />
+        <SOURCES />
+      </library>
+    </orderEntry>
+    <orderEntry type="module-library">
+      <library name="Maven Dependency: org.apache.maven:maven-model:jar:2.0.6:compile">
+        <CLASSES>
+          <root url="jar://$M2_REPO$/org/apache/maven/maven-model/2.0.6/maven-model-2.0.6.jar!/" />
+        </CLASSES>
+        <JAVADOC />
+        <SOURCES />
+      </library>
+    </orderEntry>
+    <orderEntryProperties />
+  </component>
+</module>
+
