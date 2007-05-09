@@ -22,14 +22,15 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
 
+import org.apache.maven.artifact.Artifact;
+import org.apache.maven.artifact.factory.ArtifactFactory;
+import org.apache.maven.artifact.installer.ArtifactInstaller;
 import org.apache.maven.artifact.repository.ArtifactRepository;
 import org.apache.maven.model.Dependency;
 import org.apache.maven.model.Model;
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.project.MavenProject;
-import org.codehaus.plexus.util.cli.CommandLineUtils;
-import org.codehaus.plexus.util.cli.Commandline;
 
 /**
  * Create configuration pom file for provisioning via Pax-Runner
@@ -38,12 +39,6 @@ import org.codehaus.plexus.util.cli.Commandline;
  */
 public final class ProvisionMojo extends AbstractMojo
 {
-    /**
-     * @parameter expression="${maven.home}/bin/mvn"
-     * @required
-     */
-    private File mvn;
-
     /**
      * The target OSGi project
      * 
@@ -81,6 +76,20 @@ public final class ProvisionMojo extends AbstractMojo
      * @readonly
      */
     private ArtifactRepository localRepository;
+
+    /**
+     * @parameter expression="${component.org.apache.maven.artifact.factory.ArtifactFactory}"
+     * @required
+     * @readonly
+     */
+    private ArtifactFactory factory;
+
+    /**
+     * @parameter expression="${component.org.apache.maven.artifact.installer.ArtifactInstaller}"
+     * @required
+     * @readonly
+     */
+    private ArtifactInstaller installer;
 
     private static MavenProject m_runnerPom;
     private static List<Dependency> m_dependencies;
@@ -174,14 +183,10 @@ public final class ProvisionMojo extends AbstractMojo
             m_runnerPom.setDependencies( m_dependencies );
             m_runnerPom.writeModel( new FileWriter( pomFile ) );
 
-            Commandline installPomCmd = new Commandline();
-            installPomCmd.setExecutable( mvn.getAbsolutePath() );
-            installPomCmd.createArgument().setValue( "-N" );
-            installPomCmd.createArgument().setValue( "-f" );
-            installPomCmd.createArgument().setValue( pomFile.getAbsolutePath() );
-            installPomCmd.createArgument().setValue( "install" );
+            Artifact artifact = factory.createProjectArtifact( m_runnerPom.getGroupId(), m_runnerPom.getArtifactId(),
+                m_runnerPom.getVersion() );
 
-            CommandLineUtils.executeCommandLine( installPomCmd, null, null );
+            installer.install( pomFile, artifact, localRepository );
 
             if ( deploy )
             {

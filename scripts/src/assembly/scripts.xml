@@ -6,7 +6,7 @@
     <fileSet>
       <directory>target/bin</directory>
       <outputDirectory>bin</outputDirectory>
-      <directoryMode>0555</directoryMode>
+      <directoryMode>0755</directoryMode>
       <fileMode>0555</fileMode>
     </fileSet>
   </fileSets>
