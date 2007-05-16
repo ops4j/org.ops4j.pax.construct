@@ -36,7 +36,7 @@ public abstract class AbstractArchetypeMojo extends MavenArchetypeMojo
     private final static String archetypeGroupId = "org.ops4j.pax.construct";
 
     /**
-     * @parameter expression="${archetypeVersion}" default-value="RELEASE"
+     * @parameter expression="${archetypeVersion}" default-value="${plugin.version}"
      */
     private String archetypeVersion;
 
