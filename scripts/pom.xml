@@ -12,18 +12,34 @@
 
   <name>OPS4J - Pax Construct scripts</name>
 
+  <packaging>pom</packaging>
+
   <build>
     <outputDirectory>target/bin</outputDirectory>
     <resources>
       <resource>
-        <directory>bin</directory>
+        <directory>src/bin</directory>
         <filtering>true</filtering>
       </resource>
     </resources>
     <plugins>
       <plugin>
+        <artifactId>maven-resources-plugin</artifactId>
+        <executions>
+          <execution>
+            <id>filter-scripts</id>
+            <phase>package</phase>
+            <goals>
+              <goal>resources</goal>
+            </goals>
+          </execution>
+        </executions>
+      </plugin>
+      <plugin>
         <artifactId>maven-assembly-plugin</artifactId>
         <configuration>
+          <finalName>pax-construct-${project.version}</finalName>
+          <appendAssemblyId>false</appendAssemblyId>
           <descriptors>
             <descriptor>src/assembly/scripts.xml</descriptor>
           </descriptors>

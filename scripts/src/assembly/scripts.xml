@@ -1,4 +1,5 @@
 <assembly>
+  <id>scripts</id>
   <formats>
     <format>zip</format>
   </formats>
