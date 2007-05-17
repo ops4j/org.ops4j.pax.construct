@@ -23,9 +23,12 @@ import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.io.InputStream;
 import java.lang.reflect.Field;
+import java.util.Collections;
 import java.util.List;
 import java.util.jar.Attributes;
+import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 import java.util.jar.Manifest;
 import java.util.zip.ZipException;
@@ -324,6 +327,43 @@ public final class EclipseMojo extends EclipsePlugin
         }
     }
 
+    private void unpackMetadata( final File projectFolder )
+        throws IOException
+    {
+        if ( isImportedBundle )
+        {
+            // nothing to do...
+        }
+        else
+        {
+            // Metadata files can simply be extracted from the new bundle
+            JarFile bundle = new JarFile( project.getBuild().getDirectory() + File.separator
+                + project.getBuild().getFinalName() + ".jar" );
+
+            for ( final JarEntry entry : Collections.list( bundle.entries() ) )
+            {
+                final String name = entry.getName();
+
+                if ( name.startsWith( "META-INF" ) || name.startsWith( "OSGI-INF" ) )
+                {
+                    File extractedFile = new File( projectFolder, name );
+
+                    if ( entry.isDirectory() )
+                    {
+                        extractedFile.mkdirs();
+                    }
+                    else
+                    {
+                        InputStream contents = bundle.getInputStream( entry );
+                        FileWriter writer = new FileWriter( extractedFile );
+                        IOUtil.copy( contents, writer );
+                        IOUtil.close( writer );
+                    }
+                }
+            }
+        }
+    }
+
     public void writeConfiguration( IdeDependency[] deps )
         throws MojoExecutionException
     {
@@ -355,10 +395,13 @@ public final class EclipseMojo extends EclipsePlugin
             new EclipseClasspathWriter().init( getLog(), config ).write();
             new EclipseProjectWriter().init( getLog(), config ).write();
 
+            final File projectFolder = config.getEclipseProjectDirectory();
+
             // Handle embedded jarfiles, etc...
-            Manifest manifest = extractManifest( config.getEclipseProjectDirectory() );
+            Manifest manifest = extractManifest( projectFolder );
             String classPath = manifest.getMainAttributes().getValue( "Bundle-ClassPath" );
-            patchClassPath( config.getEclipseProjectDirectory(), classPath );
+            patchClassPath( projectFolder, classPath );
+            unpackMetadata( projectFolder );
         }
         catch ( Exception e )
         {

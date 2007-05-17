@@ -50,9 +50,9 @@ public final class CleanMojo extends AbstractMojo
         generatedPaxFiles.setDirectory( basedir.getPath() );
 
         generatedPaxFiles.addInclude( "META-INF" );
+        generatedPaxFiles.addInclude( "OSGI-INF" );
         generatedPaxFiles.addInclude( ".project" );
         generatedPaxFiles.addInclude( ".classpath" );
-        generatedPaxFiles.addInclude( ".settings" );
 
         try
         {
