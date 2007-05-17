@@ -312,6 +312,11 @@ public final class EclipseMojo extends EclipsePlugin
                 {
                     continue;
                 }
+                // any non-existing Bundle-ClassPath entries should be ignored and not added to the Eclipse classpath
+                if ( !new File( projectFolder, paths[i] ).exists() )
+                {
+                    continue;
+                }
 
                 // Add non-default bundle classpath entry
                 Xpp3Dom classPathDot = new Xpp3Dom( "classpathentry" );
