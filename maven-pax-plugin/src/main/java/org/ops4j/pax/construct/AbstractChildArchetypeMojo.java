@@ -19,6 +19,7 @@ package org.ops4j.pax.construct;
 import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
+import java.io.IOException;
 
 import org.apache.maven.plugin.MojoExecutionException;
 import org.kxml2.kdom.Document;
@@ -104,13 +105,27 @@ public abstract class AbstractChildArchetypeMojo extends AbstractArchetypeMojo
     {
         try
         {
+            final String childName = childPomFile.getParentFile().getName();
+
             Document parentPom = readPom( project.getFile() );
 
             Element projectElem = parentPom.getElement( null, "project" );
             Element modulesElem = projectElem.getElement( null, "modules" );
 
+            for ( int i = 0; i < modulesElem.getChildCount(); i++ )
+            {
+                Element childElem = modulesElem.getElement( i );
+                if ( childElem != null )
+                {
+                    if ( childName.equalsIgnoreCase( childElem.getChild( 0 ).toString() ) )
+                    {
+                        throw new IOException( "directory already exists" );
+                    }
+                }
+            }
+
             Element newModuleElem = modulesElem.createElement( null, "module" );
-            newModuleElem.addChild( Element.TEXT, childPomFile.getParentFile().getName() );
+            newModuleElem.addChild( Element.TEXT, childName );
 
             modulesElem.addChild( Element.TEXT, "  " );
             modulesElem.addChild( Element.ELEMENT, newModuleElem );
