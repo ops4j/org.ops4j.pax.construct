@@ -26,7 +26,10 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.lang.reflect.Field;
 import java.util.Collections;
+import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.jar.Attributes;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
@@ -306,6 +309,7 @@ public final class EclipseMojo extends EclipsePlugin
 
             Xpp3Dom classPathXML = Xpp3DomBuilder.build( new FileReader( classPathFile ) );
 
+            Map eclipsePaths = new HashMap();  
             for ( int i = 0; i < paths.length; i++ )
             {
                 if ( paths[i].equals( "." ) && !isWrappedJarFile && !isImportedBundle )
@@ -313,18 +317,44 @@ public final class EclipseMojo extends EclipsePlugin
                     continue;
                 }
                 // any non-existing Bundle-ClassPath entries should be ignored and not added to the Eclipse classpath
-                if ( !new File( projectFolder, paths[i] ).exists() )
+                File pathEntry = new File( projectFolder, paths[i] ); 
+                if ( !pathEntry.exists() )
                 {
                     continue;
                 }
-
+                // TODO shall we check if the entry is not twice in the list?
+                // only create an eclipse path entry for the top directories from the Bundle-ClassPath
+                String canonicalPath = pathEntry.getCanonicalPath();
+                boolean addEntry = true;
+                for ( Iterator iter = eclipsePaths.entrySet().iterator(); iter.hasNext(); ) {
+					Map.Entry entry = (Map.Entry) iter.next();
+					// if we already have a parent folder for the current iteration entry
+					if ( canonicalPath.startsWith( ((String) entry.getKey()) ) )
+					{
+						addEntry = false;
+						break;
+					}
+					// if we the current iteration entry is a parent for en already added folder
+					if ( ((String) entry.getKey()).startsWith( canonicalPath ) )
+					{
+						iter.remove();
+						break;
+					}
+				}
+                if ( addEntry )
+                {
+                	eclipsePaths.put(canonicalPath, paths[i]);
+                }
+            }
+            
+            for (Iterator iter = eclipsePaths.values().iterator(); iter.hasNext();) {
                 // Add non-default bundle classpath entry
                 Xpp3Dom classPathDot = new Xpp3Dom( "classpathentry" );
                 classPathDot.setAttribute( "exported", "true" );
                 classPathDot.setAttribute( "kind", "lib" );
-                classPathDot.setAttribute( "path", paths[i] );
-                classPathXML.addChild( classPathDot );
-            }
+                classPathDot.setAttribute( "path", (String) iter.next() );
+                classPathXML.addChild( classPathDot );				
+			}
 
             FileWriter writer = new FileWriter( classPathFile );
             Xpp3DomWriter.write( new PrettyPrintXMLWriter( writer ), classPathXML );
