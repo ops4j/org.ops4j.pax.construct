@@ -119,7 +119,7 @@ public abstract class AbstractChildArchetypeMojo extends AbstractArchetypeMojo
                 {
                     if ( childName.equalsIgnoreCase( childElem.getChild( 0 ).toString() ) )
                     {
-                        throw new IOException( "directory already exists" );
+                        throw new IOException( "The project already has a module named " + childName );
                     }
                 }
             }
