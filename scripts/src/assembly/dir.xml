@@ -1,0 +1,15 @@
+<assembly>
+  <id>dir</id>
+  <includeBaseDirectory>false</includeBaseDirectory>
+  <formats>
+    <format>dir</format>
+  </formats>
+  <fileSets>
+    <fileSet>
+      <directory>target/bin</directory>
+      <outputDirectory>bin</outputDirectory>
+      <directoryMode>0755</directoryMode>
+      <fileMode>0555</fileMode>
+    </fileSet>
+  </fileSets>
+</assembly>

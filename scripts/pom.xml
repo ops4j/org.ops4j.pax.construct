@@ -37,13 +37,6 @@
       </plugin>
       <plugin>
         <artifactId>maven-assembly-plugin</artifactId>
-        <configuration>
-          <finalName>pax-construct-${project.version}</finalName>
-          <appendAssemblyId>false</appendAssemblyId>
-          <descriptors>
-            <descriptor>src/assembly/scripts.xml</descriptor>
-          </descriptors>
-        </configuration>
         <executions>
           <execution>
             <id>make-assembly</id>
@@ -51,6 +44,27 @@
             <goals>
               <goal>attached</goal>
             </goals>
+            <configuration>
+              <finalName>pax-construct-${project.version}</finalName>
+              <appendAssemblyId>false</appendAssemblyId>
+              <descriptors>
+                <descriptor>src/assembly/zip.xml</descriptor>
+              </descriptors>
+            </configuration>
+          </execution>
+          <execution>
+            <id>release-scripts</id>
+            <phase>package</phase>
+            <goals>
+              <goal>attached</goal>
+            </goals>
+            <configuration>
+              <finalName>release</finalName>
+              <appendAssemblyId>false</appendAssemblyId>
+              <descriptors>
+                <descriptor>src/assembly/dir.xml</descriptor>
+              </descriptors>
+            </configuration>
           </execution>
         </executions>
       </plugin>
