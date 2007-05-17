@@ -1,0 +1,29 @@
+#!/bin/sh
+SCRIPTS=`dirname $0`
+. ${SCRIPTS}/pax-validate
+
+unset NAME
+
+while
+  getopts n:h- SETTING
+do
+  case ${SETTING} in
+    h|\?) echo "pax-remove-bundle -n bundleName [-- mvnOpts ...]" ; exit ;;
+
+    n) NAME=${OPTARG} ;;
+
+    -) break ;;
+  esac
+done
+
+shift $((${OPTIND}-1))
+
+if [ -z "${NAME}" ]
+then
+  read -p "bundle name (myBundle) ? " NAME
+fi
+
+mvn pax:remove-bundle \
+  -Dname=${NAME:=myBundle} \
+  ${PAX_CONSTRUCT_OPTIONS} "$@"
+
