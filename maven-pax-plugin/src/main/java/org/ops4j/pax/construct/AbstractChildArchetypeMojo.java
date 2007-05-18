@@ -16,24 +16,22 @@ package org.ops4j.pax.construct;
  * limitations under the License.
  */
 
+import static org.ops4j.pax.construct.PomUtils.NL;
+import static org.ops4j.pax.construct.PomUtils.readPom;
+import static org.ops4j.pax.construct.PomUtils.writePom;
+
 import java.io.File;
-import java.io.FileReader;
-import java.io.FileWriter;
 import java.io.IOException;
 
 import org.apache.maven.plugin.MojoExecutionException;
 import org.kxml2.kdom.Document;
 import org.kxml2.kdom.Element;
-import org.xmlpull.v1.XmlPullParser;
-import org.xmlpull.v1.XmlPullParserFactory;
-import org.xmlpull.v1.XmlSerializer;
 
 /**
  * Foundation for all OSGi sub-project goals that use archetypes.
  */
 public abstract class AbstractChildArchetypeMojo extends AbstractArchetypeMojo
 {
-    private static final String NL = System.getProperty( "line.separator" );
 
     private static boolean seenRootProject = false;
 
@@ -66,46 +64,6 @@ public abstract class AbstractChildArchetypeMojo extends AbstractArchetypeMojo
 
         // update parent modules
         linkParentToChild();
-    }
-
-    private static Document readPom( File pomFile )
-        throws MojoExecutionException
-    {
-        try
-        {
-            XmlPullParser parser = XmlPullParserFactory.newInstance().newPullParser();
-            FileReader input = new FileReader( pomFile );
-
-            Document pom = new Document();
-
-            parser.setInput( input );
-            pom.parse( parser );
-            input.close();
-
-            return pom;
-        }
-        catch ( Exception e )
-        {
-            throw new MojoExecutionException( "Unable to parse POM", e );
-        }
-    }
-
-    private static void writePom( File pomFile, Document pom )
-        throws MojoExecutionException
-    {
-        try
-        {
-            XmlSerializer serial = XmlPullParserFactory.newInstance().newSerializer();
-            FileWriter output = new FileWriter( pomFile );
-
-            serial.setOutput( output );
-            pom.write( serial );
-            output.close();
-        }
-        catch ( Exception e )
-        {
-            throw new MojoExecutionException( "Unable to serialize POM", e );
-        }
     }
 
     protected void linkParentToChild()

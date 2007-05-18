@@ -1,0 +1,55 @@
+#!/bin/sh
+SCRIPTS=`dirname $0`
+. ${SCRIPTS}/pax-validate
+
+if [ -z "${PAX_CONSTRUCT_VERSION}" ]
+then
+  PAX_CONSTRUCT_VERSION=0.1.5-SNAPSHOT
+fi
+
+PAX_PLUGIN=org.ops4j.pax.construct:maven-pax-plugin:${PAX_CONSTRUCT_VERSION}
+
+unset ID
+unset URL
+
+while
+  getopts i:u:h- SETTING
+do
+  case ${SETTING} in
+    h|\?) echo "pax-add-repository -i repository.id -r repository.url [-- mvnopts ...]" ; exit ;;
+
+    i) ID=${OPTARG} ;;
+    u) URL=${OPTARG} ;;
+
+    -) break ;;
+  esac
+done
+
+shift $((${OPTIND}-1))
+
+if [[ -z "${ID}" || -z "${URL}" ]]
+then
+  if [ -z "${ID}" ]
+  then
+    read -p "repository id (org.ops4j.repository) ? " ID
+    if [ -z "${ID}" ]
+    then
+      break
+    fi
+  fi
+  if [ -z "${URL}" ]
+  then
+    read -p "repository url (http://repository.ops4j.org/maven2) ? " URL
+    if [ -z "${URL}" ]
+    then
+      break
+    fi
+  fi
+fi
+
+mvn ${PAX_PLUGIN}:add-repository \
+  -Drepository.id=${ID} \
+  -Drepository.url=${URL} \
+  -Dversion=${VERSION:=0.1.0-SNAPSHOT} \
+  ${PAX_CONSTRUCT_OPTIONS} "$@"
+
