@@ -35,6 +35,8 @@ public abstract class AbstractChildArchetypeMojo extends AbstractArchetypeMojo
 {
     private static final String NL = System.getProperty( "line.separator" );
 
+    private static boolean seenRootProject = false;
+
     /**
      * The newly generated POM file - this is set in the _root_ project execution
      */
@@ -43,8 +45,14 @@ public abstract class AbstractChildArchetypeMojo extends AbstractArchetypeMojo
     protected boolean checkEnvironment()
         throws MojoExecutionException
     {
-        // only create files under root project
-        return project.getParent() == null;
+        // only create files under primary root project
+        if (seenRootProject || project.getParent() != null)
+        {
+            return false;
+        }
+
+        seenRootProject = true;
+        return true;
     }
 
     protected void setChildProjectName( final String childProjectName )
