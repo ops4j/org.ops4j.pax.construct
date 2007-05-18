@@ -29,16 +29,6 @@
   </properties>
 
   <build>
-    <resources>
-      <resource>
-        <directory>../bnd</directory>
-        <filtering>true</filtering>
-      </resource>
-      <resource>
-        <directory>src/main/resources</directory>
-        <filtering>true</filtering>
-      </resource>
-    </resources>
     <!--
       wrapper specific plugin configuration
     -->
@@ -78,7 +68,23 @@
           <extensions>true</extensions>
           <configuration>
             <instructions>
-              <_include>target/classes/META-INF/wrapper.bnd</_include>
+              <Bundle-Version>${project.version}</Bundle-Version>
+#end
+#set( $symbolicName = '$(replace;${project.artifactId};-;_)' )
+              <Bundle-SymbolicName>${symbolicName}</Bundle-SymbolicName>
+#literal()
+              <!--
+                by default import + export all packages from the wrapped jarfile
+                except the root package "." - this cannot be shared, as it could
+                potentially lead to a split-package situation
+              -->
+              <_classpath>target/classes</_classpath>
+              <Export-Package>*;version="${jar.version}"</Export-Package>
+              <Import-Package>!.,*</Import-Package>
+              <!--
+                load project specific settings
+              -->
+              <_include>-target/classes/META-INF/details.bnd</_include>
             </instructions>
           </configuration>
         </plugin>

@@ -5,8 +5,5 @@
     <resource>poms/compiled/pom.xml</resource>
     <resource>poms/imported/pom.xml</resource>
     <resource>poms/wrappers/pom.xml</resource>
-    <resource>bnd/META-INF/compile.bnd</resource>
-    <resource>bnd/META-INF/wrapper.bnd</resource>
-    <resource>bnd/META-INF/details.bnd</resource>
   </resources>
 </archetype>

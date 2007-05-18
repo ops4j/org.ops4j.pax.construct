@@ -7,7 +7,6 @@
     <source>src/main/java/internal/Activator.java</source>
   </sources>
   <resources>
-    <resource>target.bnd</resource>
     <resource>src/main/resources/META-INF/details.bnd</resource>
   </resources>
 </archetype>
