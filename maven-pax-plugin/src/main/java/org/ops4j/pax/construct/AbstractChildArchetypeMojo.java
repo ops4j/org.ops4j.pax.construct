@@ -32,7 +32,6 @@ import org.kxml2.kdom.Element;
  */
 public abstract class AbstractChildArchetypeMojo extends AbstractArchetypeMojo
 {
-
     private static boolean seenRootProject = false;
 
     /**
@@ -44,7 +43,7 @@ public abstract class AbstractChildArchetypeMojo extends AbstractArchetypeMojo
         throws MojoExecutionException
     {
         // only create files under primary root project
-        if (seenRootProject || project.getParent() != null)
+        if ( seenRootProject || project.getParent() != null )
         {
             return false;
         }
@@ -76,7 +75,17 @@ public abstract class AbstractChildArchetypeMojo extends AbstractArchetypeMojo
             Document parentPom = readPom( project.getFile() );
 
             Element projectElem = parentPom.getElement( null, "project" );
-            Element modulesElem = projectElem.getElement( null, "modules" );
+            Element modulesElem;
+
+            try
+            {
+                modulesElem = projectElem.getElement( null, "modules" );
+            }
+            catch ( Exception e )
+            {
+                throw new IOException( "Please add the following to the project pom:" + NL + NL + "  <modules>" + NL
+                    + "    <module>poms</module>" + NL + "  </modules>" + NL + NL + "and repeat this command" + NL );
+            }
 
             for ( int i = 0; i < modulesElem.getChildCount(); i++ )
             {

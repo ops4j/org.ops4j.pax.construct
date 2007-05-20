@@ -29,21 +29,22 @@ import org.xmlpull.v1.XmlSerializer;
 /**
  * Foundation for all OSGi sub-project goals that use archetypes.
  */
-public class PomUtils 
+public class PomUtils
 {
-	
-	/**
-	 * New line character.
-	 */
-	protected static final String NL = System.getProperty( "line.separator" );
-	
-	/**
-	 * White space. 
-	 */
-	protected static final String WS = "  ";
+
+    /**
+     * New line character.
+     */
+    protected static final String NL = System.getProperty( "line.separator" );
+
+    /**
+     * White space.
+     */
+    protected static final String WS = "  ";
 
     /**
      * Reads a pom.xml specified by the input file.
+     * 
      * @param pomFile the pom File to read
      * @return the Document represing the pom
      * @throws MojoExecutionException re-thrown
