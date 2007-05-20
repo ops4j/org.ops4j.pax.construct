@@ -3,9 +3,6 @@ SETLOCAL
 set _SCRIPTS_=%~dp0
 call "%_SCRIPTS_%\pax-validate"
 
-if ""=="%PAX_CONSTRUCT_VERSION%" set PAX_CONSTRUCT_VERSION=0.1.5-SNAPSHOT
-set PAX_PLUGIN=org.ops4j.pax.construct:maven-pax-plugin:%PAX_CONSTRUCT_VERSION%
-
 set _BATFILE_=%0
 set _ID_=
 set _URL_=
@@ -27,7 +24,7 @@ if "%1"=="" goto endopts
 
 echo %_BATFILE_%: illegal option -- %1
 :help
-echo pax-add-repository -i repository.id -u repository.url ["-- mvnopts ..."]
+echo pax-add-repository -i repositoryId -u repositoryURL [-- mvnopts ...]
 goto done
 :endopts
 
@@ -45,9 +42,9 @@ if ""=="%_ID_%" set /p _ID_="repository id (org.ops4j.repository) ? "
 if ""=="%_URL_%" set /p _URL_="repository url (http://repository.ops4j.org/maven2) ? "
 :skip_input
 
-if ""=="%_ID_%" goto help
-if ""=="%_URL_%" goto help
+if ""=="%_ID_%" set _ID_=org.ops4j.repository
+if ""=="%_URL_%" set _URL_=http://repository.ops4j.org/maven2
 
 @echo on
-mvn %PAX_PLUGIN%:add-repository -Drepository.id=%_ID_% -Drepository.url=%_URL_% %_EXTRA_%
+mvn pax:add-repository -DrepositoryId=%_ID_% -DrepositoryURL=%_URL_% %_EXTRA_%
 :done
