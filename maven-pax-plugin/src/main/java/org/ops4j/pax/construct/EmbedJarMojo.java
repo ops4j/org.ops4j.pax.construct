@@ -36,7 +36,7 @@ import org.kxml2.kdom.Document;
 import org.kxml2.kdom.Element;
 
 /**
- * Embeds a jarfile inside the bundle project.
+ * Embeds a jarfile inside a bundle project.
  * 
  * @goal embed-jar
  */

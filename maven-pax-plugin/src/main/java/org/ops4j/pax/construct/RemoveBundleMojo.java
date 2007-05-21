@@ -42,7 +42,7 @@ public final class RemoveBundleMojo extends AbstractMojo
     protected MavenProject project;
 
     /**
-     * The name of the new bundle.
+     * The name of the bundle to remove.
      * 
      * @parameter expression="${name}"
      * @required
