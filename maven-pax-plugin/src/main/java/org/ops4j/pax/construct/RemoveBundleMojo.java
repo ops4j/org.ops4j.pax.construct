@@ -19,8 +19,6 @@ package org.ops4j.pax.construct;
 import static org.ops4j.pax.construct.PomUtils.readPom;
 import static org.ops4j.pax.construct.PomUtils.writePom;
 
-import java.io.IOException;
-
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.project.MavenProject;
@@ -65,50 +63,18 @@ public final class RemoveBundleMojo extends AbstractMojo
 
         try
         {
-            boolean foundBundle = false;
             Document pom = readPom( project.getFile() );
 
             Element projectElem = pom.getElement( null, "project" );
-            Element modulesElem;
+            PomUtils.removeModule( projectElem, bundleName );
 
-            try
-            {
-                modulesElem = projectElem.getElement( null, "modules" );
-            }
-            catch ( Exception e )
-            {
-                throw new IOException( "Parent project has no <modules> element" );
-            }
+            FileSet bundleFiles = new FileSet();
+            bundleFiles.setDirectory( project.getBasedir().getPath() );
+            bundleFiles.addInclude( bundleName );
 
-            for ( int i = 0; i < modulesElem.getChildCount(); i++ )
-            {
-                Element childElem = modulesElem.getElement( i );
-                if ( childElem != null )
-                {
-                    if ( bundleName.equalsIgnoreCase( childElem.getChild( 0 ).toString() ) )
-                    {
-                        // assume no duplicates
-                        modulesElem.removeChild( i );
-                        foundBundle = true;
-                        break;
-                    }
-                }
-            }
+            new FileSetManager( getLog(), true ).delete( bundleFiles );
 
-            if ( foundBundle )
-            {
-                FileSet bundleFiles = new FileSet();
-                bundleFiles.setDirectory( project.getBasedir().getPath() );
-                bundleFiles.addInclude( bundleName );
-
-                new FileSetManager( getLog(), true ).delete( bundleFiles );
-
-                writePom( project.getFile(), pom );
-            }
-            else
-            {
-                throw new IOException( "The project doesn't have a bundle named " + bundleName );
-            }
+            writePom( project.getFile(), pom );
         }
         catch ( Exception e )
         {

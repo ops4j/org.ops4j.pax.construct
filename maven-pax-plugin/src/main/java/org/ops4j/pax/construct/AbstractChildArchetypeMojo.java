@@ -21,7 +21,6 @@ import static org.ops4j.pax.construct.PomUtils.readPom;
 import static org.ops4j.pax.construct.PomUtils.writePom;
 
 import java.io.File;
-import java.io.IOException;
 
 import org.apache.maven.plugin.MojoExecutionException;
 import org.kxml2.kdom.Document;
@@ -75,36 +74,7 @@ public abstract class AbstractChildArchetypeMojo extends AbstractArchetypeMojo
             Document parentPom = readPom( project.getFile() );
 
             Element projectElem = parentPom.getElement( null, "project" );
-            Element modulesElem;
-
-            try
-            {
-                modulesElem = projectElem.getElement( null, "modules" );
-            }
-            catch ( Exception e )
-            {
-                throw new IOException( "Please add the following to the project pom:" + NL + NL + "  <modules>" + NL
-                    + "    <module>poms</module>" + NL + "  </modules>" + NL + NL + "and repeat this command" + NL );
-            }
-
-            for ( int i = 0; i < modulesElem.getChildCount(); i++ )
-            {
-                Element childElem = modulesElem.getElement( i );
-                if ( childElem != null )
-                {
-                    if ( childName.equalsIgnoreCase( childElem.getChild( 0 ).toString() ) )
-                    {
-                        throw new IOException( "The project already has a module named " + childName );
-                    }
-                }
-            }
-
-            Element newModuleElem = modulesElem.createElement( null, "module" );
-            newModuleElem.addChild( Element.TEXT, childName );
-
-            modulesElem.addChild( Element.TEXT, "  " );
-            modulesElem.addChild( Element.ELEMENT, newModuleElem );
-            modulesElem.addChild( Element.TEXT, NL + "  " );
+            PomUtils.addModule( projectElem, childName );
 
             writePom( project.getFile(), parentPom );
         }

@@ -16,13 +16,10 @@ package org.ops4j.pax.construct;
  * limitations under the License.
  */
 
-import static org.ops4j.pax.construct.PomUtils.NL;
-import static org.ops4j.pax.construct.PomUtils.WS;
 import static org.ops4j.pax.construct.PomUtils.readPom;
 import static org.ops4j.pax.construct.PomUtils.writePom;
 
-import java.io.IOException;
-
+import org.apache.maven.model.Repository;
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.project.MavenProject;
@@ -76,58 +73,10 @@ public final class AddRepositoryMojo extends AbstractMojo
             Document pom = readPom( project.getFile() );
 
             Element projectElem = pom.getElement( null, "project" );
-            Element reposElem;
-
-            try
-            {
-                reposElem = projectElem.getElement( null, "repositories" );
-            }
-            catch ( Exception e )
-            {
-                reposElem = projectElem.createElement( null, "repositories" );
-                reposElem.addChild( Element.TEXT, NL + "  " );
-                projectElem.addChild( Element.TEXT, "  " );
-                projectElem.addChild( Element.ELEMENT, reposElem );
-                projectElem.addChild( Element.TEXT, NL + NL );
-            }
-
-            for ( int i = 0; i < reposElem.getChildCount(); i++ )
-            {
-                Element childElem = reposElem.getElement( i );
-                if ( childElem != null )
-                {
-                    Element idElem = childElem.getElement( null, "id" );
-                    Element urlElem = childElem.getElement( null, "url" );
-
-                    if ( repositoryId.equalsIgnoreCase( idElem.getChild( 0 ).toString() ) )
-                    {
-                        throw new IOException( "The project already has a repository with id " + repositoryId );
-                    }
-                    if ( repositoryURL.equalsIgnoreCase( urlElem.getChild( 0 ).toString() ) )
-                    {
-                        throw new IOException( "The project already has a repository with url " + repositoryURL );
-                    }
-                }
-            }
-
-            // add a new repository
-            Element repoElem = reposElem.createElement( null, "repository" );
-            reposElem.addChild( Element.TEXT, WS );
-            reposElem.addChild( Element.ELEMENT, repoElem );
-            reposElem.addChild( Element.TEXT, NL + WS );
-
-            // add the id of the repository
-            Element idElem = repoElem.createElement( null, "id" );
-            idElem.addChild( Element.TEXT, repositoryId );
-            repoElem.addChild( Element.TEXT, NL + WS + WS + WS );
-            repoElem.addChild( Element.ELEMENT, idElem );
-
-            // add the url of the repository
-            Element urlElem = repoElem.createElement( null, "url" );
-            urlElem.addChild( Element.TEXT, repositoryURL );
-            repoElem.addChild( Element.TEXT, NL + WS + WS + WS );
-            repoElem.addChild( Element.ELEMENT, urlElem );
-            repoElem.addChild( Element.TEXT, NL + WS + WS );
+            Repository repository = new Repository();
+            repository.setId( repositoryId );
+            repository.setUrl( repositoryURL );
+            PomUtils.addRepository( projectElem, repository );
 
             writePom( project.getFile(), pom );
         }

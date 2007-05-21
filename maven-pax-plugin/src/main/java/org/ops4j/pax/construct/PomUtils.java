@@ -20,8 +20,11 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
 
+import org.apache.maven.model.Dependency;
+import org.apache.maven.model.Repository;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.kxml2.kdom.Document;
+import org.kxml2.kdom.Element;
 import org.xmlpull.v1.XmlPullParser;
 import org.xmlpull.v1.XmlPullParserFactory;
 import org.xmlpull.v1.XmlSerializer;
@@ -49,7 +52,7 @@ public class PomUtils
      * @return the Document represing the pom
      * @throws MojoExecutionException re-thrown
      */
-    protected static Document readPom( File pomFile )
+    public static Document readPom( File pomFile )
         throws MojoExecutionException
     {
         try
@@ -78,7 +81,7 @@ public class PomUtils
      * @param pom The Document representing the pom to be written
      * @throws MojoExecutionException re-thrown.
      */
-    protected static void writePom( File pomFile, Document pom )
+    public static void writePom( File pomFile, Document pom )
         throws MojoExecutionException
     {
         try
@@ -94,6 +97,260 @@ public class PomUtils
         {
             throw new MojoExecutionException( "Unable to serialize POM", e );
         }
+    }
+
+    /**
+     * Add a named module to the given project, checking for duplicates
+     * 
+     * @param project The XML element for the project
+     * @param moduleName The module to be added
+     * 
+     * @throws MojoExecutionException
+     */
+    public static void addModule( Element project, String moduleName )
+        throws MojoExecutionException
+    {
+        Element modules;
+
+        try
+        {
+            modules = project.getElement( null, "modules" );
+        }
+        catch ( Exception e )
+        {
+            throw new MojoExecutionException( "Please add the following to the project pom:" + NL + NL + "  <modules>"
+                + NL + "    <module>poms</module>" + NL + "  </modules>" + NL + NL + "and repeat this command" + NL );
+        }
+
+        for ( int i = 0; i < modules.getChildCount(); i++ )
+        {
+            Element childElem = modules.getElement( i );
+            if ( childElem != null )
+            {
+                if ( moduleName.equalsIgnoreCase( childElem.getChild( 0 ).toString() ) )
+                {
+                    throw new MojoExecutionException( "The project already has a module named " + moduleName );
+                }
+            }
+        }
+
+        Element newModule = modules.createElement( null, "module" );
+        newModule.addChild( Element.TEXT, moduleName );
+
+        modules.addChild( Element.TEXT, "  " );
+        modules.addChild( Element.ELEMENT, newModule );
+        modules.addChild( Element.TEXT, NL + "  " );
+    }
+
+    /**
+     * Remove a named module from the given project, throw exception if it doesn't exist
+     * 
+     * @param project The XML element for the project
+     * @param moduleName The module to be removed
+     * 
+     * @throws MojoExecutionException
+     */
+    public static void removeModule( Element project, String moduleName )
+        throws MojoExecutionException
+    {
+        Element modules;
+
+        try
+        {
+            modules = project.getElement( null, "modules" );
+        }
+        catch ( Exception e )
+        {
+            throw new MojoExecutionException( "Parent project has no <modules> element" );
+        }
+
+        for ( int i = 0; i < modules.getChildCount(); i++ )
+        {
+            Element childElem = modules.getElement( i );
+            if ( childElem != null )
+            {
+                if ( moduleName.equalsIgnoreCase( childElem.getChild( 0 ).toString() ) )
+                {
+                    // assume no duplicates
+                    modules.removeChild( i );
+                    return;
+                }
+            }
+        }
+
+        throw new MojoExecutionException( "The project doesn't have a module called " + moduleName );
+    }
+
+    /**
+     * Add a repository to the given project, checking for duplicates
+     * 
+     * @param project The XML element for the project
+     * @param repository The Maven repository to add
+     * 
+     * @throws MojoExecutionException
+     */
+    public static void addRepository( Element project, Repository repository )
+        throws MojoExecutionException
+    {
+        Element repositories;
+
+        try
+        {
+            repositories = project.getElement( null, "repositories" );
+        }
+        catch ( Exception e )
+        {
+            repositories = project.createElement( null, "repositories" );
+            repositories.addChild( Element.TEXT, NL + "  " );
+            project.addChild( Element.TEXT, "  " );
+            project.addChild( Element.ELEMENT, repositories );
+            project.addChild( Element.TEXT, NL + NL );
+        }
+
+        for ( int i = 0; i < repositories.getChildCount(); i++ )
+        {
+            Element childElem = repositories.getElement( i );
+            if ( childElem != null )
+            {
+                Element idElem = childElem.getElement( null, "id" );
+                Element urlElem = childElem.getElement( null, "url" );
+
+                if ( repository.getId().equalsIgnoreCase( idElem.getChild( 0 ).toString() ) )
+                {
+                    throw new MojoExecutionException( "The project already has a repository with id "
+                        + repository.getId() );
+                }
+                if ( repository.getUrl().equalsIgnoreCase( urlElem.getChild( 0 ).toString() ) )
+                {
+                    throw new MojoExecutionException( "The project already has a repository with url "
+                        + repository.getUrl() );
+                }
+            }
+        }
+
+        // add a new repository
+        Element repoElem = repositories.createElement( null, "repository" );
+        repositories.addChild( Element.TEXT, WS );
+        repositories.addChild( Element.ELEMENT, repoElem );
+        repositories.addChild( Element.TEXT, NL + WS );
+
+        // add the id of the repository
+        Element idElem = repoElem.createElement( null, "id" );
+        idElem.addChild( Element.TEXT, repository.getId() );
+        repoElem.addChild( Element.TEXT, NL + WS + WS + WS );
+        repoElem.addChild( Element.ELEMENT, idElem );
+
+        // add the url of the repository
+        Element urlElem = repoElem.createElement( null, "url" );
+        urlElem.addChild( Element.TEXT, repository.getUrl() );
+        repoElem.addChild( Element.TEXT, NL + WS + WS + WS );
+        repoElem.addChild( Element.ELEMENT, urlElem );
+
+        repoElem.addChild( Element.TEXT, NL + WS + WS );
+    }
+
+    /**
+     * Remove a repository from the given project, throw exception if it doesn't exist
+     * 
+     * @param project The XML element for the project
+     * @param repository The Maven repository to remove
+     * 
+     * @throws MojoExecutionException
+     */
+    public static void removeRepository( Element project, Repository repository )
+        throws MojoExecutionException
+    {
+        // TODO
+    }
+
+    /**
+     * Add a repository to the given project, checking for duplicates
+     * 
+     * @param project The XML element for the project
+     * @param repository The Maven repository to add
+     * 
+     * @throws MojoExecutionException
+     */
+    public static void addDependency( Element project, Dependency dependency )
+        throws MojoExecutionException
+    {
+        Element dependencies;
+
+        try
+        {
+            dependencies = project.getElement( null, "dependencies" );
+        }
+        catch ( Exception e )
+        {
+            dependencies = project.createElement( null, "dependencies" );
+            dependencies.addChild( Element.TEXT, NL + "  " );
+            project.addChild( Element.TEXT, "  " );
+            project.addChild( Element.ELEMENT, dependencies );
+            project.addChild( Element.TEXT, NL + NL );
+        }
+
+        for ( int i = 0; i < dependencies.getChildCount(); i++ )
+        {
+            Element childElem = dependencies.getElement( i );
+            if ( childElem != null )
+            {
+                Element groupIdElem = childElem.getElement( null, "groupId" );
+                Element artifactIdElem = childElem.getElement( null, "artifactId" );
+
+                if ( dependency.getGroupId().equalsIgnoreCase( groupIdElem.getChild( 0 ).toString() )
+                    && dependency.getArtifactId().equalsIgnoreCase( artifactIdElem.getChild( 0 ).toString() ) )
+                {
+                    throw new MojoExecutionException( "The project already has a dependency to "
+                        + dependency.getGroupId() + ":" + dependency.getArtifactId() );
+                }
+            }
+        }
+
+        // add a new dependency
+        Element depElem = dependencies.createElement( null, "dependency" );
+        dependencies.addChild( Element.TEXT, WS );
+        dependencies.addChild( Element.ELEMENT, depElem );
+        dependencies.addChild( Element.TEXT, NL + WS );
+
+        // add the groupId
+        Element groupIdElem = depElem.createElement( null, "groupId" );
+        groupIdElem.addChild( Element.TEXT, dependency.getGroupId() );
+        depElem.addChild( Element.TEXT, NL + WS + WS + WS );
+        depElem.addChild( Element.ELEMENT, groupIdElem );
+
+        // add the artifactId
+        Element artifactIdElem = depElem.createElement( null, "artifactId" );
+        artifactIdElem.addChild( Element.TEXT, dependency.getArtifactId() );
+        depElem.addChild( Element.TEXT, NL + WS + WS + WS );
+        depElem.addChild( Element.ELEMENT, artifactIdElem );
+
+        // add the version
+        Element versionElem = depElem.createElement( null, "version" );
+        versionElem.addChild( Element.TEXT, dependency.getVersion() );
+        depElem.addChild( Element.TEXT, NL + WS + WS + WS );
+        depElem.addChild( Element.ELEMENT, versionElem );
+
+        // add the scope
+        Element scopeElem = depElem.createElement( null, "scope" );
+        scopeElem.addChild( Element.TEXT, dependency.getScope() );
+        depElem.addChild( Element.TEXT, NL + WS + WS + WS );
+        depElem.addChild( Element.ELEMENT, scopeElem );
+
+        depElem.addChild( Element.TEXT, NL + WS + WS );
+    }
+
+    /**
+     * Remove a dependency from the given project, throw exception if it doesn't exist
+     * 
+     * @param project The XML element for the project
+     * @param dependency The dependency to remove
+     * 
+     * @throws MojoExecutionException
+     */
+    public static void removeDependency( Element project, Dependency dependency )
+        throws MojoExecutionException
+    {
+        // TODO
     }
 
 }
