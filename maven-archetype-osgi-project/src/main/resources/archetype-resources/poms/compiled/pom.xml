@@ -65,6 +65,7 @@
                 <outputDirectory>${project.build.directory}</outputDirectory>
                 <excludeTransitive>true</excludeTransitive>
                 <excludeScope>provided</excludeScope>
+                <stripVersion>true</stripVersion>
               </configuration>
             </execution>
           </executions>

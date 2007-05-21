@@ -127,7 +127,7 @@ public final class EmbedJarMojo extends AbstractMojo
             String classpath = properties.getProperty( "Bundle-ClassPath", "." );
             String resources = properties.getProperty( "Include-Resource", "" );
 
-            String jarPath = "target/" + artifactId + "-" + version + ".jar";
+            String jarPath = "target/" + artifactId + ".jar";
 
             classpath += "," + jarPath;
             resources += (resources.length() == 0 ? "" : ",") + jarPath + "=" + jarPath;
