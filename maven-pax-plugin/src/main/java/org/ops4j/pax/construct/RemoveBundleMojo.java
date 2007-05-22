@@ -19,6 +19,12 @@ package org.ops4j.pax.construct;
 import static org.ops4j.pax.construct.PomUtils.readPom;
 import static org.ops4j.pax.construct.PomUtils.writePom;
 
+import java.io.File;
+import java.io.FileReader;
+
+import org.apache.maven.model.Dependency;
+import org.apache.maven.model.Model;
+import org.apache.maven.model.io.xpp3.MavenXpp3Reader;
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.project.MavenProject;
@@ -49,30 +55,60 @@ public final class RemoveBundleMojo extends AbstractMojo
      */
     private String bundleName;
 
+    // cached model of removed bundle
+    private static Model bundleModel;
+
     /**
      * {@inheritDoc}
      */
     public void execute()
         throws MojoExecutionException
     {
-        // execute only if a root project
-        if ( project.getParent() != null )
-        {
-            return;
-        }
-
         try
         {
+            if ( null == bundleModel )
+            {
+                if ( project.getParent() != null )
+                {
+                    throw new MojoExecutionException( "This command must be run from the project root" );
+                }
+
+                File bundlePomFile = new File( project.getFile().getParentFile(), bundleName + "/pom.xml" );
+
+                if ( !bundlePomFile.exists() )
+                {
+                    throw new MojoExecutionException( "Cannot find bundle " + bundleName );
+                }
+
+                FileReader input = new FileReader( bundlePomFile );
+                MavenXpp3Reader modelReader = new MavenXpp3Reader();
+                bundleModel = modelReader.read( input );
+
+                FileSet bundleFiles = new FileSet();
+                bundleFiles.setDirectory( project.getBasedir().getPath() );
+                bundleFiles.addInclude( bundleName );
+
+                new FileSetManager( getLog(), true ).delete( bundleFiles );
+            }
+
+            // ignore remove bundle project
+            if ( !project.getFile().exists() )
+            {
+                return;
+            }
+
             Document pom = readPom( project.getFile() );
-
             Element projectElem = pom.getElement( null, "project" );
-            PomUtils.removeModule( projectElem, bundleName );
 
-            FileSet bundleFiles = new FileSet();
-            bundleFiles.setDirectory( project.getBasedir().getPath() );
-            bundleFiles.addInclude( bundleName );
-
-            new FileSetManager( getLog(), true ).delete( bundleFiles );
+            if ( project.getParent() != null )
+            {
+                Dependency dependency = PomUtils.getBundleDependency( bundleModel );
+                PomUtils.removeDependency( projectElem, dependency );
+            }
+            else
+            {
+                PomUtils.removeModule( projectElem, bundleName );
+            }
 
             writePom( project.getFile(), pom );
         }

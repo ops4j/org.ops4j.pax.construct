@@ -19,8 +19,10 @@ package org.ops4j.pax.construct;
 import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
+import java.util.Properties;
 
 import org.apache.maven.model.Dependency;
+import org.apache.maven.model.Model;
 import org.apache.maven.model.Repository;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.kxml2.kdom.Document;
@@ -143,7 +145,7 @@ public class PomUtils
     }
 
     /**
-     * Remove a named module from the given project, throw exception if it doesn't exist
+     * Remove a named module from the given project if it exists
      * 
      * @param project The XML element for the project
      * @param moduleName The module to be removed
@@ -161,7 +163,8 @@ public class PomUtils
         }
         catch ( Exception e )
         {
-            throw new MojoExecutionException( "Parent project has no <modules> element" );
+            // nothing to remove
+            return;
         }
 
         for ( int i = 0; i < modules.getChildCount(); i++ )
@@ -178,7 +181,7 @@ public class PomUtils
             }
         }
 
-        throw new MojoExecutionException( "The project doesn't have a module called " + moduleName );
+        // no exception if not found
     }
 
     /**
@@ -247,20 +250,6 @@ public class PomUtils
         repoElem.addChild( Element.ELEMENT, urlElem );
 
         repoElem.addChild( Element.TEXT, NL + WS + WS );
-    }
-
-    /**
-     * Remove a repository from the given project, throw exception if it doesn't exist
-     * 
-     * @param project The XML element for the project
-     * @param repository The Maven repository to remove
-     * 
-     * @throws MojoExecutionException
-     */
-    public static void removeRepository( Element project, Repository repository )
-        throws MojoExecutionException
-    {
-        // TODO
     }
 
     /**
@@ -340,7 +329,7 @@ public class PomUtils
     }
 
     /**
-     * Remove a dependency from the given project, throw exception if it doesn't exist
+     * Remove a dependency from the given project if it exists
      * 
      * @param project The XML element for the project
      * @param dependency The dependency to remove
@@ -350,7 +339,74 @@ public class PomUtils
     public static void removeDependency( Element project, Dependency dependency )
         throws MojoExecutionException
     {
-        // TODO
+        Element dependencies;
+
+        try
+        {
+            dependencies = project.getElement( null, "dependencies" );
+        }
+        catch ( Exception e )
+        {
+            // nothing to remove
+            return;
+        }
+
+        for ( int i = 0; i < dependencies.getChildCount(); i++ )
+        {
+            Element childElem = dependencies.getElement( i );
+            if ( childElem != null )
+            {
+                Element groupIdElem = childElem.getElement( null, "groupId" );
+                Element artifactIdElem = childElem.getElement( null, "artifactId" );
+
+                if ( dependency.getGroupId().equalsIgnoreCase( groupIdElem.getChild( 0 ).toString() )
+                    && dependency.getArtifactId().equalsIgnoreCase( artifactIdElem.getChild( 0 ).toString() ) )
+                {
+                    // assume no duplicates
+                    dependencies.removeChild( i );
+                    return;
+                }
+            }
+        }
+
+        // no exception if not found
     }
 
+    /**
+     * Create a Maven dependency object for the given bundle.
+     * 
+     * @param bundleModel The model representing the bundle in Maven
+     * @return A dependency artifact referencing this bundle
+     */
+    public static Dependency getBundleDependency( Model bundleModel )
+    {
+        Properties properties = bundleModel.getProperties();
+
+        Dependency dependency = new Dependency();
+        dependency.setScope( "provided" );
+
+        if ( properties.containsKey( "bundle.artifactId" ) )
+        {
+            // IMPORTED BUNDLE
+            dependency.setGroupId( properties.getProperty( "bundle.groupId" ) );
+            dependency.setArtifactId( properties.getProperty( "bundle.artifactId" ) );
+            dependency.setVersion( properties.getProperty( "bundle.version" ) );
+        }
+        else if ( properties.containsKey( "jar.artifactId" ) )
+        {
+            // WRAPPED JARFILE
+            dependency.setGroupId( bundleModel.getGroupId() );
+            dependency.setArtifactId( bundleModel.getArtifactId() );
+            dependency.setVersion( properties.getProperty( "jar.version" ) );
+        }
+        else
+        {
+            // COMPILED BUNDLE
+            dependency.setGroupId( bundleModel.getGroupId() );
+            dependency.setArtifactId( bundleModel.getArtifactId() );
+            dependency.setVersion( bundleModel.getVersion() );
+        }
+
+        return dependency;
+    }
 }

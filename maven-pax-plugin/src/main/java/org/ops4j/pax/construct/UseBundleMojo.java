@@ -22,7 +22,6 @@ import static org.ops4j.pax.construct.PomUtils.writePom;
 import java.io.File;
 import java.io.FileReader;
 import java.util.List;
-import java.util.Properties;
 
 import org.apache.maven.model.Dependency;
 import org.apache.maven.model.Model;
@@ -86,38 +85,12 @@ public final class UseBundleMojo extends AbstractMojo
 
             FileReader input = new FileReader( usedPomFile );
             MavenXpp3Reader modelReader = new MavenXpp3Reader();
-            Model usedProjectModel = modelReader.read( input );
+            Model bundleModel = modelReader.read( input );
 
             Document pom = readPom( project.getFile() );
 
             Element projectElem = pom.getElement( null, "project" );
-            Properties properties = usedProjectModel.getProperties();
-
-            Dependency dependency = new Dependency();
-            dependency.setScope( "provided" );
-
-            if ( properties.containsKey( "bundle.artifactId" ) )
-            {
-                // IMPORTED BUNDLE
-                dependency.setGroupId( properties.getProperty( "bundle.groupId" ) );
-                dependency.setArtifactId( properties.getProperty( "bundle.artifactId" ) );
-                dependency.setVersion( properties.getProperty( "bundle.version" ) );
-            }
-            else if ( properties.containsKey( "jar.artifactId" ) )
-            {
-                // WRAPPED JARFILE
-                dependency.setGroupId( usedProjectModel.getGroupId() );
-                dependency.setArtifactId( usedProjectModel.getArtifactId() );
-                dependency.setVersion( properties.getProperty( "jar.version" ) );
-            }
-            else
-            {
-                // COMPILED BUNDLE
-                dependency.setGroupId( usedProjectModel.getGroupId() );
-                dependency.setArtifactId( usedProjectModel.getArtifactId() );
-                dependency.setVersion( usedProjectModel.getVersion() );
-            }
-
+            Dependency dependency = PomUtils.getBundleDependency( bundleModel );
             PomUtils.addDependency( projectElem, dependency );
 
             writePom( project.getFile(), pom );
