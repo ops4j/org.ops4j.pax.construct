@@ -325,6 +325,15 @@ public class PomUtils
         depElem.addChild( Element.TEXT, NL + WS + WS + WS );
         depElem.addChild( Element.ELEMENT, scopeElem );
 
+        // is it optional?
+        if ( dependency.isOptional() )
+        {
+            Element optionalElem = depElem.createElement( null, "optional" );
+            optionalElem.addChild( Element.TEXT, "true" );
+            depElem.addChild( Element.TEXT, NL + WS + WS + WS );
+            depElem.addChild( Element.ELEMENT, optionalElem );
+        }
+
         depElem.addChild( Element.TEXT, NL + WS + WS );
     }
 

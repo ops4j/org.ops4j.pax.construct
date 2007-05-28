@@ -104,6 +104,9 @@ public final class EmbedJarMojo extends AbstractMojo
             dependency.setVersion( version );
             dependency.setScope( "compile" );
 
+            // make it optional to limit transitive nature
+            dependency.setOptional( true );
+
             PomUtils.addDependency( projectElem, dependency );
 
             writePom( project.getFile(), pom );
