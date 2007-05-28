@@ -25,6 +25,8 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.lang.reflect.Field;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.SortedMap;
@@ -307,22 +309,40 @@ public final class EclipseMojo extends EclipsePlugin
         return false;
     }
 
-    protected void patchClassPath( final File projectFolder, final String bundleClassPath )
+    protected void patchClassPath( final File projectFolder, final String bundleClassPath, final String resources )
         throws FileNotFoundException,
         XmlPullParserException,
         IOException
     {
-        String[] paths =
-        {
-            "." // default classpath
-        };
+        List<String> paths = new ArrayList<String>();
 
         if ( bundleClassPath != null )
         {
-            paths = bundleClassPath.split( "," );
+            // bundle specified path
+            paths.addAll( Arrays.asList( bundleClassPath.split( "," ) ) );
+        }
+        else
+        {
+            // default path
+            paths.add( "." );
         }
 
-        if ( isWrappedJarFile || isImportedBundle || paths.length > 1 )
+        if ( !isWrappedJarFile && !isImportedBundle && resources != null )
+        {
+            String[] resourcePaths = resources.split( "," );
+            for ( int i = 0; i < resourcePaths.length; i++ )
+            {
+                // compiled bundle project, containing classes from an unpacked jar
+                // (as jar is unpacked by BND, classes won't be in target/classes)
+                if ( resourcePaths[i].startsWith( "@" ) )
+                {
+                    // quick fix: add target jar to eclipse classpath
+                    paths.add( resourcePaths[i].substring( 1 ) );
+                }
+            }
+        }
+
+        if ( isWrappedJarFile || isImportedBundle || paths.size() > 1 )
         {
             File classPathFile = new File( projectFolder, ".classpath" );
 
@@ -330,15 +350,15 @@ public final class EclipseMojo extends EclipsePlugin
 
             // sorted map guarantees parent folders will be before children
             SortedMap<File, String> pathEntries = new TreeMap<File, String>();
-            for ( int i = 0; i < paths.length; i++ )
+            for ( final String p : paths )
             {
                 // ignore default path for compiled bundles, as we use a source folder
-                if ( paths[i].equals( "." ) && !isWrappedJarFile && !isImportedBundle )
+                if ( p.equals( "." ) && !isWrappedJarFile && !isImportedBundle )
                 {
                     continue;
                 }
 
-                File pathEntry = new File( projectFolder, paths[i] );
+                File pathEntry = new File( projectFolder, p );
 
                 // ignore missing folders / files
                 if ( !pathEntry.exists() )
@@ -347,7 +367,7 @@ public final class EclipseMojo extends EclipsePlugin
                 }
 
                 // use canonical form to simplify equality test
-                pathEntries.put( pathEntry.getCanonicalFile(), paths[i] );
+                pathEntries.put( pathEntry.getCanonicalFile(), p );
             }
 
             File parent = null;
@@ -453,8 +473,10 @@ public final class EclipseMojo extends EclipsePlugin
 
             // Handle embedded jarfiles, etc...
             Manifest manifest = extractManifest( projectFolder );
-            String classPath = manifest.getMainAttributes().getValue( "Bundle-ClassPath" );
-            patchClassPath( projectFolder, classPath );
+            Attributes mainAttributes = manifest.getMainAttributes();
+            String classPath = mainAttributes.getValue( "Bundle-ClassPath" );
+            String resources = mainAttributes.getValue( "Include-Resource" );
+            patchClassPath( projectFolder, classPath, resources );
             unpackMetadata( projectFolder );
         }
         catch ( Exception e )
