@@ -28,7 +28,7 @@
         <executions>
           <execution>
             <id>filter-scripts</id>
-            <phase>package</phase>
+            <phase>process-resources</phase>
             <goals>
               <goal>resources</goal>
             </goals>
