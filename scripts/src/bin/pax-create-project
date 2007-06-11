@@ -29,7 +29,7 @@ done
 
 shift $((${OPTIND}-1))
 
-if [[ -z "${GROUPID}" || -z "${ARTIFACTID}" ]]
+if [ -z "${GROUPID}" ] || [ -z "${ARTIFACTID}" ]
 then
   if [ -z "${GROUPID}" ]
   then

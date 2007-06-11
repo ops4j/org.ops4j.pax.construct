@@ -20,7 +20,7 @@ done
 
 shift $((${OPTIND}-1))
 
-if [[ -z "${ID}" || -z "${URL}" ]]
+if [ -z "${ID}" ] || [ -z "${URL}" ]
 then
   if [ -z "${ID}" ]
   then

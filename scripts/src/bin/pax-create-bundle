@@ -22,7 +22,7 @@ done
 
 shift $((${OPTIND}-1))
 
-if [[ -z "${PACKAGE}" || -z "${NAME}" ]]
+if [ -z "${PACKAGE}" ] || [ -z "${NAME}" ]
 then
   if [ -z "${PACKAGE}" ]
   then
