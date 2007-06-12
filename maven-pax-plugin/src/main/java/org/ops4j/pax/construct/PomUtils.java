@@ -25,6 +25,7 @@ import org.apache.maven.model.Dependency;
 import org.apache.maven.model.Model;
 import org.apache.maven.model.Repository;
 import org.apache.maven.plugin.MojoExecutionException;
+import org.apache.maven.project.MavenProject;
 import org.kxml2.kdom.Document;
 import org.kxml2.kdom.Element;
 import org.xmlpull.v1.XmlPullParser;
@@ -106,10 +107,11 @@ public class PomUtils
      * 
      * @param project The XML element for the project
      * @param moduleName The module to be added
+     * @param overwrite Overwrite existing entries
      * 
      * @throws MojoExecutionException
      */
-    public static void addModule( Element project, String moduleName )
+    public static void addModule( Element project, String moduleName, boolean overwrite )
         throws MojoExecutionException
     {
         Element modules;
@@ -124,6 +126,7 @@ public class PomUtils
                 + NL + "    <module>poms</module>" + NL + "  </modules>" + NL + NL + "and repeat this command" + NL );
         }
 
+        Element modElem = null;
         for ( int i = 0; i < modules.getChildCount(); i++ )
         {
             Element childElem = modules.getElement( i );
@@ -131,17 +134,33 @@ public class PomUtils
             {
                 if ( moduleName.equalsIgnoreCase( childElem.getChild( 0 ).toString() ) )
                 {
+                    if ( overwrite )
+                    {
+                        modElem = childElem;
+                        break;
+                    }
+
                     throw new MojoExecutionException( "The project already has a module named " + moduleName );
                 }
             }
         }
 
-        Element newModule = modules.createElement( null, "module" );
-        newModule.addChild( Element.TEXT, moduleName );
+        if ( null == modElem )
+        {
+            // add a new module
+            modElem = modules.createElement( null, "module" );
 
-        modules.addChild( Element.TEXT, "  " );
-        modules.addChild( Element.ELEMENT, newModule );
-        modules.addChild( Element.TEXT, NL + "  " );
+            modules.addChild( Element.TEXT, "  " );
+            modules.addChild( Element.ELEMENT, modElem );
+            modules.addChild( Element.TEXT, NL + "  " );
+        }
+        else
+        {
+            // update module
+            modElem.clear();
+        }
+
+        modElem.addChild( Element.TEXT, moduleName );
     }
 
     /**
@@ -189,10 +208,11 @@ public class PomUtils
      * 
      * @param project The XML element for the project
      * @param repository The Maven repository to add
+     * @param overwrite Overwrite existing entries
      * 
      * @throws MojoExecutionException
      */
-    public static void addRepository( Element project, Repository repository )
+    public static void addRepository( Element project, Repository repository, boolean overwrite )
         throws MojoExecutionException
     {
         Element repositories;
@@ -210,6 +230,7 @@ public class PomUtils
             project.addChild( Element.TEXT, NL + NL );
         }
 
+        Element repoElem = null;
         for ( int i = 0; i < repositories.getChildCount(); i++ )
         {
             Element childElem = repositories.getElement( i );
@@ -220,22 +241,43 @@ public class PomUtils
 
                 if ( repository.getId().equalsIgnoreCase( idElem.getChild( 0 ).toString() ) )
                 {
+                    if ( overwrite )
+                    {
+                        repoElem = childElem;
+                        break;
+                    }
+
                     throw new MojoExecutionException( "The project already has a repository with id "
                         + repository.getId() );
                 }
                 if ( repository.getUrl().equalsIgnoreCase( urlElem.getChild( 0 ).toString() ) )
                 {
+                    if ( overwrite )
+                    {
+                        repoElem = childElem;
+                        break;
+                    }
+
                     throw new MojoExecutionException( "The project already has a repository with url "
                         + repository.getUrl() );
                 }
             }
         }
 
-        // add a new repository
-        Element repoElem = repositories.createElement( null, "repository" );
-        repositories.addChild( Element.TEXT, WS );
-        repositories.addChild( Element.ELEMENT, repoElem );
-        repositories.addChild( Element.TEXT, NL + WS );
+        if ( null == repoElem )
+        {
+            // add a new repository
+            repoElem = repositories.createElement( null, "repository" );
+
+            repositories.addChild( Element.TEXT, WS );
+            repositories.addChild( Element.ELEMENT, repoElem );
+            repositories.addChild( Element.TEXT, NL + WS );
+        }
+        else
+        {
+            // update repository
+            repoElem.clear();
+        }
 
         // add the id of the repository
         Element idElem = repoElem.createElement( null, "id" );
@@ -253,14 +295,15 @@ public class PomUtils
     }
 
     /**
-     * Add a repository to the given project, checking for duplicates
+     * Add a dependency to the given project, checking for duplicates
      * 
      * @param project The XML element for the project
      * @param repository The Maven repository to add
+     * @param overwrite Overwrite existing entries
      * 
      * @throws MojoExecutionException
      */
-    public static void addDependency( Element project, Dependency dependency )
+    public static void addDependency( Element project, Dependency dependency, boolean overwrite )
         throws MojoExecutionException
     {
         Element dependencies;
@@ -278,6 +321,7 @@ public class PomUtils
             project.addChild( Element.TEXT, NL + NL );
         }
 
+        Element depElem = null; 
         for ( int i = 0; i < dependencies.getChildCount(); i++ )
         {
             Element childElem = dependencies.getElement( i );
@@ -289,17 +333,32 @@ public class PomUtils
                 if ( dependency.getGroupId().equalsIgnoreCase( groupIdElem.getChild( 0 ).toString() )
                     && dependency.getArtifactId().equalsIgnoreCase( artifactIdElem.getChild( 0 ).toString() ) )
                 {
+                    if ( overwrite )
+                    {
+                        depElem = childElem;
+                        break;
+                    }
+
                     throw new MojoExecutionException( "The project already has a dependency to "
                         + dependency.getGroupId() + ":" + dependency.getArtifactId() );
                 }
             }
         }
 
-        // add a new dependency
-        Element depElem = dependencies.createElement( null, "dependency" );
-        dependencies.addChild( Element.TEXT, WS );
-        dependencies.addChild( Element.ELEMENT, depElem );
-        dependencies.addChild( Element.TEXT, NL + WS );
+        if ( null == depElem )
+        {
+            // add a new dependency
+            depElem = dependencies.createElement( null, "dependency" );
+
+            dependencies.addChild( Element.TEXT, WS );
+            dependencies.addChild( Element.ELEMENT, depElem );
+            dependencies.addChild( Element.TEXT, NL + WS );
+        }
+        else
+        {
+            // update dependency
+            depElem.clear();
+        }
 
         // add the groupId
         Element groupIdElem = depElem.createElement( null, "groupId" );
@@ -417,5 +476,59 @@ public class PomUtils
         }
 
         return dependency;
+    }
+
+    /**
+     * Add parent to the given project, checking for duplicates
+     * 
+     * @param project The XML element for the project
+     * @param parentProject The parent project to be added
+     * @param overwrite Overwrite existing entries
+     * 
+     * @throws MojoExecutionException
+     */
+    public static void setParent( Element project, MavenProject parentProject, boolean overwrite )
+        throws MojoExecutionException
+    {
+        Element parent;
+
+        try
+        {
+            parent = project.getElement( null, "parent" );
+
+            if ( overwrite )
+            {
+                parent.clear();
+            }
+            else
+            {
+                throw new MojoExecutionException( "The project already has a parent." );
+            }
+        }
+        catch ( Exception e )
+        {
+            parent = project.createElement( null, "parent" );
+
+            project.addChild( 1, Element.ELEMENT, parent );
+            project.addChild( 2, Element.TEXT, NL + NL + "  " );
+        }
+
+
+        Element groupId = parent.createElement( null, "groupId" );
+        groupId.addChild( Element.TEXT, parentProject.getGroupId() );
+        parent.addChild( Element.TEXT, NL + "    " );
+        parent.addChild( Element.ELEMENT, groupId );
+
+        Element artifactId = parent.createElement( null, "artifactId" );
+        artifactId.addChild( Element.TEXT, parentProject.getArtifactId() );
+        parent.addChild( Element.TEXT, NL + "    " );
+        parent.addChild( Element.ELEMENT, artifactId );
+
+        Element version = parent.createElement( null, "version" );
+        version.addChild( Element.TEXT, parentProject.getVersion() );
+        parent.addChild( Element.TEXT, NL + "    " );
+        parent.addChild( Element.ELEMENT, version );
+
+        parent.addChild( Element.TEXT, NL + "  " );
     }
 }

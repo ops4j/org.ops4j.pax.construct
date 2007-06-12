@@ -16,7 +16,6 @@ package org.ops4j.pax.construct;
  * limitations under the License.
  */
 
-import static org.ops4j.pax.construct.PomUtils.NL;
 import static org.ops4j.pax.construct.PomUtils.readPom;
 import static org.ops4j.pax.construct.PomUtils.writePom;
 
@@ -32,6 +31,13 @@ import org.kxml2.kdom.Element;
 public abstract class AbstractChildArchetypeMojo extends AbstractArchetypeMojo
 {
     private static boolean seenRootProject = false;
+
+    /**
+     * Should we attempt to overwrite entries.
+     * 
+     * @parameter expression="${overwrite}" default-value="false"
+     */
+    private boolean overwrite;
 
     /**
      * The newly generated POM file - this is set in the _root_ project execution
@@ -74,7 +80,7 @@ public abstract class AbstractChildArchetypeMojo extends AbstractArchetypeMojo
             Document parentPom = readPom( project.getFile() );
 
             Element projectElem = parentPom.getElement( null, "project" );
-            PomUtils.addModule( projectElem, childName );
+            PomUtils.addModule( projectElem, childName, overwrite );
 
             writePom( project.getFile(), parentPom );
         }
@@ -90,28 +96,10 @@ public abstract class AbstractChildArchetypeMojo extends AbstractArchetypeMojo
         try
         {
             Document childPom = readPom( childPomFile );
+
             Element projectElem = childPom.getElement( null, "project" );
+            PomUtils.setParent( projectElem, project, overwrite );
 
-            Element parentElem = projectElem.createElement( null, "parent" );
-            projectElem.addChild( 1, Element.ELEMENT, parentElem );
-            projectElem.addChild( 2, Element.TEXT, NL + NL + "  " );
-
-            Element groupIdElem = parentElem.createElement( null, "groupId" );
-            groupIdElem.addChild( Element.TEXT, project.getGroupId() );
-            parentElem.addChild( Element.TEXT, NL + "    " );
-            parentElem.addChild( Element.ELEMENT, groupIdElem );
-
-            Element artifactIdElem = parentElem.createElement( null, "artifactId" );
-            artifactIdElem.addChild( Element.TEXT, project.getArtifactId() );
-            parentElem.addChild( Element.TEXT, NL + "    " );
-            parentElem.addChild( Element.ELEMENT, artifactIdElem );
-
-            Element versionElem = parentElem.createElement( null, "version" );
-            versionElem.addChild( Element.TEXT, project.getVersion() );
-            parentElem.addChild( Element.TEXT, NL + "    " );
-            parentElem.addChild( Element.ELEMENT, versionElem );
-
-            parentElem.addChild( Element.TEXT, NL + "  " );
             writePom( childPomFile, childPom );
         }
         catch ( Exception e )

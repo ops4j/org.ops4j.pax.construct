@@ -88,6 +88,13 @@ public final class EmbedJarMojo extends AbstractMojo
     private boolean unpack;
 
     /**
+     * Should we attempt to overwrite entries.
+     * 
+     * @parameter expression="${overwrite}" default-value="false"
+     */
+    private boolean overwrite;
+
+    /**
      * {@inheritDoc}
      */
     public void execute()
@@ -123,7 +130,7 @@ public final class EmbedJarMojo extends AbstractMojo
             // make it optional to limit transitive nature
             dependency.setOptional( true );
 
-            PomUtils.addDependency( projectElem, dependency );
+            PomUtils.addDependency( projectElem, dependency, overwrite );
 
             writePom( project.getFile(), pom );
 

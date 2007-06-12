@@ -62,6 +62,13 @@ public final class UseBundleMojo extends AbstractMojo
     private List reactorProjects;
 
     /**
+     * Should we attempt to overwrite entries.
+     * 
+     * @parameter expression="${overwrite}" default-value="false"
+     */
+    private boolean overwrite;
+
+    /**
      * {@inheritDoc}
      */
     public void execute()
@@ -100,7 +107,7 @@ public final class UseBundleMojo extends AbstractMojo
 
             Element projectElem = pom.getElement( null, "project" );
             Dependency dependency = PomUtils.getBundleDependency( bundleModel );
-            PomUtils.addDependency( projectElem, dependency );
+            PomUtils.addDependency( projectElem, dependency, overwrite );
 
             writePom( project.getFile(), pom );
         }

@@ -57,6 +57,13 @@ public final class AddRepositoryMojo extends AbstractMojo
     private String repositoryURL;
 
     /**
+     * Should we attempt to overwrite entries.
+     * 
+     * @parameter expression="${overwrite}" default-value="false"
+     */
+    private boolean overwrite;
+
+    /**
      * {@inheritDoc}
      */
     public void execute()
@@ -76,7 +83,7 @@ public final class AddRepositoryMojo extends AbstractMojo
             Repository repository = new Repository();
             repository.setId( repositoryId );
             repository.setUrl( repositoryURL );
-            PomUtils.addRepository( projectElem, repository );
+            PomUtils.addRepository( projectElem, repository, overwrite );
 
             writePom( project.getFile(), pom );
         }
