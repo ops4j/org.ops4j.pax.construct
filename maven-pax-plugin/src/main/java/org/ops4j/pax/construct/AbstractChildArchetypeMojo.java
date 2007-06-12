@@ -66,6 +66,12 @@ public abstract class AbstractChildArchetypeMojo extends AbstractArchetypeMojo
 
         childPomFile = new File( dir, "pom.xml" );
 
+        if ( overwrite )
+        {
+            // force an update
+            childPomFile.delete();
+        }
+
         // update parent modules
         linkParentToChild();
     }
