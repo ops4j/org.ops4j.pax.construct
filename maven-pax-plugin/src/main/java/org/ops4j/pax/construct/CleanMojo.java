@@ -46,6 +46,10 @@ public final class CleanMojo extends AbstractMojo
     public void execute()
         throws MojoExecutionException
     {
+        CacheUtils.pushFile( this, "MANIFEST.MF", new File( basedir, "META-INF/MANIFEST.MF" ) );
+        CacheUtils.pushFile( this, ".project",    new File( basedir, ".project" ) );
+        CacheUtils.pushFile( this, ".classpath",  new File( basedir, ".classpath" ) );
+
         FileSet generatedPaxFiles = new FileSet();
         generatedPaxFiles.setDirectory( basedir.getPath() );
 

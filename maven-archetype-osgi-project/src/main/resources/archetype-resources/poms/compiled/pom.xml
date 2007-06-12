@@ -104,6 +104,13 @@
                 <goal>clean</goal>
               </goals>
             </execution>
+            <execution>
+              <id>backup-metadata</id>
+              <phase>generate-resources</phase>
+              <goals>
+                <goal>backup</goal>
+              </goals>
+            </execution>
           </executions>
         </plugin>
       </plugins>

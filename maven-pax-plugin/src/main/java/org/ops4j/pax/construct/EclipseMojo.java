@@ -271,6 +271,13 @@ public final class EclipseMojo extends EclipsePlugin
         {
             manifest = new Manifest();
 
+            if ( manifestFile.exists() )
+            {
+                // use previously generated Eclipse manifest...
+                manifest.read( new FileInputStream( manifestFile ) );
+                return manifest;
+            }
+
             final String symbolicName = (project.getGroupId() + '_' + project.getArtifactId()).replace( '-', '_' );
 
             Attributes attributes = manifest.getMainAttributes();
@@ -310,8 +317,7 @@ public final class EclipseMojo extends EclipsePlugin
     }
 
     protected void patchClassPath( final File projectFolder, final String bundleClassPath, final String resources )
-        throws FileNotFoundException,
-        XmlPullParserException,
+        throws XmlPullParserException,
         IOException
     {
         List<String> paths = new ArrayList<String>();
@@ -402,7 +408,6 @@ public final class EclipseMojo extends EclipsePlugin
     }
 
     private void unpackMetadata( final File projectFolder )
-        throws IOException
     {
         if ( isImportedBundle )
         {
@@ -410,30 +415,37 @@ public final class EclipseMojo extends EclipsePlugin
         }
         else
         {
-            // Metadata files can simply be extracted from the new bundle
-            JarFile bundle = new JarFile( project.getBuild().getDirectory() + File.separator
-                + project.getBuild().getFinalName() + ".jar" );
-
-            for ( final JarEntry entry : Collections.list( bundle.entries() ) )
+            try
             {
-                final String name = entry.getName();
+                // Metadata files can simply be extracted from the new bundle
+                JarFile bundle = new JarFile( project.getBuild().getDirectory() + File.separator
+                    + project.getBuild().getFinalName() + ".jar" );
 
-                if ( name.startsWith( "META-INF" ) || name.startsWith( "OSGI-INF" ) )
+                for ( final JarEntry entry : Collections.list( bundle.entries() ) )
                 {
-                    File extractedFile = new File( projectFolder, name );
-
-                    if ( entry.isDirectory() )
+                    final String name = entry.getName();
+    
+                    if ( name.startsWith( "META-INF" ) || name.startsWith( "OSGI-INF" ) )
                     {
-                        extractedFile.mkdirs();
-                    }
-                    else
-                    {
-                        InputStream contents = bundle.getInputStream( entry );
-                        FileWriter writer = new FileWriter( extractedFile );
-                        IOUtil.copy( contents, writer );
-                        IOUtil.close( writer );
+                        File extractedFile = new File( projectFolder, name );
+    
+                        if ( entry.isDirectory() )
+                        {
+                            extractedFile.mkdirs();
+                        }
+                        else
+                        {
+                            InputStream contents = bundle.getInputStream( entry );
+                            FileWriter writer = new FileWriter( extractedFile );
+                            IOUtil.copy( contents, writer );
+                            IOUtil.close( writer );
+                        }
                     }
                 }
+            }
+            catch ( IOException e )
+            {
+                // ignore for now...
             }
         }
     }
