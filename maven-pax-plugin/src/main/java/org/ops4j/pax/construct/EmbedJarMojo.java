@@ -134,6 +134,12 @@ public final class EmbedJarMojo extends AbstractMojo
 
             writePom( project.getFile(), pom );
 
+            if ( overwrite )
+            {
+                // no need to update the BND file if overwriting with a new version
+                return;
+            }
+
             File bndConfig = new File( project.getBasedir(), "src/main/resources/META-INF/details.bnd" );
 
             Properties properties = new Properties();
