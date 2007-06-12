@@ -81,14 +81,30 @@ public final class EmbedJarMojo extends AbstractMojo
     private List reactorProjects;
 
     /**
+     * Should the jar be unpacked inside the bundle.
+     * 
+     * @parameter expression="${unpack}" default-value="false"
+     */
+    private boolean unpack;
+
+    /**
      * {@inheritDoc}
      */
     public void execute()
         throws MojoExecutionException
     {
+        boolean isCompiledBundle = false;
+        for ( MavenProject p = project; p != null; p = p.getParent() )
+        {
+            if ( p.getArtifactId().equals( "compile-bundle" ) )
+            {
+                isCompiledBundle = true;
+                break;
+            }
+        }
+
         // execute only if inside a compiled bundle project
-        if ( reactorProjects.size() > 1 || project.getParent() == null
-            || !project.getParent().getArtifactId().equals( "compile-bundle" ) )
+        if ( reactorProjects.size() > 1 || !isCompiledBundle )
         {
             throw new MojoExecutionException( "Can only embed jars inside a compiled bundle sub-project" );
         }
@@ -133,7 +149,23 @@ public final class EmbedJarMojo extends AbstractMojo
             String jarPath = "target/" + artifactId + ".jar";
 
             classpath += "," + jarPath;
-            resources += (resources.length() == 0 ? "" : ",") + jarPath + "=" + jarPath;
+            if ( resources.length() > 0 )
+            {
+                resources += ",";
+            }
+
+            if ( unpack )
+            {
+                // Keep Eclipse PDE happy by providing pseudo-entry in the Bundle-ClassPath
+                // so the original jar will be used when deploying the bundle from Eclipse.
+                // ( this is the least messy compromise... )
+                resources += "@" + jarPath + "," + jarPath + "=_placeholder_.jar";
+                new File( project.getBasedir(), "_placeholder_.jar" ).createNewFile();
+            }
+            else
+            {
+                resources += jarPath + "=" + jarPath;
+            }
 
             properties.setProperty( "Bundle-ClassPath", classpath );
             properties.setProperty( "Include-Resource", resources );

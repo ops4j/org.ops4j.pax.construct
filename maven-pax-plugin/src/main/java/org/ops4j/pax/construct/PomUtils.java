@@ -32,7 +32,7 @@ import org.xmlpull.v1.XmlPullParserFactory;
 import org.xmlpull.v1.XmlSerializer;
 
 /**
- * Foundation for all OSGi sub-project goals that use archetypes.
+ * Various utility methods for working with Maven poms.
  */
 public class PomUtils
 {

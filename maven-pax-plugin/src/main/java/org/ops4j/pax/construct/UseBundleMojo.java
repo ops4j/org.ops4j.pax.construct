@@ -67,9 +67,18 @@ public final class UseBundleMojo extends AbstractMojo
     public void execute()
         throws MojoExecutionException
     {
+        boolean isCompiledBundle = false;
+        for ( MavenProject p = project; p != null; p = p.getParent() )
+        {
+            if ( p.getArtifactId().equals( "compile-bundle" ) )
+            {
+                isCompiledBundle = true;
+                break;
+            }
+        }
+
         // execute only if inside a compiled bundle project
-        if ( reactorProjects.size() > 1 || project.getParent() == null
-            || !project.getParent().getArtifactId().equals( "compile-bundle" ) )
+        if ( reactorProjects.size() > 1 || !isCompiledBundle )
         {
             throw new MojoExecutionException( "Can only use bundles inside a compiled bundle sub-project" );
         }
