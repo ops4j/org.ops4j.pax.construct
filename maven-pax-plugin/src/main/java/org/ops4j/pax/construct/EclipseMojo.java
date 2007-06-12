@@ -131,6 +131,11 @@ public final class EclipseMojo extends EclipsePlugin
      */
     protected boolean downloadSources;
 
+    /**
+     * @parameter expression="${eclipse.project.name}" default-value="${project.artifactId}"
+     */
+    protected String eclipseProjectName;
+
     protected boolean isWrappedJarFile = false;
     protected boolean isImportedBundle = false;
 
@@ -456,6 +461,7 @@ public final class EclipseMojo extends EclipsePlugin
         try
         {
             EclipseWriterConfig config = createEclipseWriterConfig( deps );
+            config.setEclipseProjectName( eclipseProjectName );
 
             if ( isWrappedJarFile || isImportedBundle )
             {
