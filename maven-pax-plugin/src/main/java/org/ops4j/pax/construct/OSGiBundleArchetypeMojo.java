@@ -69,7 +69,7 @@ public final class OSGiBundleArchetypeMojo extends AbstractChildArchetypeMojo
         throws MojoExecutionException
     {
         // this is the logical parent of the new bundle project
-        if ( project.getArtifactId().equals( "compile-bundle" ) )
+        if( project.getArtifactId().equals( "compile-bundle" ) )
         {
             linkChildToParent();
         }
@@ -98,12 +98,12 @@ public final class OSGiBundleArchetypeMojo extends AbstractChildArchetypeMojo
         FileSet activatorFiles = new FileSet();
         activatorFiles.setDirectory( project.getBasedir() + File.separator + bundleName );
 
-        if ( !provideInterface )
+        if( !provideInterface )
         {
             activatorFiles.addInclude( "src/main/java/**/ExampleService.java" );
         }
 
-        if ( !provideActivator )
+        if( !provideActivator )
         {
             activatorFiles.addInclude( "src/main/java/**/internal" );
             activatorFiles.addInclude( "src/main/resources" );
@@ -113,12 +113,12 @@ public final class OSGiBundleArchetypeMojo extends AbstractChildArchetypeMojo
 
         try
         {
-            if ( activatorFiles.getIncludes() != null && !activatorFiles.getIncludes().isEmpty() )
+            if( activatorFiles.getIncludes() != null && !activatorFiles.getIncludes().isEmpty() )
             {
                 new FileSetManager( getLog(), false ).delete( activatorFiles );
             }
 
-            if ( provideActivator && !provideInterface )
+            if( provideActivator && !provideInterface )
             {
                 /*
                  * Interface x.Y will be in another bundle, so null the export packages (default is export package x)
@@ -132,7 +132,7 @@ public final class OSGiBundleArchetypeMojo extends AbstractChildArchetypeMojo
                 out.write( "Export-Package:" + System.getProperty( "line.separator" ) );
             }
         }
-        catch ( IOException e )
+        catch( IOException e )
         {
             throw new MojoExecutionException( "I/O error while patching files", e );
         }

@@ -70,7 +70,7 @@ public final class AddRepositoryMojo extends AbstractMojo
         throws MojoExecutionException
     {
         // execute only if a root project
-        if ( project.getParent() != null )
+        if( project.getParent() != null )
         {
             return;
         }
@@ -87,7 +87,7 @@ public final class AddRepositoryMojo extends AbstractMojo
 
             writePom( project.getFile(), pom );
         }
-        catch ( Exception e )
+        catch( Exception e )
         {
             throw new MojoExecutionException( "Unable to add the requested repository", e );
         }

@@ -100,7 +100,7 @@ public abstract class AbstractArchetypeMojo extends MavenArchetypeMojo
             f.setAccessible( true );
             f.set( this, value );
         }
-        catch ( Exception e )
+        catch( Exception e )
         {
             System.out.println( "Cannot set " + name + " to " + value + " exception=" + e );
         }
@@ -108,7 +108,7 @@ public abstract class AbstractArchetypeMojo extends MavenArchetypeMojo
 
     protected final String getGroupMarker( final String groupId, final String artifactId )
     {
-        if ( compactNames && artifactId.startsWith( groupId ) )
+        if( compactNames && artifactId.startsWith( groupId ) )
         {
             return "-" + groupId;
         }
@@ -118,7 +118,7 @@ public abstract class AbstractArchetypeMojo extends MavenArchetypeMojo
 
     protected final String getCompoundName( final String groupId, final String artifactId )
     {
-        if ( compactNames && artifactId.startsWith( groupId ) )
+        if( compactNames && artifactId.startsWith( groupId ) )
         {
             return artifactId;
         }
@@ -129,14 +129,14 @@ public abstract class AbstractArchetypeMojo extends MavenArchetypeMojo
     public void execute()
         throws MojoExecutionException
     {
-        if ( checkEnvironment() == false )
+        if( checkEnvironment() == false )
         {
             return;
         }
 
         final String userDir = System.getProperty( "user.dir" );
 
-        if ( targetDirectory != null )
+        if( targetDirectory != null )
         {
             System.setProperty( "user.dir", targetDirectory.getPath() );
         }
@@ -145,7 +145,7 @@ public abstract class AbstractArchetypeMojo extends MavenArchetypeMojo
         super.execute();
         postProcess();
 
-        if ( targetDirectory != null )
+        if( targetDirectory != null )
         {
             System.setProperty( "user.dir", userDir );
         }

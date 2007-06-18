@@ -37,7 +37,7 @@ public class CacheUtils
             mojo.getPluginContext().put( key, IOUtil.toString( input ) );
             IOUtil.close( input );
         }
-        catch ( IOException e )
+        catch( IOException e )
         {
         }
     }
@@ -46,7 +46,7 @@ public class CacheUtils
     {
         String input = (String) mojo.getPluginContext().get( key );
 
-        if ( input != null )
+        if( input != null )
         {
             try
             {
@@ -57,7 +57,7 @@ public class CacheUtils
                 IOUtil.copy( input, output );
                 IOUtil.close( output );
             }
-            catch ( IOException e )
+            catch( IOException e )
             {
             }
         }

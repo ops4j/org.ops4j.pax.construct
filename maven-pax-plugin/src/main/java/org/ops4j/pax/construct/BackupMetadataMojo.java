@@ -39,7 +39,7 @@ public final class BackupMetadataMojo extends AbstractMojo
         throws MojoExecutionException
     {
         CacheUtils.pullFile( this, "MANIFEST.MF", new File( basedir, "META-INF/MANIFEST.MF" ) );
-        CacheUtils.pullFile( this, ".project",    new File( basedir, ".project" ) );
-        CacheUtils.pullFile( this, ".classpath",  new File( basedir, ".classpath" ) );
+        CacheUtils.pullFile( this, ".project", new File( basedir, ".project" ) );
+        CacheUtils.pullFile( this, ".classpath", new File( basedir, ".classpath" ) );
     }
 }

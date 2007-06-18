@@ -53,7 +53,7 @@ public final class OSGiImportArchetypeMojo extends AbstractChildArchetypeMojo
         throws MojoExecutionException
     {
         // this is the logical parent of the new bundle project
-        if ( project.getArtifactId().equals( "import-bundle" ) )
+        if( project.getArtifactId().equals( "import-bundle" ) )
         {
             linkChildToParent();
         }

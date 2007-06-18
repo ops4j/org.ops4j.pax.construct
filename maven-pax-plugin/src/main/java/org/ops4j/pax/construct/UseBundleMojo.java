@@ -75,9 +75,9 @@ public final class UseBundleMojo extends AbstractMojo
         throws MojoExecutionException
     {
         boolean isCompiledBundle = false;
-        for ( MavenProject p = project; p != null; p = p.getParent() )
+        for( MavenProject p = project; p != null; p = p.getParent() )
         {
-            if ( p.getArtifactId().equals( "compile-bundle" ) )
+            if( p.getArtifactId().equals( "compile-bundle" ) )
             {
                 isCompiledBundle = true;
                 break;
@@ -85,7 +85,7 @@ public final class UseBundleMojo extends AbstractMojo
         }
 
         // execute only if inside a compiled bundle project
-        if ( reactorProjects.size() > 1 || !isCompiledBundle )
+        if( reactorProjects.size() > 1 || !isCompiledBundle )
         {
             throw new MojoExecutionException( "Can only use bundles inside a compiled bundle sub-project" );
         }
@@ -94,7 +94,7 @@ public final class UseBundleMojo extends AbstractMojo
         {
             File usedPomFile = new File( project.getFile().getParentFile(), "../" + bundleName + "/pom.xml" );
 
-            if ( !usedPomFile.exists() )
+            if( !usedPomFile.exists() )
             {
                 throw new MojoExecutionException( "Cannot find bundle " + bundleName );
             }
@@ -111,7 +111,7 @@ public final class UseBundleMojo extends AbstractMojo
 
             writePom( project.getFile(), pom );
         }
-        catch ( Exception e )
+        catch( Exception e )
         {
             throw new MojoExecutionException( "Cannot use the requested bundle", e );
         }

@@ -48,7 +48,7 @@ public abstract class AbstractChildArchetypeMojo extends AbstractArchetypeMojo
         throws MojoExecutionException
     {
         // only create files under primary root project
-        if ( seenRootProject || project.getParent() != null )
+        if( seenRootProject || project.getParent() != null )
         {
             return false;
         }
@@ -66,7 +66,7 @@ public abstract class AbstractChildArchetypeMojo extends AbstractArchetypeMojo
 
         childPomFile = new File( dir, "pom.xml" );
 
-        if ( overwrite )
+        if( overwrite )
         {
             // force an update
             childPomFile.delete();
@@ -90,7 +90,7 @@ public abstract class AbstractChildArchetypeMojo extends AbstractArchetypeMojo
 
             writePom( project.getFile(), parentPom );
         }
-        catch ( Exception e )
+        catch( Exception e )
         {
             throw new MojoExecutionException( "Unable to link parent pom to child", e );
         }
@@ -104,11 +104,37 @@ public abstract class AbstractChildArchetypeMojo extends AbstractArchetypeMojo
             Document childPom = readPom( childPomFile );
 
             Element projectElem = childPom.getElement( null, "project" );
-            PomUtils.setParent( projectElem, project, overwrite );
+
+            File sourcePath = childPomFile.getParentFile();
+            File targetPath = project.getBasedir();
+
+            String dottedPath = "";
+            String descentPath = "";
+            while( sourcePath != null && targetPath != null && !sourcePath.equals( targetPath ) )
+            {
+                if( sourcePath.getPath().length() < targetPath.getPath().length() )
+                {
+                    descentPath = targetPath.getName() + "/" + descentPath;
+                    targetPath = targetPath.getParentFile();
+                }
+                else
+                {
+                    dottedPath = "../" + dottedPath;
+                    sourcePath = sourcePath.getParentFile();
+                }
+            }
+
+            String relativePath = null;
+            if( sourcePath != null && targetPath != null )
+            {
+                relativePath = dottedPath + descentPath;
+            }
+
+            PomUtils.setParent( projectElem, project, relativePath, overwrite );
 
             writePom( childPomFile, childPom );
         }
-        catch ( Exception e )
+        catch( Exception e )
         {
             throw new MojoExecutionException( "Unable to link child pom to parent", e );
         }

@@ -66,16 +66,16 @@ public final class RemoveBundleMojo extends AbstractMojo
     {
         try
         {
-            if ( null == bundleModel )
+            if( null == bundleModel )
             {
-                if ( project.getParent() != null )
+                if( project.getParent() != null )
                 {
                     throw new MojoExecutionException( "This command must be run from the project root" );
                 }
 
                 File bundlePomFile = new File( project.getFile().getParentFile(), bundleName + "/pom.xml" );
 
-                if ( !bundlePomFile.exists() )
+                if( !bundlePomFile.exists() )
                 {
                     throw new MojoExecutionException( "Cannot find bundle " + bundleName );
                 }
@@ -92,7 +92,7 @@ public final class RemoveBundleMojo extends AbstractMojo
             }
 
             // ignore remove bundle project
-            if ( !project.getFile().exists() )
+            if( !project.getFile().exists() )
             {
                 return;
             }
@@ -100,7 +100,7 @@ public final class RemoveBundleMojo extends AbstractMojo
             Document pom = readPom( project.getFile() );
             Element projectElem = pom.getElement( null, "project" );
 
-            if ( project.getParent() != null )
+            if( project.getParent() != null )
             {
                 Dependency dependency = PomUtils.getBundleDependency( bundleModel );
                 PomUtils.removeDependency( projectElem, dependency );
@@ -112,7 +112,7 @@ public final class RemoveBundleMojo extends AbstractMojo
 
             writePom( project.getFile(), pom );
         }
-        catch ( Exception e )
+        catch( Exception e )
         {
             throw new MojoExecutionException( "Unable to remove the requested bundle", e );
         }

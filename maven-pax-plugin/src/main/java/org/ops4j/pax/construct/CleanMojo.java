@@ -47,8 +47,8 @@ public final class CleanMojo extends AbstractMojo
         throws MojoExecutionException
     {
         CacheUtils.pushFile( this, "MANIFEST.MF", new File( basedir, "META-INF/MANIFEST.MF" ) );
-        CacheUtils.pushFile( this, ".project",    new File( basedir, ".project" ) );
-        CacheUtils.pushFile( this, ".classpath",  new File( basedir, ".classpath" ) );
+        CacheUtils.pushFile( this, ".project", new File( basedir, ".project" ) );
+        CacheUtils.pushFile( this, ".classpath", new File( basedir, ".classpath" ) );
 
         FileSet generatedPaxFiles = new FileSet();
         generatedPaxFiles.setDirectory( basedir.getPath() );
@@ -62,7 +62,7 @@ public final class CleanMojo extends AbstractMojo
         {
             new FileSetManager( getLog(), debug ).delete( generatedPaxFiles );
         }
-        catch ( IOException e )
+        catch( IOException e )
         {
             throw new MojoExecutionException( "I/O error while deleting files", e );
         }

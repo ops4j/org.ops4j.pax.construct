@@ -98,14 +98,14 @@ public final class ProvisionMojo extends AbstractMojo
     public void execute()
         throws MojoExecutionException
     {
-        if ( m_runnerPom == null )
+        if( m_runnerPom == null )
         {
             m_runnerPom = new MavenProject( new Model() );
             m_dependencies = new ArrayList<Dependency>();
             m_projectCount = 0;
         }
 
-        if ( project.hasParent() )
+        if( project.hasParent() )
         {
             addBundleDependency();
         }
@@ -114,7 +114,7 @@ public final class ProvisionMojo extends AbstractMojo
             initializeRunnerPom();
         }
 
-        if ( ++m_projectCount == reactorProjects.size() )
+        if( ++m_projectCount == reactorProjects.size() )
         {
             installRunnerPom();
         }
@@ -143,7 +143,7 @@ public final class ProvisionMojo extends AbstractMojo
 
     private void addBundleDependency()
     {
-        if ( "bundle".equals( project.getPackaging() ) )
+        if( "bundle".equals( project.getPackaging() ) )
         {
             Dependency dependency = new Dependency();
             dependency.setGroupId( project.getGroupId() );
@@ -155,7 +155,7 @@ public final class ProvisionMojo extends AbstractMojo
         {
             Properties props = project.getProperties();
 
-            if ( props.containsKey( "bundle.artifactId" ) )
+            if( props.containsKey( "bundle.artifactId" ) )
             {
                 Dependency dependency = new Dependency();
                 dependency.setGroupId( props.getProperty( "bundle.groupId" ) );
@@ -173,7 +173,7 @@ public final class ProvisionMojo extends AbstractMojo
         {
             File pomFile = m_runnerPom.getFile();
 
-            if ( m_dependencies.size() == 0 )
+            if( m_dependencies.size() == 0 )
             {
                 getLog().info( "~~~~~~~~~~~~~~~~~~~" );
                 getLog().info( " No bundles found! " );
@@ -188,7 +188,7 @@ public final class ProvisionMojo extends AbstractMojo
 
             installer.install( pomFile, artifact, localRepository );
 
-            if ( deploy )
+            if( deploy )
             {
                 String workDir = pomFile.getParent() + File.separator + "work";
 
@@ -200,9 +200,9 @@ public final class ProvisionMojo extends AbstractMojo
 
                 // Pass on current repo list to Pax-Runner
                 StringBuilder repoListBuilder = new StringBuilder();
-                for ( Object repo : remoteArtifactRepositories )
+                for( Object repo : remoteArtifactRepositories )
                 {
-                    if ( repoListBuilder.length() > 0 )
+                    if( repoListBuilder.length() > 0 )
                     {
                         repoListBuilder.append( ',' );
                     }
@@ -219,7 +219,7 @@ public final class ProvisionMojo extends AbstractMojo
                 org.ops4j.pax.runner.Run.main( deployAppCmds );
             }
         }
-        catch ( Exception ex )
+        catch( Exception ex )
         {
             throw new MojoExecutionException( "Installation error", ex );
         }

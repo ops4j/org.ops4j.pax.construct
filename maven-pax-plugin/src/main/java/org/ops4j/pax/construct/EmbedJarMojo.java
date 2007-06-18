@@ -101,9 +101,9 @@ public final class EmbedJarMojo extends AbstractMojo
         throws MojoExecutionException
     {
         boolean isCompiledBundle = false;
-        for ( MavenProject p = project; p != null; p = p.getParent() )
+        for( MavenProject p = project; p != null; p = p.getParent() )
         {
-            if ( p.getArtifactId().equals( "compile-bundle" ) )
+            if( p.getArtifactId().equals( "compile-bundle" ) )
             {
                 isCompiledBundle = true;
                 break;
@@ -111,7 +111,7 @@ public final class EmbedJarMojo extends AbstractMojo
         }
 
         // execute only if inside a compiled bundle project
-        if ( reactorProjects.size() > 1 || !isCompiledBundle )
+        if( reactorProjects.size() > 1 || !isCompiledBundle )
         {
             throw new MojoExecutionException( "Can only embed jars inside a compiled bundle sub-project" );
         }
@@ -134,7 +134,7 @@ public final class EmbedJarMojo extends AbstractMojo
 
             writePom( project.getFile(), pom );
 
-            if ( overwrite )
+            if( overwrite )
             {
                 // no need to update the BND file if overwriting with a new version
                 return;
@@ -144,7 +144,7 @@ public final class EmbedJarMojo extends AbstractMojo
 
             Properties properties = new Properties();
 
-            if ( bndConfig.exists() )
+            if( bndConfig.exists() )
             {
                 properties = PropertyUtils.loadProperties( bndConfig );
             }
@@ -162,12 +162,12 @@ public final class EmbedJarMojo extends AbstractMojo
             String jarPath = "target/" + artifactId + ".jar";
 
             classpath += "," + jarPath;
-            if ( resources.length() > 0 )
+            if( resources.length() > 0 )
             {
                 resources += ",";
             }
 
-            if ( unpack )
+            if( unpack )
             {
                 // Keep Eclipse PDE happy by providing pseudo-entry in the Bundle-ClassPath
                 // so the original jar will be used when deploying the bundle from Eclipse.
@@ -194,7 +194,7 @@ public final class EmbedJarMojo extends AbstractMojo
                 IOUtil.close( propertyStream );
             }
         }
-        catch ( Exception e )
+        catch( Exception e )
         {
             throw new MojoExecutionException( "Unable to embed the requested jar artifact", e );
         }

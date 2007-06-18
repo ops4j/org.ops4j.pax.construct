@@ -71,7 +71,7 @@ public class PomUtils
 
             return pom;
         }
-        catch ( Exception e )
+        catch( Exception e )
         {
             throw new MojoExecutionException( "Unable to parse POM", e );
         }
@@ -96,7 +96,7 @@ public class PomUtils
             pom.write( serial );
             output.close();
         }
-        catch ( Exception e )
+        catch( Exception e )
         {
             throw new MojoExecutionException( "Unable to serialize POM", e );
         }
@@ -120,21 +120,21 @@ public class PomUtils
         {
             modules = project.getElement( null, "modules" );
         }
-        catch ( Exception e )
+        catch( Exception e )
         {
             throw new MojoExecutionException( "Please add the following to the project pom:" + NL + NL + "  <modules>"
                 + NL + "    <module>poms</module>" + NL + "  </modules>" + NL + NL + "and repeat this command" + NL );
         }
 
         Element modElem = null;
-        for ( int i = 0; i < modules.getChildCount(); i++ )
+        for( int i = 0; i < modules.getChildCount(); i++ )
         {
             Element childElem = modules.getElement( i );
-            if ( childElem != null )
+            if( childElem != null )
             {
-                if ( moduleName.equalsIgnoreCase( childElem.getChild( 0 ).toString() ) )
+                if( moduleName.equalsIgnoreCase( childElem.getChild( 0 ).toString() ) )
                 {
-                    if ( overwrite )
+                    if( overwrite )
                     {
                         modElem = childElem;
                         break;
@@ -145,7 +145,7 @@ public class PomUtils
             }
         }
 
-        if ( null == modElem )
+        if( null == modElem )
         {
             // add a new module
             modElem = modules.createElement( null, "module" );
@@ -180,18 +180,18 @@ public class PomUtils
         {
             modules = project.getElement( null, "modules" );
         }
-        catch ( Exception e )
+        catch( Exception e )
         {
             // nothing to remove
             return;
         }
 
-        for ( int i = 0; i < modules.getChildCount(); i++ )
+        for( int i = 0; i < modules.getChildCount(); i++ )
         {
             Element childElem = modules.getElement( i );
-            if ( childElem != null )
+            if( childElem != null )
             {
-                if ( moduleName.equalsIgnoreCase( childElem.getChild( 0 ).toString() ) )
+                if( moduleName.equalsIgnoreCase( childElem.getChild( 0 ).toString() ) )
                 {
                     // assume no duplicates
                     modules.removeChild( i );
@@ -221,7 +221,7 @@ public class PomUtils
         {
             repositories = project.getElement( null, "repositories" );
         }
-        catch ( Exception e )
+        catch( Exception e )
         {
             repositories = project.createElement( null, "repositories" );
             repositories.addChild( Element.TEXT, NL + "  " );
@@ -231,17 +231,17 @@ public class PomUtils
         }
 
         Element repoElem = null;
-        for ( int i = 0; i < repositories.getChildCount(); i++ )
+        for( int i = 0; i < repositories.getChildCount(); i++ )
         {
             Element childElem = repositories.getElement( i );
-            if ( childElem != null )
+            if( childElem != null )
             {
                 Element idElem = childElem.getElement( null, "id" );
                 Element urlElem = childElem.getElement( null, "url" );
 
-                if ( repository.getId().equalsIgnoreCase( idElem.getChild( 0 ).toString() ) )
+                if( repository.getId().equalsIgnoreCase( idElem.getChild( 0 ).toString() ) )
                 {
-                    if ( overwrite )
+                    if( overwrite )
                     {
                         repoElem = childElem;
                         break;
@@ -250,9 +250,9 @@ public class PomUtils
                     throw new MojoExecutionException( "The project already has a repository with id "
                         + repository.getId() );
                 }
-                if ( repository.getUrl().equalsIgnoreCase( urlElem.getChild( 0 ).toString() ) )
+                if( repository.getUrl().equalsIgnoreCase( urlElem.getChild( 0 ).toString() ) )
                 {
-                    if ( overwrite )
+                    if( overwrite )
                     {
                         repoElem = childElem;
                         break;
@@ -264,7 +264,7 @@ public class PomUtils
             }
         }
 
-        if ( null == repoElem )
+        if( null == repoElem )
         {
             // add a new repository
             repoElem = repositories.createElement( null, "repository" );
@@ -312,7 +312,7 @@ public class PomUtils
         {
             dependencies = project.getElement( null, "dependencies" );
         }
-        catch ( Exception e )
+        catch( Exception e )
         {
             dependencies = project.createElement( null, "dependencies" );
             dependencies.addChild( Element.TEXT, NL + "  " );
@@ -321,19 +321,19 @@ public class PomUtils
             project.addChild( Element.TEXT, NL + NL );
         }
 
-        Element depElem = null; 
-        for ( int i = 0; i < dependencies.getChildCount(); i++ )
+        Element depElem = null;
+        for( int i = 0; i < dependencies.getChildCount(); i++ )
         {
             Element childElem = dependencies.getElement( i );
-            if ( childElem != null )
+            if( childElem != null )
             {
                 Element groupIdElem = childElem.getElement( null, "groupId" );
                 Element artifactIdElem = childElem.getElement( null, "artifactId" );
 
-                if ( dependency.getGroupId().equalsIgnoreCase( groupIdElem.getChild( 0 ).toString() )
+                if( dependency.getGroupId().equalsIgnoreCase( groupIdElem.getChild( 0 ).toString() )
                     && dependency.getArtifactId().equalsIgnoreCase( artifactIdElem.getChild( 0 ).toString() ) )
                 {
-                    if ( overwrite )
+                    if( overwrite )
                     {
                         depElem = childElem;
                         break;
@@ -345,7 +345,7 @@ public class PomUtils
             }
         }
 
-        if ( null == depElem )
+        if( null == depElem )
         {
             // add a new dependency
             depElem = dependencies.createElement( null, "dependency" );
@@ -385,7 +385,7 @@ public class PomUtils
         depElem.addChild( Element.ELEMENT, scopeElem );
 
         // is it optional?
-        if ( dependency.isOptional() )
+        if( dependency.isOptional() )
         {
             Element optionalElem = depElem.createElement( null, "optional" );
             optionalElem.addChild( Element.TEXT, "true" );
@@ -413,21 +413,21 @@ public class PomUtils
         {
             dependencies = project.getElement( null, "dependencies" );
         }
-        catch ( Exception e )
+        catch( Exception e )
         {
             // nothing to remove
             return;
         }
 
-        for ( int i = 0; i < dependencies.getChildCount(); i++ )
+        for( int i = 0; i < dependencies.getChildCount(); i++ )
         {
             Element childElem = dependencies.getElement( i );
-            if ( childElem != null )
+            if( childElem != null )
             {
                 Element groupIdElem = childElem.getElement( null, "groupId" );
                 Element artifactIdElem = childElem.getElement( null, "artifactId" );
 
-                if ( dependency.getGroupId().equalsIgnoreCase( groupIdElem.getChild( 0 ).toString() )
+                if( dependency.getGroupId().equalsIgnoreCase( groupIdElem.getChild( 0 ).toString() )
                     && dependency.getArtifactId().equalsIgnoreCase( artifactIdElem.getChild( 0 ).toString() ) )
                 {
                     // assume no duplicates
@@ -453,14 +453,14 @@ public class PomUtils
         Dependency dependency = new Dependency();
         dependency.setScope( "provided" );
 
-        if ( properties.containsKey( "bundle.artifactId" ) )
+        if( properties.containsKey( "bundle.artifactId" ) )
         {
             // IMPORTED BUNDLE
             dependency.setGroupId( properties.getProperty( "bundle.groupId" ) );
             dependency.setArtifactId( properties.getProperty( "bundle.artifactId" ) );
             dependency.setVersion( properties.getProperty( "bundle.version" ) );
         }
-        else if ( properties.containsKey( "jar.artifactId" ) )
+        else if( properties.containsKey( "jar.artifactId" ) )
         {
             // WRAPPED JARFILE
             dependency.setGroupId( bundleModel.getGroupId() );
@@ -487,7 +487,7 @@ public class PomUtils
      * 
      * @throws MojoExecutionException
      */
-    public static void setParent( Element project, MavenProject parentProject, boolean overwrite )
+    public static void setParent( Element project, MavenProject parentProject, String relativePath, boolean overwrite )
         throws MojoExecutionException
     {
         Element parent;
@@ -496,7 +496,7 @@ public class PomUtils
         {
             parent = project.getElement( null, "parent" );
 
-            if ( overwrite )
+            if( overwrite )
             {
                 parent.clear();
             }
@@ -505,7 +505,7 @@ public class PomUtils
                 throw new MojoExecutionException( "The project already has a parent." );
             }
         }
-        catch ( Exception e )
+        catch( Exception e )
         {
             parent = project.createElement( null, "parent" );
 
@@ -513,6 +513,13 @@ public class PomUtils
             project.addChild( 2, Element.TEXT, NL + NL + "  " );
         }
 
+        if( relativePath != null )
+        {
+            Element parentPath = parent.createElement( null, "relativePath" );
+            parentPath.addChild( Element.TEXT, relativePath );
+            parent.addChild( Element.TEXT, NL + "    " );
+            parent.addChild( Element.ELEMENT, parentPath );
+        }
 
         Element groupId = parent.createElement( null, "groupId" );
         groupId.addChild( Element.TEXT, parentProject.getGroupId() );

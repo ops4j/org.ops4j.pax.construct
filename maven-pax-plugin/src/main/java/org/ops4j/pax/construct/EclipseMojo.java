@@ -150,7 +150,7 @@ public final class EclipseMojo extends EclipsePlugin
         isWrappedJarFile = project.getProperties().containsKey( "jar.artifactId" );
         isImportedBundle = project.getProperties().containsKey( "bundle.artifactId" );
 
-        if ( isImportedBundle )
+        if( isImportedBundle )
         {
             // This forces eclipse plugin to work on pom packaging
             setEclipseProjectDir( project.getFile().getParentFile() );
@@ -167,7 +167,7 @@ public final class EclipseMojo extends EclipsePlugin
         setArtifactMetadataSource( artifactMetadataSource );
         super.artifactCollector = artifactCollector;
 
-        if ( project.getPackaging().equals( "bundle" ) || isImportedBundle )
+        if( project.getPackaging().equals( "bundle" ) || isImportedBundle )
         {
             // Inject values into private flags
             setField( "isJavaProject", true );
@@ -184,7 +184,7 @@ public final class EclipseMojo extends EclipsePlugin
             f.setAccessible( true );
             f.setBoolean( this, flag );
         }
-        catch ( Exception e )
+        catch( Exception e )
         {
             System.out.println( "Cannot set " + name + " to " + flag + " exception=" + e );
         }
@@ -193,10 +193,10 @@ public final class EclipseMojo extends EclipsePlugin
     protected static EclipseSourceDir[] rejectLinkedSources( EclipseSourceDir[] sources )
     {
         int nonLinkedCount = 0;
-        for ( int i = 0; i < sources.length; i++ )
+        for( int i = 0; i < sources.length; i++ )
         {
             // Remove external resources as these result in bogus links
-            if ( new File( sources[i].getPath() ).isAbsolute() == false )
+            if( new File( sources[i].getPath() ).isAbsolute() == false )
             {
                 sources[nonLinkedCount++] = sources[i];
             }
@@ -211,10 +211,10 @@ public final class EclipseMojo extends EclipsePlugin
     protected static IdeDependency[] rejectLinkedDependencies( IdeDependency[] deps )
     {
         int nonLinkedCount = 0;
-        for ( int i = 0; i < deps.length; i++ )
+        for( int i = 0; i < deps.length; i++ )
         {
             // Remove external compile/runtime dependencies as these result in bogus links
-            if ( deps[i].isProvided() || deps[i].isTestDependency() || deps[i].getFile().isAbsolute() == false )
+            if( deps[i].isProvided() || deps[i].isTestDependency() || deps[i].getFile().isAbsolute() == false )
             {
                 deps[nonLinkedCount++] = deps[i];
             }
@@ -237,7 +237,7 @@ public final class EclipseMojo extends EclipsePlugin
         File manifestFile = new File( projectFolder, manifestPath );
         manifestFile.getParentFile().mkdirs();
 
-        if ( isImportedBundle )
+        if( isImportedBundle )
         {
             try
             {
@@ -245,13 +245,13 @@ public final class EclipseMojo extends EclipsePlugin
                 manifest = new Manifest( new FileInputStream( manifestFile ) );
 
                 Attributes attributes = manifest.getMainAttributes();
-                if ( attributes.getValue( "Bundle-SymbolicName" ) == null )
+                if( attributes.getValue( "Bundle-SymbolicName" ) == null )
                 {
                     // Eclipse mis-behaves if the bundle has no symbolic name :(
                     attributes.putValue( "Bundle-SymbolicName", project.getArtifactId() );
                 }
             }
-            catch ( FileNotFoundException e )
+            catch( FileNotFoundException e )
             {
                 // fall back to default manifest
             }
@@ -266,17 +266,17 @@ public final class EclipseMojo extends EclipsePlugin
 
                 manifest = bundle.getManifest();
             }
-            catch ( ZipException e )
+            catch( ZipException e )
             {
                 // fall back to default manifest
             }
         }
 
-        if ( null == manifest )
+        if( null == manifest )
         {
             manifest = new Manifest();
 
-            if ( manifestFile.exists() )
+            if( manifestFile.exists() )
             {
                 // use previously generated Eclipse manifest...
                 manifest.read( new FileInputStream( manifestFile ) );
@@ -304,15 +304,15 @@ public final class EclipseMojo extends EclipsePlugin
 
     private static boolean isAncestor( File ancestor, File target )
     {
-        if ( null == ancestor )
+        if( null == ancestor )
         {
             return false;
         }
 
         // simple hierarchical check: assumes both files are in canonical form
-        for ( File node = target; node != null; node = node.getParentFile() )
+        for( File node = target; node != null; node = node.getParentFile() )
         {
-            if ( ancestor.equals( node ) )
+            if( ancestor.equals( node ) )
             {
                 return true;
             }
@@ -327,7 +327,7 @@ public final class EclipseMojo extends EclipsePlugin
     {
         List<String> paths = new ArrayList<String>();
 
-        if ( bundleClassPath != null )
+        if( bundleClassPath != null )
         {
             // bundle specified path
             paths.addAll( Arrays.asList( bundleClassPath.split( "," ) ) );
@@ -338,14 +338,14 @@ public final class EclipseMojo extends EclipsePlugin
             paths.add( "." );
         }
 
-        if ( !isWrappedJarFile && !isImportedBundle && resources != null )
+        if( !isWrappedJarFile && !isImportedBundle && resources != null )
         {
             String[] resourcePaths = resources.split( "," );
-            for ( int i = 0; i < resourcePaths.length; i++ )
+            for( int i = 0; i < resourcePaths.length; i++ )
             {
                 // compiled bundle project, containing classes from an unpacked jar
                 // (as jar is unpacked by BND, classes won't be in target/classes)
-                if ( resourcePaths[i].startsWith( "@" ) )
+                if( resourcePaths[i].startsWith( "@" ) )
                 {
                     // quick fix: add target jar to eclipse classpath
                     paths.add( resourcePaths[i].substring( 1 ) );
@@ -353,7 +353,7 @@ public final class EclipseMojo extends EclipsePlugin
             }
         }
 
-        if ( isWrappedJarFile || isImportedBundle || paths.size() > 1 )
+        if( isWrappedJarFile || isImportedBundle || paths.size() > 1 )
         {
             File classPathFile = new File( projectFolder, ".classpath" );
 
@@ -361,10 +361,10 @@ public final class EclipseMojo extends EclipsePlugin
 
             // sorted map guarantees parent folders will be before children
             SortedMap<File, String> pathEntries = new TreeMap<File, String>();
-            for ( final String p : paths )
+            for( final String p : paths )
             {
                 // ignore default path for compiled bundles, as we use a source folder
-                if ( p.equals( "." ) && !isWrappedJarFile && !isImportedBundle )
+                if( p.equals( "." ) && !isWrappedJarFile && !isImportedBundle )
                 {
                     continue;
                 }
@@ -372,7 +372,7 @@ public final class EclipseMojo extends EclipsePlugin
                 File pathEntry = new File( projectFolder, p );
 
                 // ignore missing folders / files
-                if ( !pathEntry.exists() )
+                if( !pathEntry.exists() )
                 {
                     continue;
                 }
@@ -382,12 +382,12 @@ public final class EclipseMojo extends EclipsePlugin
             }
 
             File parent = null;
-            for ( Entry<File, String> entry : pathEntries.entrySet() )
+            for( Entry<File, String> entry : pathEntries.entrySet() )
             {
                 File f = entry.getKey();
 
                 // avoid nested folder entries
-                if ( f.isDirectory() && isAncestor( parent, f ) )
+                if( f.isDirectory() && isAncestor( parent, f ) )
                 {
                     continue;
                 }
@@ -400,7 +400,7 @@ public final class EclipseMojo extends EclipsePlugin
                 classPathXML.addChild( classPathEntry );
 
                 // parents must be folders
-                if ( f.isDirectory() )
+                if( f.isDirectory() )
                 {
                     parent = f;
                 }
@@ -414,7 +414,7 @@ public final class EclipseMojo extends EclipsePlugin
 
     private void unpackMetadata( final File projectFolder )
     {
-        if ( isImportedBundle )
+        if( isImportedBundle )
         {
             // nothing to do...
         }
@@ -426,15 +426,15 @@ public final class EclipseMojo extends EclipsePlugin
                 JarFile bundle = new JarFile( project.getBuild().getDirectory() + File.separator
                     + project.getBuild().getFinalName() + ".jar" );
 
-                for ( final JarEntry entry : Collections.list( bundle.entries() ) )
+                for( final JarEntry entry : Collections.list( bundle.entries() ) )
                 {
                     final String name = entry.getName();
-    
-                    if ( name.startsWith( "META-INF" ) || name.startsWith( "OSGI-INF" ) )
+
+                    if( name.startsWith( "META-INF" ) || name.startsWith( "OSGI-INF" ) )
                     {
                         File extractedFile = new File( projectFolder, name );
-    
-                        if ( entry.isDirectory() )
+
+                        if( entry.isDirectory() )
                         {
                             extractedFile.mkdirs();
                         }
@@ -448,7 +448,7 @@ public final class EclipseMojo extends EclipsePlugin
                     }
                 }
             }
-            catch ( IOException e )
+            catch( IOException e )
             {
                 // ignore for now...
             }
@@ -463,7 +463,7 @@ public final class EclipseMojo extends EclipsePlugin
             EclipseWriterConfig config = createEclipseWriterConfig( deps );
             config.setEclipseProjectName( eclipseProjectName );
 
-            if ( isWrappedJarFile || isImportedBundle )
+            if( isWrappedJarFile || isImportedBundle )
             {
                 // Fudge directories so project is in the build directory without requiring extra links
                 config.setEclipseProjectDirectory( new File( project.getBuild().getOutputDirectory() ) );
@@ -497,7 +497,7 @@ public final class EclipseMojo extends EclipsePlugin
             patchClassPath( projectFolder, classPath, resources );
             unpackMetadata( projectFolder );
         }
-        catch ( Exception e )
+        catch( Exception e )
         {
             getLog().error( e );
 
