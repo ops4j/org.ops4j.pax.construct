@@ -75,12 +75,9 @@
 #literal()
               <!--
                 by default import + export all packages from the wrapped jarfile
-                except the root package "." - this cannot be shared, as it could
-                potentially lead to a split-package situation
               -->
               <_classpath>target/classes</_classpath>
               <Export-Package>*;version="${jar.version}"</Export-Package>
-              <Import-Package>!.,*</Import-Package>
               <!--
                 load project specific settings
               -->
