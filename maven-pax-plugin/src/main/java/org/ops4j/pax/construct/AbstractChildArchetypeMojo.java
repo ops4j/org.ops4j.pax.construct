@@ -16,9 +16,6 @@ package org.ops4j.pax.construct;
  * limitations under the License.
  */
 
-import static org.ops4j.pax.construct.PomUtils.readPom;
-import static org.ops4j.pax.construct.PomUtils.writePom;
-
 import java.io.File;
 
 import org.apache.maven.plugin.MojoExecutionException;
@@ -83,12 +80,12 @@ public abstract class AbstractChildArchetypeMojo extends AbstractArchetypeMojo
         {
             final String childName = childPomFile.getParentFile().getName();
 
-            Document parentPom = readPom( project.getFile() );
+            Document parentPom = PomUtils.readPom( project.getFile() );
 
             Element projectElem = parentPom.getElement( null, "project" );
             PomUtils.addModule( projectElem, childName, overwrite );
 
-            writePom( project.getFile(), parentPom );
+            PomUtils.writePom( project.getFile(), parentPom );
         }
         catch( Exception e )
         {
@@ -101,7 +98,7 @@ public abstract class AbstractChildArchetypeMojo extends AbstractArchetypeMojo
     {
         try
         {
-            Document childPom = readPom( childPomFile );
+            Document childPom = PomUtils.readPom( childPomFile );
 
             Element projectElem = childPom.getElement( null, "project" );
 
@@ -132,7 +129,7 @@ public abstract class AbstractChildArchetypeMojo extends AbstractArchetypeMojo
 
             PomUtils.setParent( projectElem, project, relativePath, overwrite );
 
-            writePom( childPomFile, childPom );
+            PomUtils.writePom( childPomFile, childPom );
         }
         catch( Exception e )
         {

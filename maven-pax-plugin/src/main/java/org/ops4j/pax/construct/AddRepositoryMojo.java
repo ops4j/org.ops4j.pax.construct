@@ -16,9 +16,6 @@ package org.ops4j.pax.construct;
  * limitations under the License.
  */
 
-import static org.ops4j.pax.construct.PomUtils.readPom;
-import static org.ops4j.pax.construct.PomUtils.writePom;
-
 import org.apache.maven.model.Repository;
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
@@ -77,7 +74,7 @@ public final class AddRepositoryMojo extends AbstractMojo
 
         try
         {
-            Document pom = readPom( project.getFile() );
+            Document pom = PomUtils.readPom( project.getFile() );
 
             Element projectElem = pom.getElement( null, "project" );
             Repository repository = new Repository();
@@ -85,7 +82,7 @@ public final class AddRepositoryMojo extends AbstractMojo
             repository.setUrl( repositoryURL );
             PomUtils.addRepository( projectElem, repository, overwrite );
 
-            writePom( project.getFile(), pom );
+            PomUtils.writePom( project.getFile(), pom );
         }
         catch( Exception e )
         {

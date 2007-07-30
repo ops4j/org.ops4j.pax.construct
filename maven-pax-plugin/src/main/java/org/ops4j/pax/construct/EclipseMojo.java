@@ -27,7 +27,8 @@ import java.io.InputStream;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
+import java.util.Enumeration;
+import java.util.Iterator;
 import java.util.List;
 import java.util.SortedMap;
 import java.util.TreeMap;
@@ -325,7 +326,7 @@ public final class EclipseMojo extends EclipsePlugin
         throws XmlPullParserException,
         IOException
     {
-        List<String> paths = new ArrayList<String>();
+        List paths = new ArrayList();
 
         if( bundleClassPath != null )
         {
@@ -360,16 +361,18 @@ public final class EclipseMojo extends EclipsePlugin
             Xpp3Dom classPathXML = Xpp3DomBuilder.build( new FileReader( classPathFile ) );
 
             // sorted map guarantees parent folders will be before children
-            SortedMap<File, String> pathEntries = new TreeMap<File, String>();
-            for( final String p : paths )
+            SortedMap pathEntries = new TreeMap();
+            for( Iterator p = paths.iterator(); p.hasNext(); )
             {
+                final String pathName = (String) p.next();
+
                 // ignore default path for compiled bundles, as we use a source folder
-                if( p.equals( "." ) && !isWrappedJarFile && !isImportedBundle )
+                if( pathName.equals( "." ) && !isWrappedJarFile && !isImportedBundle )
                 {
                     continue;
                 }
 
-                File pathEntry = new File( projectFolder, p );
+                File pathEntry = new File( projectFolder, pathName );
 
                 // ignore missing folders / files
                 if( !pathEntry.exists() )
@@ -378,13 +381,14 @@ public final class EclipseMojo extends EclipsePlugin
                 }
 
                 // use canonical form to simplify equality test
-                pathEntries.put( pathEntry.getCanonicalFile(), p );
+                pathEntries.put( pathEntry.getCanonicalFile(), pathName );
             }
 
             File parent = null;
-            for( Entry<File, String> entry : pathEntries.entrySet() )
+            for( Iterator i = pathEntries.entrySet().iterator(); i.hasNext(); )
             {
-                File f = entry.getKey();
+                Entry entry = (Entry) i.next();
+                File f = (File) entry.getKey();
 
                 // avoid nested folder entries
                 if( f.isDirectory() && isAncestor( parent, f ) )
@@ -396,7 +400,7 @@ public final class EclipseMojo extends EclipsePlugin
                 Xpp3Dom classPathEntry = new Xpp3Dom( "classpathentry" );
                 classPathEntry.setAttribute( "exported", "true" );
                 classPathEntry.setAttribute( "kind", "lib" );
-                classPathEntry.setAttribute( "path", entry.getValue() );
+                classPathEntry.setAttribute( "path", (String) entry.getValue() );
                 classPathXML.addChild( classPathEntry );
 
                 // parents must be folders
@@ -426,8 +430,9 @@ public final class EclipseMojo extends EclipsePlugin
                 JarFile bundle = new JarFile( project.getBuild().getDirectory() + File.separator
                     + project.getBuild().getFinalName() + ".jar" );
 
-                for( final JarEntry entry : Collections.list( bundle.entries() ) )
+                for( Enumeration e = bundle.entries(); e.hasMoreElements(); )
                 {
+                    final JarEntry entry = (JarEntry) e.nextElement();
                     final String name = entry.getName();
 
                     if( name.startsWith( "META-INF" ) || name.startsWith( "OSGI-INF" ) )

@@ -14,6 +14,18 @@
 
   <packaging>maven-plugin</packaging>
 
+  <build>
+    <plugins>
+      <plugin>
+        <artifactId>maven-compiler-plugin</artifactId>
+        <configuration>
+          <source>1.4</source>
+          <target>1.4</target>
+        </configuration>
+      </plugin>
+    </plugins>
+  </build>
+
   <dependencies>
     <dependency>
       <groupId>org.apache.maven</groupId>
@@ -81,7 +93,7 @@
     <dependency>
       <groupId>org.ops4j.pax</groupId>
       <artifactId>runner</artifactId>
-      <version>0.3.1</version>
+      <version>0.3.2</version>
     </dependency>
   </dependencies>
 

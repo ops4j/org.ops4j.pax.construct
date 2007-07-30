@@ -16,9 +16,6 @@ package org.ops4j.pax.construct;
  * limitations under the License.
  */
 
-import static org.ops4j.pax.construct.PomUtils.readPom;
-import static org.ops4j.pax.construct.PomUtils.writePom;
-
 import java.io.File;
 import java.io.FileReader;
 
@@ -97,7 +94,7 @@ public final class RemoveBundleMojo extends AbstractMojo
                 return;
             }
 
-            Document pom = readPom( project.getFile() );
+            Document pom = PomUtils.readPom( project.getFile() );
             Element projectElem = pom.getElement( null, "project" );
 
             if( project.getParent() != null )
@@ -110,7 +107,7 @@ public final class RemoveBundleMojo extends AbstractMojo
                 PomUtils.removeModule( projectElem, bundleName );
             }
 
-            writePom( project.getFile(), pom );
+            PomUtils.writePom( project.getFile(), pom );
         }
         catch( Exception e )
         {

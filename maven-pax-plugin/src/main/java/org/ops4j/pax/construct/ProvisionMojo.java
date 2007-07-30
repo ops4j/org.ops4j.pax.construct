@@ -19,6 +19,7 @@ package org.ops4j.pax.construct;
 import java.io.File;
 import java.io.FileWriter;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Properties;
 
@@ -92,7 +93,7 @@ public final class ProvisionMojo extends AbstractMojo
     private ArtifactInstaller installer;
 
     private static MavenProject m_runnerPom;
-    private static List<Dependency> m_dependencies;
+    private static List m_dependencies;
     private static int m_projectCount;
 
     public void execute()
@@ -101,7 +102,7 @@ public final class ProvisionMojo extends AbstractMojo
         if( m_runnerPom == null )
         {
             m_runnerPom = new MavenProject( new Model() );
-            m_dependencies = new ArrayList<Dependency>();
+            m_dependencies = new ArrayList();
             m_projectCount = 0;
         }
 
@@ -199,14 +200,15 @@ public final class ProvisionMojo extends AbstractMojo
                 cachedPomFile.delete();
 
                 // Pass on current repo list to Pax-Runner
-                StringBuilder repoListBuilder = new StringBuilder();
-                for( Object repo : remoteArtifactRepositories )
+                StringBuffer repoListBuilder = new StringBuffer();
+                for( Iterator i = remoteArtifactRepositories.iterator(); i.hasNext(); )
                 {
+                    ArtifactRepository repo = (ArtifactRepository) i.next();
                     if( repoListBuilder.length() > 0 )
                     {
                         repoListBuilder.append( ',' );
                     }
-                    repoListBuilder.append( ((ArtifactRepository) repo).getUrl() );
+                    repoListBuilder.append( repo.getUrl() );
                 }
 
                 String[] deployAppCmds =

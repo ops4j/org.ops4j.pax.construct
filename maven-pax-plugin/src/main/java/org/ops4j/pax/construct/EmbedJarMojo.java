@@ -16,9 +16,6 @@ package org.ops4j.pax.construct;
  * limitations under the License.
  */
 
-import static org.ops4j.pax.construct.PomUtils.readPom;
-import static org.ops4j.pax.construct.PomUtils.writePom;
-
 import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
@@ -118,7 +115,7 @@ public final class EmbedJarMojo extends AbstractMojo
 
         try
         {
-            Document pom = readPom( project.getFile() );
+            Document pom = PomUtils.readPom( project.getFile() );
 
             Element projectElem = pom.getElement( null, "project" );
             Dependency dependency = new Dependency();
@@ -132,7 +129,7 @@ public final class EmbedJarMojo extends AbstractMojo
 
             PomUtils.addDependency( projectElem, dependency, overwrite );
 
-            writePom( project.getFile(), pom );
+            PomUtils.writePom( project.getFile(), pom );
 
             if( overwrite )
             {

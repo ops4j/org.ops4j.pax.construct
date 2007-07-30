@@ -16,9 +16,6 @@ package org.ops4j.pax.construct;
  * limitations under the License.
  */
 
-import static org.ops4j.pax.construct.PomUtils.readPom;
-import static org.ops4j.pax.construct.PomUtils.writePom;
-
 import java.io.File;
 import java.io.FileReader;
 import java.util.List;
@@ -103,13 +100,13 @@ public final class UseBundleMojo extends AbstractMojo
             MavenXpp3Reader modelReader = new MavenXpp3Reader();
             Model bundleModel = modelReader.read( input );
 
-            Document pom = readPom( project.getFile() );
+            Document pom = PomUtils.readPom( project.getFile() );
 
             Element projectElem = pom.getElement( null, "project" );
             Dependency dependency = PomUtils.getBundleDependency( bundleModel );
             PomUtils.addDependency( projectElem, dependency, overwrite );
 
-            writePom( project.getFile(), pom );
+            PomUtils.writePom( project.getFile(), pom );
         }
         catch( Exception e )
         {
