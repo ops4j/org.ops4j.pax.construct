@@ -13,6 +13,6 @@
 	<classpathentry kind="var" path="M2_REPO/org/apache/maven/plugins/maven-eclipse-plugin/2.3/maven-eclipse-plugin-2.3.jar"/>
 	<classpathentry kind="var" path="M2_REPO/org/codehaus/plexus/plexus-container-default/1.0-alpha-9-stable-1/plexus-container-default-1.0-alpha-9-stable-1.jar"/>
 	<classpathentry kind="var" path="M2_REPO/plexus/plexus-utils/1.0.3/plexus-utils-1.0.3.jar"/>
-	<classpathentry kind="var" path="M2_REPO/org/ops4j/pax/runner/0.3.2/runner-0.3.2.jar"/>
+	<classpathentry kind="var" path="M2_REPO/org/ops4j/pax/runner/0.3.3/runner-0.3.3.jar"/>
 	<classpathentry kind="output" path="target/classes"/>
 </classpath>
