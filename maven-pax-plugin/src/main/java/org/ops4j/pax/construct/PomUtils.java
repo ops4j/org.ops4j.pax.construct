@@ -24,6 +24,7 @@ import java.util.Properties;
 import org.apache.maven.model.Dependency;
 import org.apache.maven.model.Model;
 import org.apache.maven.model.Repository;
+import org.apache.maven.model.io.xpp3.MavenXpp3Reader;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.project.MavenProject;
 import org.kxml2.kdom.Document;
@@ -80,7 +81,7 @@ public class PomUtils
     /**
      * Writes a pom to the input File.
      * 
-     * @param pomFile the File representing th epom
+     * @param pomFile the File representing the pom
      * @param pom The Document representing the pom to be written
      * @throws MojoExecutionException re-thrown.
      */
@@ -100,6 +101,124 @@ public class PomUtils
         {
             throw new MojoExecutionException( "Unable to serialize POM", e );
         }
+    }
+
+    public static boolean containsDir( File rootDir, File targetDir )
+    {
+        while( rootDir != null && targetDir != null )
+        {
+            if( rootDir.equals( targetDir ) )
+            {
+                return true;
+            }
+
+            targetDir = targetDir.getParentFile();
+        }
+
+        return false;
+    }
+
+    /**
+     * Create a module tree pointing to the input File.
+     * 
+     * @param pomFile the File representing the pom
+     * @throws MojoExecutionException re-thrown.
+     */
+    public static File createModuleTree( File rootDir, File targetDir )
+        throws MojoExecutionException
+    {
+        File pomFile = new File( targetDir, "pom.xml" );
+        if( pomFile.exists() || !containsDir( rootDir, targetDir ) )
+        {
+            return pomFile;
+        }
+
+        // recurse to top-most missing pom, then create poms downwards from there
+        File parentPomFile = createModuleTree( rootDir, targetDir.getParentFile() );
+
+        // link parent to child
+        Document parentPom = readPom( parentPomFile );
+        Element parentProjectElem = parentPom.getElement( null, "project" );
+        addModule( parentProjectElem, targetDir.getName(), true );
+        writePom( parentPomFile, parentPom );
+
+        Model parentModel;
+        try
+        {
+            // read back in maven format
+            MavenXpp3Reader modelReader = new MavenXpp3Reader();
+            parentModel = modelReader.read( new FileReader( parentPomFile ) );
+        }
+        catch( Exception e )
+        {
+            throw new MojoExecutionException( "Unable to read parent POM", e );
+        }
+
+        // create new modules pom
+        Document pom = new Document();
+
+        Element project = pom.createElement( null, "project" );
+        project.setAttribute( null, "xmlns", "http://maven.apache.org/POM/4.0.0" );
+        project.setAttribute( null, "xmlns:xsi", "http://www.w3.org/2001/XMLSchema-instance" );
+        project.setAttribute( null, "xsi:schemaLocation",
+            "http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd" );
+
+        Element packaging = project.createElement( null, "packaging" );
+        packaging.addChild( Element.TEXT, "pom" );
+
+        Element name = project.createElement( null, "name" );
+        name.addChild( Element.TEXT, targetDir.getName() );
+
+        Element modelVersion = project.createElement( null, "modelVersion" );
+        modelVersion.addChild( Element.TEXT, "4.0.0" );
+        Element groupId = project.createElement( null, "groupId" );
+        groupId.addChild( Element.TEXT, parentModel.getGroupId() + "." + parentModel.getArtifactId() );
+        Element artifactId = project.createElement( null, "artifactId" );
+        artifactId.addChild( Element.TEXT, targetDir.getName() );
+
+        Element modules = project.createElement( null, "modules" );
+        modules.addChild( Element.TEXT, NL + "  " );
+
+        pom.addChild( Element.TEXT, NL );
+        pom.addChild( Element.ELEMENT, project );
+
+        project.addChild( Element.TEXT, NL + NL + "  " );
+        project.addChild( Element.ELEMENT, name );
+
+        project.addChild( Element.TEXT, NL + NL + "  " );
+        project.addChild( Element.ELEMENT, modelVersion );
+        project.addChild( Element.TEXT, NL + "  " );
+        project.addChild( Element.ELEMENT, groupId );
+        project.addChild( Element.TEXT, NL + "  " );
+        project.addChild( Element.ELEMENT, artifactId );
+
+        project.addChild( Element.TEXT, NL + NL + "  " );
+        project.addChild( Element.ELEMENT, packaging );
+
+        project.addChild( Element.TEXT, NL + NL + "  " );
+        project.addChild( Element.ELEMENT, modules );
+        project.addChild( Element.TEXT, NL + NL );
+
+        // link child to parent
+        MavenProject parentProject = new MavenProject( parentModel );
+        setParent( project, parentProject, null, true );
+
+        try
+        {
+            targetDir.mkdir();
+            XmlSerializer serial = XmlPullParserFactory.newInstance().newSerializer();
+            FileWriter output = new FileWriter( pomFile );
+
+            serial.setOutput( output );
+            pom.write( serial );
+            output.close();
+        }
+        catch( Exception e )
+        {
+            throw new MojoExecutionException( "Unable to serialize POM", e );
+        }
+
+        return pomFile;
     }
 
     /**

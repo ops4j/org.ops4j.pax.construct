@@ -59,7 +59,7 @@ public abstract class AbstractChildArchetypeMojo extends AbstractArchetypeMojo
     {
         // This somehow forces Maven to keep POM formatting & XSD
         File dir = new File( targetDirectory, childProjectName );
-        dir.mkdir();
+        dir.mkdirs();
 
         childPomFile = new File( dir, "pom.xml" );
 
@@ -80,12 +80,13 @@ public abstract class AbstractChildArchetypeMojo extends AbstractArchetypeMojo
         {
             final String childName = childPomFile.getParentFile().getName();
 
-            Document parentPom = PomUtils.readPom( project.getFile() );
+            File parentFile = PomUtils.createModuleTree( project.getBasedir(), targetDirectory );
+            Document parentPom = PomUtils.readPom( parentFile );
 
             Element projectElem = parentPom.getElement( null, "project" );
             PomUtils.addModule( projectElem, childName, overwrite );
 
-            PomUtils.writePom( project.getFile(), parentPom );
+            PomUtils.writePom( parentFile, parentPom );
         }
         catch( Exception e )
         {
