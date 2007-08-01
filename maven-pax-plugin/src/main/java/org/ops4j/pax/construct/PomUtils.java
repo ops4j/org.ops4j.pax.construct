@@ -27,6 +27,7 @@ import org.apache.maven.model.Repository;
 import org.apache.maven.model.io.xpp3.MavenXpp3Reader;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.project.MavenProject;
+import org.codehaus.plexus.util.DirectoryScanner;
 import org.kxml2.kdom.Document;
 import org.kxml2.kdom.Element;
 import org.xmlpull.v1.XmlPullParser;
@@ -659,5 +660,27 @@ public class PomUtils
         parent.addChild( Element.ELEMENT, version );
 
         parent.addChild( Element.TEXT, NL + "  " );
+    }
+
+    public static File findBundlePom( File baseDir, String bundleName )
+    {
+        String[] includes = new String[1];
+        includes[0] = "**/" + bundleName + "/pom.xml";
+
+        DirectoryScanner scanner = new DirectoryScanner();
+
+        scanner.setBasedir( baseDir );
+        scanner.setIncludes( includes );
+        scanner.scan();
+
+        String candidates[] = scanner.getIncludedFiles();
+        if( candidates != null && candidates.length > 0 )
+        {
+            return new File( baseDir, candidates[0] );
+        }
+        else
+        {
+            return null;
+        }
     }
 }
