@@ -163,18 +163,21 @@ public class PomUtils
         project.setAttribute( null, "xsi:schemaLocation",
             "http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd" );
 
-        Element packaging = project.createElement( null, "packaging" );
-        packaging.addChild( Element.TEXT, "pom" );
+        final String groupIdText = parentModel.getGroupId() + "." + parentModel.getArtifactId();
+        final String artifactIdText = targetDir.getName();
 
         Element name = project.createElement( null, "name" );
-        name.addChild( Element.TEXT, targetDir.getName() );
+        name.addChild( Element.TEXT, groupIdText + "." + artifactIdText );
 
         Element modelVersion = project.createElement( null, "modelVersion" );
         modelVersion.addChild( Element.TEXT, "4.0.0" );
         Element groupId = project.createElement( null, "groupId" );
-        groupId.addChild( Element.TEXT, parentModel.getGroupId() + "." + parentModel.getArtifactId() );
+        groupId.addChild( Element.TEXT, groupIdText );
         Element artifactId = project.createElement( null, "artifactId" );
-        artifactId.addChild( Element.TEXT, targetDir.getName() );
+        artifactId.addChild( Element.TEXT, artifactIdText );
+
+        Element packaging = project.createElement( null, "packaging" );
+        packaging.addChild( Element.TEXT, "pom" );
 
         Element modules = project.createElement( null, "modules" );
         modules.addChild( Element.TEXT, NL + "  " );
