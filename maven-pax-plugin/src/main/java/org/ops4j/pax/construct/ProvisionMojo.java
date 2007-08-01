@@ -19,9 +19,12 @@ package org.ops4j.pax.construct;
 import java.io.File;
 import java.io.FileWriter;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Properties;
+import java.util.Set;
+import java.util.TreeSet;
 
 import org.apache.maven.artifact.Artifact;
 import org.apache.maven.artifact.factory.ArtifactFactory;
@@ -93,8 +96,39 @@ public final class ProvisionMojo extends AbstractMojo
     private ArtifactInstaller installer;
 
     private static MavenProject m_runnerPom;
-    private static List m_dependencies;
+    private static Set m_dependencies;
     private static int m_projectCount;
+
+    // Ensure unique set of deployable dependencies
+    private static class DependencyComparator
+        implements Comparator
+    {
+        public int compare( Object lhs, Object rhs )
+        {
+            if( !(lhs instanceof Dependency) )
+            {
+                return -1;
+            }
+            if( !(rhs instanceof Dependency) )
+            {
+                return 1;
+            }
+
+            Dependency lhsDep = (Dependency) lhs;
+            Dependency rhsDep = (Dependency) rhs;
+
+            int result = lhsDep.getGroupId().compareTo( rhsDep.getGroupId() );
+            if( 0 == result )
+            {
+                result = lhsDep.getArtifactId().compareTo( rhsDep.getArtifactId() );
+                if( 0 == result )
+                {
+                    result = lhsDep.getVersion().compareTo( rhsDep.getVersion() );
+                }
+            }
+            return result;
+        }
+    }
 
     public void execute()
         throws MojoExecutionException
@@ -102,7 +136,7 @@ public final class ProvisionMojo extends AbstractMojo
         if( m_runnerPom == null )
         {
             m_runnerPom = new MavenProject( new Model() );
-            m_dependencies = new ArrayList();
+            m_dependencies = new TreeSet( new DependencyComparator() );
             m_projectCount = 0;
         }
 
@@ -113,6 +147,15 @@ public final class ProvisionMojo extends AbstractMojo
         else
         {
             initializeRunnerPom();
+        }
+
+        for( Iterator i = project.getDependencies().iterator(); i.hasNext(); )
+        {
+            Dependency dep = (Dependency) i.next();
+            if( "deployable".equals( dep.getClassifier() ) )
+            {
+                m_dependencies.add( dep );
+            }
         }
 
         if( ++m_projectCount == reactorProjects.size() )
@@ -181,7 +224,7 @@ public final class ProvisionMojo extends AbstractMojo
                 getLog().info( "~~~~~~~~~~~~~~~~~~~" );
             }
 
-            m_runnerPom.setDependencies( m_dependencies );
+            m_runnerPom.setDependencies( new ArrayList( m_dependencies ) );
             m_runnerPom.writeModel( new FileWriter( pomFile ) );
 
             Artifact artifact = factory.createProjectArtifact( m_runnerPom.getGroupId(), m_runnerPom.getArtifactId(),
