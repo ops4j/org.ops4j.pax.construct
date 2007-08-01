@@ -17,6 +17,7 @@ package org.ops4j.pax.construct;
  */
 
 import java.io.File;
+import java.io.FileReader;
 import java.io.FileWriter;
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -32,6 +33,7 @@ import org.apache.maven.artifact.installer.ArtifactInstaller;
 import org.apache.maven.artifact.repository.ArtifactRepository;
 import org.apache.maven.model.Dependency;
 import org.apache.maven.model.Model;
+import org.apache.maven.model.io.xpp3.MavenXpp3Reader;
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.project.MavenProject;
@@ -61,6 +63,11 @@ public final class ProvisionMojo extends AbstractMojo
      * @parameter expression="${deploy}" default-value="true"
      */
     private boolean deploy;
+
+    /**
+     * @parameter expression="${deploy.poms}"
+     */
+    private String additionalPoms;
 
     /**
      * @parameter expression="${platform}" default-value="equinox"
@@ -96,6 +103,7 @@ public final class ProvisionMojo extends AbstractMojo
     private ArtifactInstaller installer;
 
     private static MavenProject m_runnerPom;
+    private static Properties m_properties;
     private static Set m_dependencies;
     private static int m_projectCount;
 
@@ -136,6 +144,7 @@ public final class ProvisionMojo extends AbstractMojo
         if( m_runnerPom == null )
         {
             m_runnerPom = new MavenProject( new Model() );
+            m_properties = new Properties();
             m_dependencies = new TreeSet( new DependencyComparator() );
             m_projectCount = 0;
         }
@@ -149,14 +158,8 @@ public final class ProvisionMojo extends AbstractMojo
             initializeRunnerPom();
         }
 
-        for( Iterator i = project.getDependencies().iterator(); i.hasNext(); )
-        {
-            Dependency dep = (Dependency) i.next();
-            if( "deployable".equals( dep.getClassifier() ) )
-            {
-                m_dependencies.add( dep );
-            }
-        }
+        // ie. deps marked with 'deployable' classifier
+        addDeployableDependencies( project.getModel() );
 
         if( ++m_projectCount == reactorProjects.size() )
         {
@@ -175,7 +178,7 @@ public final class ProvisionMojo extends AbstractMojo
         m_runnerPom.setModelVersion( "4.0.0" );
         m_runnerPom.setPackaging( "pom" );
 
-        m_runnerPom.getModel().setProperties( project.getProperties() );
+        m_properties.putAll( project.getProperties() );
 
         String targetPath = project.getFile().getParent() + File.separator + "target";
         String runnerPath = targetPath + File.separator + "runner" + File.separator + "pom.xml";
@@ -183,6 +186,11 @@ public final class ProvisionMojo extends AbstractMojo
         File runnerPomFile = new File( runnerPath );
         runnerPomFile.getParentFile().mkdirs();
         m_runnerPom.setFile( runnerPomFile );
+
+        if( additionalPoms != null )
+        {
+            addAdditionalPoms();
+        }
     }
 
     private void addBundleDependency()
@@ -210,6 +218,43 @@ public final class ProvisionMojo extends AbstractMojo
         }
     }
 
+    private void addDeployableDependencies( Model model )
+    {
+        for( Iterator i = model.getDependencies().iterator(); i.hasNext(); )
+        {
+            Dependency dep = (Dependency) i.next();
+            if( "deployable".equals( dep.getClassifier() ) )
+            {
+                dep.setClassifier( null );
+                m_dependencies.add( dep );
+            }
+        }
+    }
+
+    private void addAdditionalPoms()
+    {
+        MavenXpp3Reader modelReader = new MavenXpp3Reader();
+
+        String[] pomPaths = additionalPoms.split( "," );
+        for( int i = 0; i < pomPaths.length; i++ )
+        {
+            File pomFile = new File( pomPaths[i] );
+            if( pomFile.exists() )
+            {
+                try
+                {
+                    Model model = modelReader.read( new FileReader( pomFile ) );
+                    m_properties.putAll( model.getProperties() );
+                    addDeployableDependencies( model );
+                }
+                catch( Exception e )
+                {
+                    // ignore and continue...
+                }
+            }
+        }
+    }
+
     private void installRunnerPom()
         throws MojoExecutionException
     {
@@ -224,6 +269,7 @@ public final class ProvisionMojo extends AbstractMojo
                 getLog().info( "~~~~~~~~~~~~~~~~~~~" );
             }
 
+            m_runnerPom.getModel().setProperties( m_properties );
             m_runnerPom.setDependencies( new ArrayList( m_dependencies ) );
             m_runnerPom.writeModel( new FileWriter( pomFile ) );
 
