@@ -40,18 +40,24 @@
 
   <build>
     <!--
-      source specific plugin configuration
+      compilation specific plugin configuration
     -->
     <pluginManagement>
       <plugins>
         <plugin>
           <artifactId>maven-compiler-plugin</artifactId>
           <configuration>
-            <source>1.5</source>
-            <target>1.5</target>
+            <!--
+              change if version should be independent of build JDK
+            -->
+            <source>${java.specification.version}</source>
+            <target>${java.specification.version}</target>
             <debug>true</debug>
           </configuration>
         </plugin>
+        <!--
+          Copy (non-provided) dependent jars for potential embedding
+        -->
         <plugin>
           <artifactId>maven-dependency-plugin</artifactId>
           <executions>
@@ -93,6 +99,9 @@
             </instructions>
           </configuration>
         </plugin>
+        <!--
+          Provide backup and recovery of generated metadata
+        -->
         <plugin>
           <groupId>org.ops4j.pax.construct</groupId>
           <artifactId>maven-pax-plugin</artifactId>
