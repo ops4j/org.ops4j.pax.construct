@@ -128,14 +128,35 @@ public class PomUtils
     public static File createModuleTree( File rootDir, File targetDir )
         throws MojoExecutionException
     {
+        try
+        {
+            rootDir = rootDir.getCanonicalFile();
+            targetDir = targetDir.getCanonicalFile();
+        }
+        catch( Exception e )
+        {
+            // ignore, assume original paths will be ok
+        }
+
+        return createModuleTreeChecked( rootDir, targetDir );
+    }
+
+    private static File createModuleTreeChecked( File rootDir, File targetDir )
+        throws MojoExecutionException
+    {
+        if( !containsDir( rootDir, targetDir ) )
+        {
+            return null;
+        }
+
         File pomFile = new File( targetDir, "pom.xml" );
-        if( pomFile.exists() || !containsDir( rootDir, targetDir ) )
+        if( pomFile.exists() )
         {
             return pomFile;
         }
 
         // recurse to top-most missing pom, then create poms downwards from there
-        File parentPomFile = createModuleTree( rootDir, targetDir.getParentFile() );
+        File parentPomFile = createModuleTreeChecked( rootDir, targetDir.getParentFile() );
 
         // link parent to child
         Document parentPom = readPom( parentPomFile );
@@ -681,6 +702,69 @@ public class PomUtils
         else
         {
             return null;
+        }
+    }
+
+    public static String calculateRelativePath( File sourcePath, File targetPath )
+    {
+        try
+        {
+            sourcePath = sourcePath.getCanonicalFile();
+            targetPath = targetPath.getCanonicalFile();
+        }
+        catch( Exception e )
+        {
+            // ignore, assume original paths will be ok
+        }
+
+        String dottedPath = "";
+        String descentPath = "";
+        while( sourcePath != null && targetPath != null && !sourcePath.equals( targetPath ) )
+        {
+            if( sourcePath.getPath().length() < targetPath.getPath().length() )
+            {
+                descentPath = targetPath.getName() + "/" + descentPath;
+                targetPath = targetPath.getParentFile();
+            }
+            else
+            {
+                dottedPath = "../" + dottedPath;
+                sourcePath = sourcePath.getParentFile();
+            }
+        }
+
+        String relativePath = null;
+        if( sourcePath != null && targetPath != null )
+        {
+            relativePath = dottedPath + descentPath;
+        }
+
+        return relativePath;
+    }
+
+    public static void adjustRelativePath( Element project, int offset )
+    {
+        try
+        {
+            Element parent = project.getElement( null, "parent" );
+            Element relativePath = parent.getElement( null, "relativePath" );
+            String relativeText = (String) relativePath.getChild( 0 );
+            relativePath.clear();
+
+            for( int i = 0; i < offset; i++ )
+            {
+                relativeText = "../" + relativeText;
+            }
+
+            for( int i = 0; i > offset; i-- )
+            {
+                relativeText = relativeText.substring( 3 );
+            }
+
+            relativePath.addChild( Element.TEXT, relativeText );
+        }
+        catch( Exception e )
+        {
         }
     }
 }

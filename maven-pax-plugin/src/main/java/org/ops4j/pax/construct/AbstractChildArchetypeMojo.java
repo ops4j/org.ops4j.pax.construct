@@ -81,6 +81,12 @@ public abstract class AbstractChildArchetypeMojo extends AbstractArchetypeMojo
             final String childName = childPomFile.getParentFile().getName();
 
             File parentFile = PomUtils.createModuleTree( project.getBasedir(), targetDirectory );
+
+            if( null == parentFile )
+            {
+                throw new MojoExecutionException( "targetDirectory is outside of this project" );
+            }
+
             Document parentPom = PomUtils.readPom( parentFile );
 
             Element projectElem = parentPom.getElement( null, "project" );
@@ -101,33 +107,12 @@ public abstract class AbstractChildArchetypeMojo extends AbstractArchetypeMojo
         {
             Document childPom = PomUtils.readPom( childPomFile );
 
-            Element projectElem = childPom.getElement( null, "project" );
-
             File sourcePath = childPomFile.getParentFile();
             File targetPath = project.getBasedir();
 
-            String dottedPath = "";
-            String descentPath = "";
-            while( sourcePath != null && targetPath != null && !sourcePath.equals( targetPath ) )
-            {
-                if( sourcePath.getPath().length() < targetPath.getPath().length() )
-                {
-                    descentPath = targetPath.getName() + "/" + descentPath;
-                    targetPath = targetPath.getParentFile();
-                }
-                else
-                {
-                    dottedPath = "../" + dottedPath;
-                    sourcePath = sourcePath.getParentFile();
-                }
-            }
+            final String relativePath = PomUtils.calculateRelativePath( sourcePath, targetPath );
 
-            String relativePath = null;
-            if( sourcePath != null && targetPath != null )
-            {
-                relativePath = dottedPath + descentPath;
-            }
-
+            Element projectElem = childPom.getElement( null, "project" );
             PomUtils.setParent( projectElem, project, relativePath, overwrite );
 
             PomUtils.writePom( childPomFile, childPom );
