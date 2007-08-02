@@ -3,6 +3,9 @@ SETLOCAL
 set _SCRIPTS_=%~dp0
 call "%_SCRIPTS_%\pax-validate"
 
+if ""=="%PAX_CONSTRUCT_VERSION%" set PAX_CONSTRUCT_VERSION=${project.version}
+set PAX_PLUGIN=org.ops4j.pax.construct:maven-pax-plugin:%PAX_CONSTRUCT_VERSION%
+
 set _BATFILE_=%0
 set _NAME_=
 
@@ -34,5 +37,5 @@ if ""=="%_NAME_%" set /p _NAME_="bundle name (myBundle) ? "
 if ""=="%_NAME_%" set _NAME_=myBundle
 
 @echo on
-mvn pax:remove-bundle -Dname=%_NAME_% %_EXTRA_%
+mvn %PAX_PLUGIN%:remove-bundle -Dname=%_NAME_% %_EXTRA_%
 :done

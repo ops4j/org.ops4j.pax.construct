@@ -2,6 +2,13 @@
 SCRIPTS=`dirname $0`
 . ${SCRIPTS}/pax-validate
 
+if [ -z "${PAX_CONSTRUCT_VERSION}" ]
+then
+  PAX_CONSTRUCT_VERSION=${project.version}
+fi
+
+PAX_PLUGIN=org.ops4j.pax.construct:maven-pax-plugin:${PAX_CONSTRUCT_VERSION}
+
 unset GROUPID
 unset ARTIFACTID
 unset VERSION
@@ -35,7 +42,7 @@ then
   read -p "library version (0.1.0-SNAPSHOT) ? " VERSION
 fi
 
-mvn pax:embed-jar \
+mvn ${PAX_PLUGIN}:embed-jar \
   -DgroupId=${GROUPID:=org.ops4j.example} \
   -DartifactId=${ARTIFACTID:=myJarFile} \
   -Dversion=${VERSION:=0.1.0-SNAPSHOT} \

@@ -3,6 +3,9 @@ SETLOCAL
 set _SCRIPTS_=%~dp0
 call "%_SCRIPTS_%\pax-validate"
 
+if ""=="%PAX_CONSTRUCT_VERSION%" set PAX_CONSTRUCT_VERSION=${project.version}
+set PAX_PLUGIN=org.ops4j.pax.construct:maven-pax-plugin:%PAX_CONSTRUCT_VERSION%
+
 set _BATFILE_=%0
 set _GROUPID_=
 set _ARTIFACTID_=
@@ -45,5 +48,5 @@ if ""=="%_ARTIFACTID_%" set _ARTIFACTID_=myJarFile
 if ""=="%_VERSION_%" set _VERSION_=0.1.0-SNAPSHOT
 
 @echo on
-mvn pax:embed-jar -DgroupId=%_GROUPID_% -DartifactId=%_ARTIFACTID_% -Dversion=%_VERSION_% %_EXTRA_%
+mvn %PAX_PLUGIN%:embed-jar -DgroupId=%_GROUPID_% -DartifactId=%_ARTIFACTID_% -Dversion=%_VERSION_% %_EXTRA_%
 :done

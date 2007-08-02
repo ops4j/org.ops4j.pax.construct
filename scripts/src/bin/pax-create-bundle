@@ -2,6 +2,13 @@
 SCRIPTS=`dirname $0`
 . ${SCRIPTS}/pax-validate
 
+if [ -z "${PAX_CONSTRUCT_VERSION}" ]
+then
+  PAX_CONSTRUCT_VERSION=${project.version}
+fi
+
+PAX_PLUGIN=org.ops4j.pax.construct:maven-pax-plugin:${PAX_CONSTRUCT_VERSION}
+
 unset PACKAGE
 unset NAME
 unset VERSION
@@ -38,7 +45,7 @@ then
   fi
 fi
 
-mvn pax:create-bundle \
+mvn ${PAX_PLUGIN}:create-bundle \
   -Dpackage=${PACKAGE:=org.ops4j.example} \
   -Dname=${NAME:=myBundle} \
   -Dversion=${VERSION:=0.1.0-SNAPSHOT} \

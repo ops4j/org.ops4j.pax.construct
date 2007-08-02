@@ -3,6 +3,9 @@ SETLOCAL
 set _SCRIPTS_=%~dp0
 call "%_SCRIPTS_%\pax-validate"
 
+if ""=="%PAX_CONSTRUCT_VERSION%" set PAX_CONSTRUCT_VERSION=${project.version}
+set PAX_PLUGIN=org.ops4j.pax.construct:maven-pax-plugin:%PAX_CONSTRUCT_VERSION%
+
 set _BATFILE_=%0
 set _NAME_=
 set _TODIR_=
@@ -40,5 +43,5 @@ if ""=="%_NAME_%" set _NAME_=myBundle
 if ""=="%_TODIR_%" set _TODIR_=.
 
 @echo on
-mvn pax:move-bundle -Dname=%_NAME_% -DtargetDirectory=%_TODIR_% %_EXTRA_%
+mvn %PAX_PLUGIN%:move-bundle -Dname=%_NAME_% -DtargetDirectory=%_TODIR_% %_EXTRA_%
 :done

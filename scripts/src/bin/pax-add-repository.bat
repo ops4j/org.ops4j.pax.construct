@@ -3,6 +3,9 @@ SETLOCAL
 set _SCRIPTS_=%~dp0
 call "%_SCRIPTS_%\pax-validate"
 
+if ""=="%PAX_CONSTRUCT_VERSION%" set PAX_CONSTRUCT_VERSION=${project.version}
+set PAX_PLUGIN=org.ops4j.pax.construct:maven-pax-plugin:%PAX_CONSTRUCT_VERSION%
+
 set _BATFILE_=%0
 set _ID_=
 set _URL_=
@@ -46,5 +49,5 @@ if ""=="%_ID_%" set _ID_=org.ops4j.repository
 if ""=="%_URL_%" set _URL_=http://repository.ops4j.org/maven2
 
 @echo on
-mvn pax:add-repository -DrepositoryId=%_ID_% -DrepositoryURL=%_URL_% %_EXTRA_%
+mvn %PAX_PLUGIN%:add-repository -DrepositoryId=%_ID_% -DrepositoryURL=%_URL_% %_EXTRA_%
 :done

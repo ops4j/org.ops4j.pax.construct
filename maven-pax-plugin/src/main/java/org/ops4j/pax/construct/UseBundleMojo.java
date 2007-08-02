@@ -71,14 +71,17 @@ public final class UseBundleMojo extends AbstractMojo
     public void execute()
         throws MojoExecutionException
     {
+        MavenProject rootProject = project;
         boolean isCompiledBundle = false;
-        for( MavenProject p = project; p != null; p = p.getParent() )
+
+        while( rootProject.getParent() != null )
         {
-            if( p.getArtifactId().equals( "compile-bundle" ) )
+            if( rootProject.getArtifactId().equals( "compile-bundle" ) )
             {
                 isCompiledBundle = true;
-                break;
             }
+
+            rootProject = rootProject.getParent();
         }
 
         // execute only if inside a compiled bundle project
@@ -89,9 +92,9 @@ public final class UseBundleMojo extends AbstractMojo
 
         try
         {
-            File usedPomFile = new File( project.getFile().getParentFile(), "../" + bundleName + "/pom.xml" );
+            File usedPomFile = PomUtils.findBundlePom( rootProject.getBasedir(), bundleName );
 
-            if( !usedPomFile.exists() )
+            if( usedPomFile == null || !usedPomFile.exists() )
             {
                 throw new MojoExecutionException( "Cannot find bundle " + bundleName );
             }

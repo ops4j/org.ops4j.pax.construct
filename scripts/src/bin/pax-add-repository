@@ -2,6 +2,13 @@
 SCRIPTS=`dirname $0`
 . ${SCRIPTS}/pax-validate
 
+if [ -z "${PAX_CONSTRUCT_VERSION}" ]
+then
+  PAX_CONSTRUCT_VERSION=${project.version}
+fi
+
+PAX_PLUGIN=org.ops4j.pax.construct:maven-pax-plugin:${PAX_CONSTRUCT_VERSION}
+
 unset ID
 unset URL
 
@@ -32,7 +39,7 @@ then
   fi
 fi
 
-mvn pax:add-repository \
+mvn ${PAX_PLUGIN}:add-repository \
   -DrepositoryId=${ID:=org.ops4j.repository} \
   -DrepositoryURL=${URL:=http://repository.ops4j.org/maven2} \
   ${PAX_CONSTRUCT_OPTIONS} "$@"

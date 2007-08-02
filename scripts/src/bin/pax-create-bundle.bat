@@ -3,6 +3,9 @@ SETLOCAL
 set _SCRIPTS_=%~dp0
 call "%_SCRIPTS_%\pax-validate"
 
+if ""=="%PAX_CONSTRUCT_VERSION%" set PAX_CONSTRUCT_VERSION=${project.version}
+set PAX_PLUGIN=org.ops4j.pax.construct:maven-pax-plugin:%PAX_CONSTRUCT_VERSION%
+
 set _BATFILE_=%0
 set _PACKAGE_=
 set _NAME_=
@@ -51,5 +54,5 @@ if ""=="%_NAME_%" set _NAME_=myBundle
 if ""=="%_VERSION_%" set _VERSION_=0.1.0-SNAPSHOT
 
 @echo on
-mvn pax:create-bundle -Dpackage=%_PACKAGE_% -Dname=%_NAME_% -Dversion=%_VERSION_% %_EXTRA_%
+mvn %PAX_PLUGIN%:create-bundle -Dpackage=%_PACKAGE_% -Dname=%_NAME_% -Dversion=%_VERSION_% %_EXTRA_%
 :done

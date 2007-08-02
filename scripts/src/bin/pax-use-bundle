@@ -2,6 +2,13 @@
 SCRIPTS=`dirname $0`
 . ${SCRIPTS}/pax-validate
 
+if [ -z "${PAX_CONSTRUCT_VERSION}" ]
+then
+  PAX_CONSTRUCT_VERSION=${project.version}
+fi
+
+PAX_PLUGIN=org.ops4j.pax.construct:maven-pax-plugin:${PAX_CONSTRUCT_VERSION}
+
 unset NAME
 
 while
@@ -23,7 +30,7 @@ then
   read -p "bundle name (myBundle) ? " NAME
 fi
 
-mvn pax:use-bundle \
+mvn ${PAX_PLUGIN}:use-bundle \
   -Dname=${NAME:=myBundle} \
   ${PAX_CONSTRUCT_OPTIONS} "$@"
 
