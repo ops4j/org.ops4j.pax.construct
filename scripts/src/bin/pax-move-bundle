@@ -1,0 +1,36 @@
+#!/bin/sh
+SCRIPTS=`dirname $0`
+. ${SCRIPTS}/pax-validate
+
+unset NAME
+unset DIR
+
+while
+  getopts n:d:h- SETTING
+do
+  case ${SETTING} in
+    h|\?) echo "pax-move-bundle -n bundleName -d directory [-- mvnOpts ...]" ; exit ;;
+
+    n) NAME=${OPTARG} ;;
+    d) DIR=${OPTARG} ;;
+
+    -) break ;;
+  esac
+done
+
+shift $((${OPTIND}-1))
+
+if [ -z "${NAME}" ]
+then
+  read -p "bundle name (myBundle) ? " NAME
+fi
+if [ -z "${DIR}" ]
+then
+  read -p "to directory (.) ? " DIR
+fi
+
+mvn pax:move-bundle \
+  -Dname=${NAME:=myBundle} \
+  -Dlocation=${DIR:=.} \
+  ${PAX_CONSTRUCT_OPTIONS} "$@"
+
