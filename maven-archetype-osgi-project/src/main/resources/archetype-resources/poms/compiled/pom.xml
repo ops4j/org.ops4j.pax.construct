@@ -55,27 +55,6 @@
             <debug>true</debug>
           </configuration>
         </plugin>
-        <!--
-          Copy (non-provided) dependent jars for potential embedding
-        -->
-        <plugin>
-          <artifactId>maven-dependency-plugin</artifactId>
-          <executions>
-            <execution>
-              <id>embed-jar</id>
-              <phase>generate-resources</phase>
-              <goals>
-                <goal>copy-dependencies</goal>
-              </goals>
-              <configuration>
-                <outputDirectory>${project.build.directory}</outputDirectory>
-                <excludeTransitive>true</excludeTransitive>
-                <excludeScope>provided</excludeScope>
-                <stripVersion>true</stripVersion>
-              </configuration>
-            </execution>
-          </executions>
-        </plugin>
         <plugin>
           <groupId>org.ops4j.pax.maven</groupId>
           <artifactId>maven-bundle-plugin</artifactId>
@@ -92,6 +71,13 @@
               -->
               <Private-Package>${bundle.package}.internal</Private-Package>
               <Export-Package>!${bundle.package}.internal,${bundle.package}.*;version="${project.version}"</Export-Package>
+              <!--
+                embed all compile and runtime dependencies
+              -->
+              <Embed-Dependency>*;scope=compile|runtime</Embed-Dependency>
+              <Embed-Directory>target</Embed-Directory>
+              <Embed-StripVersion>true</Embed-StripVersion>
+              <Embed-Transitive>true</Embed-Transitive>
               <!--
                 load project specific settings
               -->

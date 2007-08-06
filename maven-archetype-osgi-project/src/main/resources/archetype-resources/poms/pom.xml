@@ -32,7 +32,7 @@
           <!-- use local snapshot for now -->
           <groupId>org.ops4j.pax.maven</groupId>
           <artifactId>maven-bundle-plugin</artifactId>
-          <version>RELEASE</version>
+          <version>0.9.14-SNAPSHOT</version>
         </plugin>
         <plugin>
           <groupId>org.ops4j.pax.construct</groupId>

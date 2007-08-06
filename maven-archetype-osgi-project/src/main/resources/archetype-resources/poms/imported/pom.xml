@@ -26,37 +26,9 @@
 
   <build>
     <!--
-      configure dependency plugin to unpack jarfile into build directory for eclipse
+      no custom build configuration necessary at the moment
     -->
-    <pluginManagement>
-      <plugins>
-        <plugin>
-          <artifactId>maven-dependency-plugin</artifactId>
-          <configuration>
-            <artifactItems>
-              <artifactItem>
-                <groupId>${bundle.groupId}</groupId>
-                <artifactId>${bundle.artifactId}</artifactId>
-                <version>${bundle.version}</version>
-              </artifactItem>
-            </artifactItems>
-          </configuration>
-          <executions>
-            <execution>
-              <id>unpack-bundle</id>
-              <phase>package</phase>
-              <goals>
-                <goal>unpack</goal>
-              </goals>
-              <configuration>
-                <outputDirectory>${project.build.outputDirectory}</outputDirectory>
-                <excludeTransitive>true</excludeTransitive>
-              </configuration>
-            </execution>
-          </executions>
-        </plugin>
-      </plugins>
-    </pluginManagement>
+    <pluginManagement/>
   </build>
 
 #end

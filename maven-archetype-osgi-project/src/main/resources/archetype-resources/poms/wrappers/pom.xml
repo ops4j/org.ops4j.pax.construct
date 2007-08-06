@@ -35,34 +35,6 @@
     <pluginManagement>
       <plugins>
         <plugin>
-          <artifactId>maven-dependency-plugin</artifactId>
-          <configuration>
-            <!--
-              default is one jar per bundle, but this can be overriden in sub-projects
-            -->
-            <artifactItems>
-              <artifactItem>
-                <groupId>${jar.groupId}</groupId>
-                <artifactId>${jar.artifactId}</artifactId>
-                <version>${jar.version}</version>
-              </artifactItem>
-            </artifactItems>
-          </configuration>
-          <executions>
-            <execution>
-              <id>unpack-jar</id>
-              <phase>generate-resources</phase>
-              <goals>
-                <goal>unpack</goal>
-              </goals>
-              <configuration>
-                <outputDirectory>${project.build.outputDirectory}</outputDirectory>
-                <excludeTransitive>true</excludeTransitive>
-              </configuration>
-            </execution>
-          </executions>
-        </plugin>
-        <plugin>
           <groupId>org.ops4j.pax.maven</groupId>
           <artifactId>maven-bundle-plugin</artifactId>
           <extensions>true</extensions>
@@ -74,10 +46,19 @@
               <Bundle-SymbolicName>${symbolicName}</Bundle-SymbolicName>
 #literal()
               <!--
-                by default import + export all packages from the wrapped jarfile
+                import + export all packages from the wrapped jarfile
               -->
-              <_classpath>target/classes</_classpath>
-              <Export-Package>*;version="${jar.version}"</Export-Package>
+              <Export-Package>*</Export-Package>
+              <!--
+                inline main artifact and embed all compile and runtime dependencies
+              -->
+              <Embed-Dependency>
+                ${jar.artifactId};groupId=${jar.groupId};inline=true,
+                *;scope=compile|runtime
+              </Embed-Dependency>
+              <Embed-Directory>target</Embed-Directory>
+              <Embed-StripVersion>true</Embed-StripVersion>
+              <Embed-Transitive>true</Embed-Transitive>
               <!--
                 load project specific settings
               -->
