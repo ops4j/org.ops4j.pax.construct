@@ -168,7 +168,7 @@ public final class EclipseMojo extends EclipsePlugin
         setArtifactMetadataSource( artifactMetadataSource );
         super.artifactCollector = artifactCollector;
 
-        if( project.getPackaging().equals( "bundle" ) || isImportedBundle )
+        if( "bundle".equals( project.getPackaging() ) || isImportedBundle )
         {
             // Inject values into private flags
             setField( "isJavaProject", true );
@@ -367,7 +367,7 @@ public final class EclipseMojo extends EclipsePlugin
                 final String pathName = (String) p.next();
 
                 // ignore default path for compiled bundles, as we use a source folder
-                if( pathName.equals( "." ) && !isWrappedJarFile && !isImportedBundle )
+                if( ".".equals( pathName ) && !isWrappedJarFile && !isImportedBundle )
                 {
                     continue;
                 }

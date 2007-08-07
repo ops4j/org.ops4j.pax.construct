@@ -69,7 +69,7 @@ public final class OSGiBundleArchetypeMojo extends AbstractChildArchetypeMojo
         throws MojoExecutionException
     {
         // this is the logical parent of the new bundle project
-        if( project.getArtifactId().equals( "compile-bundle" ) )
+        if( "compile-bundle".equals( project.getArtifactId() ) )
         {
             linkChildToParent();
         }

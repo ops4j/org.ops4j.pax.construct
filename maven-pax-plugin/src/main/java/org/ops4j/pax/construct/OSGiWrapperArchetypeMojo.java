@@ -53,7 +53,7 @@ public final class OSGiWrapperArchetypeMojo extends AbstractChildArchetypeMojo
         throws MojoExecutionException
     {
         // this is the logical parent of the new bundle project
-        if( project.getArtifactId().equals( "wrap-jar-as-bundle" ) )
+        if( "wrap-jar-as-bundle".equals( project.getArtifactId() ) )
         {
             linkChildToParent();
         }

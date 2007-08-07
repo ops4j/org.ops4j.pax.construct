@@ -18,24 +18,24 @@
 
   <dependencies>
     <!--
-      typical OSGi development dependencies
+      non-deployed (ie. optional) OSGi development dependencies
     -->
     <dependency>
-      <classifier>framework</classifier>
+      <optional>true</optional>
       <groupId>org.osgi</groupId>
       <artifactId>osgi_R4_core</artifactId>
       <version>1.0</version>
       <scope>provided</scope>
     </dependency>
     <dependency>
-      <classifier>framework</classifier>
+      <optional>true</optional>
       <groupId>org.osgi</groupId>
       <artifactId>osgi_R4_compendium</artifactId>
       <version>1.0</version>
       <scope>provided</scope>
     </dependency>
     <!--
-      imported OSGi bundles
+      imported OSGi bundles (ones marked optional are not deployed)
     -->
   </dependencies>
 

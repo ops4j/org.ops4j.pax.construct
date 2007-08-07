@@ -158,7 +158,6 @@ public final class ProvisionMojo extends AbstractMojo
             initializeRunnerPom();
         }
 
-        // ie. deps marked with 'deployable' classifier
         addDeployableDependencies( project.getModel() );
 
         if( ++m_projectCount == reactorProjects.size() )
@@ -210,9 +209,10 @@ public final class ProvisionMojo extends AbstractMojo
         for( Iterator i = model.getDependencies().iterator(); i.hasNext(); )
         {
             Dependency dep = (Dependency) i.next();
-            if( "deployable".equals( dep.getClassifier() ) )
+            // assume *non-optional* provided dependencies should be deployed
+            if( false == dep.isOptional() && "provided".equals( dep.getScope() ) )
             {
-                dep.setClassifier( null );
+                dep.setScope( null );
                 m_dependencies.add( dep );
             }
         }

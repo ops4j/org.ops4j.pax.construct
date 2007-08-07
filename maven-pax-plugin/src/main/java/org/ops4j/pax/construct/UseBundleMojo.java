@@ -73,7 +73,7 @@ public final class UseBundleMojo extends AbstractMojo
 
         while( rootProject.getParent() != null )
         {
-            if( rootProject.getArtifactId().equals( "compile-bundle" ) )
+            if( "compile-bundle".equals( rootProject.getArtifactId() ) )
             {
                 isCompiledBundle = true;
             }

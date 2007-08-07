@@ -133,11 +133,13 @@ public final class ImportBundleMojo extends AbstractMojo
 
             if( deployable )
             {
-                dependency.setClassifier( "deployable" );
+                // non-optional, must be deployed
+                dependency.setOptional( false );
             }
             else
             {
-                dependency.setClassifier( "framework" );
+                // optional (ie. framework package)
+                dependency.setOptional( true );
             }
 
             PomUtils.addDependency( projectElem, dependency, overwrite );

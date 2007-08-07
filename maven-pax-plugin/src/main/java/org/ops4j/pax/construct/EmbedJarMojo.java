@@ -97,7 +97,7 @@ public final class EmbedJarMojo extends AbstractMojo
         boolean isCompiledBundle = false;
         for( MavenProject p = project; p != null; p = p.getParent() )
         {
-            if( p.getArtifactId().equals( "compile-bundle" ) )
+            if( "compile-bundle".equals( p.getArtifactId() ) )
             {
                 isCompiledBundle = true;
                 break;
