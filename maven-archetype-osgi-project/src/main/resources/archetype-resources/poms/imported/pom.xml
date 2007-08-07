@@ -12,24 +12,15 @@
   <modelVersion>4.0.0</modelVersion>
   <artifactId>import-bundle</artifactId>
 
-  <name>Configure OSGi bundles imported from Maven/OBR</name>
-
-  <organization/>
-  <description>
-    Pre-built OSGi bundle
-  </description>
-  <licenses>
-    <license/>
-  </licenses>
+  <name>Import OSGi bundles from Maven/OBR</name>
 
   <packaging>pom</packaging>
 
-  <build>
+  <dependencies>
     <!--
-      no custom build configuration necessary at the moment
+      Deployable OSGi bundles
     -->
-    <pluginManagement/>
-  </build>
+  </dependencies>
 
 #end
 </project>

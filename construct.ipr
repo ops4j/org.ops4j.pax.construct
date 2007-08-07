@@ -282,7 +282,6 @@
   <component name="ProjectModuleManager">
     <modules>
       <module fileurl="file://$PROJECT_DIR$/maven-archetype-osgi-bundle/maven-archetype-osgi-bundle.iml" filepath="$PROJECT_DIR$/maven-archetype-osgi-bundle/maven-archetype-osgi-bundle.iml" />
-      <module fileurl="file://$PROJECT_DIR$/maven-archetype-osgi-import/maven-archetype-osgi-import.iml" filepath="$PROJECT_DIR$/maven-archetype-osgi-import/maven-archetype-osgi-import.iml" />
       <module fileurl="file://$PROJECT_DIR$/maven-archetype-osgi-project/maven-archetype-osgi-project.iml" filepath="$PROJECT_DIR$/maven-archetype-osgi-project/maven-archetype-osgi-project.iml" />
       <module fileurl="file://$PROJECT_DIR$/maven-archetype-osgi-wrapper/maven-archetype-osgi-wrapper.iml" filepath="$PROJECT_DIR$/maven-archetype-osgi-wrapper/maven-archetype-osgi-wrapper.iml" />
       <module fileurl="file://$PROJECT_DIR$/maven-pax-plugin/maven-pax-plugin.iml" filepath="$PROJECT_DIR$/maven-pax-plugin/maven-pax-plugin.iml" />
