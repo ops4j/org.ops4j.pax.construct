@@ -55,9 +55,6 @@ public final class RemoveBundleMojo extends AbstractMojo
     // cached model of removed bundle
     private static Model bundleModel;
 
-    /**
-     * {@inheritDoc}
-     */
     public void execute()
         throws MojoExecutionException
     {

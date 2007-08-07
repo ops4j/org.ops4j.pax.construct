@@ -65,9 +65,6 @@ public final class UseBundleMojo extends AbstractMojo
      */
     private boolean overwrite;
 
-    /**
-     * {@inheritDoc}
-     */
     public void execute()
         throws MojoExecutionException
     {

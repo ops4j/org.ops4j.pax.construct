@@ -60,17 +60,17 @@ public final class AddRepositoryMojo extends AbstractMojo
      */
     private boolean overwrite;
 
-    /**
-     * {@inheritDoc}
-     */
+    // fudge one-shot behaviour...
+    private static boolean ignore = false;
+
     public void execute()
         throws MojoExecutionException
     {
-        // execute only if a root project
-        if( project.getParent() != null )
+        if( ignore )
         {
             return;
         }
+        ignore = true;
 
         try
         {

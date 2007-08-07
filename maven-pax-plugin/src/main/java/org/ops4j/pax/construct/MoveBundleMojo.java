@@ -56,9 +56,6 @@ public final class MoveBundleMojo extends AbstractMojo
     // fudge one-shot behaviour...
     private static boolean ignore = false;
 
-    /**
-     * {@inheritDoc}
-     */
     public void execute()
         throws MojoExecutionException
     {

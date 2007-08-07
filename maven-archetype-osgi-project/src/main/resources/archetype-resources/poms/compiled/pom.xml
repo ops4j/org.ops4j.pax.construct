@@ -3,8 +3,9 @@
   xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 
   <parent>
+    <relativePath>../imported</relativePath>
     <groupId>${package}.build</groupId>
-    <artifactId>bundles</artifactId>
+    <artifactId>imported-bundles</artifactId>
     <version>${version}</version>
   </parent>
 #literal()
@@ -19,24 +20,6 @@
   <properties>
     <bundle.location>${project.build.directory}/${project.build.finalName}.jar</bundle.location>
   </properties>
-
-  <!--
-    typical OSGi development dependencies
-  -->
-  <dependencies>
-    <dependency>
-      <groupId>org.osgi</groupId>
-      <artifactId>osgi_R4_core</artifactId>
-      <version>1.0</version>
-      <scope>provided</scope>
-    </dependency>
-    <dependency>
-      <groupId>org.osgi</groupId>
-      <artifactId>osgi_R4_compendium</artifactId>
-      <version>1.0</version>
-      <scope>provided</scope>
-    </dependency>
-  </dependencies>
 
   <build>
     <!--

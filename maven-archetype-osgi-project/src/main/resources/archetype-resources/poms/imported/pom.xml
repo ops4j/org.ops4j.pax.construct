@@ -10,7 +10,7 @@
 #literal()
 
   <modelVersion>4.0.0</modelVersion>
-  <artifactId>import-bundle</artifactId>
+  <artifactId>imported-bundles</artifactId>
 
   <name>Import OSGi bundles from Maven/OBR</name>
 
@@ -18,7 +18,24 @@
 
   <dependencies>
     <!--
-      Deployable OSGi bundles
+      typical OSGi development dependencies
+    -->
+    <dependency>
+      <classifier>framework</classifier>
+      <groupId>org.osgi</groupId>
+      <artifactId>osgi_R4_core</artifactId>
+      <version>1.0</version>
+      <scope>provided</scope>
+    </dependency>
+    <dependency>
+      <classifier>framework</classifier>
+      <groupId>org.osgi</groupId>
+      <artifactId>osgi_R4_compendium</artifactId>
+      <version>1.0</version>
+      <scope>provided</scope>
+    </dependency>
+    <!--
+      imported OSGi bundles
     -->
   </dependencies>
 

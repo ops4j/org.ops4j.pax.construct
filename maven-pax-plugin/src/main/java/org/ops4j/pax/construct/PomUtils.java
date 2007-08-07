@@ -597,14 +597,7 @@ public class PomUtils
         Dependency dependency = new Dependency();
         dependency.setScope( "provided" );
 
-        if( properties.containsKey( "bundle.artifactId" ) )
-        {
-            // IMPORTED BUNDLE
-            dependency.setGroupId( properties.getProperty( "bundle.groupId" ) );
-            dependency.setArtifactId( properties.getProperty( "bundle.artifactId" ) );
-            dependency.setVersion( properties.getProperty( "bundle.version" ) );
-        }
-        else if( properties.containsKey( "jar.artifactId" ) )
+        if( properties.containsKey( "jar.artifactId" ) )
         {
             // WRAPPED JARFILE
             dependency.setGroupId( bundleModel.getGroupId() );

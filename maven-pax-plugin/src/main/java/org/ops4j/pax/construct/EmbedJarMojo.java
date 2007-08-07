@@ -91,9 +91,6 @@ public final class EmbedJarMojo extends AbstractMojo
      */
     private boolean overwrite;
 
-    /**
-     * {@inheritDoc}
-     */
     public void execute()
         throws MojoExecutionException
     {
@@ -117,6 +114,7 @@ public final class EmbedJarMojo extends AbstractMojo
         {
             Document pom = PomUtils.readPom( project.getFile() );
 
+            // all compiled dependencies are automatically embedded
             Element projectElem = pom.getElement( null, "project" );
             Dependency dependency = new Dependency();
             dependency.setGroupId( groupId );
@@ -124,71 +122,49 @@ public final class EmbedJarMojo extends AbstractMojo
             dependency.setVersion( version );
             dependency.setScope( "compile" );
 
-            // make it optional to limit transitive nature
+            // limit transitive nature
             dependency.setOptional( true );
 
             PomUtils.addDependency( projectElem, dependency, overwrite );
 
             PomUtils.writePom( project.getFile(), pom );
 
-            if( overwrite )
-            {
-                // no need to update the BND file if overwriting with a new version
-                return;
-            }
-
-            File bndConfig = new File( project.getBasedir(), "src/main/resources/META-INF/details.bnd" );
-
-            Properties properties = new Properties();
-
-            if( bndConfig.exists() )
-            {
-                properties = PropertyUtils.loadProperties( bndConfig );
-            }
-            else
-            {
-                bndConfig.getParentFile().mkdirs();
-                bndConfig.createNewFile();
-            }
-
-            // UPDATE BUNDLE DETAILS TO EMBED DEPENDENT JAR
-
-            String classpath = properties.getProperty( "Bundle-ClassPath", "." );
-            String resources = properties.getProperty( "Include-Resource", "" );
-
-            String jarPath = "target/" + artifactId + ".jar";
-
-            classpath += "," + jarPath;
-            if( resources.length() > 0 )
-            {
-                resources += ",";
-            }
-
             if( unpack )
             {
-                // Keep Eclipse PDE happy by providing pseudo-entry in the Bundle-ClassPath
-                // so the original jar will be used when deploying the bundle from Eclipse.
-                // ( this is the least messy compromise... )
-                resources += "@" + jarPath + "," + jarPath + "=_placeholder_.jar";
-                new File( project.getBasedir(), "_placeholder_.jar" ).createNewFile();
-            }
-            else
-            {
-                resources += jarPath + "=" + jarPath;
-            }
+                File bndConfig = new File( project.getBasedir(), "src/main/resources/META-INF/details.bnd" );
 
-            properties.setProperty( "Bundle-ClassPath", classpath );
-            properties.setProperty( "Include-Resource", resources );
+                Properties properties = new Properties();
 
-            OutputStream propertyStream = new BufferedOutputStream( new FileOutputStream( bndConfig ) );
+                if( bndConfig.exists() )
+                {
+                    properties = PropertyUtils.loadProperties( bndConfig );
+                }
+                else
+                {
+                    bndConfig.getParentFile().mkdirs();
+                    bndConfig.createNewFile();
+                }
 
-            try
-            {
-                properties.store( propertyStream, null );
-            }
-            finally
-            {
-                IOUtil.close( propertyStream );
+                String embedDependency = properties.getProperty( "Embed-Dependency", "*;scope=compile|runtime" );
+                String inlineClause = artifactId + ";groupId=" + groupId + ";inline=true";
+
+                // do we need to mark this as an inlined artifact?
+                if( embedDependency.indexOf( inlineClause ) < 0 )
+                {
+                    OutputStream propertyStream = new BufferedOutputStream( new FileOutputStream( bndConfig ) );
+
+                    embedDependency += "," + inlineClause;
+                    properties.setProperty( "Embed-Dependency", embedDependency );
+
+                    try
+                    {
+                        properties.store( propertyStream, null );
+                    }
+                    finally
+                    {
+                        IOUtil.close( propertyStream );
+                    }
+                }
             }
         }
         catch( Exception e )

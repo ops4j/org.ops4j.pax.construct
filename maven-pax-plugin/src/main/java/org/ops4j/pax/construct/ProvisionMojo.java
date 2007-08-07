@@ -203,19 +203,6 @@ public final class ProvisionMojo extends AbstractMojo
             dependency.setVersion( project.getVersion() );
             m_dependencies.add( dependency );
         }
-        else
-        {
-            Properties props = project.getProperties();
-
-            if( props.containsKey( "bundle.artifactId" ) )
-            {
-                Dependency dependency = new Dependency();
-                dependency.setGroupId( props.getProperty( "bundle.groupId" ) );
-                dependency.setArtifactId( props.getProperty( "bundle.artifactId" ) );
-                dependency.setVersion( props.getProperty( "bundle.version" ) );
-                m_dependencies.add( dependency );
-            }
-        }
     }
 
     private void addDeployableDependencies( Model model )
