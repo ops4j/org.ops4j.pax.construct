@@ -3,8 +3,12 @@
   xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 
   <parent>
-    <groupId>${groupId}</groupId>
-    <artifactId>${artifactId}</artifactId>
+    <!--
+      Add provisioned bundles to compilation classpath
+    -->
+    <relativePath>../provision</relativePath>
+    <groupId>${package}.build</groupId>
+    <artifactId>provision</artifactId>
     <version>${version}</version>
   </parent>
 
