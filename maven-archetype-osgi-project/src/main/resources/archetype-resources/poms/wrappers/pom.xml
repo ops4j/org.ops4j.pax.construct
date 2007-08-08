@@ -46,9 +46,12 @@
               <Bundle-SymbolicName>${symbolicName}</Bundle-SymbolicName>
 #literal()
               <!--
-                import + export all packages from the wrapped jarfile
+                import + export all wrapped classes
+                don't use Export-Package:* as this
+                exports everything on the classpath
               -->
-              <Export-Package>*</Export-Package>
+              <Export-Contents>true</Export-Contents>
+              <Private-Package>!*</Private-Package>
               <!--
                 inline main artifact and embed all compile and runtime dependencies
               -->
