@@ -3,7 +3,7 @@
   <resources>
     <resource>poms/pom.xml</resource>
     <resource>poms/compiled/pom.xml</resource>
-    <resource>poms/imported/pom.xml</resource>
     <resource>poms/wrappers/pom.xml</resource>
+    <resource>provision/pom.xml</resource>
   </resources>
 </archetype>

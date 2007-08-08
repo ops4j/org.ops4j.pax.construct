@@ -89,29 +89,29 @@ public final class ImportBundleMojo extends AbstractMojo
         }
         ignore = true;
 
-        // scan for the "imported" pom
-        MavenProject importProject = null;
+        MavenProject provisionProject = null;
         MavenProject rootProject = project;
         while( rootProject.getParent() != null )
         {
-            if( "imported-bundles".equals( rootProject.getArtifactId() ) )
+            // scan for the main provisioning pom used in this particular project
+            if( "provision".equals( rootProject.getArtifactId() ) && rootProject.getGroupId().endsWith( ".build" ) )
             {
-                importProject = rootProject;
+                provisionProject = rootProject;
             }
             rootProject = rootProject.getParent();
         }
 
-        // try "imported" pom
+        // try provision pom
         File targetFile = null;
-        if( null != importProject )
+        if( null != provisionProject )
         {
-            targetFile = importProject.getFile();
+            targetFile = provisionProject.getFile();
         }
 
         // not in hierarchy, so check default location...
         if( null == targetFile || !targetFile.exists() )
         {
-            targetFile = new File( rootProject.getBasedir(), "poms/imported/pom.xml" );
+            targetFile = new File( rootProject.getBasedir(), "provision/pom.xml" );
         }
 
         // fall back to using the current project

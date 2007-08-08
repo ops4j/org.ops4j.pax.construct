@@ -3,9 +3,8 @@
   xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 
   <parent>
-    <relativePath>../imported</relativePath>
     <groupId>${package}.build</groupId>
-    <artifactId>imported-bundles</artifactId>
+    <artifactId>bundles</artifactId>
     <version>${version}</version>
   </parent>
 #literal()

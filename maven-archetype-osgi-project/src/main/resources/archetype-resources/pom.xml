@@ -39,6 +39,7 @@
   <packaging>pom</packaging>
 
   <modules>
+    <module>provision</module>
     <module>poms</module>
   </modules>
 

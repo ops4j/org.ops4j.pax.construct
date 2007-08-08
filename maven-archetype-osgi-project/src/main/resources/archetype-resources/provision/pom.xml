@@ -3,22 +3,23 @@
   xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 
   <parent>
-    <groupId>${package}.build</groupId>
-    <artifactId>bundles</artifactId>
+    <groupId>${groupId}</groupId>
+    <artifactId>${artifactId}</artifactId>
     <version>${version}</version>
   </parent>
-#literal()
 
   <modelVersion>4.0.0</modelVersion>
-  <artifactId>imported-bundles</artifactId>
+  <groupId>${package}.build</groupId>
+  <artifactId>provision</artifactId>
+#literal()
 
-  <name>Import OSGi bundles from Maven/OBR</name>
+  <name>Provision OSGi bundles from Maven/OBR</name>
 
   <packaging>pom</packaging>
 
   <dependencies>
     <!--
-      non-deployed (ie. optional) OSGi development dependencies
+      non-deployed OSGi development dependencies (marked as optional)
     -->
     <dependency>
       <optional>true</optional>
@@ -35,7 +36,7 @@
       <scope>provided</scope>
     </dependency>
     <!--
-      imported OSGi bundles (ones marked optional are not deployed)
+      imported OSGi bundles for provisioning (marked as non-optional)
     -->
   </dependencies>
 
