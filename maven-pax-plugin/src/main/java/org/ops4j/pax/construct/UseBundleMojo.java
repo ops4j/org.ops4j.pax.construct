@@ -80,6 +80,9 @@ public final class UseBundleMojo extends AbstractMojo
             throw new MojoExecutionException( "Can only use bundles inside another bundle sub-project" );
         }
 
+        // trim any random/leftover path information
+        bundleName = new File( bundleName ).getName();
+
         try
         {
             File usedPomFile = PomUtils.findBundlePom( rootProject.getBasedir(), bundleName );
