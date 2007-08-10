@@ -1,4 +1,4 @@
-package org.ops4j.pax.construct;
+package org.ops4j.pax.construct.lifecycle;
 
 /*
  * Copyright 2007 Stuart McCulloch
@@ -23,6 +23,7 @@ import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.shared.model.fileset.FileSet;
 import org.apache.maven.shared.model.fileset.util.FileSetManager;
+import org.ops4j.pax.construct.util.CacheUtils;
 
 /**
  * Clean up various generated files.

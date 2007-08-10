@@ -1,4 +1,4 @@
-package org.ops4j.pax.construct;
+package org.ops4j.pax.construct.bundle;
 
 /*
  * Copyright 2007 Stuart McCulloch
@@ -30,6 +30,7 @@ import org.codehaus.plexus.util.IOUtil;
 import org.codehaus.plexus.util.PropertyUtils;
 import org.kxml2.kdom.Document;
 import org.kxml2.kdom.Element;
+import org.ops4j.pax.construct.util.PomUtils;
 
 /**
  * Embeds a jarfile inside a bundle project.

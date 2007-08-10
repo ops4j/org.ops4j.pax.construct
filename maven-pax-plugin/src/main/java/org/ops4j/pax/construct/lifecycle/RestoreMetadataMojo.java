@@ -1,4 +1,4 @@
-package org.ops4j.pax.construct;
+package org.ops4j.pax.construct.lifecycle;
 
 /*
  * Copyright 2007 Stuart McCulloch
@@ -20,6 +20,7 @@ import java.io.File;
 
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
+import org.ops4j.pax.construct.util.CacheUtils;
 
 /**
  * Restore previous metadata in case compilation fails.

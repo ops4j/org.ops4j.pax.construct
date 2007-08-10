@@ -1,4 +1,4 @@
-package org.ops4j.pax.construct;
+package org.ops4j.pax.construct.archetype;
 
 /*
  * Copyright 2007 Stuart McCulloch
@@ -21,6 +21,7 @@ import java.io.File;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.kxml2.kdom.Document;
 import org.kxml2.kdom.Element;
+import org.ops4j.pax.construct.util.PomUtils;
 
 /**
  * Foundation for all OSGi sub-project goals that use archetypes.

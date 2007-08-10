@@ -1,4 +1,4 @@
-package org.ops4j.pax.construct;
+package org.ops4j.pax.construct.bundle;
 
 /*
  * Copyright 2007 Stuart McCulloch
@@ -22,6 +22,7 @@ import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.project.MavenProject;
 import org.kxml2.kdom.Document;
+import org.ops4j.pax.construct.util.PomUtils;
 
 /**
  * Moves a local bundle to a new location in the project.

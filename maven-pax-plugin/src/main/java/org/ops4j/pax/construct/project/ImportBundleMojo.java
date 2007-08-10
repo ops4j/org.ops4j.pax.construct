@@ -1,4 +1,4 @@
-package org.ops4j.pax.construct;
+package org.ops4j.pax.construct.project;
 
 /*
  * Copyright 2007 Stuart McCulloch
@@ -24,6 +24,7 @@ import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.project.MavenProject;
 import org.kxml2.kdom.Document;
 import org.kxml2.kdom.Element;
+import org.ops4j.pax.construct.util.PomUtils;
 
 /**
  * Import an externally provided bundle to the OSGi project.

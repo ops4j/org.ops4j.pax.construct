@@ -1,4 +1,4 @@
-package org.ops4j.pax.construct;
+package org.ops4j.pax.construct.bundle;
 
 /*
  * Copyright 2007 Stuart McCulloch
@@ -25,17 +25,18 @@ import org.apache.maven.model.io.xpp3.MavenXpp3Reader;
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.project.MavenProject;
+import org.apache.maven.shared.model.fileset.FileSet;
+import org.apache.maven.shared.model.fileset.util.FileSetManager;
 import org.kxml2.kdom.Document;
 import org.kxml2.kdom.Element;
+import org.ops4j.pax.construct.util.PomUtils;
 
 /**
- * Use a local bundle inside another bundle project (adds a dependency to the compilation classpath)
+ * Removes a local bundle from the project.
  * 
- * Note: imported bundles are automatically added to local bundles via the top-level provision pom.
- * 
- * @goal use-bundle
+ * @goal remove-bundle
  */
-public final class UseBundleMojo extends AbstractMojo
+public final class RemoveBundleMojo extends AbstractMojo
 {
     /**
      * @parameter expression="${project}"
@@ -43,7 +44,7 @@ public final class UseBundleMojo extends AbstractMojo
     private MavenProject project;
 
     /**
-     * The local project name of the bundle to be used.
+     * The local project name of the bundle to be removed.
      * 
      * @parameter expression="${name}"
      * @required
@@ -51,71 +52,74 @@ public final class UseBundleMojo extends AbstractMojo
     private String bundleName;
 
     /**
-     * Should we attempt to overwrite entries?
-     * 
-     * @parameter expression="${overwrite}" default-value="false"
+     * Records the Maven model for the removed bundle.
      */
-    private boolean overwrite;
-
-    /**
-     * Records the Maven model for the used bundle.
-     */
-    private static Model usedBundleModel;
+    private static Model removedBundleModel;
 
     public void execute()
         throws MojoExecutionException
     {
-        // Nothing to be done for non-bundle projects...
-        if( !PomUtils.isBundleProject( project.getModel() ) )
+        if( null == removedBundleModel )
         {
-            return;
-        }
-
-        if( null == usedBundleModel )
-        {
-            // search from the top of the project
-            MavenProject rootProject = project;
-            while( rootProject.getParent() != null )
+            // we must traverse from the top!
+            if( project.getParent() != null )
             {
-                rootProject = rootProject.getParent();
+                throw new MojoExecutionException( "This command must be run from the project root" );
             }
 
-            File usedPomFile = PomUtils.findBundlePom( rootProject.getBasedir(), bundleName );
-            if( null == usedPomFile || !usedPomFile.exists() )
+            File bundlePomFile = PomUtils.findBundlePom( project.getBasedir(), bundleName );
+            if( null == bundlePomFile || !bundlePomFile.exists() )
             {
                 throw new MojoExecutionException( "Cannot find bundle " + bundleName );
             }
 
             try
             {
-                // cache Maven information about the used bundle
-                FileReader input = new FileReader( usedPomFile );
+                // cache Maven information about the removed bundle
+                FileReader input = new FileReader( bundlePomFile );
                 MavenXpp3Reader modelReader = new MavenXpp3Reader();
-                usedBundleModel = modelReader.read( input );
+                removedBundleModel = modelReader.read( input );
             }
             catch( Exception e )
             {
                 throw new MojoExecutionException( "Unable to open sub-project " + bundleName, e );
             }
 
-            if( !PomUtils.isBundleProject( usedBundleModel ) )
+            if( !PomUtils.isBundleProject( removedBundleModel ) )
             {
                 throw new MojoExecutionException( "Sub-project " + bundleName + " is not a bundle" );
             }
+
+            try
+            {
+                FileSet bundleFiles = new FileSet();
+
+                File bundlePomFolder = bundlePomFile.getParentFile();
+                bundleFiles.setDirectory( bundlePomFolder.getParent() );
+                bundleFiles.addInclude( bundlePomFolder.getName() );
+
+                new FileSetManager( getLog(), true ).delete( bundleFiles );
+            }
+            catch( Exception e )
+            {
+                throw new MojoExecutionException( "Unable to remove the requested bundle", e );
+            }
         }
 
-        // make sure we don't add a bundle dependency to itself!
-        if( project.getId().equals( usedBundleModel.getId() ) )
+        // ignore any removed bundle project(s)
+        if( false == project.getFile().exists() )
         {
             return;
         }
 
         Document pom = PomUtils.readPom( project.getFile() );
-
         Element projectElem = pom.getElement( null, "project" );
-        Dependency dependency = PomUtils.getBundleDependency( usedBundleModel );
-        PomUtils.addDependency( projectElem, dependency, overwrite );
 
+        Dependency dependency = PomUtils.getBundleDependency( removedBundleModel );
+
+        PomUtils.removeDependency( projectElem, dependency );
+        PomUtils.removeModule( projectElem, new File( bundleName ).getName() );
         PomUtils.writePom( project.getFile(), pom );
     }
+
 }
