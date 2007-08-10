@@ -51,11 +51,11 @@
 
                   options.version = "${project.version}"
 
-                  nix = new File( 'src/groovy/pax-command' )
+                  nix = new File( "${project.basedir}/src/groovy/pax-command" )
                   template = engine.createTemplate( nix ).make( options )
                   new File( "target/bin/pax-${it.name}" ).write( template.toString() )
 
-                  bat = new File( 'src/groovy/pax-command.bat' )
+                  bat = new File( "${project.basedir}/src/groovy/pax-command.bat" )
                   template = engine.createTemplate( bat ).make( options )
                   new File( "target/bin/pax-${it.name}.bat" ).write( template.toString() )
                 }
