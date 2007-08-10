@@ -1,0 +1,17 @@
+p {
+  name = 'javaPackage'
+  example = 'org.ops4j.example'
+}
+
+n {
+  name = 'bundleName'
+  example = 'myBundle'
+}
+
+v {
+  name = 'version'
+  example = '0.1.0-SNAPSHOT'
+  optional = true
+}
+
+order = [ 'p', 'n', 'v' ]

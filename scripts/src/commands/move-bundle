@@ -1,0 +1,11 @@
+n {
+  name = 'bundleName'
+  example = 'myBundle'
+}
+
+d {
+  name = 'targetDirectory'
+  example = '.'
+}
+
+order = [ 'n', 'd' ]

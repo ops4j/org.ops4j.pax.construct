@@ -1,0 +1,16 @@
+g {
+  name = 'groupId'
+  example = 'org.ops4j.example'
+}
+
+a {
+  name = 'artifactId'
+  example = 'myBundle'
+}
+
+v {
+  name = 'version'
+  example = '0.1.0-SNAPSHOT'
+}
+
+order = [ 'g', 'a', 'v' ]

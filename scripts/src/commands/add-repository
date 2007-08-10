@@ -1,0 +1,11 @@
+i {
+  name = 'repositoryId'
+  example = 'org.ops4j.repository'
+}
+
+u {
+  name = 'repositoryURL'
+  example = 'http://repository.ops4j.org/maven2'
+}
+
+order = [ 'i', 'u' ]

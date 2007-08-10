@@ -6,7 +6,7 @@ then
   PAX_CONSTRUCT_VERSION=${project.version}
 fi
 
-if mvn -q -o -npu -N -f ${SCRIPTS}/pax-bootstrap-pom.xml -DPAX_CONSTRUCT_VERSION=${PAX_CONSTRUCT_VERSION} validate
+if mvn -o -npu -N -f ${SCRIPTS}/pax-bootstrap-pom.xml -DPAX_CONSTRUCT_VERSION=${PAX_CONSTRUCT_VERSION} validate 2>/dev/null 1>&2
 then
   : # already installed and validated
 else

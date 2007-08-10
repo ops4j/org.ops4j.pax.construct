@@ -4,7 +4,7 @@ set _SCRIPTS_=%~dp0
 
 if ""=="%PAX_CONSTRUCT_VERSION%" set PAX_CONSTRUCT_VERSION=${project.version}
 
-call mvn -q -o -npu -N -f "%_SCRIPTS_%\pax-bootstrap-pom.xml" -DPAX_CONSTRUCT_VERSION=%PAX_CONSTRUCT_VERSION% validate
+call mvn -o -npu -N -f "%_SCRIPTS_%\pax-bootstrap-pom.xml" -DPAX_CONSTRUCT_VERSION=%PAX_CONSTRUCT_VERSION% validate
 goto answer%ERRORLEVEL%
 
 :answer0

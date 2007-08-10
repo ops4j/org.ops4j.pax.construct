@@ -24,6 +24,47 @@
     </resources>
     <plugins>
       <plugin>
+        <groupId>org.codehaus.mojo.groovy</groupId>
+        <artifactId>groovy-maven-plugin</artifactId>
+        <executions>
+          <execution>
+            <phase>generate-resources</phase>
+            <goals>
+              <goal>execute</goal>
+            </goals>
+            <configuration>
+              <source>
+                println 'Generate scripts'
+                println '================'
+                engine = new groovy.text.SimpleTemplateEngine()
+                new File( 'src/commands' ).eachFileMatch( ~/[^.]+/ )
+                {
+                  print "${it.name}\t"
+                  options = new ConfigSlurper().parse( it.toURL() )
+                  options.order.each
+                  {
+                    if( options[it].optional ) print ' ['
+                    print " -${it} ${options[it].name}"
+                    if( options[it].optional ) print ' ]'
+                  }
+                  println ''
+
+                  options.version = "${project.version}"
+
+                  nix = new File( 'src/groovy/pax-command' )
+                  template = engine.createTemplate( nix ).make( options )
+                  new File( "target/bin/pax-${it.name}" ).write( template.toString() )
+
+                  bat = new File( 'src/groovy/pax-command.bat' )
+                  template = engine.createTemplate( bat ).make( options )
+                  new File( "target/bin/pax-${it.name}.bat" ).write( template.toString() )
+                }
+              </source>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
+      <plugin>
         <artifactId>maven-resources-plugin</artifactId>
         <executions>
           <execution>
