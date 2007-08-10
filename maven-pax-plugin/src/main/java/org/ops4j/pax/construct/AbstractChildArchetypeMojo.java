@@ -30,11 +30,11 @@ public abstract class AbstractChildArchetypeMojo extends AbstractArchetypeMojo
     private static boolean seenRootProject = false;
 
     /**
-     * Should we attempt to overwrite entries.
+     * Should we attempt to overwrite entries?
      * 
      * @parameter expression="${overwrite}" default-value="false"
      */
-    private boolean overwrite;
+    protected boolean overwrite;
 
     /**
      * The newly generated POM file - this is set in the _root_ project execution

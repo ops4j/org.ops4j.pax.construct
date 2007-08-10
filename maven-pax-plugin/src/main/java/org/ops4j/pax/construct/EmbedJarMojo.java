@@ -20,7 +20,6 @@ import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.OutputStream;
-import java.util.List;
 import java.util.Properties;
 
 import org.apache.maven.model.Dependency;
@@ -40,11 +39,9 @@ import org.kxml2.kdom.Element;
 public final class EmbedJarMojo extends AbstractMojo
 {
     /**
-     * The containing OSGi project
-     * 
      * @parameter expression="${project}"
      */
-    protected MavenProject project;
+    private MavenProject project;
 
     /**
      * The groupId of the jarfile to wrap.
@@ -71,21 +68,14 @@ public final class EmbedJarMojo extends AbstractMojo
     private String version;
 
     /**
-     * @parameter default-value="${reactorProjects}"
-     * @required
-     * @readonly
-     */
-    private List reactorProjects;
-
-    /**
-     * Should the jar be unpacked inside the bundle.
+     * Should the jar be unpacked inside the bundle?
      * 
      * @parameter expression="${unpack}" default-value="false"
      */
     private boolean unpack;
 
     /**
-     * Should we attempt to overwrite entries.
+     * Should we attempt to overwrite entries?
      * 
      * @parameter expression="${overwrite}" default-value="false"
      */
@@ -94,47 +84,37 @@ public final class EmbedJarMojo extends AbstractMojo
     public void execute()
         throws MojoExecutionException
     {
-        boolean isCompiledBundle = false;
-        for( MavenProject p = project; p != null; p = p.getParent() )
+        // Nothing to be done for non-bundle projects...
+        if( !PomUtils.isBundleProject( project.getModel() ) )
         {
-            if( "compile-bundle".equals( p.getArtifactId() ) )
-            {
-                isCompiledBundle = true;
-                break;
-            }
+            return;
         }
 
-        // execute only if inside a compiled bundle project
-        if( reactorProjects.size() > 1 || !isCompiledBundle )
+        Document pom = PomUtils.readPom( project.getFile() );
+
+        // all compiled dependencies are automatically embedded
+        Element projectElem = pom.getElement( null, "project" );
+        Dependency dependency = new Dependency();
+        dependency.setGroupId( groupId );
+        dependency.setArtifactId( artifactId );
+        dependency.setVersion( version );
+        dependency.setScope( "compile" );
+
+        // limit transitive nature
+        dependency.setOptional( true );
+
+        PomUtils.addDependency( projectElem, dependency, overwrite );
+
+        PomUtils.writePom( project.getFile(), pom );
+
+        if( unpack )
         {
-            throw new MojoExecutionException( "Can only embed jars inside a compiled bundle sub-project" );
-        }
+            File bndConfig = new File( project.getBasedir(), "src/main/resources/META-INF/details.bnd" );
 
-        try
-        {
-            Document pom = PomUtils.readPom( project.getFile() );
+            Properties properties = new Properties();
 
-            // all compiled dependencies are automatically embedded
-            Element projectElem = pom.getElement( null, "project" );
-            Dependency dependency = new Dependency();
-            dependency.setGroupId( groupId );
-            dependency.setArtifactId( artifactId );
-            dependency.setVersion( version );
-            dependency.setScope( "compile" );
-
-            // limit transitive nature
-            dependency.setOptional( true );
-
-            PomUtils.addDependency( projectElem, dependency, overwrite );
-
-            PomUtils.writePom( project.getFile(), pom );
-
-            if( unpack )
+            try
             {
-                File bndConfig = new File( project.getBasedir(), "src/main/resources/META-INF/details.bnd" );
-
-                Properties properties = new Properties();
-
                 if( bndConfig.exists() )
                 {
                     properties = PropertyUtils.loadProperties( bndConfig );
@@ -144,12 +124,19 @@ public final class EmbedJarMojo extends AbstractMojo
                     bndConfig.getParentFile().mkdirs();
                     bndConfig.createNewFile();
                 }
+            }
+            catch( Exception e )
+            {
+                throw new MojoExecutionException( "Unable to read the old BND tool instructions", e );
+            }
 
-                String embedDependency = properties.getProperty( "Embed-Dependency", "*;scope=compile|runtime" );
-                String inlineClause = artifactId + ";groupId=" + groupId + ";inline=true";
+            String embedDependency = properties.getProperty( "Embed-Dependency", "*;scope=compile|runtime" );
+            String inlineClause = artifactId + ";groupId=" + groupId + ";inline=true";
 
-                // do we need to mark this as an inlined artifact?
-                if( embedDependency.indexOf( inlineClause ) < 0 )
+            // do we need to mark this as an inlined artifact?
+            if( embedDependency.indexOf( inlineClause ) < 0 )
+            {
+                try
                 {
                     OutputStream propertyStream = new BufferedOutputStream( new FileOutputStream( bndConfig ) );
 
@@ -165,11 +152,11 @@ public final class EmbedJarMojo extends AbstractMojo
                         IOUtil.close( propertyStream );
                     }
                 }
+                catch( Exception e )
+                {
+                    throw new MojoExecutionException( "Unable to save the new BND tool instructions", e );
+                }
             }
-        }
-        catch( Exception e )
-        {
-            throw new MojoExecutionException( "Unable to embed the requested jar artifact", e );
         }
     }
 

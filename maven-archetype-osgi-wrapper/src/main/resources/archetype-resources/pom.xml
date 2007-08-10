@@ -38,9 +38,9 @@
 
   <dependencies>
     <dependency>
-      <groupId>${jar.groupId}</groupId>
-      <artifactId>${jar.artifactId}</artifactId>
-      <version>${jar.version}</version>
+      <groupId>${dollar}{jar.groupId}</groupId>
+      <artifactId>${dollar}{jar.artifactId}</artifactId>
+      <version>${dollar}{jar.version}</version>
       <optional>true</optional>
     </dependency>
   </dependencies>

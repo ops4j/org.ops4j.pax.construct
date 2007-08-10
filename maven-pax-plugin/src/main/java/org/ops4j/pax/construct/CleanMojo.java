@@ -32,7 +32,7 @@ import org.apache.maven.shared.model.fileset.util.FileSetManager;
 public final class CleanMojo extends AbstractMojo
 {
     /**
-     * The directory containing generated pax files
+     * The directory containing generated files.
      * 
      * @parameter expression="${project.basedir}"
      */
@@ -46,6 +46,7 @@ public final class CleanMojo extends AbstractMojo
     public void execute()
         throws MojoExecutionException
     {
+        // cache files that we might have problems re-generating during the current lifecycle
         CacheUtils.pushFile( this, "MANIFEST.MF", new File( basedir, "META-INF/MANIFEST.MF" ) );
         CacheUtils.pushFile( this, ".project", new File( basedir, ".project" ) );
         CacheUtils.pushFile( this, ".classpath", new File( basedir, ".classpath" ) );
@@ -53,6 +54,7 @@ public final class CleanMojo extends AbstractMojo
         FileSet generatedPaxFiles = new FileSet();
         generatedPaxFiles.setDirectory( basedir.getPath() );
 
+        // remove Eclipse/PDE files (keep .settings)
         generatedPaxFiles.addInclude( "META-INF" );
         generatedPaxFiles.addInclude( "OSGI-INF" );
         generatedPaxFiles.addInclude( ".project" );

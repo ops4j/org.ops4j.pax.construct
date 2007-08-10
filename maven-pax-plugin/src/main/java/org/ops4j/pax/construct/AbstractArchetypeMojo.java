@@ -108,9 +108,16 @@ public abstract class AbstractArchetypeMojo extends MavenArchetypeMojo
 
     protected final String getGroupMarker( final String groupId, final String artifactId )
     {
-        if( compactNames && artifactId.startsWith( groupId ) )
+        if( compactNames )
         {
-            return "-" + groupId;
+            if( artifactId.startsWith( groupId + "." ) )
+            {
+                return "-" + groupId;
+            }
+            else if( groupId.endsWith( "." + artifactId ) )
+            {
+                return "-" + groupId.substring( 0, groupId.length() - (1 + artifactId.length()) );
+            }
         }
 
         return "+" + groupId;
@@ -118,9 +125,16 @@ public abstract class AbstractArchetypeMojo extends MavenArchetypeMojo
 
     protected final String getCompoundName( final String groupId, final String artifactId )
     {
-        if( compactNames && artifactId.startsWith( groupId ) )
+        if( compactNames )
         {
-            return artifactId;
+            if( artifactId.startsWith( groupId + "." ) )
+            {
+                return artifactId;
+            }
+            else if( groupId.endsWith( "." + artifactId ) )
+            {
+                return groupId;
+            }
         }
 
         return groupId + "." + artifactId;

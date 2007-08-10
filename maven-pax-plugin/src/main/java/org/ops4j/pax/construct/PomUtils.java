@@ -19,7 +19,6 @@ package org.ops4j.pax.construct;
 import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
-import java.util.Properties;
 
 import org.apache.maven.model.Dependency;
 import org.apache.maven.model.Model;
@@ -39,7 +38,6 @@ import org.xmlpull.v1.XmlSerializer;
  */
 public class PomUtils
 {
-
     /**
      * New line character.
      */
@@ -592,25 +590,14 @@ public class PomUtils
      */
     public static Dependency getBundleDependency( Model bundleModel )
     {
-        Properties properties = bundleModel.getProperties();
-
         Dependency dependency = new Dependency();
-        dependency.setScope( "provided" );
 
-        if( properties.containsKey( "jar.artifactId" ) )
-        {
-            // WRAPPED JARFILE
-            dependency.setGroupId( bundleModel.getGroupId() );
-            dependency.setArtifactId( bundleModel.getArtifactId() );
-            dependency.setVersion( properties.getProperty( "jar.version" ) );
-        }
-        else
-        {
-            // COMPILED BUNDLE
-            dependency.setGroupId( bundleModel.getGroupId() );
-            dependency.setArtifactId( bundleModel.getArtifactId() );
-            dependency.setVersion( bundleModel.getVersion() );
-        }
+        dependency.setScope( "provided" );
+        dependency.setOptional( false );
+
+        dependency.setGroupId( bundleModel.getGroupId() );
+        dependency.setArtifactId( bundleModel.getArtifactId() );
+        dependency.setVersion( bundleModel.getVersion() );
 
         return dependency;
     }
@@ -678,6 +665,9 @@ public class PomUtils
 
     public static File findBundlePom( File baseDir, String bundleName )
     {
+        // trim any random/leftover path information
+        bundleName = new File( bundleName ).getName();
+
         String[] includes = new String[1];
         includes[0] = "**/" + bundleName + "/pom.xml";
 
@@ -759,5 +749,10 @@ public class PomUtils
         catch( Exception e )
         {
         }
+    }
+
+    public static boolean isBundleProject( Model model )
+    {
+        return "bundle".equals( model.getPackaging() );
     }
 }

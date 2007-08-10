@@ -24,12 +24,12 @@ import org.apache.maven.plugin.MojoExecutionException;
 /**
  * Restore previous metadata in case compilation fails.
  * 
- * @goal backup
+ * @goal restore-metadata
  */
-public final class BackupMetadataMojo extends AbstractMojo
+public final class RestoreMetadataMojo extends AbstractMojo
 {
     /**
-     * The directory containing generated pax files
+     * The directory containing generated files.
      * 
      * @parameter expression="${project.basedir}"
      */
@@ -38,6 +38,7 @@ public final class BackupMetadataMojo extends AbstractMojo
     public void execute()
         throws MojoExecutionException
     {
+        // Restore generated files (previously removed during clean phase) before re-generation
         CacheUtils.pullFile( this, "MANIFEST.MF", new File( basedir, "META-INF/MANIFEST.MF" ) );
         CacheUtils.pullFile( this, ".project", new File( basedir, ".project" ) );
         CacheUtils.pullFile( this, ".classpath", new File( basedir, ".classpath" ) );

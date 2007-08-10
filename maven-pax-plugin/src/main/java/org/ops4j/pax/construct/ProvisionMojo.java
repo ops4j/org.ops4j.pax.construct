@@ -46,8 +46,6 @@ import org.apache.maven.project.MavenProject;
 public final class ProvisionMojo extends AbstractMojo
 {
     /**
-     * The target OSGi project
-     * 
      * @parameter expression="${project}"
      */
     private MavenProject project;

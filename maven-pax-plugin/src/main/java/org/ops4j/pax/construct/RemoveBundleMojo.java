@@ -31,59 +31,66 @@ import org.kxml2.kdom.Document;
 import org.kxml2.kdom.Element;
 
 /**
- * Removes a bundle from the project.
+ * Removes a local bundle from the project.
  * 
  * @goal remove-bundle
  */
 public final class RemoveBundleMojo extends AbstractMojo
 {
     /**
-     * The containing OSGi project
-     * 
      * @parameter expression="${project}"
      */
-    protected MavenProject project;
+    private MavenProject project;
 
     /**
-     * The name of the bundle to remove.
+     * The local project name of the bundle to be removed.
      * 
      * @parameter expression="${name}"
      * @required
      */
     private String bundleName;
 
-    // cached model of removed bundle
-    private static Model bundleModel;
+    /**
+     * Records the Maven model for the removed bundle.
+     */
+    private static Model removedBundleModel;
 
     public void execute()
         throws MojoExecutionException
     {
-        try
+        if( null == removedBundleModel )
         {
-            if( null == bundleModel )
+            // we must traverse from the top!
+            if( project.getParent() != null )
             {
-                if( project.getParent() != null )
-                {
-                    throw new MojoExecutionException( "This command must be run from the project root" );
-                }
+                throw new MojoExecutionException( "This command must be run from the project root" );
+            }
 
-                File bundlePomFile = PomUtils.findBundlePom( project.getBasedir(), bundleName );
+            File bundlePomFile = PomUtils.findBundlePom( project.getBasedir(), bundleName );
+            if( null == bundlePomFile || !bundlePomFile.exists() )
+            {
+                throw new MojoExecutionException( "Cannot find bundle " + bundleName );
+            }
 
-                if( bundlePomFile == null || !bundlePomFile.exists() )
-                {
-                    throw new MojoExecutionException( "Cannot find bundle " + bundleName );
-                }
-
+            try
+            {
+                // cache Maven information about the removed bundle
                 FileReader input = new FileReader( bundlePomFile );
                 MavenXpp3Reader modelReader = new MavenXpp3Reader();
-                bundleModel = modelReader.read( input );
+                removedBundleModel = modelReader.read( input );
+            }
+            catch( Exception e )
+            {
+                throw new MojoExecutionException( "Unable to open sub-project " + bundleName, e );
+            }
 
-                // safety check: don't remove module poms!
-                if( bundleModel.getModules().size() > 0 )
-                {
-                    throw new MojoExecutionException( "Folder " + bundleName + " is not a bundle" );
-                }
+            if( !PomUtils.isBundleProject( removedBundleModel ) )
+            {
+                throw new MojoExecutionException( "Sub-project " + bundleName + " is not a bundle" );
+            }
 
+            try
+            {
                 FileSet bundleFiles = new FileSet();
 
                 File bundlePomFolder = bundlePomFile.getParentFile();
@@ -92,26 +99,26 @@ public final class RemoveBundleMojo extends AbstractMojo
 
                 new FileSetManager( getLog(), true ).delete( bundleFiles );
             }
-
-            // ignore remove bundle project
-            if( !project.getFile().exists() )
+            catch( Exception e )
             {
-                return;
+                throw new MojoExecutionException( "Unable to remove the requested bundle", e );
             }
-
-            Document pom = PomUtils.readPom( project.getFile() );
-            Element projectElem = pom.getElement( null, "project" );
-
-            Dependency dependency = PomUtils.getBundleDependency( bundleModel );
-
-            PomUtils.removeDependency( projectElem, dependency );
-            PomUtils.removeModule( projectElem, new File( bundleName ).getName() );
-            PomUtils.writePom( project.getFile(), pom );
         }
-        catch( Exception e )
+
+        // ignore any removed bundle project(s)
+        if( false == project.getFile().exists() )
         {
-            throw new MojoExecutionException( "Unable to remove the requested bundle", e );
+            return;
         }
+
+        Document pom = PomUtils.readPom( project.getFile() );
+        Element projectElem = pom.getElement( null, "project" );
+
+        Dependency dependency = PomUtils.getBundleDependency( removedBundleModel );
+
+        PomUtils.removeDependency( projectElem, dependency );
+        PomUtils.removeModule( projectElem, new File( bundleName ).getName() );
+        PomUtils.writePom( project.getFile(), pom );
     }
 
 }

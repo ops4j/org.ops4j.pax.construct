@@ -24,21 +24,19 @@ import org.kxml2.kdom.Document;
 import org.kxml2.kdom.Element;
 
 /**
- * Adds a repository to the root pom.
+ * Adds a Maven repository to the current project.
  * 
  * @goal add-repository
  */
 public final class AddRepositoryMojo extends AbstractMojo
 {
     /**
-     * The containing OSGi project
-     * 
      * @parameter expression="${project}"
      */
-    protected MavenProject project;
+    private MavenProject project;
 
     /**
-     * The url of the repository.
+     * The id of the repository.
      * 
      * @parameter expression="${repositoryId}"
      * @required
@@ -54,13 +52,15 @@ public final class AddRepositoryMojo extends AbstractMojo
     private String repositoryURL;
 
     /**
-     * Should we attempt to overwrite entries.
+     * Should we attempt to overwrite entries?
      * 
      * @parameter expression="${overwrite}" default-value="false"
      */
     private boolean overwrite;
 
-    // fudge one-shot behaviour...
+    /**
+     * Only update the first pom in the reactor.
+     */
     private static boolean ignore = false;
 
     public void execute()
@@ -72,22 +72,14 @@ public final class AddRepositoryMojo extends AbstractMojo
         }
         ignore = true;
 
-        try
-        {
-            Document pom = PomUtils.readPom( project.getFile() );
+        Document pom = PomUtils.readPom( project.getFile() );
 
-            Element projectElem = pom.getElement( null, "project" );
-            Repository repository = new Repository();
-            repository.setId( repositoryId );
-            repository.setUrl( repositoryURL );
-            PomUtils.addRepository( projectElem, repository, overwrite );
+        Element projectElem = pom.getElement( null, "project" );
+        Repository repository = new Repository();
+        repository.setId( repositoryId );
+        repository.setUrl( repositoryURL );
+        PomUtils.addRepository( projectElem, repository, overwrite );
 
-            PomUtils.writePom( project.getFile(), pom );
-        }
-        catch( Exception e )
-        {
-            throw new MojoExecutionException( "Unable to add the requested repository", e );
-        }
+        PomUtils.writePom( project.getFile(), pom );
     }
-
 }

@@ -68,24 +68,24 @@
           </configuration>
         </plugin>
         <!--
-          Provide backup and recovery of generated metadata
+          Provide backup and recovery of generated metadata (in case compilation fails during a "clean install")
         -->
         <plugin>
           <groupId>org.ops4j.pax.construct</groupId>
           <artifactId>maven-pax-plugin</artifactId>
           <executions>
             <execution>
-              <id>clean-project</id>
+              <id>clean-metadata</id>
               <phase>clean</phase>
               <goals>
                 <goal>clean</goal>
               </goals>
             </execution>
             <execution>
-              <id>backup-metadata</id>
+              <id>restore-metadata</id>
               <phase>generate-resources</phase>
               <goals>
-                <goal>backup</goal>
+                <goal>restore-metadata</goal>
               </goals>
             </execution>
           </executions>

@@ -61,11 +61,13 @@ import org.codehaus.plexus.util.xml.Xpp3DomWriter;
 import org.codehaus.plexus.util.xml.pull.XmlPullParserException;
 
 /**
+ * FIXME: requires REWRITE to cleanup & match the new structure!!!
+ * 
  * Extend maven-eclipse-plugin to get better classpath generation.
  * 
  * @goal eclipse
  */
-public final class EclipseMojo extends EclipsePlugin
+public class EclipseMojo extends EclipsePlugin
 {
     /**
      * @parameter expression="${project}"

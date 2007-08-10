@@ -26,18 +26,16 @@ import org.kxml2.kdom.Document;
 import org.kxml2.kdom.Element;
 
 /**
- * Import a bundle to the OSGi project.
+ * Import an externally provided bundle to the OSGi project.
  * 
  * @goal import-bundle
  */
 public final class ImportBundleMojo extends AbstractMojo
 {
     /**
-     * The containing OSGi project
-     * 
      * @parameter expression="${project}"
      */
-    protected MavenProject project;
+    private MavenProject project;
 
     /**
      * The groupId of the bundle to import.
@@ -64,20 +62,22 @@ public final class ImportBundleMojo extends AbstractMojo
     private String version;
 
     /**
-     * Should the imported bundle be deployed.
+     * Should the imported bundle be deployed?
      * 
      * @parameter expression="${deployable}" default-value="true"
      */
     private boolean deployable;
 
     /**
-     * Should we attempt to overwrite entries.
+     * Should we attempt to overwrite entries?
      * 
      * @parameter expression="${overwrite}" default-value="false"
      */
     private boolean overwrite;
 
-    // fudge one-shot behaviour...
+    /**
+     * Only update one provisioning pom at a time.
+     */
     private static boolean ignore = false;
 
     public void execute()
@@ -89,7 +89,11 @@ public final class ImportBundleMojo extends AbstractMojo
         }
         ignore = true;
 
+        /*
+         * the following code attempts to allow updates to the main provisioning pom from elsewhere in the project tree
+         */
         MavenProject provisionProject = null;
+
         MavenProject rootProject = project;
         while( rootProject.getParent() != null )
         {
@@ -108,7 +112,7 @@ public final class ImportBundleMojo extends AbstractMojo
             targetFile = provisionProject.getFile();
         }
 
-        // not in hierarchy, so check default location...
+        // not in hierarchy, check default location...
         if( null == targetFile || !targetFile.exists() )
         {
             targetFile = new File( rootProject.getBasedir(), "provision/pom.xml" );
@@ -120,35 +124,28 @@ public final class ImportBundleMojo extends AbstractMojo
             targetFile = project.getFile();
         }
 
-        try
+        Document pom = PomUtils.readPom( targetFile );
+
+        Element projectElem = pom.getElement( null, "project" );
+        Dependency dependency = new Dependency();
+        dependency.setGroupId( groupId );
+        dependency.setArtifactId( artifactId );
+        dependency.setVersion( version );
+        dependency.setScope( "provided" );
+
+        if( deployable )
         {
-            Document pom = PomUtils.readPom( targetFile );
-
-            Element projectElem = pom.getElement( null, "project" );
-            Dependency dependency = new Dependency();
-            dependency.setGroupId( groupId );
-            dependency.setArtifactId( artifactId );
-            dependency.setVersion( version );
-            dependency.setScope( "provided" );
-
-            if( deployable )
-            {
-                // non-optional, must be deployed
-                dependency.setOptional( false );
-            }
-            else
-            {
-                // optional (ie. framework package)
-                dependency.setOptional( true );
-            }
-
-            PomUtils.addDependency( projectElem, dependency, overwrite );
-
-            PomUtils.writePom( targetFile, pom );
+            // non-optional, must be deployed
+            dependency.setOptional( false );
         }
-        catch( Exception e )
+        else
         {
-            throw new MojoExecutionException( "Unable to import the requested bubdle", e );
+            // optional (ie. framework package)
+            dependency.setOptional( true );
         }
+
+        PomUtils.addDependency( projectElem, dependency, overwrite );
+
+        PomUtils.writePom( targetFile, pom );
     }
 }
