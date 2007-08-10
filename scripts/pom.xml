@@ -37,7 +37,7 @@
                 println 'Generate scripts'
                 println '================'
                 engine = new groovy.text.SimpleTemplateEngine()
-                new File( 'src/commands' ).eachFileMatch( ~/[^.]+/ )
+                new File( "${project.basedir}/src/commands" ).eachFileMatch( ~/[^.]+/ )
                 {
                   print "${it.name}\t"
                   options = new ConfigSlurper().parse( it.toURL() )
