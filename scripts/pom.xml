@@ -36,6 +36,8 @@
               <source>
                 println 'Generate scripts'
                 println '================'
+                new File( "${project.build.directory}/bin" ).mkdir()
+
                 engine = new groovy.text.SimpleTemplateEngine()
                 new File( "${project.basedir}/src/commands" ).eachFileMatch( ~/[^.]+/ )
                 {
