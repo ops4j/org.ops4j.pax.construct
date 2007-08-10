@@ -30,9 +30,9 @@ import org.kxml2.kdom.Element;
 import org.ops4j.pax.construct.util.PomUtils;
 
 /**
- * Use a local bundle inside another bundle project (adds a dependency to the compilation classpath)
+ * Use a local bundle inside another bundle sub-project (adds dependency to the compilation classpath)
  * 
- * Note: imported bundles are automatically added to local bundles via the top-level provision pom.
+ * Note: imported (non-local) bundles are available to local bundles via the top-level provision pom.
  * 
  * @goal use-bundle
  */

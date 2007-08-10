@@ -25,7 +25,7 @@ import org.kxml2.kdom.Document;
 import org.ops4j.pax.construct.util.PomUtils;
 
 /**
- * Moves a local bundle to a new location in the project.
+ * Moves a local bundle to a new location in the project tree.
  * 
  * @goal move-bundle
  */
@@ -53,7 +53,7 @@ public final class MoveBundleMojo extends AbstractMojo
     private File targetDirectory;
 
     /**
-     * Avoid repeated calls when more than one project in the reactor.
+     * Avoid repeated calls when there's more than one project in the reactor.
      */
     private static boolean ignore = false;
 
@@ -85,7 +85,8 @@ public final class MoveBundleMojo extends AbstractMojo
         File newBundlePomFolder = new File( targetDirectory, moduleName );
         File newBundlePomFile = new File( newBundlePomFolder, "pom.xml" );
 
-        if( false == oldBundlePomFolder.renameTo( newBundlePomFolder ) )
+        // MOVE BUNDLE!
+        if( !oldBundlePomFolder.renameTo( newBundlePomFolder ) )
         {
             throw new MojoExecutionException( "Unable to move bundle " + bundleName + " to " + targetDirectory );
         }

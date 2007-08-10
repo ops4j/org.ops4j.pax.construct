@@ -33,7 +33,7 @@ import org.kxml2.kdom.Element;
 import org.ops4j.pax.construct.util.PomUtils;
 
 /**
- * Embeds a jarfile inside a bundle project.
+ * Embeds a jarfile inside a local bundle project.
  * 
  * @goal embed-jar
  */
@@ -112,53 +112,48 @@ public final class EmbedJarMojo extends AbstractMojo
         {
             File bndConfig = new File( project.getBasedir(), "src/main/resources/META-INF/details.bnd" );
 
-            Properties properties = new Properties();
-
-            try
+            if( !bndConfig.exists() )
             {
-                if( bndConfig.exists() )
-                {
-                    properties = PropertyUtils.loadProperties( bndConfig );
-                }
-                else
+                try
                 {
                     bndConfig.getParentFile().mkdirs();
                     bndConfig.createNewFile();
                 }
-            }
-            catch( Exception e )
-            {
-                throw new MojoExecutionException( "Unable to read the old BND tool instructions", e );
+                catch( Exception e )
+                {
+                    throw new MojoExecutionException( "Unable to create BND tool config file", e );
+                }
             }
 
+            Properties properties = PropertyUtils.loadProperties( bndConfig );
+
+            // Use FELIX-308 to inline selected artifacts
             String embedDependency = properties.getProperty( "Embed-Dependency", "*;scope=compile|runtime" );
             String inlineClause = artifactId + ";groupId=" + groupId + ";inline=true";
 
             // do we need to mark this as an inlined artifact?
             if( embedDependency.indexOf( inlineClause ) < 0 )
             {
+                OutputStream propertyStream = null;
+
                 try
                 {
-                    OutputStream propertyStream = new BufferedOutputStream( new FileOutputStream( bndConfig ) );
+                    propertyStream = new BufferedOutputStream( new FileOutputStream( bndConfig ) );
 
                     embedDependency += "," + inlineClause;
                     properties.setProperty( "Embed-Dependency", embedDependency );
-
-                    try
-                    {
-                        properties.store( propertyStream, null );
-                    }
-                    finally
-                    {
-                        IOUtil.close( propertyStream );
-                    }
+                    properties.store( propertyStream, null );
                 }
                 catch( Exception e )
                 {
                     throw new MojoExecutionException( "Unable to save the new BND tool instructions", e );
                 }
+                finally
+                {
+                    IOUtil.close( propertyStream );
+                }
             }
+
         }
     }
-
 }

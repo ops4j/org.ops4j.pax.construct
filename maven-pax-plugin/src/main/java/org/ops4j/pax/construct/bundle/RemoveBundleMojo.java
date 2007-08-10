@@ -32,7 +32,7 @@ import org.kxml2.kdom.Element;
 import org.ops4j.pax.construct.util.PomUtils;
 
 /**
- * Removes a local bundle from the project.
+ * Removes a local bundle and any references to it from the project.
  * 
  * @goal remove-bundle
  */
@@ -107,7 +107,7 @@ public final class RemoveBundleMojo extends AbstractMojo
         }
 
         // ignore any removed bundle project(s)
-        if( false == project.getFile().exists() )
+        if( !project.getFile().exists() )
         {
             return;
         }
@@ -121,5 +121,4 @@ public final class RemoveBundleMojo extends AbstractMojo
         PomUtils.removeModule( projectElem, new File( bundleName ).getName() );
         PomUtils.writePom( project.getFile(), pom );
     }
-
 }
