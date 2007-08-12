@@ -68,9 +68,9 @@ public final class ProvisionMojo extends AbstractMojo
     private String additionalPoms;
 
     /**
-     * @parameter expression="${platform}" default-value="equinox"
+     * @parameter expression="${framework}" default-value="equinox"
      */
-    private String platform;
+    private String framework;
 
     /**
      * @parameter expression="${project.remoteArtifactRepositories}"
@@ -287,7 +287,7 @@ public final class ProvisionMojo extends AbstractMojo
 
                 String[] deployAppCmds =
                 {
-                    "--dir=" + workDir, "--no-md5", "--platform=" + platform, "--profile=default",
+                    "--dir=" + workDir, "--no-md5", "--platform=" + framework, "--profile=default",
                     "--repository=" + repoListBuilder.toString(), "--localRepository=" + localRepository.getBasedir(),
                     m_runnerPom.getGroupId(), m_runnerPom.getArtifactId(), m_runnerPom.getVersion()
                 };

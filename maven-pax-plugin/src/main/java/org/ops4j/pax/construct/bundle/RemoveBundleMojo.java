@@ -46,7 +46,7 @@ public final class RemoveBundleMojo extends AbstractMojo
     /**
      * The local project name of the bundle to be removed.
      * 
-     * @parameter expression="${name}"
+     * @parameter expression="${bundleName}"
      * @required
      */
     private String bundleName;

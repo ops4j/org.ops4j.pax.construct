@@ -46,7 +46,7 @@ public final class UseBundleMojo extends AbstractMojo
     /**
      * The local project name of the bundle to be used.
      * 
-     * @parameter expression="${name}"
+     * @parameter expression="${bundleName}"
      * @required
      */
     private String bundleName;

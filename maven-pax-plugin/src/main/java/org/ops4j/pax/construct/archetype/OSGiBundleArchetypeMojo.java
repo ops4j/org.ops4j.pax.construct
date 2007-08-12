@@ -43,7 +43,7 @@ public final class OSGiBundleArchetypeMojo extends AbstractChildArchetypeMojo
     /**
      * The name of the new bundle.
      * 
-     * @parameter expression="${name}"
+     * @parameter expression="${bundleName}"
      * @required
      */
     private String bundleName;

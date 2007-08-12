@@ -39,7 +39,7 @@ public final class MoveBundleMojo extends AbstractMojo
     /**
      * The local project name of the bundle to be moved.
      * 
-     * @parameter expression="${name}"
+     * @parameter expression="${bundleName}"
      * @required
      */
     private String bundleName;
