@@ -45,20 +45,24 @@
                   options = new ConfigSlurper().parse( it.toURL() )
                   options.order.each
                   {
-                    if( options[it].optional ) print ' ['
-                    print " -${it} ${options[it].name}"
-                    if( options[it].optional ) print ' ]'
+                    print ' '
+                    if( options[it].optional ) print '['
+                    print "-${it} ${options[it].name}"
+                    if( options[it].optional ) print ']'
                   }
                   println ''
 
-                  options.version = "${project.version}"
+                  properties = [:]
+                  properties.version = "${project.version}"
+                  properties.options = options
+                  properties.mojo = "${it.name}"
 
                   nix = new File( "${project.basedir}/src/groovy/pax-command" )
-                  template = engine.createTemplate( nix ).make( options )
+                  template = engine.createTemplate( nix ).make( properties )
                   new File( "${project.build.directory}/bin/pax-${it.name}" ).write( template.toString() )
 
                   bat = new File( "${project.basedir}/src/groovy/pax-command.bat" )
-                  template = engine.createTemplate( bat ).make( options )
+                  template = engine.createTemplate( bat ).make( properties )
                   new File( "${project.build.directory}/bin/pax-${it.name}.bat" ).write( template.toString() )
                 }
               </source>

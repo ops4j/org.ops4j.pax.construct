@@ -1,5 +1,5 @@
 p {
-  name = 'javaPackage'
+  name = 'package'
   example = 'org.ops4j.example'
 }
 
