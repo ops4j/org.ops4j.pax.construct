@@ -7,13 +7,13 @@
       Add provisioned bundles to compilation classpath
     -->
     <relativePath>../provision</relativePath>
-    <groupId>${package}.build</groupId>
+    <groupId>\${package}.build</groupId>
     <artifactId>provision</artifactId>
-    <version>${version}</version>
+    <version>\${version}</version>
   </parent>
 
   <modelVersion>4.0.0</modelVersion>
-  <groupId>${package}.build</groupId>
+  <groupId>\${package}.build</groupId>
   <artifactId>bundles</artifactId>
 #literal()
 
@@ -39,8 +39,9 @@
           <version>0.9.14-SNAPSHOT</version>
         </plugin>
         <plugin>
-          <groupId>org.ops4j.pax.construct</groupId>
+          <groupId>org.ops4j.pax.construct.ng</groupId>
           <artifactId>maven-pax-plugin</artifactId>
+          <version>${paxPluginVersion}</version>
           <executions>
             <execution>
               <id>add-ide-support</id>

@@ -2,16 +2,16 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 
   <modelVersion>4.0.0</modelVersion>
-  <groupId>org.ops4j.pax.construct</groupId>
-  <artifactId>scripts</artifactId>
-  <version>0.1.0</version>
+  <groupId>org.ops4j.pax.construct.ng</groupId>
+  <artifactId>bootstrap</artifactId>
+  <version>0.2.0</version>
 
   <name>OPS4J - bootstrap POM to download initial plugin binary</name>
 
   <build>
     <plugins>
       <plugin>
-        <groupId>org.ops4j.pax.construct</groupId>
+        <groupId>org.ops4j.pax.construct.ng</groupId>
         <artifactId>maven-pax-plugin</artifactId>
         <version>${PAX_CONSTRUCT_VERSION}</version>
         <inherited>false</inherited>

@@ -27,9 +27,9 @@
   </description>
 
   <modelVersion>4.0.0</modelVersion>
-  <groupId>${groupId}</groupId>
-  <artifactId>${artifactId}</artifactId>
-  <version>${version}</version>
+  <groupId>\${groupId}</groupId>
+  <artifactId>\${artifactId}</artifactId>
+  <version>\${version}</version>
 
   <properties>
     <org.osgi.service.http.port>8080</org.osgi.service.http.port>
@@ -47,8 +47,9 @@
     <plugins>
       <plugin>
         <!-- help find the right 'pax' plugin -->
-        <groupId>org.ops4j.pax.construct</groupId>
+        <groupId>org.ops4j.pax.construct.ng</groupId>
         <artifactId>maven-pax-plugin</artifactId>
+        <version>${paxPluginVersion}</version>
         <inherited>false</inherited>
       </plugin>
     </plugins>

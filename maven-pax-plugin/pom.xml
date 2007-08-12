@@ -7,7 +7,7 @@
   </parent>
 
   <modelVersion>4.0.0</modelVersion>
-  <groupId>org.ops4j.pax.construct</groupId>
+  <groupId>org.ops4j.pax.construct.ng</groupId>
   <artifactId>maven-pax-plugin</artifactId>
 
   <name>OPS4J - Pax Mojos: OSGi project helpers</name>

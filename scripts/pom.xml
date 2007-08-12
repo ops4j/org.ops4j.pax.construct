@@ -28,6 +28,7 @@
         <artifactId>groovy-maven-plugin</artifactId>
         <executions>
           <execution>
+            <id>generate-scripts</id>
             <phase>generate-resources</phase>
             <goals>
               <goal>execute</goal>
