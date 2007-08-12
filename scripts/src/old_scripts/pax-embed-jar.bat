@@ -30,7 +30,7 @@ if "%1"=="" goto endopts
 
 echo %_BATFILE_%: illegal option -- %1
 :help
-echo pax-embed-jar -g groupId -a artifactId -v version [-- mvnopts ...]
+echo pax-embed-jar -g groupId -a artifactId -v version [-- mvnOpts ...]
 goto done
 :endopts
 
@@ -39,9 +39,9 @@ shift
 
 set _EXTRA_=%PAX_CONSTRUCT_OPTIONS% %0 %1 %2 %3 %4 %5 %6 %7 %8 %9
 
-if ""=="%_GROUPID_%" set /p _GROUPID_="library groupId (org.ops4j.example) ? "
-if ""=="%_ARTIFACTID_%" set /p _ARTIFACTID_="library artifactId (myJarFile) ? "
-if ""=="%_VERSION_%" set /p _VERSION_="library version (0.1.0-SNAPSHOT) ? "
+if ""=="%_GROUPID_%" set /p _GROUPID_="groupId (org.ops4j.example) ? "
+if ""=="%_ARTIFACTID_%" set /p _ARTIFACTID_="artifactId (myJarFile) ? "
+if ""=="%_VERSION_%" set /p _VERSION_="version (0.1.0-SNAPSHOT) ? "
 
 if ""=="%_GROUPID_%" set _GROUPID_=org.ops4j.example
 if ""=="%_ARTIFACTID_%" set _ARTIFACTID_=myJarFile

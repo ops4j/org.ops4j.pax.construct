@@ -7,8 +7,8 @@ if ""=="%PAX_CONSTRUCT_VERSION%" set PAX_CONSTRUCT_VERSION=${project.version}
 set PAX_PLUGIN=org.ops4j.pax.construct:maven-pax-plugin:%PAX_CONSTRUCT_VERSION%
 
 set _BATFILE_=%0
-set _NAME_=
-set _TODIR_=
+set _BUNDLENAME_=
+set _TARGETDIRECTORY_=
 
 goto getopts
 :shift_2
@@ -17,9 +17,9 @@ shift
 shift
 
 :getopts
-if "%1"=="-n" set _NAME_=%2
+if "%1"=="-n" set _BUNDLENAME_=%2
 if "%1"=="-n" goto shift_2
-if "%1"=="-d" set _TODIR_=%2
+if "%1"=="-d" set _TARGETDIRECTORY_=%2
 if "%1"=="-d" goto shift_2
 if "%1"=="-h" goto help
 if "%1"=="--" goto endopts
@@ -27,7 +27,7 @@ if "%1"=="" goto endopts
 
 echo %_BATFILE_%: illegal option -- %1
 :help
-echo pax-move-bundle -n bundleName -d directory [-- mvnOpts ...]
+echo pax-move-bundle -n bundleName -d targetDirectory [-- mvnOpts ...]
 goto done
 :endopts
 
@@ -36,12 +36,12 @@ shift
 
 set _EXTRA_=%PAX_CONSTRUCT_OPTIONS% %0 %1 %2 %3 %4 %5 %6 %7 %8 %9
 
-if ""=="%_NAME_%" set /p _NAME_="bundle name (myBundle) ? "
-if ""=="%_TODIR_%" set /p _TODIR_="to directory (.) ? "
+if ""=="%_BUNDLENAME_%" set /p _BUNDLENAME_="bundleName (myBundle) ? "
+if ""=="%_TARGETDIRECTORY_%" set /p _TARGETDIRECTORY_="targetDirectory (.) ? "
 
-if ""=="%_NAME_%" set _NAME_=myBundle
-if ""=="%_TODIR_%" set _TODIR_=.
+if ""=="%_BUNDLENAME_%" set _BUNDLENAME_=myBundle
+if ""=="%_TARGETDIRECTORY_%" set _TARGETDIRECTORY_=.
 
 @echo on
-mvn %PAX_PLUGIN%:move-bundle -Dname=%_NAME_% -DtargetDirectory=%_TODIR_% %_EXTRA_%
+mvn %PAX_PLUGIN%:move-bundle -DbundleName=%_BUNDLENAME_% -DtargetDirectory=%_TARGETDIRECTORY_% %_EXTRA_%
 :done

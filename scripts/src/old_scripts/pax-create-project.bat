@@ -30,7 +30,7 @@ if "%1"=="" goto endopts
 
 echo %_BATFILE_%: illegal option -- %1
 :help
-echo pax-create-project -g groupId -a artifactId [-v version ] [-- mvnopts ...]
+echo pax-create-project -g groupId -a artifactId [-v version] [-- mvnOpts ...]
 goto done
 :endopts
 
@@ -44,9 +44,9 @@ if ""=="%_ARTIFACTID_%" goto request_input
 goto skip_input
 
 :request_input
-if ""=="%_GROUPID_%" set /p _GROUPID_="project groupId (org.ops4j.example) ? "
-if ""=="%_ARTIFACTID_%" set /p _ARTIFACTID_="project artifactId (myProject) ? "
-if ""=="%_VERSION_%" set /p _VERSION_="project version (0.1.0-SNAPSHOT) ? "
+if ""=="%_GROUPID_%" set /p _GROUPID_="groupId (org.ops4j.example) ? "
+if ""=="%_ARTIFACTID_%" set /p _ARTIFACTID_="artifactId (myProject) ? "
+if ""=="%_VERSION_%" set /p _VERSION_="version (0.1.0-SNAPSHOT) ? "
 :skip_input
 
 if ""=="%_GROUPID_%" set _GROUPID_=org.ops4j.example
