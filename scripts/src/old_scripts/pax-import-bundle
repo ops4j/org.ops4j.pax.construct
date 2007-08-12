@@ -17,7 +17,7 @@ while
   getopts g:a:v:h- SETTING
 do
   case ${SETTING} in
-    h|\?) echo "pax-import-bundle -g groupId -a artifactId -v version [-- mvnopts ...]" ; exit ;;
+    h|\?) echo "pax-import-bundle -g groupId -a artifactId -v version [-- mvnOpts ...]" ; exit ;;
 
     g) GROUPID=${OPTARG} ;;
     a) ARTIFACTID=${OPTARG} ;;
@@ -31,15 +31,15 @@ shift $((${OPTIND}-1))
 
 if [ -z "${GROUPID}" ]
 then
-  read -p "bundle groupId (org.ops4j.example) ? " GROUPID
+  read -p "groupId (org.ops4j.example) ? " GROUPID
 fi
 if [ -z "${ARTIFACTID}" ]
 then
-  read -p "bundle artifactId (myBundle) ? " ARTIFACTID
+  read -p "artifactId (myBundle) ? " ARTIFACTID
 fi
 if [ -z "${VERSION}" ]
 then
-  read -p "bundle version (0.1.0-SNAPSHOT) ? " VERSION
+  read -p "version (0.1.0-SNAPSHOT) ? " VERSION
 fi
 
 mvn ${PAX_PLUGIN}:import-bundle \

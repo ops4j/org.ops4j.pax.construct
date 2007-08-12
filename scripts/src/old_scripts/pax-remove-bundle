@@ -9,7 +9,7 @@ fi
 
 PAX_PLUGIN=org.ops4j.pax.construct:maven-pax-plugin:${PAX_CONSTRUCT_VERSION}
 
-unset NAME
+unset BUNDLENAME
 
 while
   getopts n:h- SETTING
@@ -17,7 +17,7 @@ do
   case ${SETTING} in
     h|\?) echo "pax-remove-bundle -n bundleName [-- mvnOpts ...]" ; exit ;;
 
-    n) NAME=${OPTARG} ;;
+    n) BUNDLENAME=${OPTARG} ;;
 
     -) break ;;
   esac
@@ -25,12 +25,12 @@ done
 
 shift $((${OPTIND}-1))
 
-if [ -z "${NAME}" ]
+if [ -z "${BUNDLENAME}" ]
 then
-  read -p "bundle name (myBundle) ? " NAME
+  read -p "bundleName (myBundle) ? " BUNDLENAME
 fi
 
 mvn ${PAX_PLUGIN}:remove-bundle \
-  -Dname=${NAME:=myBundle} \
+  -DbundleName=${BUNDLENAME:=myBundle} \
   ${PAX_CONSTRUCT_OPTIONS} "$@"
 

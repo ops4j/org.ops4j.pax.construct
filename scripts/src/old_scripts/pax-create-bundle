@@ -10,17 +10,17 @@ fi
 PAX_PLUGIN=org.ops4j.pax.construct:maven-pax-plugin:${PAX_CONSTRUCT_VERSION}
 
 unset PACKAGE
-unset NAME
+unset BUNDLENAME
 unset VERSION
 
 while
   getopts p:n:v:h- SETTING
 do
   case ${SETTING} in
-    h|\?) echo "pax-create-bundle -p javaPackage -n bundleName [-v version ] [-- mvnOpts ...]" ; exit ;;
+    h|\?) echo "pax-create-bundle -p package -n bundleName [-v version] [-- mvnOpts ...]" ; exit ;;
 
     p) PACKAGE=${OPTARG} ;;
-    n) NAME=${OPTARG} ;;
+    n) BUNDLENAME=${OPTARG} ;;
     v) VERSION=${OPTARG} ;;
 
     -) break ;;
@@ -29,25 +29,25 @@ done
 
 shift $((${OPTIND}-1))
 
-if [ -z "${PACKAGE}" ] || [ -z "${NAME}" ]
+if [ -z "${PACKAGE}" ] || [ -z "${BUNDLENAME}" ]
 then
   if [ -z "${PACKAGE}" ]
   then
-    read -p "java package (org.ops4j.example) ? " PACKAGE
+    read -p "package (org.ops4j.example) ? " PACKAGE
   fi
-  if [ -z "${NAME}" ]
+  if [ -z "${BUNDLENAME}" ]
   then
-    read -p "bundle name (myBundle) ? " NAME
+    read -p "bundleName (myBundle) ? " BUNDLENAME
   fi
   if [ -z "${VERSION}" ]
   then
-    read -p "bundle version (0.1.0-SNAPSHOT) ? " VERSION
+    read -p "version (0.1.0-SNAPSHOT) ? " VERSION
   fi
 fi
 
 mvn ${PAX_PLUGIN}:create-bundle \
   -Dpackage=${PACKAGE:=org.ops4j.example} \
-  -Dname=${NAME:=myBundle} \
+  -DbundleName=${BUNDLENAME:=myBundle} \
   -Dversion=${VERSION:=0.1.0-SNAPSHOT} \
   ${PAX_CONSTRUCT_OPTIONS} "$@"
 

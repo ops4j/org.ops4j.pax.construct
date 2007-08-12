@@ -9,17 +9,17 @@ fi
 
 PAX_PLUGIN=org.ops4j.pax.construct:maven-pax-plugin:${PAX_CONSTRUCT_VERSION}
 
-unset NAME
-unset TODIR
+unset BUNDLENAME
+unset TARGETDIRECTORY
 
 while
   getopts n:d:h- SETTING
 do
   case ${SETTING} in
-    h|\?) echo "pax-move-bundle -n bundleName -d directory [-- mvnOpts ...]" ; exit ;;
+    h|\?) echo "pax-move-bundle -n bundleName -d targetDirectory [-- mvnOpts ...]" ; exit ;;
 
-    n) NAME=${OPTARG} ;;
-    d) TODIR=${OPTARG} ;;
+    n) BUNDLENAME=${OPTARG} ;;
+    d) TARGETDIRECTORY=${OPTARG} ;;
 
     -) break ;;
   esac
@@ -27,18 +27,17 @@ done
 
 shift $((${OPTIND}-1))
 
-if [ -z "${NAME}" ]
+if [ -z "${BUNDLENAME}" ]
 then
-  read -p "bundle name (myBundle) ? " NAME
+  read -p "bundleName (myBundle) ? " BUNDLENAME
 fi
-if [ -z "${TODIR}" ]
+if [ -z "${TARGETDIRECTORY}" ]
 then
-  read -p "to directory (.) ? " TODIR
+  read -p "targetDirectory (.) ? " TARGETDIRECTORY
 fi
 
-CWD=.
 mvn ${PAX_PLUGIN}:move-bundle \
-  -Dname=${NAME:=myBundle} \
-  -DtargetDirectory=${TODIR:=${CWD}} \
+  -DbundleName=${BUNDLENAME:=myBundle} \
+  -DtargetDirectory=${TARGETDIRECTORY:=.} \
   ${PAX_CONSTRUCT_OPTIONS} "$@"
 

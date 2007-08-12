@@ -9,15 +9,15 @@ fi
 
 PAX_PLUGIN=org.ops4j.pax.construct:maven-pax-plugin:${PAX_CONSTRUCT_VERSION}
 
-unset PLATFORM
+unset FRAMEWORK
 
 while
-  getopts p:h- SETTING
+  getopts f:h- SETTING
 do
   case ${SETTING} in
-    h|\?) echo "pax-provision -p platform [-- mvnopts ...]" ; exit ;;
+    h|\?) echo "pax-provision [-f framework] [-- mvnOpts ...]" ; exit ;;
 
-    p) PLATFORM=${OPTARG} ;;
+    f) FRAMEWORK=${OPTARG} ;;
 
     -) break ;;
   esac
@@ -25,5 +25,7 @@ done
 
 shift $((${OPTIND}-1))
 
-mvn ${PAX_PLUGIN}:provision -Dplatform=${PLATFORM:=choose} ${PAX_CONSTRUCT_OPTIONS} "$@"
+mvn ${PAX_PLUGIN}:provision \
+  -Dframework=${FRAMEWORK:=choose} \
+  ${PAX_CONSTRUCT_OPTIONS} "$@"
 
