@@ -76,6 +76,13 @@ public final class EmbedJarMojo extends AbstractMojo
     private boolean unpack;
 
     /**
+     * Should the contents be automatically exported?
+     * 
+     * @parameter expression="${exportcontents}" default-value="false"
+     */
+    private boolean exportcontents;
+
+    /**
      * Should we attempt to overwrite entries?
      * 
      * @parameter expression="${overwrite}" default-value="false"
@@ -105,10 +112,9 @@ public final class EmbedJarMojo extends AbstractMojo
         dependency.setOptional( true );
 
         PomUtils.addDependency( projectElem, dependency, overwrite );
-
         PomUtils.writePom( project.getFile(), pom );
 
-        if( unpack )
+        if( unpack || exportcontents )
         {
             File bndConfig = new File( project.getBasedir(), "src/main/resources/META-INF/details.bnd" );
 
@@ -126,22 +132,36 @@ public final class EmbedJarMojo extends AbstractMojo
             }
 
             Properties properties = PropertyUtils.loadProperties( bndConfig );
+            boolean propertiesChanged = false;
 
-            // Use FELIX-308 to inline selected artifacts
-            String embedDependency = properties.getProperty( "Embed-Dependency", "*;scope=compile|runtime" );
-            String inlineClause = artifactId + ";groupId=" + groupId + ";inline=true";
+            if( unpack )
+            {
+                // Use FELIX-308 to inline selected artifacts
+                String embedDependency = properties.getProperty( "Embed-Dependency", "*;scope=compile|runtime" );
+                String inlineClause = artifactId + ";groupId=" + groupId + ";inline=true";
 
-            // do we need to mark this as an inlined artifact?
-            if( embedDependency.indexOf( inlineClause ) < 0 )
+                // check to see if its already inlined...
+                if( embedDependency.indexOf( inlineClause ) < 0 )
+                {
+                    embedDependency += "," + inlineClause;
+                    properties.setProperty( "Embed-Dependency", embedDependency );
+                    propertiesChanged = true;
+                }
+            }
+
+            if( exportcontents )
+            {
+                properties.setProperty( "-exportcontents", null );
+                propertiesChanged = true;
+            }
+
+            if( propertiesChanged )
             {
                 OutputStream propertyStream = null;
 
                 try
                 {
                     propertyStream = new BufferedOutputStream( new FileOutputStream( bndConfig ) );
-
-                    embedDependency += "," + inlineClause;
-                    properties.setProperty( "Embed-Dependency", embedDependency );
                     properties.store( propertyStream, null );
                 }
                 catch( Exception e )

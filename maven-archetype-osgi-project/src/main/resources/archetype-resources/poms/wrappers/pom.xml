@@ -50,7 +50,7 @@
                 don't use Export-Package:* as this
                 exports everything on the classpath
               -->
-              <_exportall/>
+              <_exportcontents/>
               <Private-Package>!*</Private-Package>
               <!--
                 inline main artifact and embed all compile and runtime dependencies
