@@ -668,13 +668,20 @@ public class PomUtils
         // trim any random/leftover path information
         bundleName = new File( bundleName ).getName();
 
-        String[] includes = new String[1];
-        includes[0] = "**/" + bundleName + "/pom.xml";
+        String[] includes = new String[]
+        {
+            "**/" + bundleName + "/pom.xml"
+        };
+        String[] excludes = new String[]
+        {
+            "**/target/**"
+        };
 
         DirectoryScanner scanner = new DirectoryScanner();
 
         scanner.setBasedir( baseDir );
         scanner.setIncludes( includes );
+        scanner.setExcludes( excludes );
         scanner.scan();
 
         String candidates[] = scanner.getIncludedFiles();
