@@ -207,9 +207,9 @@
       </library>
     </orderEntry>
     <orderEntry type="module-library">
-      <library name="Maven Dependency: org.ops4j.pax:runner:jar:0.3.3:compile">
+      <library name="Maven Dependency: org.ops4j.pax:runner:jar:0.3.4:compile">
         <CLASSES>
-          <root url="jar://$M2_REPO$/org/ops4j/pax/runner/0.3.3/runner-0.3.3.jar!/" />
+          <root url="jar://$M2_REPO$/org/ops4j/pax/runner/0.3.4/runner-0.3.4.jar!/" />
         </CLASSES>
         <JAVADOC />
         <SOURCES />
