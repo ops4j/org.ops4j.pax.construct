@@ -46,12 +46,14 @@
               <Bundle-SymbolicName>${symbolicName}</Bundle-SymbolicName>
 #literal()
               <!--
-                import + export all wrapped classes
-                don't use Export-Package:* as this
-                exports everything on the classpath
+                export contents of bundle: don't use Export-Package:* as this exports everything on the classpath
               -->
               <_exportcontents/>
               <Private-Package>!*</Private-Package>
+              <!--
+                mark all packages as optional by default, to allow for missing system packages (javax.*, etc.)
+              -->
+              <Import-Package>*;resolution:=optional</Import-Package>
               <!--
                 inline main artifact and embed all compile and runtime dependencies
               -->

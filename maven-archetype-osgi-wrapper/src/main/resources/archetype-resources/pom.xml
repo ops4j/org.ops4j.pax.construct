@@ -4,9 +4,14 @@
 
 #set( $dollar = '$' )
 #if( $package.startsWith("+") )
-#set( $trim = $package.length() )
+  #set( $trim = $package.length() )
 #else
-#set( $trim = 0 )
+  #set( $trim = 0 )
+  #if( $package.startsWith("~") )
+    #set( $swap = $package )
+    #set( $package = $artifactId )
+    #set( $artifactId = $swap )
+  #end
 #end
   <properties>
     <jar.groupId>$package.substring(1)</jar.groupId>

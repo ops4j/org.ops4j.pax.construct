@@ -68,7 +68,7 @@ public final class ProvisionMojo extends AbstractMojo
     private String additionalPoms;
 
     /**
-     * @parameter expression="${framework}" default-value="equinox"
+     * @parameter expression="${framework}" default-value="felix"
      */
     private String framework;
 

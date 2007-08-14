@@ -151,7 +151,7 @@ public final class EmbedJarMojo extends AbstractMojo
 
             if( exportcontents )
             {
-                properties.setProperty( "-exportcontents", null );
+                properties.setProperty( "-exportcontents", "" );
                 propertiesChanged = true;
             }
 

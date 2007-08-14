@@ -110,13 +110,13 @@ public abstract class AbstractArchetypeMojo extends MavenArchetypeMojo
     {
         if( compactNames )
         {
-            if( artifactId.startsWith( groupId + "." ) )
+            if( artifactId.startsWith( groupId + "." ) || artifactId.equals( groupId ) )
             {
-                return "-" + groupId;
+                return "=" + groupId;
             }
             else if( groupId.endsWith( "." + artifactId ) )
             {
-                return "-" + groupId.substring( 0, groupId.length() - (1 + artifactId.length()) );
+                return "~" + artifactId;
             }
         }
 
@@ -127,7 +127,7 @@ public abstract class AbstractArchetypeMojo extends MavenArchetypeMojo
     {
         if( compactNames )
         {
-            if( artifactId.startsWith( groupId + "." ) )
+            if( artifactId.startsWith( groupId + "." ) || artifactId.equals( groupId ) )
             {
                 return artifactId;
             }
