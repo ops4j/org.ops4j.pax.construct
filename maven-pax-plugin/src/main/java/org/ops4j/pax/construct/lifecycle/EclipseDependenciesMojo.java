@@ -17,12 +17,16 @@ package org.ops4j.pax.construct.lifecycle;
  */
 
 import java.io.File;
+import java.io.FileWriter;
+import java.io.Writer;
+import java.lang.reflect.Field;
 import java.util.Iterator;
 
 import org.apache.maven.artifact.Artifact;
 import org.apache.maven.artifact.versioning.VersionRange;
 import org.apache.maven.model.Dependency;
 import org.apache.maven.plugin.MojoExecutionException;
+import org.apache.maven.plugin.ide.AbstractIdeSupportMojo;
 import org.apache.maven.project.MavenProject;
 import org.apache.maven.project.MavenProjectBuilder;
 
@@ -47,15 +51,9 @@ public class EclipseDependenciesMojo extends EclipseMojo
     {
         if( null != thisProject )
         {
-            setEclipseProjectDir( new File( thisProject.getBuild().getDirectory(), getProject().getGroupId() ) );
-
-            super.setup();
-
-            // FIXME: avoid linked resources...
-            setBuildOutputDirectory( new File( getEclipseProjectDir(), "target/classes" ) );
-            getProject().setFile( new File( getEclipseProjectDir(), "pom.xml" ) );
-
-            return true;
+            setEclipseProjectDir( null );
+            clearDependencyCache();
+            return super.setup();
         }
 
         thisProject = getProject();
@@ -75,7 +73,19 @@ public class EclipseDependenciesMojo extends EclipseMojo
                     MavenProject dependencyProject = mavenProjectBuilder.buildFromRepository( artifact,
                         getRemoteArtifactRepositories(), getLocalRepository() );
 
-                    dependencyProject.setFile( thisProject.getFile() );
+                    File groupDir = new File( "target/" + dependency.getGroupId() );
+                    File dependencyDir = new File( groupDir, artifact.getArtifactId() );
+                    dependencyDir.mkdirs();
+
+                    File pomFile = new File( dependencyDir, "pom.xml" );
+
+                    Writer writer = new FileWriter( pomFile );
+                    dependencyProject.writeModel( writer );
+                    dependencyProject.setFile( pomFile );
+                    writer.close();
+
+                    setBuildOutputDirectory( new File( dependencyDir, ".ignore" ) );
+
                     setExecutedProject( dependencyProject );
                     setProject( dependencyProject );
 
@@ -91,5 +101,20 @@ public class EclipseDependenciesMojo extends EclipseMojo
         }
 
         return false;
+    }
+
+    protected void clearDependencyCache()
+    {
+        try
+        {
+            // Attempt to bypass normal private field protection
+            Field f = AbstractIdeSupportMojo.class.getDeclaredField( "ideDeps" );
+
+            f.setAccessible( true );
+            f.set( this, null );
+        }
+        catch( Exception e )
+        {
+        }
     }
 }

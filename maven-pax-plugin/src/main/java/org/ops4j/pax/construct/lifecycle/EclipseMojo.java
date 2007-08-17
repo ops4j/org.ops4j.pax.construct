@@ -139,7 +139,10 @@ public class EclipseMojo extends EclipsePlugin
         setFlag( "pde", true );
         setWtpversion( "none" );
 
-        setBuildOutputDirectory( new File( executedProject.getBuild().getOutputDirectory() ) );
+        if( getBuildOutputDirectory() == null )
+        {
+            setBuildOutputDirectory( new File( executedProject.getBuild().getOutputDirectory() ) );
+        }
 
         return super.setup();
     }
@@ -167,7 +170,7 @@ public class EclipseMojo extends EclipsePlugin
         {
             EclipseWriterConfig config = createEclipseWriterConfig( deps );
 
-            config.setEclipseProjectName( getEclipseProjectName( project ) );
+            config.setEclipseProjectName( getEclipseProjectName( executedProject ) );
 
             // make sure project folder exists
             config.getEclipseProjectDirectory().mkdirs();
