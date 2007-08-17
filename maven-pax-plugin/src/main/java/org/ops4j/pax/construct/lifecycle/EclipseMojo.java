@@ -187,6 +187,12 @@ public class EclipseMojo extends EclipsePlugin
             new EclipseSettingsWriter().init( getLog(), config ).write();
             new EclipseClasspathWriter().init( getLog(), config ).write();
             new EclipseProjectWriter().init( getLog(), config ).write();
+
+            if( "bundle".equals( executedProject.getPackaging() ) )
+            {
+                File here = new File( getBuildOutputDirectory().getParent(), "bundle" );
+                unpackBundle( executedProject.getArtifact().getFile(), here );
+            }
         }
         catch( Exception e )
         {
@@ -219,7 +225,7 @@ public class EclipseMojo extends EclipsePlugin
         return projectName + " [" + project.getVersion() + "]";
     }
 
-    protected void unpackBundle( File bundle )
+    protected void unpackBundle( File bundle, File here )
         throws MojoExecutionException
     {
         try
@@ -231,7 +237,9 @@ public class EclipseMojo extends EclipsePlugin
             }
 
             UnArchiver unArchiver = archiverManager.getUnArchiver( bundle );
-            unArchiver.setDestDirectory( getBuildOutputDirectory().getParentFile() );
+
+            here.mkdirs();
+            unArchiver.setDestDirectory( here );
             unArchiver.setSourceFile( bundle );
             unArchiver.extract();
         }
