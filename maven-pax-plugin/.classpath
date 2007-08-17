@@ -11,6 +11,7 @@
 	<classpathentry kind="var" path="M2_REPO/org/apache/maven/archetype/maven-archetype-core/1.0-alpha-4/maven-archetype-core-1.0-alpha-4.jar"/>
 	<classpathentry kind="var" path="M2_REPO/org/apache/maven/plugins/maven-archetype-plugin/1.0-alpha-4/maven-archetype-plugin-1.0-alpha-4.jar"/>
 	<classpathentry kind="var" path="M2_REPO/org/apache/maven/plugins/maven-eclipse-plugin/2.4/maven-eclipse-plugin-2.4.jar"/>
+	<classpathentry kind="var" path="M2_REPO/org/codehaus/plexus/plexus-archiver/1.0-alpha-7/plexus-archiver-1.0-alpha-7.jar"/>
 	<classpathentry kind="var" path="M2_REPO/org/codehaus/plexus/plexus-container-default/1.0-alpha-9-stable-1/plexus-container-default-1.0-alpha-9-stable-1.jar"/>
 	<classpathentry kind="var" path="M2_REPO/plexus/plexus-utils/1.0.3/plexus-utils-1.0.3.jar"/>
 	<classpathentry kind="var" path="M2_REPO/org/ops4j/pax/runner/0.3.4/runner-0.3.4.jar"/>

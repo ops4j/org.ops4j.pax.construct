@@ -33,6 +33,8 @@ import org.apache.maven.plugin.eclipse.writers.EclipseSettingsWriter;
 import org.apache.maven.plugin.eclipse.writers.EclipseWriterConfig;
 import org.apache.maven.plugin.ide.IdeDependency;
 import org.apache.maven.project.MavenProject;
+import org.codehaus.plexus.archiver.UnArchiver;
+import org.codehaus.plexus.archiver.manager.ArchiverManager;
 
 /**
  * Extend maven-eclipse-plugin to better handle OSGi bundles.
@@ -72,6 +74,13 @@ public class EclipseMojo extends EclipsePlugin
      * @readonly
      */
     protected ArtifactMetadataSource artifactMetadataSource;
+
+    /**
+     * @component role="org.codehaus.plexus.archiver.manager.ArchiverManager"
+     * @required
+     * @readonly
+     */
+    protected ArchiverManager archiverManager;
 
     /**
      * @parameter expression="${project}"
@@ -208,5 +217,27 @@ public class EclipseMojo extends EclipsePlugin
         }
 
         return projectName + " [" + project.getVersion() + "]";
+    }
+
+    protected void unpackBundle( File bundle )
+        throws MojoExecutionException
+    {
+        try
+        {
+            String bundleName = bundle.getName();
+            if( bundleName.endsWith( ".pom" ) )
+            {
+                bundle = new File( bundle.getParent(), bundleName.replaceAll( ".pom$", ".jar" ) );
+            }
+
+            UnArchiver unArchiver = archiverManager.getUnArchiver( bundle );
+            unArchiver.setDestDirectory( getBuildOutputDirectory().getParentFile() );
+            unArchiver.setSourceFile( bundle );
+            unArchiver.extract();
+        }
+        catch( Exception e )
+        {
+            throw new MojoExecutionException( "ERROR unpacking bundle", e );
+        }
     }
 }

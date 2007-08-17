@@ -56,7 +56,7 @@ public class EclipseDependenciesMojo extends EclipseMojo
             return super.setup();
         }
 
-        thisProject = getProject();
+        thisProject = getExecutedProject();
 
         try
         {
@@ -73,7 +73,7 @@ public class EclipseDependenciesMojo extends EclipseMojo
                     MavenProject dependencyProject = mavenProjectBuilder.buildFromRepository( artifact,
                         getRemoteArtifactRepositories(), getLocalRepository() );
 
-                    File groupDir = new File( "target/" + dependency.getGroupId() );
+                    File groupDir = new File( thisProject.getBasedir(), "target/" + dependency.getGroupId() );
                     File dependencyDir = new File( groupDir, artifact.getArtifactId() );
                     dependencyDir.mkdirs();
 
@@ -85,6 +85,7 @@ public class EclipseDependenciesMojo extends EclipseMojo
                     writer.close();
 
                     setBuildOutputDirectory( new File( dependencyDir, ".ignore" ) );
+                    unpackBundle( artifact.getFile() );
 
                     setExecutedProject( dependencyProject );
                     setProject( dependencyProject );
