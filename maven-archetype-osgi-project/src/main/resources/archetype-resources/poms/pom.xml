@@ -4,7 +4,7 @@
 
   <parent>
     <!--
-      Add provisioned bundles to compilation classpath
+      Add provisioned bundles to global classpath
     -->
     <relativePath>../provision</relativePath>
     <groupId>\${package}.build</groupId>
@@ -48,6 +48,23 @@
               <phase>package</phase>
               <goals>
                 <goal>eclipse</goal>
+              </goals>
+            </execution>
+            <!--
+              Provide backup and recovery of generated metadata (in case bundling fails during a "clean install")
+            -->
+            <execution>
+              <id>clean-metadata</id>
+              <phase>clean</phase>
+              <goals>
+                <goal>clean</goal>
+              </goals>
+            </execution>
+            <execution>
+              <id>restore-metadata</id>
+              <phase>generate-resources</phase>
+              <goals>
+                <goal>restore-metadata</goal>
               </goals>
             </execution>
           </executions>

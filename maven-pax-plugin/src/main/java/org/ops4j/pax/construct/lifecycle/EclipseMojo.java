@@ -17,8 +17,17 @@ package org.ops4j.pax.construct.lifecycle;
  */
 
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.FileReader;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.lang.reflect.Field;
+import java.util.Iterator;
 import java.util.List;
+import java.util.jar.Attributes;
+import java.util.jar.Manifest;
 
 import org.apache.maven.artifact.factory.ArtifactFactory;
 import org.apache.maven.artifact.metadata.ArtifactMetadataSource;
@@ -35,6 +44,13 @@ import org.apache.maven.plugin.ide.IdeDependency;
 import org.apache.maven.project.MavenProject;
 import org.codehaus.plexus.archiver.UnArchiver;
 import org.codehaus.plexus.archiver.manager.ArchiverManager;
+import org.codehaus.plexus.util.FileUtils;
+import org.codehaus.plexus.util.IOUtil;
+import org.codehaus.plexus.util.xml.PrettyPrintXMLWriter;
+import org.codehaus.plexus.util.xml.Xpp3Dom;
+import org.codehaus.plexus.util.xml.Xpp3DomBuilder;
+import org.codehaus.plexus.util.xml.Xpp3DomWriter;
+import org.codehaus.plexus.util.xml.pull.XmlPullParserException;
 
 /**
  * Extend maven-eclipse-plugin to better handle OSGi bundles.
@@ -179,7 +195,7 @@ public class EclipseMojo extends EclipsePlugin
         {
             EclipseWriterConfig config = createEclipseWriterConfig( deps );
 
-            config.setEclipseProjectName( getEclipseProjectName( executedProject ) );
+            config.setEclipseProjectName( getEclipseProjectName( executedProject, true ) );
 
             // make sure project folder exists
             config.getEclipseProjectDirectory().mkdirs();
@@ -190,8 +206,9 @@ public class EclipseMojo extends EclipsePlugin
 
             if( "bundle".equals( executedProject.getPackaging() ) )
             {
-                File here = new File( getBuildOutputDirectory().getParent(), "bundle" );
-                unpackBundle( executedProject.getArtifact().getFile(), here );
+                String bundleDir = "target/bundle";
+                unpackBundle( executedProject.getArtifact().getFile(), bundleDir );
+                refactorForEclipse( bundleDir );
             }
         }
         catch( Exception e )
@@ -202,7 +219,7 @@ public class EclipseMojo extends EclipsePlugin
         }
     }
 
-    protected static String getEclipseProjectName( MavenProject project )
+    protected static String getEclipseProjectName( MavenProject project, boolean addVersion )
     {
         String groupId = project.getGroupId();
         String artifactId = project.getArtifactId();
@@ -222,10 +239,17 @@ public class EclipseMojo extends EclipsePlugin
             projectName = groupId + "." + artifactId;
         }
 
-        return projectName + " [" + project.getVersion() + "]";
+        if( addVersion )
+        {
+            return projectName + " [" + project.getVersion() + "]";
+        }
+        else
+        {
+            return projectName;
+        }
     }
 
-    protected void unpackBundle( File bundle, File here )
+    protected void unpackBundle( File bundle, String to )
         throws MojoExecutionException
     {
         try
@@ -237,6 +261,7 @@ public class EclipseMojo extends EclipsePlugin
             }
 
             UnArchiver unArchiver = archiverManager.getUnArchiver( bundle );
+            File here = new File( executedProject.getBasedir(), to );
 
             here.mkdirs();
             unArchiver.setDestDirectory( here );
@@ -247,5 +272,114 @@ public class EclipseMojo extends EclipsePlugin
         {
             throw new MojoExecutionException( "ERROR unpacking bundle", e );
         }
+    }
+
+    protected void refactorForEclipse( String bundleLocation )
+        throws IOException,
+        XmlPullParserException
+    {
+        File baseDir = executedProject.getBasedir();
+        File bundleDir = new File( baseDir, bundleLocation );
+
+        List metaFiles = FileUtils.getFiles( bundleDir, "META-INF/**,OSGI-INF/**", null, false );
+        for( Iterator i = metaFiles.iterator(); i.hasNext(); )
+        {
+            String metaEntry = ((File) i.next()).getPath();
+            File bundleMeta = new File( bundleDir, metaEntry );
+            FileUtils.rename( bundleMeta, new File( baseDir, metaEntry ) );
+        }
+
+        File manifestFile = new File( baseDir, "META-INF/MANIFEST.MF" );
+        Manifest manifest = new Manifest();
+        Attributes mainAttributes;
+
+        try
+        {
+            manifest.read( new FileInputStream( manifestFile ) );
+            mainAttributes = manifest.getMainAttributes();
+        }
+        catch( Exception e )
+        {
+            mainAttributes = manifest.getMainAttributes();
+            mainAttributes.putValue( "Manifest-Version", "1" );
+            mainAttributes.putValue( "Bundle-ManifestVersion", "2" );
+            mainAttributes.putValue( "Bundle-Name", project.getName() );
+            mainAttributes.putValue( "Bundle-Version", project.getVersion().replace( '-', '.' ) );
+
+            // some basic OSGi dependencies, to help people get their code compiling...
+            mainAttributes.putValue( "Import-Package", "org.osgi.framework,org.osgi.util.tracker" );
+        }
+
+        if( mainAttributes.getValue( "Bundle-SymbolicName" ) == null )
+        {
+            // Eclipse mis-behaves if the bundle has no symbolic name :(
+            String symbolicName = getEclipseProjectName( executedProject, false ).replace( '-', '_' );
+            mainAttributes.putValue( "Bundle-SymbolicName", symbolicName );
+        }
+
+        String bundleClassPath = mainAttributes.getValue( "Bundle-ClassPath" );
+        if( null == bundleClassPath )
+        {
+            mainAttributes.putValue( "Bundle-ClassPath", ".," + bundleLocation );
+        }
+        else
+        {
+            String[] classPathEntries = bundleClassPath.split( "," );
+
+            StringBuffer refactoredClassPath = new StringBuffer();
+            for( int i = 0; i < classPathEntries.length; i++ )
+            {
+                if( i > 0 )
+                {
+                    refactoredClassPath.append( ',' );
+                }
+
+                if( ".".equals( classPathEntries[i] ) )
+                {
+                    refactoredClassPath.append( ".," );
+                    refactoredClassPath.append( bundleLocation );
+                }
+                else
+                {
+                    refactoredClassPath.append( bundleLocation );
+                    refactoredClassPath.append( '/' );
+                    refactoredClassPath.append( classPathEntries[i] );
+                }
+            }
+
+            mainAttributes.putValue( "Bundle-ClassPath", refactoredClassPath.toString() );
+        }
+
+        updateEclipseClassPath( mainAttributes.getValue( "Bundle-ClassPath" ) );
+
+        manifestFile.getParentFile().mkdirs();
+        manifest.write( new FileOutputStream( manifestFile ) );
+    }
+
+    protected void updateEclipseClassPath( String bundleClassPath )
+        throws FileNotFoundException,
+        XmlPullParserException,
+        IOException
+    {
+        String[] classPath = bundleClassPath.split( "," );
+
+        File classPathFile = new File( executedProject.getBasedir(), ".classpath" );
+        Xpp3Dom classPathXML = Xpp3DomBuilder.build( new FileReader( classPathFile ) );
+
+        for( int i = 0; i < classPath.length; i++ )
+        {
+            if( ".".equals( classPath[i] ) == false )
+            {
+                Xpp3Dom classPathEntry = new Xpp3Dom( "classpathentry" );
+                classPathEntry.setAttribute( "exported", "true" );
+                classPathEntry.setAttribute( "kind", "lib" );
+                classPathEntry.setAttribute( "path", classPath[i] );
+                classPathXML.addChild( classPathEntry );
+            }
+        }
+
+        FileWriter writer = new FileWriter( classPathFile );
+        Xpp3DomWriter.write( new PrettyPrintXMLWriter( writer ), classPathXML );
+        IOUtil.close( writer );
     }
 }

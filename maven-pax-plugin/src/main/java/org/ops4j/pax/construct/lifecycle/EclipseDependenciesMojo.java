@@ -85,10 +85,13 @@ public class EclipseDependenciesMojo extends EclipseMojo
                     writer.close();
 
                     setBuildOutputDirectory( new File( dependencyDir, ".ignore" ) );
-                    unpackBundle( artifact.getFile(), dependencyDir );
 
-                    setExecutedProject( dependencyProject );
                     setProject( dependencyProject );
+                    setExecutedProject( dependencyProject );
+                    executedProject = dependencyProject;
+                    project = dependencyProject;
+
+                    unpackBundle( artifact.getFile(), "." );
 
                     super.execute();
                 }

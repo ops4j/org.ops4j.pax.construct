@@ -19,6 +19,8 @@ package org.ops4j.pax.construct.util;
 import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
+import java.io.IOException;
+import java.util.List;
 
 import org.apache.maven.model.Dependency;
 import org.apache.maven.model.Model;
@@ -26,7 +28,7 @@ import org.apache.maven.model.Repository;
 import org.apache.maven.model.io.xpp3.MavenXpp3Reader;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.project.MavenProject;
-import org.codehaus.plexus.util.DirectoryScanner;
+import org.codehaus.plexus.util.FileUtils;
 import org.kxml2.kdom.Document;
 import org.kxml2.kdom.Element;
 import org.xmlpull.v1.XmlPullParser;
@@ -668,31 +670,20 @@ public class PomUtils
         // trim any random/leftover path information
         bundleName = new File( bundleName ).getName();
 
-        String[] includes = new String[]
+        try
         {
-            "**/" + bundleName + "/pom.xml"
-        };
-        String[] excludes = new String[]
-        {
-            "**/target/**"
-        };
-
-        DirectoryScanner scanner = new DirectoryScanner();
-
-        scanner.setBasedir( baseDir );
-        scanner.setIncludes( includes );
-        scanner.setExcludes( excludes );
-        scanner.scan();
-
-        String candidates[] = scanner.getIncludedFiles();
-        if( candidates != null && candidates.length > 0 )
-        {
-            return new File( baseDir, candidates[0] );
+            String excludes = "**/target/**,**/META-INF/**";
+            List candidatePoms = FileUtils.getFiles( baseDir, "**/" + bundleName + "/pom.xml", excludes );
+            if( candidatePoms != null && candidatePoms.size() > 0 )
+            {
+                return (File) candidatePoms.get( 0 );
+            }
         }
-        else
+        catch( IOException e )
         {
-            return null;
         }
+
+        return null;
     }
 
     public static String calculateRelativePath( File sourcePath, File targetPath )
