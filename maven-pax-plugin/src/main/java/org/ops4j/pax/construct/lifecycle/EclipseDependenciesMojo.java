@@ -20,7 +20,9 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.Writer;
+import java.util.Collections;
 import java.util.Iterator;
+import java.util.List;
 
 import org.apache.maven.artifact.Artifact;
 import org.apache.maven.model.Dependency;
@@ -132,21 +134,20 @@ public class EclipseDependenciesMojo extends EclipseMojo
             throw new MojoExecutionException( "ERROR creating Eclipse files", e );
         }
 
-        if( downloadSources )
+        try
         {
-            try
-            {
-                Artifact artifact = artifactFactory.createArtifactWithClassifier( executedProject.getGroupId(),
-                    executedProject.getArtifactId(), executedProject.getVersion(), "java-source", "sources" );
+            List remoteRepos = downloadSources ? remoteArtifactRepositories : Collections.EMPTY_LIST;
 
-                artifactResolver.resolve( artifact, remoteArtifactRepositories, localRepository );
+            Artifact artifact = artifactFactory.createArtifactWithClassifier( executedProject.getGroupId(),
+                executedProject.getArtifactId(), executedProject.getVersion(), "java-source", "sources" );
 
-                attachSource( artifact.getFile().getPath() );
-            }
-            catch( Exception e )
-            {
-                // ignore missing sources
-            }
+            artifactResolver.resolve( artifact, remoteRepos, localRepository );
+
+            attachSource( artifact.getFile().getPath() );
+        }
+        catch( Exception e )
+        {
+            // ignore missing sources
         }
     }
 
