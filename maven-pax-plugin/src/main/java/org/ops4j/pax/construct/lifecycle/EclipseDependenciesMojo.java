@@ -64,6 +64,7 @@ public class EclipseDependenciesMojo extends EclipseMojo
             return super.setup();
         }
 
+        patchPlugin();
         thisProject = getExecutedProject();
         setResolveDependencies( false );
 
@@ -74,31 +75,35 @@ public class EclipseDependenciesMojo extends EclipseMojo
                 Dependency dependency = (Dependency) i.next();
                 if( !dependency.isOptional() && "provided".equals( dependency.getScope() ) )
                 {
-                    Artifact artifact = artifactFactory.createProjectArtifact( dependency.getGroupId(), dependency
-                        .getArtifactId(), dependency.getVersion() );
+                    String groupId = dependency.getGroupId();
+                    String artifactId = dependency.getArtifactId();
+                    String version = dependency.getVersion();
 
-                    MavenProject dependencyProject = mavenProjectBuilder.buildFromRepository( artifact,
-                        getRemoteArtifactRepositories(), getLocalRepository() );
+                    Artifact pomArtifact = artifactFactory.createProjectArtifact( groupId, artifactId, version );
 
-                    File groupDir = new File( thisProject.getBasedir(), "target/" + dependency.getGroupId() );
-                    File dependencyDir = new File( groupDir, artifact.getArtifactId() );
-                    dependencyDir.mkdirs();
+                    MavenProject dependencyProject = mavenProjectBuilder.buildFromRepository( pomArtifact,
+                        remoteArtifactRepositories, localRepository );
 
-                    File pomFile = new File( dependencyDir, "pom.xml" );
+                    File localDir = new File( thisProject.getBasedir(), "target/" + groupId + "/" + artifactId );
+                    localDir.mkdirs();
+
+                    File pomFile = new File( localDir, "pom.xml" );
 
                     Writer writer = new FileWriter( pomFile );
                     dependencyProject.writeModel( writer );
                     dependencyProject.setFile( pomFile );
                     writer.close();
 
-                    setBuildOutputDirectory( new File( dependencyDir, ".ignore" ) );
+                    setBuildOutputDirectory( new File( localDir, ".ignore" ) );
 
                     setProject( dependencyProject );
                     setExecutedProject( dependencyProject );
                     executedProject = dependencyProject;
                     project = dependencyProject;
 
-                    unpackBundle( artifact.getFile(), "." );
+                    Artifact bundleArtifact = dependencyProject.getArtifact();
+                    artifactResolver.resolve( bundleArtifact, remoteArtifactRepositories, localRepository );
+                    unpackBundle( bundleArtifact.getFile(), "." );
 
                     super.execute();
                 }

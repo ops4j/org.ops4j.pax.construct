@@ -146,9 +146,8 @@ public class EclipseMojo extends EclipsePlugin
 
     protected List resolvedDependencies;
 
-    public boolean setup()
-        throws MojoExecutionException
-    {
+    protected void patchPlugin()
+    {        
         // components need upwards injection...
         super.artifactFactory = artifactFactory;
         super.artifactResolver = artifactResolver;
@@ -167,6 +166,12 @@ public class EclipseMojo extends EclipsePlugin
         // fix private params
         setFlag( "pde", true );
         setWtpversion( "none" );
+    }
+
+    public boolean setup()
+        throws MojoExecutionException
+    {
+        patchPlugin();
 
         if( getBuildOutputDirectory() == null )
         {
@@ -263,12 +268,6 @@ public class EclipseMojo extends EclipsePlugin
     {
         try
         {
-            String bundleName = bundle.getName();
-            if( bundleName.endsWith( ".pom" ) )
-            {
-                bundle = new File( bundle.getParent(), bundleName.replaceAll( ".pom$", ".jar" ) );
-            }
-
             UnArchiver unArchiver = archiverManager.getUnArchiver( bundle );
             File here = new File( executedProject.getBasedir(), to );
 
