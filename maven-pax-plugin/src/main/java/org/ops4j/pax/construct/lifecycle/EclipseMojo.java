@@ -405,9 +405,11 @@ public class EclipseMojo extends EclipsePlugin
         {
             IdeDependency dependency = (IdeDependency) i.next();
 
-            boolean match = Pattern.matches( "^.*[\\/]" + dependency.getArtifactId() + "[-.][^\\/]*$", classPathEntry );
-
-            if( match || bundleLocation.equals( classPathEntry ) )
+            if( bundleLocation.equals( classPathEntry ) )
+            {
+                return dependency.getSourceAttachment();
+            }
+            else if( Pattern.matches( "^.*[\\/]" + dependency.getArtifactId() + "[-.][^\\/]*$", classPathEntry ) )
             {
                 return dependency.getSourceAttachment();
             }
