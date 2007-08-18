@@ -57,7 +57,6 @@
                 embed all compile and runtime dependencies
               -->
               <Embed-Dependency>*;scope=compile|runtime</Embed-Dependency>
-              <Embed-Directory>target</Embed-Directory>
               <Embed-StripVersion>true</Embed-StripVersion>
               <Embed-Transitive>true</Embed-Transitive>
               <!--

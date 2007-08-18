@@ -24,10 +24,12 @@ import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.lang.reflect.Field;
+import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.jar.Attributes;
 import java.util.jar.Manifest;
+import java.util.regex.Pattern;
 
 import org.apache.maven.artifact.factory.ArtifactFactory;
 import org.apache.maven.artifact.metadata.ArtifactMetadataSource;
@@ -142,6 +144,8 @@ public class EclipseMojo extends EclipsePlugin
      */
     protected boolean downloadJavadocs;
 
+    protected List resolvedDependencies;
+
     public boolean setup()
         throws MojoExecutionException
     {
@@ -193,10 +197,12 @@ public class EclipseMojo extends EclipsePlugin
     {
         try
         {
+            resolvedDependencies = new ArrayList();
             for( int i = 0; i < deps.length; i++ )
             {
-                if( deps[i].isAddedToClasspath() && !deps[i].isTestDependency() )
+                if( deps[i].isAddedToClasspath() && !deps[i].isTestDependency() && !deps[i].isProvided() )
                 {
+                    resolvedDependencies.add( deps[i] );
                     deps[i].setAddedToClasspath( false );
                 }
             }
@@ -353,13 +359,13 @@ public class EclipseMojo extends EclipsePlugin
             mainAttributes.putValue( "Bundle-ClassPath", refactoredClassPath.toString() );
         }
 
-        updateEclipseClassPath( mainAttributes.getValue( "Bundle-ClassPath" ) );
+        updateEclipseClassPath( bundleLocation, mainAttributes.getValue( "Bundle-ClassPath" ) );
 
         manifestFile.getParentFile().mkdirs();
         manifest.write( new FileOutputStream( manifestFile ) );
     }
 
-    protected void updateEclipseClassPath( String bundleClassPath )
+    protected void updateEclipseClassPath( String bundleLocation, String bundleClassPath )
         throws FileNotFoundException,
         XmlPullParserException,
         IOException
@@ -378,10 +384,10 @@ public class EclipseMojo extends EclipsePlugin
                 classPathEntry.setAttribute( "kind", "lib" );
                 classPathEntry.setAttribute( "path", classPath[i] );
 
-                String sourcePath = findAttachedSource( classPath[i] );
+                File sourcePath = findAttachedSource( bundleLocation, classPath[i] );
                 if( sourcePath != null )
                 {
-                    classPathEntry.setAttribute( "sourcepath", sourcePath );
+                    classPathEntry.setAttribute( "sourcepath", sourcePath.getPath() );
                 }
 
                 classPathXML.addChild( classPathEntry );
@@ -393,8 +399,20 @@ public class EclipseMojo extends EclipsePlugin
         IOUtil.close( writer );
     }
 
-    protected String findAttachedSource( String string )
+    protected File findAttachedSource( String bundleLocation, String classPathEntry )
     {
+        for( Iterator i = resolvedDependencies.iterator(); i.hasNext(); )
+        {
+            IdeDependency dependency = (IdeDependency) i.next();
+
+            boolean match = Pattern.matches( "^.*[\\/]" + dependency.getArtifactId() + "[-.][^\\/]*$", classPathEntry );
+
+            if( match || bundleLocation.equals( classPathEntry ) )
+            {
+                return dependency.getSourceAttachment();
+            }
+        }
+
         return null;
     }
 }

@@ -57,7 +57,6 @@
                 ${jar.artifactId};groupId=${jar.groupId};inline=true,
                 *;scope=compile|runtime
               </Embed-Dependency>
-              <Embed-Directory>target</Embed-Directory>
               <Embed-StripVersion>true</Embed-StripVersion>
               <Embed-Transitive>true</Embed-Transitive>
               <!--
