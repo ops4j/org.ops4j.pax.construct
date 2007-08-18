@@ -193,23 +193,26 @@ public class EclipseMojo extends EclipsePlugin
     {
         try
         {
+            for( int i = 0; i < deps.length; i++ )
+            {
+                if( deps[i].isAddedToClasspath() && !deps[i].isTestDependency() )
+                {
+                    deps[i].setAddedToClasspath( false );
+                }
+            }
+
             EclipseWriterConfig config = createEclipseWriterConfig( deps );
 
             config.setEclipseProjectName( getEclipseProjectName( executedProject, true ) );
-
-            // make sure project folder exists
             config.getEclipseProjectDirectory().mkdirs();
 
             new EclipseSettingsWriter().init( getLog(), config ).write();
             new EclipseClasspathWriter().init( getLog(), config ).write();
             new EclipseProjectWriter().init( getLog(), config ).write();
 
-            if( "bundle".equals( executedProject.getPackaging() ) )
-            {
-                String bundleDir = "target/bundle";
-                unpackBundle( executedProject.getArtifact().getFile(), bundleDir );
-                refactorForEclipse( bundleDir );
-            }
+            String bundleDir = "target/bundle";
+            unpackBundle( executedProject.getArtifact().getFile(), bundleDir );
+            refactorForEclipse( bundleDir );
         }
         catch( Exception e )
         {
@@ -374,6 +377,13 @@ public class EclipseMojo extends EclipsePlugin
                 classPathEntry.setAttribute( "exported", "true" );
                 classPathEntry.setAttribute( "kind", "lib" );
                 classPathEntry.setAttribute( "path", classPath[i] );
+
+                String sourcePath = findAttachedSource( classPath[i] );
+                if( sourcePath != null )
+                {
+                    classPathEntry.setAttribute( "sourcepath", sourcePath );
+                }
+
                 classPathXML.addChild( classPathEntry );
             }
         }
@@ -381,5 +391,10 @@ public class EclipseMojo extends EclipsePlugin
         FileWriter writer = new FileWriter( classPathFile );
         Xpp3DomWriter.write( new PrettyPrintXMLWriter( writer ), classPathXML );
         IOUtil.close( writer );
+    }
+
+    protected String findAttachedSource( String string )
+    {
+        return null;
     }
 }

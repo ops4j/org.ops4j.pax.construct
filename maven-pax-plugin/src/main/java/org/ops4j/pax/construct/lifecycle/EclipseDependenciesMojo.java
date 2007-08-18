@@ -17,18 +17,25 @@ package org.ops4j.pax.construct.lifecycle;
  */
 
 import java.io.File;
+import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.Writer;
-import java.lang.reflect.Field;
 import java.util.Iterator;
 
 import org.apache.maven.artifact.Artifact;
-import org.apache.maven.artifact.versioning.VersionRange;
 import org.apache.maven.model.Dependency;
 import org.apache.maven.plugin.MojoExecutionException;
-import org.apache.maven.plugin.ide.AbstractIdeSupportMojo;
+import org.apache.maven.plugin.eclipse.writers.EclipseClasspathWriter;
+import org.apache.maven.plugin.eclipse.writers.EclipseProjectWriter;
+import org.apache.maven.plugin.eclipse.writers.EclipseWriterConfig;
+import org.apache.maven.plugin.ide.IdeDependency;
 import org.apache.maven.project.MavenProject;
 import org.apache.maven.project.MavenProjectBuilder;
+import org.codehaus.plexus.util.IOUtil;
+import org.codehaus.plexus.util.xml.PrettyPrintXMLWriter;
+import org.codehaus.plexus.util.xml.Xpp3Dom;
+import org.codehaus.plexus.util.xml.Xpp3DomBuilder;
+import org.codehaus.plexus.util.xml.Xpp3DomWriter;
 
 /**
  * Extend maven-eclipse-plugin to process multiple OSGi dependencies.
@@ -52,11 +59,11 @@ public class EclipseDependenciesMojo extends EclipseMojo
         if( null != thisProject )
         {
             setEclipseProjectDir( null );
-            clearDependencyCache();
             return super.setup();
         }
 
         thisProject = getExecutedProject();
+        setResolveDependencies( false );
 
         try
         {
@@ -65,10 +72,8 @@ public class EclipseDependenciesMojo extends EclipseMojo
                 Dependency dependency = (Dependency) i.next();
                 if( !dependency.isOptional() && "provided".equals( dependency.getScope() ) )
                 {
-                    VersionRange versionRange = VersionRange.createFromVersionSpec( dependency.getVersion() );
-
-                    Artifact artifact = artifactFactory.createDependencyArtifact( dependency.getGroupId(), dependency
-                        .getArtifactId(), versionRange, "pom", null, "provided", null, false );
+                    Artifact artifact = artifactFactory.createProjectArtifact( dependency.getGroupId(), dependency
+                        .getArtifactId(), dependency.getVersion() );
 
                     MavenProject dependencyProject = mavenProjectBuilder.buildFromRepository( artifact,
                         getRemoteArtifactRepositories(), getLocalRepository() );
@@ -107,18 +112,65 @@ public class EclipseDependenciesMojo extends EclipseMojo
         return false;
     }
 
-    protected void clearDependencyCache()
+    public void writeConfiguration( IdeDependency[] deps )
+        throws MojoExecutionException
     {
         try
         {
-            // Attempt to bypass normal private field protection
-            Field f = AbstractIdeSupportMojo.class.getDeclaredField( "ideDeps" );
+            EclipseWriterConfig config = createEclipseWriterConfig( new IdeDependency[0] );
 
-            f.setAccessible( true );
-            f.set( this, null );
+            config.setEclipseProjectName( getEclipseProjectName( executedProject, true ) );
+            config.getEclipseProjectDirectory().mkdirs();
+
+            new EclipseClasspathWriter().init( getLog(), config ).write();
+            new EclipseProjectWriter().init( getLog(), config ).write();
         }
         catch( Exception e )
         {
+            getLog().error( e );
+
+            throw new MojoExecutionException( "ERROR creating Eclipse files", e );
+        }
+
+        if( downloadSources )
+        {
+            try
+            {
+                Artifact artifact = artifactFactory.createArtifactWithClassifier( executedProject.getGroupId(),
+                    executedProject.getArtifactId(), executedProject.getVersion(), "java-source", "sources" );
+
+                artifactResolver.resolve( artifact, remoteArtifactRepositories, localRepository );
+
+                attachSource( artifact.getFile().getPath() );
+            }
+            catch( Exception e )
+            {
+                // ignore missing sources
+            }
+        }
+    }
+
+    protected void attachSource( String sourcePath )
+    {
+        try
+        {
+            File classPathFile = new File( executedProject.getBasedir(), ".classpath" );
+            Xpp3Dom classPathXML = Xpp3DomBuilder.build( new FileReader( classPathFile ) );
+
+            Xpp3Dom classPathEntry = new Xpp3Dom( "classpathentry" );
+            classPathEntry.setAttribute( "exported", "true" );
+            classPathEntry.setAttribute( "kind", "lib" );
+            classPathEntry.setAttribute( "path", "." );
+            classPathEntry.setAttribute( "sourcepath", sourcePath );
+            classPathXML.addChild( classPathEntry );
+
+            FileWriter writer = new FileWriter( classPathFile );
+            Xpp3DomWriter.write( new PrettyPrintXMLWriter( writer ), classPathXML );
+            IOUtil.close( writer );
+        }
+        catch( Exception e )
+        {
+            // nice to have source, but ignore errors if we can't
         }
     }
 }
