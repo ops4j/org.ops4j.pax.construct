@@ -83,7 +83,7 @@ public final class OSGiBundleArchetypeMojo extends AbstractChildArchetypeMojo
     {
         setField( "archetypeArtifactId", "maven-archetype-osgi-bundle" );
 
-        setField( "groupId", project.getGroupId() + "." + project.getArtifactId() + ".bundles" );
+        setField( "groupId", getCompoundName( project.getGroupId(), project.getArtifactId() ) );
         setField( "artifactId", bundleName );
         setField( "version", version );
 

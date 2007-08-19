@@ -45,7 +45,7 @@
             <instructions>
               <Bundle-Version>${project.version}</Bundle-Version>
 #end
-#set( $symbolicName = '$(replace;${bundle.package}_${project.artifactId};-;_)' )
+#set( $symbolicName = '$(replace;${project.artifactId};-;_)' )
               <Bundle-SymbolicName>${symbolicName}</Bundle-SymbolicName>
 #literal()
               <!--

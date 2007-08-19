@@ -11,8 +11,8 @@
   <artifactId>${artifactId}</artifactId>
   <version>${version}</version>
 
+  <name>${artifactId} [${package}]</name>
 #literal()
-  <name>${project.artifactId} [${bundle.package}]</name>
 
   <packaging>bundle</packaging>
 

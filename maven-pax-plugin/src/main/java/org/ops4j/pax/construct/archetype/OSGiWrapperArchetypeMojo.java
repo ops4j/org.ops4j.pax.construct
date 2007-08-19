@@ -78,7 +78,7 @@ public final class OSGiWrapperArchetypeMojo extends AbstractChildArchetypeMojo
         setField( "archetypeArtifactId", "maven-archetype-osgi-wrapper" );
         final String compoundName = getCompoundName( groupId, artifactId );
 
-        setField( "groupId", project.getGroupId() + "." + project.getArtifactId() + ".bundles" );
+        setField( "groupId", getCompoundName( project.getGroupId(), project.getArtifactId() ) );
         setField( "artifactId", compoundName );
         setField( "version", version );
 

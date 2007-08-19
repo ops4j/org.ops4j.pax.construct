@@ -24,7 +24,7 @@
   <artifactId>${artifactId}</artifactId>
   <version>${dollar}{jar.version}</version>
 
-  <name>${dollar}{project.artifactId} (wrapped)</name>
+  <name>${artifactId} [osgi]</name>
 
   <packaging>bundle</packaging>
 

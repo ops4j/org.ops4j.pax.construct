@@ -61,7 +61,6 @@ public class EclipseDependenciesMojo extends EclipseMojo
     {
         if( null != thisProject )
         {
-            setEclipseProjectDir( null );
             return super.setup();
         }
 
@@ -90,7 +89,8 @@ public class EclipseDependenciesMojo extends EclipseMojo
                     MavenProject dependencyProject = mavenProjectBuilder.buildFromRepository( pomArtifact,
                         remoteArtifactRepositories, localRepository );
 
-                    File localDir = new File( thisProject.getBasedir(), "target/" + groupId + "/" + artifactId );
+                    File projectDir = new File( thisProject.getBasedir(), "target/" + groupId );
+                    File localDir = new File( projectDir, artifactId );
                     localDir.mkdirs();
 
                     File pomFile = new File( localDir, "pom.xml" );
@@ -101,6 +101,7 @@ public class EclipseDependenciesMojo extends EclipseMojo
                     writer.close();
 
                     setBuildOutputDirectory( new File( localDir, ".ignore" ) );
+                    setEclipseProjectDir( projectDir );
 
                     setProject( dependencyProject );
                     setExecutedProject( dependencyProject );
