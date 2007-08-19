@@ -65,6 +65,11 @@ public final class ProvisionMojo extends AbstractMojo
     private boolean deploy;
 
     /**
+     * @parameter expression="${excludeTransitive}" default-value="false"
+     */
+    private boolean excludeTransitive;
+
+    /**
      * @parameter expression="${deploy.poms}"
      */
     private String additionalPoms;
@@ -196,10 +201,15 @@ public final class ProvisionMojo extends AbstractMojo
         {
             Set artifacts = deployableProject.createArtifacts( factory, null, null );
 
-            ArtifactResolutionResult result = artifactResolver.resolveTransitively( artifacts, keyArtifact,
-                remoteArtifactRepositories, localRepository, artifactMetadataSource );
+            if( !excludeTransitive )
+            {
+                ArtifactResolutionResult result = artifactResolver.resolveTransitively( artifacts, keyArtifact,
+                    remoteArtifactRepositories, localRepository, artifactMetadataSource );
 
-            for( Iterator i = result.getArtifacts().iterator(); i.hasNext(); )
+                artifacts = result.getArtifacts();
+            }
+
+            for( Iterator i = artifacts.iterator(); i.hasNext(); )
             {
                 Artifact artifact = (Artifact) i.next();
                 if( "provided".equals( artifact.getScope() ) && !artifact.isOptional() )

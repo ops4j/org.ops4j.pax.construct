@@ -54,6 +54,11 @@ public class EclipseDependenciesMojo extends EclipseMojo
      */
     protected MavenProjectBuilder mavenProjectBuilder;
 
+    /**
+     * @parameter expression="${excludeTransitive}" default-value="false"
+     */
+    private boolean excludeTransitive;
+
     private MavenProject thisProject;
 
     public boolean setup()
@@ -72,10 +77,22 @@ public class EclipseDependenciesMojo extends EclipseMojo
         {
             Set artifacts = thisProject.createArtifacts( artifactFactory, null, null );
 
-            ArtifactResolutionResult result = artifactResolver.resolveTransitively( artifacts, thisProject
-                .getArtifact(), remoteArtifactRepositories, localRepository, artifactMetadataSource );
+            if( excludeTransitive )
+            {
+                for( Iterator i = artifacts.iterator(); i.hasNext(); )
+                {
+                    artifactResolver.resolve( (Artifact) i.next(), remoteArtifactRepositories, localRepository );
+                }
+            }
+            else
+            {
+                ArtifactResolutionResult result = artifactResolver.resolveTransitively( artifacts, thisProject
+                    .getArtifact(), remoteArtifactRepositories, localRepository, artifactMetadataSource );
 
-            for( Iterator i = result.getArtifacts().iterator(); i.hasNext(); )
+                artifacts = result.getArtifacts();
+            }
+
+            for( Iterator i = artifacts.iterator(); i.hasNext(); )
             {
                 Artifact artifact = (Artifact) i.next();
                 if( !artifact.isOptional() && "provided".equals( artifact.getScope() ) )
