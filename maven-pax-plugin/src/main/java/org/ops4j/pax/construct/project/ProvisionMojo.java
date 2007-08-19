@@ -17,10 +17,8 @@ package org.ops4j.pax.construct.project;
  */
 
 import java.io.File;
-import java.io.FileReader;
 import java.io.FileWriter;
 import java.util.ArrayList;
-import java.util.Comparator;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Properties;
@@ -30,13 +28,17 @@ import java.util.TreeSet;
 import org.apache.maven.artifact.Artifact;
 import org.apache.maven.artifact.factory.ArtifactFactory;
 import org.apache.maven.artifact.installer.ArtifactInstaller;
+import org.apache.maven.artifact.metadata.ArtifactMetadataSource;
 import org.apache.maven.artifact.repository.ArtifactRepository;
+import org.apache.maven.artifact.resolver.ArtifactCollector;
+import org.apache.maven.artifact.resolver.ArtifactResolutionResult;
+import org.apache.maven.artifact.resolver.ArtifactResolver;
 import org.apache.maven.model.Dependency;
 import org.apache.maven.model.Model;
-import org.apache.maven.model.io.xpp3.MavenXpp3Reader;
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.project.MavenProject;
+import org.apache.maven.project.MavenProjectBuilder;
 
 /**
  * Create configuration pom file for provisioning via Pax-Runner
@@ -100,41 +102,38 @@ public final class ProvisionMojo extends AbstractMojo
      */
     private ArtifactInstaller installer;
 
+    /**
+     * @component role="org.apache.maven.artifact.resolver.ArtifactResolver"
+     * @required
+     * @readonly
+     */
+    protected ArtifactResolver artifactResolver;
+
+    /**
+     * @component role="org.apache.maven.artifact.resolver.ArtifactCollector"
+     * @required
+     * @readonly
+     */
+    protected ArtifactCollector artifactCollector;
+
+    /**
+     * @component role="org.apache.maven.artifact.metadata.ArtifactMetadataSource" hint="maven"
+     * @required
+     * @readonly
+     */
+    protected ArtifactMetadataSource artifactMetadataSource;
+
+    /**
+     * @component role="org.apache.maven.project.MavenProjectBuilder"
+     * @required
+     * @readonly
+     */
+    protected MavenProjectBuilder mavenProjectBuilder;
+
     private static MavenProject m_runnerPom;
     private static Properties m_properties;
-    private static Set m_dependencies;
+    private static Set m_bundleArtifacts;
     private static int m_projectCount;
-
-    // Ensure unique set of deployable dependencies
-    private static class DependencyComparator
-        implements Comparator
-    {
-        public int compare( Object lhs, Object rhs )
-        {
-            if( !(lhs instanceof Dependency) )
-            {
-                return -1;
-            }
-            if( !(rhs instanceof Dependency) )
-            {
-                return 1;
-            }
-
-            Dependency lhsDep = (Dependency) lhs;
-            Dependency rhsDep = (Dependency) rhs;
-
-            int result = lhsDep.getGroupId().compareTo( rhsDep.getGroupId() );
-            if( 0 == result )
-            {
-                result = lhsDep.getArtifactId().compareTo( rhsDep.getArtifactId() );
-                if( 0 == result )
-                {
-                    result = lhsDep.getVersion().compareTo( rhsDep.getVersion() );
-                }
-            }
-            return result;
-        }
-    }
 
     public void execute()
         throws MojoExecutionException
@@ -143,20 +142,16 @@ public final class ProvisionMojo extends AbstractMojo
         {
             m_runnerPom = new MavenProject( new Model() );
             m_properties = new Properties();
-            m_dependencies = new TreeSet( new DependencyComparator() );
+            m_bundleArtifacts = new TreeSet();
             m_projectCount = 0;
         }
 
-        if( project.hasParent() )
-        {
-            addBundleDependency();
-        }
-        else
+        if( !project.hasParent() )
         {
             initializeRunnerPom();
         }
 
-        addDeployableDependencies( project.getModel() );
+        addBundleDependencies( project );
 
         if( ++m_projectCount == reactorProjects.size() )
         {
@@ -177,8 +172,7 @@ public final class ProvisionMojo extends AbstractMojo
 
         m_properties.putAll( project.getProperties() );
 
-        String targetPath = project.getFile().getParent() + File.separator + "target";
-        String runnerPath = targetPath + File.separator + "runner" + File.separator + "pom.xml";
+        String runnerPath = project.getFile().getParent() + "/target/runner/pom.xml";
 
         File runnerPomFile = new File( runnerPath );
         runnerPomFile.getParentFile().mkdirs();
@@ -190,36 +184,38 @@ public final class ProvisionMojo extends AbstractMojo
         }
     }
 
-    private void addBundleDependency()
+    private void addBundleDependencies( MavenProject deployableProject )
     {
-        if( "bundle".equals( project.getPackaging() ) )
+        Artifact keyArtifact = deployableProject.getArtifact();
+        if( deployableProject.getPackaging().indexOf( "bundle" ) >= 0 )
         {
-            Dependency dependency = new Dependency();
-            dependency.setGroupId( project.getGroupId() );
-            dependency.setArtifactId( project.getArtifactId() );
-            dependency.setVersion( project.getVersion() );
-            m_dependencies.add( dependency );
+            m_bundleArtifacts.add( keyArtifact );
         }
-    }
 
-    private void addDeployableDependencies( Model model )
-    {
-        for( Iterator i = model.getDependencies().iterator(); i.hasNext(); )
+        try
         {
-            Dependency dep = (Dependency) i.next();
-            // assume *non-optional* provided dependencies should be deployed
-            if( false == dep.isOptional() && "provided".equals( dep.getScope() ) )
+            Set artifacts = deployableProject.createArtifacts( factory, null, null );
+
+            ArtifactResolutionResult result = artifactResolver.resolveTransitively( artifacts, keyArtifact,
+                remoteArtifactRepositories, localRepository, artifactMetadataSource );
+
+            for( Iterator i = result.getArtifacts().iterator(); i.hasNext(); )
             {
-                dep.setScope( null );
-                m_dependencies.add( dep );
+                Artifact artifact = (Artifact) i.next();
+                if( "provided".equals( artifact.getScope() ) && !artifact.isOptional() )
+                {
+                    m_bundleArtifacts.add( artifact );
+                }
             }
+        }
+        catch( Exception e )
+        {
+            getLog().error( e );
         }
     }
 
     private void addAdditionalPoms()
     {
-        MavenXpp3Reader modelReader = new MavenXpp3Reader();
-
         String[] pomPaths = additionalPoms.split( "," );
         for( int i = 0; i < pomPaths.length; i++ )
         {
@@ -228,13 +224,11 @@ public final class ProvisionMojo extends AbstractMojo
             {
                 try
                 {
-                    Model model = modelReader.read( new FileReader( pomFile ) );
-                    m_properties.putAll( model.getProperties() );
-                    addDeployableDependencies( model );
+                    addBundleDependencies( mavenProjectBuilder.build( pomFile, localRepository, null ) );
                 }
                 catch( Exception e )
                 {
-                    // ignore and continue...
+                    getLog().error( e );
                 }
             }
         }
@@ -247,28 +241,41 @@ public final class ProvisionMojo extends AbstractMojo
         {
             File pomFile = m_runnerPom.getFile();
 
-            if( m_dependencies.size() == 0 )
+            if( m_bundleArtifacts.size() == 0 )
             {
                 getLog().info( "~~~~~~~~~~~~~~~~~~~" );
                 getLog().info( " No bundles found! " );
                 getLog().info( "~~~~~~~~~~~~~~~~~~~" );
             }
 
+            List dependencies = new ArrayList();
+            for( Iterator i = m_bundleArtifacts.iterator(); i.hasNext(); )
+            {
+                Artifact artifact = (Artifact) i.next();
+
+                Dependency dep = new Dependency();
+                dep.setGroupId( artifact.getGroupId() );
+                dep.setArtifactId( artifact.getArtifactId() );
+                dep.setVersion( artifact.getSelectedVersion().toString() );
+
+                dependencies.add( dep );
+            }
+
             m_runnerPom.getModel().setProperties( m_properties );
-            m_runnerPom.setDependencies( new ArrayList( m_dependencies ) );
+            m_runnerPom.setDependencies( new ArrayList( dependencies ) );
             m_runnerPom.writeModel( new FileWriter( pomFile ) );
 
-            Artifact artifact = factory.createProjectArtifact( m_runnerPom.getGroupId(), m_runnerPom.getArtifactId(),
-                m_runnerPom.getVersion() );
+            String groupId = m_runnerPom.getGroupId();
+            String artifactId = m_runnerPom.getArtifactId();
+            String version = m_runnerPom.getVersion();
 
+            Artifact artifact = factory.createProjectArtifact( groupId, artifactId, version );
             installer.install( pomFile, artifact, localRepository );
 
             if( deploy )
             {
-                String workDir = pomFile.getParent() + File.separator + "work";
-
-                File cachedPomFile = new File( workDir + File.separator + "lib" + File.separator
-                    + m_runnerPom.getArtifactId() + "_" + m_runnerPom.getVersion() + ".pom" );
+                String workDir = pomFile.getParent() + "/work";
+                File cachedPomFile = new File( workDir + "/lib/" + artifactId + "_" + version + ".pom" );
 
                 // Force reload of pom
                 cachedPomFile.delete();

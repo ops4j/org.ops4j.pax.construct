@@ -147,7 +147,7 @@ public class EclipseMojo extends EclipsePlugin
     protected List resolvedDependencies;
 
     protected void patchPlugin()
-    {        
+    {
         // components need upwards injection...
         super.artifactFactory = artifactFactory;
         super.artifactResolver = artifactResolver;
@@ -278,7 +278,7 @@ public class EclipseMojo extends EclipsePlugin
         }
         catch( Exception e )
         {
-            throw new MojoExecutionException( "ERROR unpacking bundle", e );
+            getLog().error( "problem unpacking bundle", e );
         }
     }
 

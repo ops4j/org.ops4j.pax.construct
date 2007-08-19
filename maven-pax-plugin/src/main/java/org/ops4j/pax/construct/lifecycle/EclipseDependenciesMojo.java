@@ -23,9 +23,10 @@ import java.io.Writer;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Set;
 
 import org.apache.maven.artifact.Artifact;
-import org.apache.maven.model.Dependency;
+import org.apache.maven.artifact.resolver.ArtifactResolutionResult;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.eclipse.writers.EclipseClasspathWriter;
 import org.apache.maven.plugin.eclipse.writers.EclipseProjectWriter;
@@ -70,14 +71,19 @@ public class EclipseDependenciesMojo extends EclipseMojo
 
         try
         {
-            for( Iterator i = thisProject.getDependencies().iterator(); i.hasNext(); )
+            Set artifacts = thisProject.createArtifacts( artifactFactory, null, null );
+
+            ArtifactResolutionResult result = artifactResolver.resolveTransitively( artifacts, thisProject
+                .getArtifact(), remoteArtifactRepositories, localRepository, artifactMetadataSource );
+
+            for( Iterator i = result.getArtifacts().iterator(); i.hasNext(); )
             {
-                Dependency dependency = (Dependency) i.next();
-                if( !dependency.isOptional() && "provided".equals( dependency.getScope() ) )
+                Artifact artifact = (Artifact) i.next();
+                if( !artifact.isOptional() && "provided".equals( artifact.getScope() ) )
                 {
-                    String groupId = dependency.getGroupId();
-                    String artifactId = dependency.getArtifactId();
-                    String version = dependency.getVersion();
+                    String groupId = artifact.getGroupId();
+                    String artifactId = artifact.getArtifactId();
+                    String version = artifact.getVersion();
 
                     Artifact pomArtifact = artifactFactory.createProjectArtifact( groupId, artifactId, version );
 
@@ -101,9 +107,7 @@ public class EclipseDependenciesMojo extends EclipseMojo
                     executedProject = dependencyProject;
                     project = dependencyProject;
 
-                    Artifact bundleArtifact = dependencyProject.getArtifact();
-                    artifactResolver.resolve( bundleArtifact, remoteArtifactRepositories, localRepository );
-                    unpackBundle( bundleArtifact.getFile(), "." );
+                    unpackBundle( artifact.getFile(), "." );
 
                     super.execute();
                 }
