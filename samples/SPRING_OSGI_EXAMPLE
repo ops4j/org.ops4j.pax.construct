@@ -1,0 +1,16 @@
+
+pax-create-project -g examples -a spring-osgi-example
+
+cd spring-osgi-example
+
+pax-add-repository -i spring-osgi -u http://static.springframework.org/maven2-snapshots
+
+pax-wrap-jar -g aopalliance -a aopalliance -v 1.0
+
+pax-import-bundle -g org.ops4j.pax.logging -a api -v 0.9.4
+pax-import-bundle -g org.ops4j.pax.logging -a jcl -v 0.9.4
+
+pax-import-bundle -g org.springframework.osgi -a spring-osgi-extender -v 1.0-m3-SNAPSHOT
+
+mvn clean install pax:provision
+
