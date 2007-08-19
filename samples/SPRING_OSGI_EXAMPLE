@@ -5,6 +5,8 @@ cd spring-osgi-example
 
 pax-add-repository -i spring-osgi -u http://static.springframework.org/maven2-snapshots
 
+pax-wrap-jar -g backport-util-concurrent -a backport-util-concurrent -v 3.0 -- -DoptionalImports=sun.misc
+pax-wrap-jar -g commons-collections -a commons-collections -v 3.2
 pax-wrap-jar -g aopalliance -a aopalliance -v 1.0
 
 pax-import-bundle -g org.ops4j.pax.logging -a api -v 0.9.4
