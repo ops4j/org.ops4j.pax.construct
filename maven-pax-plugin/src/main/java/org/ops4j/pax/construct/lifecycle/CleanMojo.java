@@ -40,7 +40,7 @@ public final class CleanMojo extends AbstractMojo
     private File basedir;
 
     /**
-     * @parameter expression="${debug}" default-value="false"
+     * @parameter expression="${debug}"
      */
     private boolean debug;
 

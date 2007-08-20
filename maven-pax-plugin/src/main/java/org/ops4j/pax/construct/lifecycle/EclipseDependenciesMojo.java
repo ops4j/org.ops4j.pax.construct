@@ -55,7 +55,7 @@ public class EclipseDependenciesMojo extends EclipseMojo
     protected MavenProjectBuilder mavenProjectBuilder;
 
     /**
-     * @parameter expression="${excludeTransitive}" default-value="false"
+     * @parameter expression="${excludeTransitive}"
      */
     private boolean excludeTransitive;
 
@@ -106,7 +106,7 @@ public class EclipseDependenciesMojo extends EclipseMojo
                         // use symbolic version if available (ie. 1.0.0-SNAPSHOT)
                         version = artifact.getSelectedVersion().toString();
                     }
-                    catch (Exception e)
+                    catch( Exception e )
                     {
                         version = artifact.getVersion();
                     }

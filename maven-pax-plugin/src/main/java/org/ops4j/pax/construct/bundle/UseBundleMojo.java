@@ -54,7 +54,7 @@ public final class UseBundleMojo extends AbstractMojo
     /**
      * Should we attempt to overwrite entries?
      * 
-     * @parameter expression="${overwrite}" default-value="false"
+     * @parameter expression="${overwrite}"
      */
     private boolean overwrite;
 

@@ -65,14 +65,14 @@ public final class ImportBundleMojo extends AbstractMojo
     /**
      * Should the imported bundle be deployed?
      * 
-     * @parameter expression="${deployable}" default-value="true"
+     * @parameter expression="${deploy}" default-value="true"
      */
-    private boolean deployable;
+    private boolean deploy;
 
     /**
      * Should we attempt to overwrite entries?
      * 
-     * @parameter expression="${overwrite}" default-value="false"
+     * @parameter expression="${overwrite}"
      */
     private boolean overwrite;
 
@@ -134,7 +134,7 @@ public final class ImportBundleMojo extends AbstractMojo
         dependency.setVersion( version );
         dependency.setScope( "provided" );
 
-        if( deployable )
+        if( deploy )
         {
             // non-optional, must be deployed
             dependency.setOptional( false );

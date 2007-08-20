@@ -33,7 +33,7 @@ public abstract class AbstractChildArchetypeMojo extends AbstractArchetypeMojo
     /**
      * Should we attempt to overwrite entries?
      * 
-     * @parameter expression="${overwrite}" default-value="false"
+     * @parameter expression="${overwrite}"
      */
     protected boolean overwrite;
 

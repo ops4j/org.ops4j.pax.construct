@@ -58,7 +58,7 @@ public abstract class AbstractArchetypeMojo extends MavenArchetypeMojo
     /**
      * @component role="org.apache.maven.artifact.repository.layout.ArtifactRepositoryLayout" roleHint="default"
      */
-    protected ArtifactRepositoryLayout defaultArtifactRepositoryLayout;
+    protected ArtifactRepositoryLayout artifactRepositoryLayout;
 
     /**
      * @parameter expression="${localRepository}"
@@ -70,7 +70,7 @@ public abstract class AbstractArchetypeMojo extends MavenArchetypeMojo
      * @parameter expression="${project.remoteArtifactRepositories}"
      * @required
      */
-    protected List pomRemoteRepositories;
+    protected List remoteArtifactRepositories;
 
     /**
      * @parameter expression="${remoteRepositories}" default-value="http://repository.ops4j.org/maven2"
@@ -176,11 +176,11 @@ public abstract class AbstractArchetypeMojo extends MavenArchetypeMojo
     {
         setField( "archetype", archetype );
         setField( "artifactRepositoryFactory", artifactRepositoryFactory );
-        setField( "defaultArtifactRepositoryLayout", defaultArtifactRepositoryLayout );
+        setField( "defaultArtifactRepositoryLayout", artifactRepositoryLayout );
         setField( "localRepository", localRepository );
         setField( "archetypeGroupId", archetypeGroupId );
         setField( "archetypeVersion", archetypeVersion );
-        setField( "pomRemoteRepositories", pomRemoteRepositories );
+        setField( "pomRemoteRepositories", remoteArtifactRepositories );
         setField( "remoteRepositories", remoteRepositories );
         setField( "project", project );
 

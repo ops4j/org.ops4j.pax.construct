@@ -71,21 +71,21 @@ public final class EmbedJarMojo extends AbstractMojo
     /**
      * Should the jar be unpacked inside the bundle?
      * 
-     * @parameter expression="${unpack}" default-value="false"
+     * @parameter expression="${unpack}"
      */
     private boolean unpack;
 
     /**
      * Should the contents be automatically exported?
      * 
-     * @parameter expression="${exportcontents}" default-value="false"
+     * @parameter expression="${exportContents}"
      */
-    private boolean exportcontents;
+    private String exportContents;
 
     /**
      * Should we attempt to overwrite entries?
      * 
-     * @parameter expression="${overwrite}" default-value="false"
+     * @parameter expression="${overwrite}"
      */
     private boolean overwrite;
 
@@ -114,7 +114,7 @@ public final class EmbedJarMojo extends AbstractMojo
         PomUtils.addDependency( projectElem, dependency, overwrite );
         PomUtils.writePom( project.getFile(), pom );
 
-        if( unpack || exportcontents )
+        if( unpack || exportContents != null )
         {
             File bndConfig = new File( project.getBasedir(), "src/main/resources/META-INF/details.bnd" );
 
@@ -149,9 +149,9 @@ public final class EmbedJarMojo extends AbstractMojo
                 }
             }
 
-            if( exportcontents )
+            if( exportContents != null )
             {
-                properties.setProperty( "-exportcontents", "" );
+                properties.setProperty( "-exportcontents", exportContents );
                 propertiesChanged = true;
             }
 

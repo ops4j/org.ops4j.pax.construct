@@ -130,7 +130,7 @@ public class OldEclipseMojo extends EclipsePlugin
     protected File buildOutputDirectory;
 
     /**
-     * @parameter expression="${downloadSources}" default-value="false"
+     * @parameter expression="${downloadSources}"
      */
     protected boolean downloadSources;
 

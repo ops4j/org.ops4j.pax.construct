@@ -65,7 +65,7 @@ public final class ProvisionMojo extends AbstractMojo
     private boolean deploy;
 
     /**
-     * @parameter expression="${excludeTransitive}" default-value="false"
+     * @parameter expression="${excludeTransitive}"
      */
     private boolean excludeTransitive;
 
@@ -272,7 +272,7 @@ public final class ProvisionMojo extends AbstractMojo
                     // use symbolic version if available (ie. 1.0.0-SNAPSHOT)
                     dep.setVersion( artifact.getSelectedVersion().toString() );
                 }
-                catch (Exception e)
+                catch( Exception e )
                 {
                     dep.setVersion( artifact.getVersion() );
                 }

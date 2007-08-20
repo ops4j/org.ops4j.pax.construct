@@ -16,12 +16,7 @@ package org.ops4j.pax.construct.archetype;
  * limitations under the License.
  */
 
-import java.io.File;
-import java.io.FileWriter;
-import java.io.IOException;
-
 import org.apache.maven.plugin.MojoExecutionException;
-import org.codehaus.plexus.util.IOUtil;
 
 /**
  * Wrap a third-party jar as a bundle and add it to an existing OSGi project.
@@ -54,11 +49,6 @@ public final class OSGiWrapperArchetypeMojo extends AbstractChildArchetypeMojo
      */
     private String version;
 
-    /**
-     * @parameter expression="${optionalImports}" default-value=""
-     */
-    private String optionalImports;
-
     protected boolean checkEnvironment()
         throws MojoExecutionException
     {
@@ -85,43 +75,5 @@ public final class OSGiWrapperArchetypeMojo extends AbstractChildArchetypeMojo
         setField( "packageName", getGroupMarker( groupId, artifactId ) );
 
         setChildProjectName( compoundName );
-    }
-
-    protected void postProcess()
-        throws MojoExecutionException
-    {
-        FileWriter out = null;
-
-        try
-        {
-            if( optionalImports != null && optionalImports.length() > 0 )
-            {
-                File bndFile = new File( childPomFile.getParentFile(), "/src/main/resources/META-INF/details.bnd" );
-
-                bndFile.getParentFile().mkdirs();
-                out = new FileWriter( bndFile, true );
-
-                String[] importClauses = optionalImports.split( "," );
-
-                out.write( "Import-Package:" );
-                for( int i = 0; i < importClauses.length; i++ )
-                {
-                    if( i > 0 )
-                    {
-                        out.write( ',' );
-                    }
-                    out.write( importClauses[i] + ";resolution:=optional" );
-                }
-                out.write( System.getProperty( "line.separator" ) );
-            }
-        }
-        catch( IOException e )
-        {
-            throw new MojoExecutionException( "I/O error while patching files", e );
-        }
-        finally
-        {
-            IOUtil.close( out );
-        }
     }
 }
