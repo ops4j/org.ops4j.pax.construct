@@ -266,7 +266,16 @@ public final class ProvisionMojo extends AbstractMojo
                 Dependency dep = new Dependency();
                 dep.setGroupId( artifact.getGroupId() );
                 dep.setArtifactId( artifact.getArtifactId() );
-                dep.setVersion( artifact.getSelectedVersion().toString() );
+
+                try
+                {
+                    // use symbolic version if available (ie. 1.0.0-SNAPSHOT)
+                    dep.setVersion( artifact.getSelectedVersion().toString() );
+                }
+                catch (Exception e)
+                {
+                    dep.setVersion( artifact.getVersion() );
+                }
 
                 dependencies.add( dep );
             }

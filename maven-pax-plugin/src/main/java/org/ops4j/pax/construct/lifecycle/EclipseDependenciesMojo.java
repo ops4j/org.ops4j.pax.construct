@@ -99,7 +99,17 @@ public class EclipseDependenciesMojo extends EclipseMojo
                 {
                     String groupId = artifact.getGroupId();
                     String artifactId = artifact.getArtifactId();
-                    String version = artifact.getVersion();
+                    String version;
+
+                    try
+                    {
+                        // use symbolic version if available (ie. 1.0.0-SNAPSHOT)
+                        version = artifact.getSelectedVersion().toString();
+                    }
+                    catch (Exception e)
+                    {
+                        version = artifact.getVersion();
+                    }
 
                     Artifact pomArtifact = artifactFactory.createProjectArtifact( groupId, artifactId, version );
 
