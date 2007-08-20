@@ -16,10 +16,14 @@ package org.ops4j.pax.construct.util;
  * limitations under the License.
  */
 
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.io.Reader;
+import java.io.Writer;
 import java.util.List;
 
 import org.apache.maven.model.Dependency;
@@ -63,7 +67,7 @@ public class PomUtils
         try
         {
             XmlPullParser parser = XmlPullParserFactory.newInstance().newPullParser();
-            FileReader input = new FileReader( pomFile );
+            Reader input = new BufferedReader( new FileReader( pomFile ) );
 
             Document pom = new Document();
 
@@ -92,7 +96,7 @@ public class PomUtils
         try
         {
             XmlSerializer serial = XmlPullParserFactory.newInstance().newSerializer();
-            FileWriter output = new FileWriter( pomFile );
+            Writer output = new BufferedWriter( new FileWriter( pomFile ) );
 
             serial.setOutput( output );
             pom.write( serial );
@@ -522,11 +526,15 @@ public class PomUtils
         depElem.addChild( Element.TEXT, NL + WS + WS + WS );
         depElem.addChild( Element.ELEMENT, versionElem );
 
-        // add the scope
-        Element scopeElem = depElem.createElement( null, "scope" );
-        scopeElem.addChild( Element.TEXT, dependency.getScope() );
-        depElem.addChild( Element.TEXT, NL + WS + WS + WS );
-        depElem.addChild( Element.ELEMENT, scopeElem );
+        // add scope (ignore default/compile)
+        String scope = dependency.getScope();
+        if( scope != null && !"compile".equals( scope ) )
+        {
+            Element scopeElem = depElem.createElement( null, "scope" );
+            scopeElem.addChild( Element.TEXT, scope );
+            depElem.addChild( Element.TEXT, NL + WS + WS + WS );
+            depElem.addChild( Element.ELEMENT, scopeElem );
+        }
 
         // is it optional?
         if( dependency.isOptional() )
