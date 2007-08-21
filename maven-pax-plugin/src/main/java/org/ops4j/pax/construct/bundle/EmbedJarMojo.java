@@ -76,8 +76,6 @@ public final class EmbedJarMojo extends AbstractMojo
     private boolean unpack;
 
     /**
-     * Should the contents be automatically exported?
-     * 
      * @parameter expression="${exportContents}"
      */
     private String exportContents;
@@ -173,7 +171,6 @@ public final class EmbedJarMojo extends AbstractMojo
                     IOUtil.close( propertyStream );
                 }
             }
-
         }
     }
 }

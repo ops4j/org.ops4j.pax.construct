@@ -16,7 +16,15 @@ package org.ops4j.pax.construct.archetype;
  * limitations under the License.
  */
 
+import java.io.BufferedOutputStream;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.OutputStream;
+import java.util.Properties;
+
 import org.apache.maven.plugin.MojoExecutionException;
+import org.codehaus.plexus.util.IOUtil;
+import org.codehaus.plexus.util.PropertyUtils;
 
 /**
  * Wrap a third-party jar as a bundle and add it to an existing OSGi project.
@@ -49,6 +57,36 @@ public final class OSGiWrapperArchetypeMojo extends AbstractChildArchetypeMojo
      */
     private String version;
 
+    /**
+     * @parameter expression="${includeResource}"
+     */
+    private String includeResource;
+
+    /**
+     * @parameter expression="${importPackage}"
+     */
+    private String importPackage;
+
+    /**
+     * @parameter expression="${exportContents}"
+     */
+    private String exportContents;
+
+    /**
+     * @parameter expression="${requireBundle}"
+     */
+    private String requireBundle;
+
+    /**
+     * @parameter expression="${dynamicImportPackage}"
+     */
+    private String dynamicImportPackage;
+
+    /**
+     * @parameter expression="${excludeTransitive}"
+     */
+    private boolean excludeTransitive;
+
     protected boolean checkEnvironment()
         throws MojoExecutionException
     {
@@ -75,5 +113,59 @@ public final class OSGiWrapperArchetypeMojo extends AbstractChildArchetypeMojo
         setField( "packageName", getGroupMarker( groupId, artifactId ) );
 
         setChildProjectName( compoundName );
+    }
+
+    protected void postProcess()
+        throws MojoExecutionException
+    {
+        File bndConfig = new File( childPomFile.getParentFile(), "src/main/resources/META-INF/details.bnd" );
+
+        if( !bndConfig.exists() )
+        {
+            try
+            {
+                bndConfig.getParentFile().mkdirs();
+                bndConfig.createNewFile();
+            }
+            catch( Exception e )
+            {
+                throw new MojoExecutionException( "Unable to create BND tool config file", e );
+            }
+        }
+
+        Properties properties = PropertyUtils.loadProperties( bndConfig );
+
+        if( includeResource != null )
+            properties.setProperty( "Include-Resource", includeResource );
+
+        if( importPackage != null )
+            properties.setProperty( "Import-Package", importPackage );
+
+        if( exportContents != null )
+            properties.setProperty( "-exportcontents", exportContents );
+
+        if( requireBundle != null )
+            properties.setProperty( "Require-Bundle", requireBundle );
+
+        if( dynamicImportPackage != null )
+            properties.setProperty( "DynamicImport-Package", dynamicImportPackage );
+
+        properties.setProperty( "Embed-Transitive", "" + !excludeTransitive );
+
+        OutputStream propertyStream = null;
+
+        try
+        {
+            propertyStream = new BufferedOutputStream( new FileOutputStream( bndConfig ) );
+            properties.store( propertyStream, null );
+        }
+        catch( Exception e )
+        {
+            throw new MojoExecutionException( "Unable to save the new BND tool instructions", e );
+        }
+        finally
+        {
+            IOUtil.close( propertyStream );
+        }
     }
 }

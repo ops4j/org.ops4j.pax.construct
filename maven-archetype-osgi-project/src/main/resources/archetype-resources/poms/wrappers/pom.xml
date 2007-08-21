@@ -46,10 +46,10 @@
               <Bundle-SymbolicName>${symbolicName}</Bundle-SymbolicName>
 #literal()
               <!--
-                export contents of bundle: don't use Export-Package:* as this exports everything on the classpath
+                export contents of bundle: don't use Export-Package:* as this bundles everything on the classpath
               -->
-              <_exportcontents/>
               <Private-Package>!*</Private-Package>
+              <_exportcontents>*</_exportcontents>
               <!--
                 inline main artifact and embed all compile and runtime dependencies
               -->
