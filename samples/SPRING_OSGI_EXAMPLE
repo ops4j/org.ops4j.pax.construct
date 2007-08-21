@@ -12,5 +12,10 @@ pax-wrap-jar -g aopalliance -a aopalliance -v 1.0
 
 pax-import-bundle -g org.springframework.osgi -a spring-osgi-extender -v 1.0-m3-SNAPSHOT
 
+pax-wrap-jar -g junit -a junit -v 3.8.1
+
+pax-import-bundle -g org.springframework.osgi.samples -a weather-service -v 1.0-m3-SNAPSHOT
+pax-import-bundle -g org.springframework.osgi.samples -a weather-service-test -v 1.0-m3-SNAPSHOT
+
 mvn clean install pax:provision
 
