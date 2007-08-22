@@ -4,27 +4,39 @@
 
 #set( $dollar = '$' )
 #if( $package.startsWith("+") )
-  #set( $trim = $package.length() )
+  #set( $head = $package.length() )
 #else
-  #set( $trim = 0 )
-  #if( $package.startsWith("~") )
-    #set( $swap = $package )
-    #set( $package = $artifactId )
-    #set( $artifactId = $swap )
-  #end
+  #set( $head = 0 )
 #end
+#if( $package.startsWith("~") )
+  #set( $swap = $package )
+  #set( $package = $artifactId )
+  #set( $artifactId = $swap )
+#end
+#if( $version.startsWith("+") )
+  #set( $tail = $artifactId.length() - $version.length() )
+#else
+  #set( $tail = $artifactId.length() )
+#end
+#set( $symbolicName = $artifactId.substring(0,$tail) )
+#set( $wrappedGroupId = $package.substring(1) )
+#set( $wrappedArtifactId = $artifactId.substring($head,$tail) )
+#set( $wrappedVersion = $version.substring(1) )
   <properties>
-    <jar.groupId>$package.substring(1)</jar.groupId>
-    <jar.artifactId>$artifactId.substring($trim)</jar.artifactId>
-    <jar.version>${version}</jar.version>
+    <bundle.symbolicName>${symbolicName}</bundle.symbolicName>
+    <wrapped.groupId>${wrappedGroupId}</wrapped.groupId>
+    <wrapped.artifactId>${wrappedArtifactId}</wrapped.artifactId>
+    <wrapped.version>${wrappedVersion}</wrapped.version>
   </properties>
 
   <modelVersion>4.0.0</modelVersion>
   <groupId>${groupId}</groupId>
   <artifactId>${artifactId}</artifactId>
-  <version>${dollar}{jar.version}</version>
+#if( $tail == $artifactId.length() )
+  <version>${dollar}{wrapped.version}-001</version>
+#end
 
-  <name>${artifactId} [osgi]</name>
+  <name>${dollar}{bundle.symbolicName}-${dollar}{wrapped.version} [osgi]</name>
 
   <packaging>bundle</packaging>
 
@@ -43,9 +55,9 @@
 
   <dependencies>
     <dependency>
-      <groupId>${dollar}{jar.groupId}</groupId>
-      <artifactId>${dollar}{jar.artifactId}</artifactId>
-      <version>${dollar}{jar.version}</version>
+      <groupId>${dollar}{wrapped.groupId}</groupId>
+      <artifactId>${dollar}{wrapped.artifactId}</artifactId>
+      <version>${dollar}{wrapped.version}</version>
       <optional>true</optional>
     </dependency>
   </dependencies>

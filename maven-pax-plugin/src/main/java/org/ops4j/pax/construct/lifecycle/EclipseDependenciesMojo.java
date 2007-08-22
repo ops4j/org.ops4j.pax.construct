@@ -117,7 +117,7 @@ public class EclipseDependenciesMojo extends EclipseMojo
                         remoteArtifactRepositories, localRepository );
 
                     File projectDir = new File( thisProject.getBasedir(), "target/" + groupId );
-                    File localDir = new File( projectDir, artifactId );
+                    File localDir = new File( projectDir, artifactId + "/" + version );
                     localDir.mkdirs();
 
                     File pomFile = new File( localDir, "pom.xml" );
@@ -128,7 +128,7 @@ public class EclipseDependenciesMojo extends EclipseMojo
                     writer.close();
 
                     setBuildOutputDirectory( new File( localDir, ".ignore" ) );
-                    setEclipseProjectDir( projectDir );
+                    setEclipseProjectDir( localDir );
 
                     setProject( dependencyProject );
                     setExecutedProject( dependencyProject );

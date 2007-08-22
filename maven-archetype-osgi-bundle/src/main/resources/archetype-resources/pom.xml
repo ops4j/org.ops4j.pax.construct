@@ -3,16 +3,17 @@
   xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 
   <properties>
-    <bundle.package>${package}</bundle.package>
+    <bundle.symbolicName>${artifactId}</bundle.symbolicName>
+    <bundle.namespace>${package}</bundle.namespace>
   </properties>
 
   <modelVersion>4.0.0</modelVersion>
   <groupId>${groupId}</groupId>
   <artifactId>${artifactId}</artifactId>
   <version>${version}</version>
-
-  <name>${artifactId} [${package}]</name>
 #literal()
+
+  <name>${bundle.symbolicName} [${bundle.namespace}]</name>
 
   <packaging>bundle</packaging>
 

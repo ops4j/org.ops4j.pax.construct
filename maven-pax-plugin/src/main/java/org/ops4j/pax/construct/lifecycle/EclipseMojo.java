@@ -238,11 +238,15 @@ public class EclipseMojo extends EclipsePlugin
         String groupId = project.getGroupId();
         String artifactId = project.getArtifactId();
 
-        boolean isWrapper = (project.getProperties().getProperty( "jar.artifactId" ) != null);
+        String symbolicName = project.getProperties().getProperty( "bundle.symbolicName" );
 
         String projectName;
 
-        if( isWrapper || artifactId.startsWith( groupId + "." ) || artifactId.equals( groupId ) )
+        if( symbolicName != null )
+        {
+            projectName = symbolicName;
+        }
+        else if( artifactId.startsWith( groupId + "." ) || artifactId.equals( groupId ) )
         {
             projectName = artifactId;
         }

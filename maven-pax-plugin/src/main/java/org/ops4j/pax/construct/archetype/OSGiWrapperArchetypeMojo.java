@@ -87,6 +87,11 @@ public final class OSGiWrapperArchetypeMojo extends AbstractChildArchetypeMojo
      */
     private boolean excludeTransitive;
 
+    /**
+     * @parameter expression="${addVersion}"
+     */
+    private boolean addVersion;
+
     protected boolean checkEnvironment()
         throws MojoExecutionException
     {
@@ -104,15 +109,20 @@ public final class OSGiWrapperArchetypeMojo extends AbstractChildArchetypeMojo
         throws MojoExecutionException
     {
         setField( "archetypeArtifactId", "maven-archetype-osgi-wrapper" );
-        final String compoundName = getCompoundName( groupId, artifactId );
+        String compoundWrapperName = getCompoundName( groupId, artifactId );
+
+        if( addVersion )
+        {
+            compoundWrapperName += "-" + version;
+        }
 
         setField( "groupId", getCompoundName( project.getGroupId(), project.getArtifactId() ) );
-        setField( "artifactId", compoundName );
-        setField( "version", version );
+        setField( "artifactId", compoundWrapperName );
+        setField( "version", (addVersion ? '+' : ' ') + version );
 
         setField( "packageName", getGroupMarker( groupId, artifactId ) );
 
-        setChildProjectName( compoundName );
+        setChildProjectName( compoundWrapperName );
     }
 
     protected void postProcess()

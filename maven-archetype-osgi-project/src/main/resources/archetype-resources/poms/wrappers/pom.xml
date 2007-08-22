@@ -40,11 +40,8 @@
           <extensions>true</extensions>
           <configuration>
             <instructions>
-              <Bundle-Version>${project.version}</Bundle-Version>
-#end
-#set( $symbolicName = '$(replace;${project.artifactId};-;_)' )
-              <Bundle-SymbolicName>${symbolicName}</Bundle-SymbolicName>
-#literal()
+              <Bundle-SymbolicName>${bundle.symbolicName}</Bundle-SymbolicName>
+              <Bundle-Version>${wrapped.version}</Bundle-Version>
               <!--
                 export contents of bundle: don't use Export-Package:* as this bundles everything on the classpath
               -->
@@ -54,7 +51,7 @@
                 inline main artifact and embed all compile and runtime dependencies
               -->
               <Embed-Dependency>
-                ${jar.artifactId};groupId=${jar.groupId};inline=true,
+                ${wrapped.artifactId};groupId=${wrapped.groupId};inline=true,
                 *;scope=compile|runtime
               </Embed-Dependency>
               <Embed-StripVersion>true</Embed-StripVersion>

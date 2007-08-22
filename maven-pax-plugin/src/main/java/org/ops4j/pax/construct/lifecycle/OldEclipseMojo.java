@@ -150,7 +150,7 @@ public class OldEclipseMojo extends EclipsePlugin
         setWtpversion( "none" );
         setDownloadSources( downloadSources );
 
-        isWrappedJarFile = project.getProperties().containsKey( "jar.artifactId" );
+        isWrappedJarFile = project.getProperties().containsKey( "wrapped.artifactId" );
         isImportedBundle = project.getProperties().containsKey( "bundle.artifactId" );
 
         if( isImportedBundle )
