@@ -35,7 +35,7 @@
     <pluginManagement>
       <plugins>
         <plugin>
-          <groupId>org.ops4j.pax.maven</groupId>
+          <groupId>org.apache.felix</groupId>
           <artifactId>maven-bundle-plugin</artifactId>
           <extensions>true</extensions>
           <configuration>
