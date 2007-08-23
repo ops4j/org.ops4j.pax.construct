@@ -138,7 +138,6 @@ public class EclipseMojo extends EclipsePlugin
         String artifactId = project.getArtifactId();
 
         String symbolicName = project.getProperties().getProperty( "bundle.symbolicName" );
-
         String projectName;
 
         if( symbolicName != null )
@@ -160,12 +159,22 @@ public class EclipseMojo extends EclipsePlugin
 
         if( addVersion )
         {
-            return projectName + " [" + project.getVersion() + "]";
+            String wrappedVersion = project.getProperties().getProperty( "wrapped.version" );
+            String projectVersion;
+
+            if( wrappedVersion != null )
+            {
+                projectVersion = wrappedVersion;
+            }
+            else
+            {
+                projectVersion = project.getVersion();
+            }
+
+            return projectName + " [" + projectVersion + "]";
         }
-        else
-        {
-            return projectName;
-        }
+
+        return projectName;
     }
 
     protected void unpackBundle( File bundle, String to )
