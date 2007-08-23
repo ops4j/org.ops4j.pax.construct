@@ -31,11 +31,6 @@ import java.util.jar.Attributes;
 import java.util.jar.Manifest;
 import java.util.regex.Pattern;
 
-import org.apache.maven.artifact.factory.ArtifactFactory;
-import org.apache.maven.artifact.metadata.ArtifactMetadataSource;
-import org.apache.maven.artifact.repository.ArtifactRepository;
-import org.apache.maven.artifact.resolver.ArtifactCollector;
-import org.apache.maven.artifact.resolver.ArtifactResolver;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.eclipse.EclipsePlugin;
 import org.apache.maven.plugin.eclipse.writers.EclipseClasspathWriter;
@@ -61,38 +56,6 @@ import org.codehaus.plexus.util.xml.pull.XmlPullParserException;
  */
 public class EclipseMojo extends EclipsePlugin
 {
-    /*
-     * THE FOLLOWING MEMBERS ARE ONLY REQUIRED TO DUPLICATE THE MOJO INJECTION
-     */
-
-    /**
-     * @component role="org.apache.maven.artifact.factory.ArtifactFactory"
-     * @required
-     * @readonly
-     */
-    protected ArtifactFactory artifactFactory;
-
-    /**
-     * @component role="org.apache.maven.artifact.resolver.ArtifactResolver"
-     * @required
-     * @readonly
-     */
-    protected ArtifactResolver artifactResolver;
-
-    /**
-     * @component role="org.apache.maven.artifact.resolver.ArtifactCollector"
-     * @required
-     * @readonly
-     */
-    protected ArtifactCollector artifactCollector;
-
-    /**
-     * @component role="org.apache.maven.artifact.metadata.ArtifactMetadataSource" hint="maven"
-     * @required
-     * @readonly
-     */
-    protected ArtifactMetadataSource artifactMetadataSource;
-
     /**
      * @component role="org.codehaus.plexus.archiver.manager.ArchiverManager"
      * @required
@@ -100,78 +63,14 @@ public class EclipseMojo extends EclipsePlugin
      */
     protected ArchiverManager archiverManager;
 
-    /**
-     * @parameter expression="${project}"
-     * @required
-     * @readonly
-     */
-    protected MavenProject project;
-
-    /**
-     * @parameter expression="${project}"
-     * @readonly
-     */
-    protected MavenProject executedProject;
-
-    /**
-     * @parameter expression="${project.remoteArtifactRepositories}"
-     * @required
-     * @readonly
-     */
-    protected List remoteArtifactRepositories;
-
-    /**
-     * @parameter expression="${localRepository}"
-     * @required
-     * @readonly
-     */
-    protected ArtifactRepository localRepository;
-
-    /**
-     * @parameter expression="${reactorProjects}"
-     * @required
-     * @readonly
-     */
-    protected List reactorProjects;
-
-    /**
-     * @parameter expression="${downloadSources}"
-     */
-    protected boolean downloadSources;
-
-    /**
-     * @parameter expression="${downloadJavadocs}"
-     */
-    protected boolean downloadJavadocs;
-
-    protected List resolvedDependencies;
-
-    protected void patchPlugin()
-    {
-        // components need upwards injection...
-        super.artifactFactory = artifactFactory;
-        super.artifactResolver = artifactResolver;
-        super.artifactCollector = artifactCollector;
-        super.artifactMetadataSource = artifactMetadataSource;
-
-        // ...but params need downwards injection!
-        project = super.project;
-        executedProject = super.executedProject;
-        remoteArtifactRepositories = super.remoteArtifactRepositories;
-        localRepository = super.localRepository;
-        reactorProjects = super.reactorProjects;
-        downloadSources = super.downloadSources;
-        downloadJavadocs = super.downloadJavadocs;
-
-        // fix private params
-        setFlag( "pde", true );
-        setWtpversion( "none" );
-    }
+    private List resolvedDependencies;
 
     public boolean setup()
         throws MojoExecutionException
     {
-        patchPlugin();
+        // fix private params
+        setFlag( "pde", true );
+        setWtpversion( "none" );
 
         if( getBuildOutputDirectory() == null )
         {
@@ -295,12 +194,16 @@ public class EclipseMojo extends EclipsePlugin
         File baseDir = executedProject.getBasedir();
         File bundleDir = new File( baseDir, bundleLocation );
 
-        List metaFiles = FileUtils.getFiles( bundleDir, "META-INF/**,OSGI-INF/**", null, false );
-        for( Iterator i = metaFiles.iterator(); i.hasNext(); )
+        File metaInfDir = new File( bundleDir, "META-INF" );
+        if( metaInfDir.exists() )
         {
-            String metaEntry = ((File) i.next()).getPath();
-            File bundleMeta = new File( bundleDir, metaEntry );
-            FileUtils.rename( bundleMeta, new File( baseDir, metaEntry ) );
+            FileUtils.copyDirectoryStructure( metaInfDir, new File( baseDir, "META-INF" ) );
+        }
+
+        File osgiInfDir = new File( bundleDir, "OSGI-INF" );
+        if( osgiInfDir.exists() )
+        {
+            FileUtils.copyDirectoryStructure( osgiInfDir, new File( baseDir, "OSGI-INF" ) );
         }
 
         File manifestFile = new File( baseDir, "META-INF/MANIFEST.MF" );

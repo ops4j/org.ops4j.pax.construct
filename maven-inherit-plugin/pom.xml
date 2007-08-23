@@ -8,9 +8,9 @@
 
   <modelVersion>4.0.0</modelVersion>
   <groupId>org.ops4j.pax.construct.ng</groupId>
-  <artifactId>maven-pax-plugin</artifactId>
+  <artifactId>maven-inherit-plugin</artifactId>
 
-  <name>OPS4J - Pax Mojos: OSGi project helpers</name>
+  <name>OPS4J - Support plugin inheritance</name>
 
   <packaging>maven-plugin</packaging>
 
@@ -23,26 +23,14 @@
           <target>1.4</target>
         </configuration>
       </plugin>
-      <plugin>
-        <groupId>org.ops4j.pax.construct.ng</groupId>
-        <artifactId>maven-inherit-plugin</artifactId>
-        <executions>
-          <execution>
-            <goals>
-              <goal>inherit</goal>
-            </goals>
-          </execution>
-        </executions>
-      </plugin>
     </plugins>
   </build>
 
   <dependencies>
     <dependency>
-      <groupId>org.apache.maven.plugins</groupId>
-      <artifactId>maven-archetype-plugin</artifactId>
-      <type>maven-plugin</type>
-      <version>1.0-alpha-4</version>
+      <groupId>org.apache.maven</groupId>
+      <artifactId>maven-plugin-api</artifactId>
+      <version>2.0.6</version>
     </dependency>
     <dependency>
       <groupId>org.apache.maven.shared</groupId>
@@ -50,25 +38,9 @@
       <version>1.1</version>
     </dependency>
     <dependency>
-      <groupId>org.codehaus.plexus</groupId>
-      <artifactId>plexus-archiver</artifactId>
-      <version>1.0-alpha-7</version>
-    </dependency>
-    <dependency>
       <groupId>net.sf.kxml</groupId>
       <artifactId>kxml2</artifactId>
       <version>2.2.2</version>
-    </dependency>
-    <dependency>
-      <groupId>org.apache.maven.plugins</groupId>
-      <artifactId>maven-eclipse-plugin</artifactId>
-      <type>maven-plugin</type>
-      <version>2.4</version>
-    </dependency>
-    <dependency>
-      <groupId>org.ops4j.pax</groupId>
-      <artifactId>runner</artifactId>
-      <version>0.3.4</version>
     </dependency>
   </dependencies>
 

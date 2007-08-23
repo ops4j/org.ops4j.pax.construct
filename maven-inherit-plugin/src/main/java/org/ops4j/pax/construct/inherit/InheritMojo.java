@@ -1,4 +1,4 @@
-package org.ops4j.pax.construct.lifecycle;
+package org.ops4j.pax.construct.inherit;
 
 /*
  * Copyright 2007 Stuart McCulloch
@@ -17,32 +17,33 @@ package org.ops4j.pax.construct.lifecycle;
  */
 
 import java.io.File;
+import java.io.IOException;
 
 import org.apache.maven.plugin.AbstractMojo;
-import org.apache.maven.plugin.MojoExecutionException;
-import org.ops4j.pax.construct.util.CacheUtils;
+import org.codehaus.plexus.util.FileUtils;
 
 /**
- * Restore previous metadata in case compilation fails.
- * 
- * @goal restore-metadata
+ * @goal inherit
  * @phase generate-resources
  */
-public final class RestoreMetadataMojo extends AbstractMojo
+public class InheritMojo extends AbstractMojo
 {
     /**
-     * The directory containing generated files.
-     * 
      * @parameter expression="${project.basedir}"
      */
-    private File basedir;
+    protected File baseDir;
 
     public void execute()
-        throws MojoExecutionException
     {
-        // Restore generated files (previously removed during clean phase) before re-generation
-        CacheUtils.pullFile( this, "MANIFEST.MF", new File( basedir, "META-INF/MANIFEST.MF" ) );
-        CacheUtils.pullFile( this, ".project", new File( basedir, ".project" ) );
-        CacheUtils.pullFile( this, ".classpath", new File( basedir, ".classpath" ) );
+        File patchedPluginXml = new File(baseDir, "src/main/resources/META-INF/maven/plugin.xml");
+        File currentPluginXml = new File(baseDir, "target/classes/META-INF/maven/plugin.xml");
+        try
+        {
+            FileUtils.copyFile( patchedPluginXml, currentPluginXml );
+        }
+        catch( IOException e )
+        {
+            // ignore, this is only placeholder code until proper patching is in place
+        }
     }
 }

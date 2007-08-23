@@ -5,14 +5,18 @@ cd spring-osgi-example
 
 pax-add-repository -i spring-osgi -u http://static.springframework.org/maven2-snapshots
 
+PAX_CONSTRUCT_OPTIONS=-DtargetDirectory=wrappers
+export PAX_CONSTRUCT_OPTIONS
+
 pax-wrap-jar -g backport-util-concurrent -a backport-util-concurrent -v 3.0 -- "-DimportPackage=sun.misc;resolution:=optional,*"
 pax-wrap-jar -g commons-logging -a commons-logging -v 1.1 -- "-DimportPackage=org.apache.commons.*,*;resolution:=optional" -DexcludeTransitive
 pax-wrap-jar -g commons-collections -a commons-collections -v 3.2
 pax-wrap-jar -g aopalliance -a aopalliance -v 1.0
+pax-wrap-jar -g junit -a junit -v 3.8.1
+
+unset PAX_CONSTRUCT_OPTIONS
 
 pax-import-bundle -g org.springframework.osgi -a spring-osgi-extender -v 1.0-m3-SNAPSHOT
-
-pax-wrap-jar -g junit -a junit -v 3.8.1
 
 pax-import-bundle -g org.springframework.osgi.samples -a weather-service -v 1.0-m3-SNAPSHOT
 pax-import-bundle -g org.springframework.osgi.samples -a weather-service-test -v 1.0-m3-SNAPSHOT

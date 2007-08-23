@@ -50,6 +50,7 @@ limitations under the License.
     <module>maven-archetype-osgi-project</module>
     <module>maven-archetype-osgi-wrapper</module>
     <module>maven-archetype-osgi-bundle</module>
+    <module>maven-inherit-plugin</module>
     <module>maven-pax-plugin</module>
     <module>scripts</module>
   </modules>

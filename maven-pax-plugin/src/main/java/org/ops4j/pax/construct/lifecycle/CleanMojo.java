@@ -29,6 +29,7 @@ import org.ops4j.pax.construct.util.CacheUtils;
  * Clean up various generated files.
  * 
  * @goal clean
+ * @phase clean
  */
 public final class CleanMojo extends AbstractMojo
 {

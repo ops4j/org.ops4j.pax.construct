@@ -42,7 +42,7 @@ import org.xmlpull.v1.XmlSerializer;
 /**
  * Various utility methods for working with Maven poms.
  */
-public class PomUtils
+public final class PomUtils
 {
     /**
      * New line character.

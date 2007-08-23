@@ -1,0 +1,1140 @@
+<plugin>
+  <description>A series of tools to help piece together code, jars, and
+    bundles from different places into a single OSGi project
+    built and managed by Maven</description>
+  <groupId>org.ops4j.pax.construct.ng</groupId>
+  <artifactId>maven-pax-plugin</artifactId>
+  <version>0.2.0-SNAPSHOT</version>
+  <goalPrefix>pax</goalPrefix>
+  <isolatedRealm>false</isolatedRealm>
+  <inheritedByDefault>true</inheritedByDefault>
+  <mojos>
+    <mojo>
+      <goal>validate</goal>
+      <description>Validate everything is ok in the build setup.</description>
+      <requiresDirectInvocation>false</requiresDirectInvocation>
+      <requiresProject>true</requiresProject>
+      <requiresReports>false</requiresReports>
+      <aggregator>false</aggregator>
+      <requiresOnline>false</requiresOnline>
+      <inheritedByDefault>true</inheritedByDefault>
+      <implementation>org.ops4j.pax.construct.project.ValidateMojo</implementation>
+      <language>java</language>
+      <instantiationStrategy>per-lookup</instantiationStrategy>
+      <executionStrategy>once-per-session</executionStrategy>
+      <parameters/>
+    </mojo>
+    <mojo>
+      <goal>add-repository</goal>
+      <description>Adds a Maven repository to the current project.</description>
+      <requiresDirectInvocation>false</requiresDirectInvocation>
+      <requiresProject>true</requiresProject>
+      <requiresReports>false</requiresReports>
+      <aggregator>false</aggregator>
+      <requiresOnline>false</requiresOnline>
+      <inheritedByDefault>true</inheritedByDefault>
+      <implementation>org.ops4j.pax.construct.project.AddRepositoryMojo</implementation>
+      <language>java</language>
+      <instantiationStrategy>per-lookup</instantiationStrategy>
+      <executionStrategy>once-per-session</executionStrategy>
+      <parameters>
+        <parameter>
+          <name>overwrite</name>
+          <type>boolean</type>
+          <required>false</required>
+          <editable>true</editable>
+          <description>Should we attempt to overwrite entries?</description>
+        </parameter>
+        <parameter>
+          <name>project</name>
+          <type>org.apache.maven.project.MavenProject</type>
+          <required>false</required>
+          <editable>true</editable>
+          <description></description>
+        </parameter>
+        <parameter>
+          <name>repositoryId</name>
+          <type>java.lang.String</type>
+          <required>true</required>
+          <editable>true</editable>
+          <description>The id of the repository.</description>
+        </parameter>
+        <parameter>
+          <name>repositoryURL</name>
+          <type>java.lang.String</type>
+          <required>true</required>
+          <editable>true</editable>
+          <description>The url of the repository.</description>
+        </parameter>
+      </parameters>
+      <configuration>
+        <repositoryURL implementation="java.lang.String">${repositoryURL}</repositoryURL>
+        <overwrite implementation="boolean">${overwrite}</overwrite>
+        <repositoryId implementation="java.lang.String">${repositoryId}</repositoryId>
+        <project implementation="org.apache.maven.project.MavenProject">${project}</project>
+      </configuration>
+    </mojo>
+    <mojo>
+      <goal>import-bundle</goal>
+      <description>Import an externally provided bundle to the OSGi project.</description>
+      <requiresDirectInvocation>false</requiresDirectInvocation>
+      <requiresProject>true</requiresProject>
+      <requiresReports>false</requiresReports>
+      <aggregator>false</aggregator>
+      <requiresOnline>false</requiresOnline>
+      <inheritedByDefault>true</inheritedByDefault>
+      <implementation>org.ops4j.pax.construct.project.ImportBundleMojo</implementation>
+      <language>java</language>
+      <instantiationStrategy>per-lookup</instantiationStrategy>
+      <executionStrategy>once-per-session</executionStrategy>
+      <parameters>
+        <parameter>
+          <name>artifactId</name>
+          <type>java.lang.String</type>
+          <required>true</required>
+          <editable>true</editable>
+          <description>The artifactId of the bundle to import.</description>
+        </parameter>
+        <parameter>
+          <name>deploy</name>
+          <type>boolean</type>
+          <required>false</required>
+          <editable>true</editable>
+          <description>Should the imported bundle be deployed?</description>
+        </parameter>
+        <parameter>
+          <name>groupId</name>
+          <type>java.lang.String</type>
+          <required>true</required>
+          <editable>true</editable>
+          <description>The groupId of the bundle to import.</description>
+        </parameter>
+        <parameter>
+          <name>overwrite</name>
+          <type>boolean</type>
+          <required>false</required>
+          <editable>true</editable>
+          <description>Should we attempt to overwrite entries?</description>
+        </parameter>
+        <parameter>
+          <name>project</name>
+          <type>org.apache.maven.project.MavenProject</type>
+          <required>false</required>
+          <editable>true</editable>
+          <description></description>
+        </parameter>
+        <parameter>
+          <name>version</name>
+          <type>java.lang.String</type>
+          <required>true</required>
+          <editable>true</editable>
+          <description>The version of the bundle to import.</description>
+        </parameter>
+      </parameters>
+      <configuration>
+        <groupId implementation="java.lang.String">${groupId}</groupId>
+        <overwrite implementation="boolean">${overwrite}</overwrite>
+        <deploy implementation="boolean" default-value="true">${deploy}</deploy>
+        <project implementation="org.apache.maven.project.MavenProject">${project}</project>
+        <version implementation="java.lang.String">${version}</version>
+        <artifactId implementation="java.lang.String">${artifactId}</artifactId>
+      </configuration>
+    </mojo>
+    <mojo>
+      <goal>provision</goal>
+      <description>Create configuration pom file for provisioning via Pax-Runner</description>
+      <requiresDirectInvocation>false</requiresDirectInvocation>
+      <requiresProject>true</requiresProject>
+      <requiresReports>false</requiresReports>
+      <aggregator>false</aggregator>
+      <requiresOnline>false</requiresOnline>
+      <inheritedByDefault>true</inheritedByDefault>
+      <implementation>org.ops4j.pax.construct.project.ProvisionMojo</implementation>
+      <language>java</language>
+      <instantiationStrategy>per-lookup</instantiationStrategy>
+      <executionStrategy>once-per-session</executionStrategy>
+      <parameters>
+        <parameter>
+          <name>additionalPoms</name>
+          <type>java.lang.String</type>
+          <required>false</required>
+          <editable>true</editable>
+          <description></description>
+        </parameter>
+        <parameter>
+          <name>deploy</name>
+          <type>boolean</type>
+          <required>false</required>
+          <editable>true</editable>
+          <description></description>
+        </parameter>
+        <parameter>
+          <name>excludeTransitive</name>
+          <type>boolean</type>
+          <required>false</required>
+          <editable>true</editable>
+          <description></description>
+        </parameter>
+        <parameter>
+          <name>framework</name>
+          <type>java.lang.String</type>
+          <required>false</required>
+          <editable>true</editable>
+          <description></description>
+        </parameter>
+        <parameter>
+          <name>localRepository</name>
+          <type>org.apache.maven.artifact.repository.ArtifactRepository</type>
+          <required>true</required>
+          <editable>false</editable>
+          <description></description>
+        </parameter>
+        <parameter>
+          <name>project</name>
+          <type>org.apache.maven.project.MavenProject</type>
+          <required>false</required>
+          <editable>true</editable>
+          <description></description>
+        </parameter>
+        <parameter>
+          <name>reactorProjects</name>
+          <type>java.util.List</type>
+          <required>true</required>
+          <editable>false</editable>
+          <description></description>
+        </parameter>
+        <parameter>
+          <name>remoteArtifactRepositories</name>
+          <type>java.util.List</type>
+          <required>true</required>
+          <editable>false</editable>
+          <description></description>
+        </parameter>
+      </parameters>
+      <configuration>
+        <remoteArtifactRepositories implementation="java.util.List">${project.remoteArtifactRepositories}</remoteArtifactRepositories>
+        <framework implementation="java.lang.String" default-value="felix">${framework}</framework>
+        <excludeTransitive implementation="boolean">${excludeTransitive}</excludeTransitive>
+        <additionalPoms implementation="java.lang.String">${deploy.poms}</additionalPoms>
+        <localRepository implementation="org.apache.maven.artifact.repository.ArtifactRepository">${localRepository}</localRepository>
+        <deploy implementation="boolean" default-value="true">${deploy}</deploy>
+        <project implementation="org.apache.maven.project.MavenProject">${project}</project>
+        <reactorProjects implementation="java.util.List" default-value="${reactorProjects}"/>
+      </configuration>
+      <requirements>
+        <requirement>
+          <role>org.apache.maven.artifact.resolver.ArtifactCollector</role>
+          <field-name>artifactCollector</field-name>
+        </requirement>
+        <requirement>
+          <role>org.apache.maven.artifact.installer.ArtifactInstaller</role>
+          <field-name>installer</field-name>
+        </requirement>
+        <requirement>
+          <role>org.apache.maven.artifact.resolver.ArtifactResolver</role>
+          <field-name>artifactResolver</field-name>
+        </requirement>
+        <requirement>
+          <role>org.apache.maven.project.MavenProjectBuilder</role>
+          <field-name>mavenProjectBuilder</field-name>
+        </requirement>
+        <requirement>
+          <role>org.apache.maven.artifact.factory.ArtifactFactory</role>
+          <field-name>factory</field-name>
+        </requirement>
+        <requirement>
+          <role>org.apache.maven.artifact.metadata.ArtifactMetadataSource</role>
+          <field-name>artifactMetadataSource</field-name>
+        </requirement>
+      </requirements>
+    </mojo>
+    <mojo>
+      <goal>create-project</goal>
+      <description>Creates a new skeleton OSGi project.</description>
+      <requiresDirectInvocation>false</requiresDirectInvocation>
+      <requiresProject>false</requiresProject>
+      <requiresReports>false</requiresReports>
+      <aggregator>false</aggregator>
+      <requiresOnline>false</requiresOnline>
+      <inheritedByDefault>true</inheritedByDefault>
+      <implementation>org.ops4j.pax.construct.archetype.OSGiProjectArchetypeMojo</implementation>
+      <language>java</language>
+      <instantiationStrategy>per-lookup</instantiationStrategy>
+      <executionStrategy>once-per-session</executionStrategy>
+      <parameters>
+        <parameter>
+          <name>archetypeVersion</name>
+          <type>java.lang.String</type>
+          <required>false</required>
+          <editable>true</editable>
+          <description></description>
+        </parameter>
+        <parameter>
+          <name>artifactId</name>
+          <type>java.lang.String</type>
+          <required>true</required>
+          <editable>true</editable>
+          <description>The artifactId of the new OSGi project.</description>
+        </parameter>
+        <parameter>
+          <name>compactNames</name>
+          <type>boolean</type>
+          <required>false</required>
+          <editable>true</editable>
+          <description></description>
+        </parameter>
+        <parameter>
+          <name>groupId</name>
+          <type>java.lang.String</type>
+          <required>true</required>
+          <editable>true</editable>
+          <description>The groupId of the new OSGi project.</description>
+        </parameter>
+        <parameter>
+          <name>localRepository</name>
+          <type>org.apache.maven.artifact.repository.ArtifactRepository</type>
+          <required>true</required>
+          <editable>true</editable>
+          <description></description>
+        </parameter>
+        <parameter>
+          <name>project</name>
+          <type>org.apache.maven.project.MavenProject</type>
+          <required>false</required>
+          <editable>true</editable>
+          <description>The containing OSGi project</description>
+        </parameter>
+        <parameter>
+          <name>remoteArtifactRepositories</name>
+          <type>java.util.List</type>
+          <required>true</required>
+          <editable>true</editable>
+          <description></description>
+        </parameter>
+        <parameter>
+          <name>remoteRepositories</name>
+          <type>java.lang.String</type>
+          <required>false</required>
+          <editable>true</editable>
+          <description></description>
+        </parameter>
+        <parameter>
+          <name>targetDirectory</name>
+          <type>java.io.File</type>
+          <required>false</required>
+          <editable>true</editable>
+          <description>The containing OSGi project&apos;s base directory</description>
+        </parameter>
+        <parameter>
+          <name>version</name>
+          <type>java.lang.String</type>
+          <required>false</required>
+          <editable>true</editable>
+          <description>The version of the new OSGi project.</description>
+        </parameter>
+      </parameters>
+      <configuration>
+        <remoteArtifactRepositories implementation="java.util.List">${project.remoteArtifactRepositories}</remoteArtifactRepositories>
+        <compactNames implementation="boolean" default-value="true">${compactNames}</compactNames>
+        <groupId implementation="java.lang.String">${groupId}</groupId>
+        <remoteRepositories implementation="java.lang.String" default-value="http://repository.ops4j.org/maven2">${remoteRepositories}</remoteRepositories>
+        <targetDirectory implementation="java.io.File" default-value="${project.basedir}">${targetDirectory}</targetDirectory>
+        <localRepository implementation="org.apache.maven.artifact.repository.ArtifactRepository">${localRepository}</localRepository>
+        <project implementation="org.apache.maven.project.MavenProject">${project}</project>
+        <archetypeVersion implementation="java.lang.String" default-value="${plugin.version}">${archetypeVersion}</archetypeVersion>
+        <version implementation="java.lang.String" default-value="0.1.0-SNAPSHOT">${version}</version>
+        <artifactId implementation="java.lang.String">${artifactId}</artifactId>
+      </configuration>
+      <requirements>
+        <requirement>
+          <role>org.apache.maven.archetype.Archetype</role>
+          <field-name>archetype</field-name>
+        </requirement>
+        <requirement>
+          <role>org.apache.maven.artifact.repository.ArtifactRepositoryFactory</role>
+          <field-name>artifactRepositoryFactory</field-name>
+        </requirement>
+        <requirement>
+          <role>org.apache.maven.artifact.repository.layout.ArtifactRepositoryLayout</role>
+          <role-hint>default</role-hint>
+          <field-name>artifactRepositoryLayout</field-name>
+        </requirement>
+      </requirements>
+    </mojo>
+    <mojo>
+      <goal>create-bundle</goal>
+      <description>Create a new skeleton bundle and add it to an existing OSGi project.</description>
+      <requiresDirectInvocation>false</requiresDirectInvocation>
+      <requiresProject>true</requiresProject>
+      <requiresReports>false</requiresReports>
+      <aggregator>false</aggregator>
+      <requiresOnline>false</requiresOnline>
+      <inheritedByDefault>true</inheritedByDefault>
+      <implementation>org.ops4j.pax.construct.archetype.OSGiBundleArchetypeMojo</implementation>
+      <language>java</language>
+      <instantiationStrategy>per-lookup</instantiationStrategy>
+      <executionStrategy>once-per-session</executionStrategy>
+      <parameters>
+        <parameter>
+          <name>archetypeVersion</name>
+          <type>java.lang.String</type>
+          <required>false</required>
+          <editable>true</editable>
+          <description></description>
+        </parameter>
+        <parameter>
+          <name>bundleName</name>
+          <type>java.lang.String</type>
+          <required>true</required>
+          <editable>true</editable>
+          <description>The name of the new bundle.</description>
+        </parameter>
+        <parameter>
+          <name>compactNames</name>
+          <type>boolean</type>
+          <required>false</required>
+          <editable>true</editable>
+          <description></description>
+        </parameter>
+        <parameter>
+          <name>localRepository</name>
+          <type>org.apache.maven.artifact.repository.ArtifactRepository</type>
+          <required>true</required>
+          <editable>true</editable>
+          <description></description>
+        </parameter>
+        <parameter>
+          <name>overwrite</name>
+          <type>boolean</type>
+          <required>false</required>
+          <editable>true</editable>
+          <description>Should we attempt to overwrite entries?</description>
+        </parameter>
+        <parameter>
+          <name>packageName</name>
+          <type>java.lang.String</type>
+          <required>true</required>
+          <editable>true</editable>
+          <description>The package of the new bundle.</description>
+        </parameter>
+        <parameter>
+          <name>project</name>
+          <type>org.apache.maven.project.MavenProject</type>
+          <required>false</required>
+          <editable>true</editable>
+          <description>The containing OSGi project</description>
+        </parameter>
+        <parameter>
+          <name>provideActivator</name>
+          <type>boolean</type>
+          <required>false</required>
+          <editable>true</editable>
+          <description></description>
+        </parameter>
+        <parameter>
+          <name>provideInterface</name>
+          <type>boolean</type>
+          <required>false</required>
+          <editable>true</editable>
+          <description></description>
+        </parameter>
+        <parameter>
+          <name>remoteArtifactRepositories</name>
+          <type>java.util.List</type>
+          <required>true</required>
+          <editable>true</editable>
+          <description></description>
+        </parameter>
+        <parameter>
+          <name>remoteRepositories</name>
+          <type>java.lang.String</type>
+          <required>false</required>
+          <editable>true</editable>
+          <description></description>
+        </parameter>
+        <parameter>
+          <name>targetDirectory</name>
+          <type>java.io.File</type>
+          <required>false</required>
+          <editable>true</editable>
+          <description>The containing OSGi project&apos;s base directory</description>
+        </parameter>
+        <parameter>
+          <name>version</name>
+          <type>java.lang.String</type>
+          <required>false</required>
+          <editable>true</editable>
+          <description>The version of the new bundle.</description>
+        </parameter>
+      </parameters>
+      <configuration>
+        <overwrite implementation="boolean">${overwrite}</overwrite>
+        <targetDirectory implementation="java.io.File" default-value="${project.basedir}">${targetDirectory}</targetDirectory>
+        <localRepository implementation="org.apache.maven.artifact.repository.ArtifactRepository">${localRepository}</localRepository>
+        <provideActivator implementation="boolean" default-value="true">${activator}</provideActivator>
+        <version implementation="java.lang.String" default-value="0.1.0-SNAPSHOT">${version}</version>
+        <compactNames implementation="boolean" default-value="true">${compactNames}</compactNames>
+        <remoteArtifactRepositories implementation="java.util.List">${project.remoteArtifactRepositories}</remoteArtifactRepositories>
+        <provideInterface implementation="boolean" default-value="true">${interface}</provideInterface>
+        <packageName implementation="java.lang.String">${package}</packageName>
+        <remoteRepositories implementation="java.lang.String" default-value="http://repository.ops4j.org/maven2">${remoteRepositories}</remoteRepositories>
+        <bundleName implementation="java.lang.String">${bundleName}</bundleName>
+        <project implementation="org.apache.maven.project.MavenProject">${project}</project>
+        <archetypeVersion implementation="java.lang.String" default-value="${plugin.version}">${archetypeVersion}</archetypeVersion>
+      </configuration>
+      <requirements>
+        <requirement>
+          <role>org.apache.maven.archetype.Archetype</role>
+          <field-name>archetype</field-name>
+        </requirement>
+        <requirement>
+          <role>org.apache.maven.artifact.repository.ArtifactRepositoryFactory</role>
+          <field-name>artifactRepositoryFactory</field-name>
+        </requirement>
+        <requirement>
+          <role>org.apache.maven.artifact.repository.layout.ArtifactRepositoryLayout</role>
+          <role-hint>default</role-hint>
+          <field-name>artifactRepositoryLayout</field-name>
+        </requirement>
+      </requirements>
+    </mojo>
+    <mojo>
+      <goal>wrap-jar</goal>
+      <description>Wrap a third-party jar as a bundle and add it to an existing OSGi project.</description>
+      <requiresDirectInvocation>false</requiresDirectInvocation>
+      <requiresProject>true</requiresProject>
+      <requiresReports>false</requiresReports>
+      <aggregator>false</aggregator>
+      <requiresOnline>false</requiresOnline>
+      <inheritedByDefault>true</inheritedByDefault>
+      <implementation>org.ops4j.pax.construct.archetype.OSGiWrapperArchetypeMojo</implementation>
+      <language>java</language>
+      <instantiationStrategy>per-lookup</instantiationStrategy>
+      <executionStrategy>once-per-session</executionStrategy>
+      <parameters>
+        <parameter>
+          <name>addVersion</name>
+          <type>boolean</type>
+          <required>false</required>
+          <editable>true</editable>
+          <description></description>
+        </parameter>
+        <parameter>
+          <name>archetypeVersion</name>
+          <type>java.lang.String</type>
+          <required>false</required>
+          <editable>true</editable>
+          <description></description>
+        </parameter>
+        <parameter>
+          <name>artifactId</name>
+          <type>java.lang.String</type>
+          <required>true</required>
+          <editable>true</editable>
+          <description>The artifactId of the jarfile to wrap.</description>
+        </parameter>
+        <parameter>
+          <name>compactNames</name>
+          <type>boolean</type>
+          <required>false</required>
+          <editable>true</editable>
+          <description></description>
+        </parameter>
+        <parameter>
+          <name>dynamicImportPackage</name>
+          <type>java.lang.String</type>
+          <required>false</required>
+          <editable>true</editable>
+          <description></description>
+        </parameter>
+        <parameter>
+          <name>excludeTransitive</name>
+          <type>boolean</type>
+          <required>false</required>
+          <editable>true</editable>
+          <description></description>
+        </parameter>
+        <parameter>
+          <name>exportContents</name>
+          <type>java.lang.String</type>
+          <required>false</required>
+          <editable>true</editable>
+          <description></description>
+        </parameter>
+        <parameter>
+          <name>groupId</name>
+          <type>java.lang.String</type>
+          <required>true</required>
+          <editable>true</editable>
+          <description>The groupId of the jarfile to wrap.</description>
+        </parameter>
+        <parameter>
+          <name>importPackage</name>
+          <type>java.lang.String</type>
+          <required>false</required>
+          <editable>true</editable>
+          <description></description>
+        </parameter>
+        <parameter>
+          <name>includeResource</name>
+          <type>java.lang.String</type>
+          <required>false</required>
+          <editable>true</editable>
+          <description></description>
+        </parameter>
+        <parameter>
+          <name>localRepository</name>
+          <type>org.apache.maven.artifact.repository.ArtifactRepository</type>
+          <required>true</required>
+          <editable>true</editable>
+          <description></description>
+        </parameter>
+        <parameter>
+          <name>overwrite</name>
+          <type>boolean</type>
+          <required>false</required>
+          <editable>true</editable>
+          <description>Should we attempt to overwrite entries?</description>
+        </parameter>
+        <parameter>
+          <name>project</name>
+          <type>org.apache.maven.project.MavenProject</type>
+          <required>false</required>
+          <editable>true</editable>
+          <description>The containing OSGi project</description>
+        </parameter>
+        <parameter>
+          <name>remoteArtifactRepositories</name>
+          <type>java.util.List</type>
+          <required>true</required>
+          <editable>true</editable>
+          <description></description>
+        </parameter>
+        <parameter>
+          <name>remoteRepositories</name>
+          <type>java.lang.String</type>
+          <required>false</required>
+          <editable>true</editable>
+          <description></description>
+        </parameter>
+        <parameter>
+          <name>requireBundle</name>
+          <type>java.lang.String</type>
+          <required>false</required>
+          <editable>true</editable>
+          <description></description>
+        </parameter>
+        <parameter>
+          <name>targetDirectory</name>
+          <type>java.io.File</type>
+          <required>false</required>
+          <editable>true</editable>
+          <description>The containing OSGi project&apos;s base directory</description>
+        </parameter>
+        <parameter>
+          <name>version</name>
+          <type>java.lang.String</type>
+          <required>true</required>
+          <editable>true</editable>
+          <description>The version of the jarfile to wrap.</description>
+        </parameter>
+      </parameters>
+      <configuration>
+        <importPackage implementation="java.lang.String">${importPackage}</importPackage>
+        <includeResource implementation="java.lang.String">${includeResource}</includeResource>
+        <overwrite implementation="boolean">${overwrite}</overwrite>
+        <targetDirectory implementation="java.io.File" default-value="${project.basedir}">${targetDirectory}</targetDirectory>
+        <requireBundle implementation="java.lang.String">${requireBundle}</requireBundle>
+        <localRepository implementation="org.apache.maven.artifact.repository.ArtifactRepository">${localRepository}</localRepository>
+        <addVersion implementation="boolean">${addVersion}</addVersion>
+        <version implementation="java.lang.String">${version}</version>
+        <remoteArtifactRepositories implementation="java.util.List">${project.remoteArtifactRepositories}</remoteArtifactRepositories>
+        <compactNames implementation="boolean" default-value="true">${compactNames}</compactNames>
+        <groupId implementation="java.lang.String">${groupId}</groupId>
+        <excludeTransitive implementation="boolean">${excludeTransitive}</excludeTransitive>
+        <remoteRepositories implementation="java.lang.String" default-value="http://repository.ops4j.org/maven2">${remoteRepositories}</remoteRepositories>
+        <exportContents implementation="java.lang.String">${exportContents}</exportContents>
+        <project implementation="org.apache.maven.project.MavenProject">${project}</project>
+        <archetypeVersion implementation="java.lang.String" default-value="${plugin.version}">${archetypeVersion}</archetypeVersion>
+        <dynamicImportPackage implementation="java.lang.String">${dynamicImportPackage}</dynamicImportPackage>
+        <artifactId implementation="java.lang.String">${artifactId}</artifactId>
+      </configuration>
+      <requirements>
+        <requirement>
+          <role>org.apache.maven.archetype.Archetype</role>
+          <field-name>archetype</field-name>
+        </requirement>
+        <requirement>
+          <role>org.apache.maven.artifact.repository.ArtifactRepositoryFactory</role>
+          <field-name>artifactRepositoryFactory</field-name>
+        </requirement>
+        <requirement>
+          <role>org.apache.maven.artifact.repository.layout.ArtifactRepositoryLayout</role>
+          <role-hint>default</role-hint>
+          <field-name>artifactRepositoryLayout</field-name>
+        </requirement>
+      </requirements>
+    </mojo>
+    <mojo>
+      <goal>restore-metadata</goal>
+      <description>Restore previous metadata in case compilation fails.</description>
+      <requiresDirectInvocation>false</requiresDirectInvocation>
+      <requiresProject>true</requiresProject>
+      <requiresReports>false</requiresReports>
+      <aggregator>false</aggregator>
+      <requiresOnline>false</requiresOnline>
+      <inheritedByDefault>true</inheritedByDefault>
+      <phase>generate-resources</phase>
+      <implementation>org.ops4j.pax.construct.lifecycle.RestoreMetadataMojo</implementation>
+      <language>java</language>
+      <instantiationStrategy>per-lookup</instantiationStrategy>
+      <executionStrategy>once-per-session</executionStrategy>
+      <parameters>
+        <parameter>
+          <name>basedir</name>
+          <type>java.io.File</type>
+          <required>false</required>
+          <editable>true</editable>
+          <description>The directory containing generated files.</description>
+        </parameter>
+      </parameters>
+      <configuration>
+        <basedir implementation="java.io.File">${project.basedir}</basedir>
+      </configuration>
+    </mojo>
+    <mojo>
+      <goal>clean</goal>
+      <description>Clean up various generated files.</description>
+      <requiresDirectInvocation>false</requiresDirectInvocation>
+      <requiresProject>true</requiresProject>
+      <requiresReports>false</requiresReports>
+      <aggregator>false</aggregator>
+      <requiresOnline>false</requiresOnline>
+      <inheritedByDefault>true</inheritedByDefault>
+      <phase>clean</phase>
+      <implementation>org.ops4j.pax.construct.lifecycle.CleanMojo</implementation>
+      <language>java</language>
+      <instantiationStrategy>per-lookup</instantiationStrategy>
+      <executionStrategy>once-per-session</executionStrategy>
+      <parameters>
+        <parameter>
+          <name>basedir</name>
+          <type>java.io.File</type>
+          <required>false</required>
+          <editable>true</editable>
+          <description>The directory containing generated files.</description>
+        </parameter>
+        <parameter>
+          <name>debug</name>
+          <type>boolean</type>
+          <required>false</required>
+          <editable>true</editable>
+          <description></description>
+        </parameter>
+      </parameters>
+      <configuration>
+        <debug implementation="boolean">${debug}</debug>
+        <basedir implementation="java.io.File">${project.basedir}</basedir>
+      </configuration>
+    </mojo>
+    <mojo>
+      <goal>eclipse</goal>
+      <description>Extend maven-eclipse-plugin to better handle OSGi bundles.</description>
+      <requiresDirectInvocation>false</requiresDirectInvocation>
+      <requiresProject>true</requiresProject>
+      <requiresReports>false</requiresReports>
+      <aggregator>false</aggregator>
+      <requiresOnline>false</requiresOnline>
+      <inheritedByDefault>true</inheritedByDefault>
+      <implementation>org.ops4j.pax.construct.lifecycle.EclipseMojo</implementation>
+      <language>java</language>
+      <instantiationStrategy>per-lookup</instantiationStrategy>
+      <executionStrategy>once-per-session</executionStrategy>
+      <parameters>
+        <parameter>
+          <name>downloadJavadocs</name>
+          <type>boolean</type>
+          <required>false</required>
+          <editable>true</editable>
+          <description></description>
+        </parameter>
+        <parameter>
+          <name>downloadSources</name>
+          <type>boolean</type>
+          <required>false</required>
+          <editable>true</editable>
+          <description></description>
+        </parameter>
+        <parameter>
+          <name>executedProject</name>
+          <type>org.apache.maven.project.MavenProject</type>
+          <required>false</required>
+          <editable>false</editable>
+          <description></description>
+        </parameter>
+        <parameter>
+          <name>localRepository</name>
+          <type>org.apache.maven.artifact.repository.ArtifactRepository</type>
+          <required>true</required>
+          <editable>false</editable>
+          <description></description>
+        </parameter>
+        <parameter>
+          <name>project</name>
+          <type>org.apache.maven.project.MavenProject</type>
+          <required>true</required>
+          <editable>false</editable>
+          <description></description>
+        </parameter>
+        <parameter>
+          <name>reactorProjects</name>
+          <type>java.util.List</type>
+          <required>true</required>
+          <editable>false</editable>
+          <description></description>
+        </parameter>
+        <parameter>
+          <name>remoteArtifactRepositories</name>
+          <type>java.util.List</type>
+          <required>true</required>
+          <editable>false</editable>
+          <description></description>
+        </parameter>
+      </parameters>
+      <configuration>
+        <remoteArtifactRepositories implementation="java.util.List">${project.remoteArtifactRepositories}</remoteArtifactRepositories>
+        <downloadSources implementation="boolean">${downloadSources}</downloadSources>
+        <localRepository implementation="org.apache.maven.artifact.repository.ArtifactRepository">${localRepository}</localRepository>
+        <executedProject implementation="org.apache.maven.project.MavenProject">${project}</executedProject>
+        <project implementation="org.apache.maven.project.MavenProject">${project}</project>
+        <reactorProjects implementation="java.util.List">${reactorProjects}</reactorProjects>
+        <downloadJavadocs implementation="boolean">${downloadJavadocs}</downloadJavadocs>
+      </configuration>
+      <requirements>
+        <requirement>
+          <role>org.apache.maven.artifact.resolver.ArtifactCollector</role>
+          <field-name>artifactCollector</field-name>
+        </requirement>
+        <requirement>
+          <role>org.apache.maven.artifact.resolver.ArtifactResolver</role>
+          <field-name>artifactResolver</field-name>
+        </requirement>
+        <requirement>
+          <role>org.apache.maven.artifact.factory.ArtifactFactory</role>
+          <field-name>artifactFactory</field-name>
+        </requirement>
+        <requirement>
+          <role>org.codehaus.plexus.archiver.manager.ArchiverManager</role>
+          <field-name>archiverManager</field-name>
+        </requirement>
+        <requirement>
+          <role>org.apache.maven.artifact.metadata.ArtifactMetadataSource</role>
+          <field-name>artifactMetadataSource</field-name>
+        </requirement>
+      </requirements>
+    </mojo>
+    <mojo>
+      <goal>eclipse-dependencies</goal>
+      <description>Extend maven-eclipse-plugin to process multiple OSGi dependencies.</description>
+      <requiresDirectInvocation>false</requiresDirectInvocation>
+      <requiresProject>true</requiresProject>
+      <requiresReports>false</requiresReports>
+      <aggregator>false</aggregator>
+      <requiresOnline>false</requiresOnline>
+      <inheritedByDefault>true</inheritedByDefault>
+      <implementation>org.ops4j.pax.construct.lifecycle.EclipseDependenciesMojo</implementation>
+      <language>java</language>
+      <instantiationStrategy>per-lookup</instantiationStrategy>
+      <executionStrategy>once-per-session</executionStrategy>
+      <parameters>
+        <parameter>
+          <name>downloadJavadocs</name>
+          <type>boolean</type>
+          <required>false</required>
+          <editable>true</editable>
+          <description></description>
+        </parameter>
+        <parameter>
+          <name>downloadSources</name>
+          <type>boolean</type>
+          <required>false</required>
+          <editable>true</editable>
+          <description></description>
+        </parameter>
+        <parameter>
+          <name>excludeTransitive</name>
+          <type>boolean</type>
+          <required>false</required>
+          <editable>true</editable>
+          <description></description>
+        </parameter>
+        <parameter>
+          <name>executedProject</name>
+          <type>org.apache.maven.project.MavenProject</type>
+          <required>false</required>
+          <editable>false</editable>
+          <description></description>
+        </parameter>
+        <parameter>
+          <name>localRepository</name>
+          <type>org.apache.maven.artifact.repository.ArtifactRepository</type>
+          <required>true</required>
+          <editable>false</editable>
+          <description></description>
+        </parameter>
+        <parameter>
+          <name>project</name>
+          <type>org.apache.maven.project.MavenProject</type>
+          <required>true</required>
+          <editable>false</editable>
+          <description></description>
+        </parameter>
+        <parameter>
+          <name>reactorProjects</name>
+          <type>java.util.List</type>
+          <required>true</required>
+          <editable>false</editable>
+          <description></description>
+        </parameter>
+        <parameter>
+          <name>remoteArtifactRepositories</name>
+          <type>java.util.List</type>
+          <required>true</required>
+          <editable>false</editable>
+          <description></description>
+        </parameter>
+      </parameters>
+      <configuration>
+        <remoteArtifactRepositories implementation="java.util.List">${project.remoteArtifactRepositories}</remoteArtifactRepositories>
+        <downloadSources implementation="boolean">${downloadSources}</downloadSources>
+        <excludeTransitive implementation="boolean">${excludeTransitive}</excludeTransitive>
+        <localRepository implementation="org.apache.maven.artifact.repository.ArtifactRepository">${localRepository}</localRepository>
+        <executedProject implementation="org.apache.maven.project.MavenProject">${project}</executedProject>
+        <project implementation="org.apache.maven.project.MavenProject">${project}</project>
+        <reactorProjects implementation="java.util.List">${reactorProjects}</reactorProjects>
+        <downloadJavadocs implementation="boolean">${downloadJavadocs}</downloadJavadocs>
+      </configuration>
+      <requirements>
+        <requirement>
+          <role>org.apache.maven.artifact.resolver.ArtifactCollector</role>
+          <field-name>artifactCollector</field-name>
+        </requirement>
+        <requirement>
+          <role>org.apache.maven.artifact.resolver.ArtifactResolver</role>
+          <field-name>artifactResolver</field-name>
+        </requirement>
+        <requirement>
+          <role>org.apache.maven.artifact.factory.ArtifactFactory</role>
+          <field-name>artifactFactory</field-name>
+        </requirement>
+        <requirement>
+          <role>org.apache.maven.project.MavenProjectBuilder</role>
+          <field-name>mavenProjectBuilder</field-name>
+        </requirement>
+        <requirement>
+          <role>org.codehaus.plexus.archiver.manager.ArchiverManager</role>
+          <field-name>archiverManager</field-name>
+        </requirement>
+        <requirement>
+          <role>org.apache.maven.artifact.metadata.ArtifactMetadataSource</role>
+          <field-name>artifactMetadataSource</field-name>
+        </requirement>
+      </requirements>
+    </mojo>
+    <mojo>
+      <goal>remove-bundle</goal>
+      <description>Removes a local bundle and any references to it from the project.</description>
+      <requiresDirectInvocation>false</requiresDirectInvocation>
+      <requiresProject>true</requiresProject>
+      <requiresReports>false</requiresReports>
+      <aggregator>false</aggregator>
+      <requiresOnline>false</requiresOnline>
+      <inheritedByDefault>true</inheritedByDefault>
+      <implementation>org.ops4j.pax.construct.bundle.RemoveBundleMojo</implementation>
+      <language>java</language>
+      <instantiationStrategy>per-lookup</instantiationStrategy>
+      <executionStrategy>once-per-session</executionStrategy>
+      <parameters>
+        <parameter>
+          <name>bundleName</name>
+          <type>java.lang.String</type>
+          <required>true</required>
+          <editable>true</editable>
+          <description>The local project name of the bundle to be removed.</description>
+        </parameter>
+        <parameter>
+          <name>project</name>
+          <type>org.apache.maven.project.MavenProject</type>
+          <required>false</required>
+          <editable>true</editable>
+          <description></description>
+        </parameter>
+      </parameters>
+      <configuration>
+        <project implementation="org.apache.maven.project.MavenProject">${project}</project>
+        <bundleName implementation="java.lang.String">${bundleName}</bundleName>
+      </configuration>
+    </mojo>
+    <mojo>
+      <goal>use-bundle</goal>
+      <description>Use a local bundle inside another bundle sub-project (adds dependency to the compilation classpath)
+
+Note: imported (non-local) bundles are available to local bundles via the top-level provision pom.</description>
+      <requiresDirectInvocation>false</requiresDirectInvocation>
+      <requiresProject>true</requiresProject>
+      <requiresReports>false</requiresReports>
+      <aggregator>false</aggregator>
+      <requiresOnline>false</requiresOnline>
+      <inheritedByDefault>true</inheritedByDefault>
+      <implementation>org.ops4j.pax.construct.bundle.UseBundleMojo</implementation>
+      <language>java</language>
+      <instantiationStrategy>per-lookup</instantiationStrategy>
+      <executionStrategy>once-per-session</executionStrategy>
+      <parameters>
+        <parameter>
+          <name>bundleName</name>
+          <type>java.lang.String</type>
+          <required>true</required>
+          <editable>true</editable>
+          <description>The local project name of the bundle to be used.</description>
+        </parameter>
+        <parameter>
+          <name>overwrite</name>
+          <type>boolean</type>
+          <required>false</required>
+          <editable>true</editable>
+          <description>Should we attempt to overwrite entries?</description>
+        </parameter>
+        <parameter>
+          <name>project</name>
+          <type>org.apache.maven.project.MavenProject</type>
+          <required>false</required>
+          <editable>true</editable>
+          <description></description>
+        </parameter>
+      </parameters>
+      <configuration>
+        <overwrite implementation="boolean">${overwrite}</overwrite>
+        <project implementation="org.apache.maven.project.MavenProject">${project}</project>
+        <bundleName implementation="java.lang.String">${bundleName}</bundleName>
+      </configuration>
+    </mojo>
+    <mojo>
+      <goal>embed-jar</goal>
+      <description>Embeds a jarfile inside a local bundle project.</description>
+      <requiresDirectInvocation>false</requiresDirectInvocation>
+      <requiresProject>true</requiresProject>
+      <requiresReports>false</requiresReports>
+      <aggregator>false</aggregator>
+      <requiresOnline>false</requiresOnline>
+      <inheritedByDefault>true</inheritedByDefault>
+      <implementation>org.ops4j.pax.construct.bundle.EmbedJarMojo</implementation>
+      <language>java</language>
+      <instantiationStrategy>per-lookup</instantiationStrategy>
+      <executionStrategy>once-per-session</executionStrategy>
+      <parameters>
+        <parameter>
+          <name>artifactId</name>
+          <type>java.lang.String</type>
+          <required>true</required>
+          <editable>true</editable>
+          <description>The artifactId of the jarfile to wrap.</description>
+        </parameter>
+        <parameter>
+          <name>exportContents</name>
+          <type>java.lang.String</type>
+          <required>false</required>
+          <editable>true</editable>
+          <description></description>
+        </parameter>
+        <parameter>
+          <name>groupId</name>
+          <type>java.lang.String</type>
+          <required>true</required>
+          <editable>true</editable>
+          <description>The groupId of the jarfile to wrap.</description>
+        </parameter>
+        <parameter>
+          <name>overwrite</name>
+          <type>boolean</type>
+          <required>false</required>
+          <editable>true</editable>
+          <description>Should we attempt to overwrite entries?</description>
+        </parameter>
+        <parameter>
+          <name>project</name>
+          <type>org.apache.maven.project.MavenProject</type>
+          <required>false</required>
+          <editable>true</editable>
+          <description></description>
+        </parameter>
+        <parameter>
+          <name>unpack</name>
+          <type>boolean</type>
+          <required>false</required>
+          <editable>true</editable>
+          <description>Should the jar be unpacked inside the bundle?</description>
+        </parameter>
+        <parameter>
+          <name>version</name>
+          <type>java.lang.String</type>
+          <required>true</required>
+          <editable>true</editable>
+          <description>The version of the jarfile to wrap.</description>
+        </parameter>
+      </parameters>
+      <configuration>
+        <groupId implementation="java.lang.String">${groupId}</groupId>
+        <overwrite implementation="boolean">${overwrite}</overwrite>
+        <unpack implementation="boolean">${unpack}</unpack>
+        <project implementation="org.apache.maven.project.MavenProject">${project}</project>
+        <exportContents implementation="java.lang.String">${exportContents}</exportContents>
+        <version implementation="java.lang.String">${version}</version>
+        <artifactId implementation="java.lang.String">${artifactId}</artifactId>
+      </configuration>
+    </mojo>
+    <mojo>
+      <goal>move-bundle</goal>
+      <description>Moves a local bundle to a new location in the project tree.</description>
+      <requiresDirectInvocation>false</requiresDirectInvocation>
+      <requiresProject>true</requiresProject>
+      <requiresReports>false</requiresReports>
+      <aggregator>false</aggregator>
+      <requiresOnline>false</requiresOnline>
+      <inheritedByDefault>true</inheritedByDefault>
+      <implementation>org.ops4j.pax.construct.bundle.MoveBundleMojo</implementation>
+      <language>java</language>
+      <instantiationStrategy>per-lookup</instantiationStrategy>
+      <executionStrategy>once-per-session</executionStrategy>
+      <parameters>
+        <parameter>
+          <name>bundleName</name>
+          <type>java.lang.String</type>
+          <required>true</required>
+          <editable>true</editable>
+          <description>The local project name of the bundle to be moved.</description>
+        </parameter>
+        <parameter>
+          <name>project</name>
+          <type>org.apache.maven.project.MavenProject</type>
+          <required>false</required>
+          <editable>true</editable>
+          <description></description>
+        </parameter>
+        <parameter>
+          <name>targetDirectory</name>
+          <type>java.io.File</type>
+          <required>true</required>
+          <editable>true</editable>
+          <description>The new location for the bundle.</description>
+        </parameter>
+      </parameters>
+      <configuration>
+        <targetDirectory implementation="java.io.File">${targetDirectory}</targetDirectory>
+        <project implementation="org.apache.maven.project.MavenProject">${project}</project>
+        <bundleName implementation="java.lang.String">${bundleName}</bundleName>
+      </configuration>
+    </mojo>
+  </mojos>
+  <dependencies/>
+</plugin>

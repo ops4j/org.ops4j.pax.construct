@@ -69,7 +69,6 @@ public class EclipseDependenciesMojo extends EclipseMojo
             return super.setup();
         }
 
-        patchPlugin();
         thisProject = getExecutedProject();
         setResolveDependencies( false );
 
@@ -84,7 +83,7 @@ public class EclipseDependenciesMojo extends EclipseMojo
                     artifactResolver.resolve( (Artifact) i.next(), remoteArtifactRepositories, localRepository );
                 }
             }
-            else
+            else if( artifacts.size() > 0 )
             {
                 ArtifactResolutionResult result = artifactResolver.resolveTransitively( artifacts, thisProject
                     .getArtifact(), remoteArtifactRepositories, localRepository, artifactMetadataSource );
@@ -132,8 +131,6 @@ public class EclipseDependenciesMojo extends EclipseMojo
 
                     setProject( dependencyProject );
                     setExecutedProject( dependencyProject );
-                    executedProject = dependencyProject;
-                    project = dependencyProject;
 
                     unpackBundle( artifact.getFile(), "." );
 
