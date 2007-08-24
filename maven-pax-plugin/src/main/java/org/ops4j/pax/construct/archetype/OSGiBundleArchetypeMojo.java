@@ -128,7 +128,7 @@ public final class OSGiBundleArchetypeMojo extends AbstractChildArchetypeMojo
                  * 
                  * We only want interface Y in one bundle (the other one), so we reset our Export-Package setting...
                  */
-                out = new FileWriter( activatorFiles.getDirectory() + "/src/main/resources/META-INF/details.bnd", true );
+                out = new FileWriter( activatorFiles.getDirectory() + "/osgi.bnd", true );
                 out.write( "Export-Package:" + System.getProperty( "line.separator" ) );
             }
         }

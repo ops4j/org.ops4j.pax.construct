@@ -58,7 +58,7 @@
               <!--
                 load project specific settings
               -->
-              <_include>-target/classes/META-INF/details.bnd</_include>
+              <_include>-osgi.bnd</_include>
             </instructions>
           </configuration>
         </plugin>

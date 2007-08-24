@@ -128,7 +128,7 @@ public final class OSGiWrapperArchetypeMojo extends AbstractChildArchetypeMojo
     protected void postProcess()
         throws MojoExecutionException
     {
-        File bndConfig = new File( childPomFile.getParentFile(), "src/main/resources/META-INF/details.bnd" );
+        File bndConfig = new File( childPomFile.getParentFile(), "osgi.bnd" );
 
         if( !bndConfig.exists() )
         {

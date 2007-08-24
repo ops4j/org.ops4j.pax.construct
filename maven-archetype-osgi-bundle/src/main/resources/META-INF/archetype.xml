@@ -7,6 +7,6 @@
     <source>src/main/java/internal/Activator.java</source>
   </sources>
   <resources>
-    <resource>src/main/resources/META-INF/details.bnd</resource>
+    <resource>osgi.bnd</resource>
   </resources>
 </archetype>

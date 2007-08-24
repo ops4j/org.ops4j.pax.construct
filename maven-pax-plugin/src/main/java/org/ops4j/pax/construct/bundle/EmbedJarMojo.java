@@ -114,7 +114,7 @@ public final class EmbedJarMojo extends AbstractMojo
 
         if( unpack || exportContents != null )
         {
-            File bndConfig = new File( project.getBasedir(), "src/main/resources/META-INF/details.bnd" );
+            File bndConfig = new File( project.getBasedir(), "osgi.bnd" );
 
             if( !bndConfig.exists() )
             {
