@@ -50,7 +50,6 @@
         <groupId>org.ops4j.pax.construct.ng</groupId>
         <artifactId>maven-pax-plugin</artifactId>
         <version>${paxPluginVersion}</version>
-        <inherited>false</inherited>
       </plugin>
     </plugins>
   </build>

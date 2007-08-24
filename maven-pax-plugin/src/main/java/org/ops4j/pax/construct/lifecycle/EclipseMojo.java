@@ -23,14 +23,20 @@ import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.io.Writer;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Set;
 import java.util.jar.Attributes;
 import java.util.jar.Manifest;
 import java.util.regex.Pattern;
 
+import org.apache.maven.artifact.Artifact;
+import org.apache.maven.artifact.resolver.ArtifactResolutionResult;
+import org.apache.maven.model.Model;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.eclipse.EclipsePlugin;
 import org.apache.maven.plugin.eclipse.writers.EclipseClasspathWriter;
@@ -39,6 +45,8 @@ import org.apache.maven.plugin.eclipse.writers.EclipseSettingsWriter;
 import org.apache.maven.plugin.eclipse.writers.EclipseWriterConfig;
 import org.apache.maven.plugin.ide.IdeDependency;
 import org.apache.maven.project.MavenProject;
+import org.apache.maven.project.MavenProjectBuilder;
+import org.apache.maven.project.artifact.MavenMetadataSource;
 import org.codehaus.plexus.archiver.UnArchiver;
 import org.codehaus.plexus.archiver.manager.ArchiverManager;
 import org.codehaus.plexus.util.FileUtils;
@@ -63,11 +71,36 @@ public class EclipseMojo extends EclipsePlugin
      */
     protected ArchiverManager archiverManager;
 
+    /**
+     * @component role="org.apache.maven.project.MavenProjectBuilder"
+     * @required
+     * @readonly
+     */
+    protected MavenProjectBuilder mavenProjectBuilder;
+
+    /**
+     * @parameter
+     */
+    private boolean excludeTransitive;
+
     private List resolvedDependencies;
+
+    private MavenProject thisProject;
 
     public boolean setup()
         throws MojoExecutionException
     {
+        if( null == thisProject && "pom".equals( executedProject.getPackaging() ) )
+        {
+            Model originalModel = executedProject.getOriginalModel();
+            if( originalModel != null )
+            {
+                // FIXME: handle missing versions (when using dep mgmt)
+                setupImportedBundles( originalModel.getDependencies() );
+            }
+            return false;
+        }
+
         // fix private params
         setFlag( "pde", true );
         setWtpversion( "none" );
@@ -99,6 +132,19 @@ public class EclipseMojo extends EclipsePlugin
     public void writeConfiguration( IdeDependency[] deps )
         throws MojoExecutionException
     {
+        if( null == thisProject )
+        {
+            writeBundleConfiguration( deps );
+        }
+        else
+        {
+            writeImportedConfiguration( deps );
+        }
+    }
+
+    public void writeBundleConfiguration( IdeDependency[] deps )
+        throws MojoExecutionException
+    {
         try
         {
             resolvedDependencies = new ArrayList();
@@ -121,7 +167,14 @@ public class EclipseMojo extends EclipsePlugin
             new EclipseProjectWriter().init( getLog(), config ).write();
 
             String bundleDir = "target/bundle";
-            unpackBundle( executedProject.getArtifact().getFile(), bundleDir );
+            Artifact bundleArtifact = executedProject.getArtifact();
+
+            if( bundleArtifact.getFile() == null || !bundleArtifact.getFile().exists() )
+            {
+                artifactResolver.resolve( bundleArtifact, remoteArtifactRepositories, localRepository );
+            }
+
+            unpackBundle( bundleArtifact.getFile(), bundleDir );
             refactorForEclipse( bundleDir );
         }
         catch( Exception e )
@@ -333,5 +386,147 @@ public class EclipseMojo extends EclipsePlugin
         }
 
         return null;
+    }
+
+    public void setupImportedBundles( List dependencies )
+        throws MojoExecutionException
+    {
+        thisProject = getExecutedProject();
+        setResolveDependencies( false );
+
+        try
+        {
+            Set artifacts = MavenMetadataSource
+                .createArtifacts( artifactFactory, dependencies, null, null, thisProject );
+
+            if( excludeTransitive )
+            {
+                for( Iterator i = artifacts.iterator(); i.hasNext(); )
+                {
+                    artifactResolver.resolve( (Artifact) i.next(), remoteArtifactRepositories, localRepository );
+                }
+            }
+            else if( artifacts.size() > 0 )
+            {
+                ArtifactResolutionResult result = artifactResolver.resolveTransitively( artifacts, thisProject
+                    .getArtifact(), remoteArtifactRepositories, localRepository, artifactMetadataSource );
+
+                artifacts = result.getArtifacts();
+            }
+
+            for( Iterator i = artifacts.iterator(); i.hasNext(); )
+            {
+                Artifact artifact = (Artifact) i.next();
+                if( !artifact.isOptional() && "provided".equals( artifact.getScope() ) )
+                {
+                    String groupId = artifact.getGroupId();
+                    String artifactId = artifact.getArtifactId();
+                    String version;
+
+                    try
+                    {
+                        // use symbolic version if available (ie. 1.0.0-SNAPSHOT)
+                        version = artifact.getSelectedVersion().toString();
+                    }
+                    catch( Exception e )
+                    {
+                        version = artifact.getVersion();
+                    }
+
+                    Artifact pomArtifact = artifactFactory.createProjectArtifact( groupId, artifactId, version );
+
+                    MavenProject dependencyProject = mavenProjectBuilder.buildFromRepository( pomArtifact,
+                        remoteArtifactRepositories, localRepository );
+
+                    File projectDir = new File( thisProject.getBasedir(), "target/" + groupId );
+                    File localDir = new File( projectDir, artifactId + "/" + version );
+                    localDir.mkdirs();
+
+                    File pomFile = new File( localDir, "pom.xml" );
+
+                    Writer writer = new FileWriter( pomFile );
+                    dependencyProject.writeModel( writer );
+                    dependencyProject.setFile( pomFile );
+                    writer.close();
+
+                    setBuildOutputDirectory( new File( localDir, ".ignore" ) );
+                    setEclipseProjectDir( localDir );
+
+                    setProject( dependencyProject );
+                    setExecutedProject( dependencyProject );
+
+                    unpackBundle( artifact.getFile(), "." );
+
+                    execute();
+                }
+            }
+        }
+        catch( Exception e )
+        {
+            getLog().error( e );
+
+            throw new MojoExecutionException( "ERROR creating Eclipse files", e );
+        }
+    }
+
+    public void writeImportedConfiguration( IdeDependency[] deps )
+        throws MojoExecutionException
+    {
+        try
+        {
+            EclipseWriterConfig config = createEclipseWriterConfig( new IdeDependency[0] );
+
+            config.setEclipseProjectName( getEclipseProjectName( executedProject, true ) );
+            config.getEclipseProjectDirectory().mkdirs();
+
+            new EclipseClasspathWriter().init( getLog(), config ).write();
+            new EclipseProjectWriter().init( getLog(), config ).write();
+        }
+        catch( Exception e )
+        {
+            getLog().error( e );
+
+            throw new MojoExecutionException( "ERROR creating Eclipse files", e );
+        }
+
+        try
+        {
+            List remoteRepos = downloadSources ? remoteArtifactRepositories : Collections.EMPTY_LIST;
+
+            Artifact artifact = artifactFactory.createArtifactWithClassifier( executedProject.getGroupId(),
+                executedProject.getArtifactId(), executedProject.getVersion(), "java-source", "sources" );
+
+            artifactResolver.resolve( artifact, remoteRepos, localRepository );
+
+            attachImportedSource( artifact.getFile().getPath() );
+        }
+        catch( Exception e )
+        {
+            // ignore missing sources
+        }
+    }
+
+    protected void attachImportedSource( String sourcePath )
+    {
+        try
+        {
+            File classPathFile = new File( executedProject.getBasedir(), ".classpath" );
+            Xpp3Dom classPathXML = Xpp3DomBuilder.build( new FileReader( classPathFile ) );
+
+            Xpp3Dom classPathEntry = new Xpp3Dom( "classpathentry" );
+            classPathEntry.setAttribute( "exported", "true" );
+            classPathEntry.setAttribute( "kind", "lib" );
+            classPathEntry.setAttribute( "path", "." );
+            classPathEntry.setAttribute( "sourcepath", sourcePath );
+            classPathXML.addChild( classPathEntry );
+
+            FileWriter writer = new FileWriter( classPathFile );
+            Xpp3DomWriter.write( new PrettyPrintXMLWriter( writer ), classPathXML );
+            IOUtil.close( writer );
+        }
+        catch( Exception e )
+        {
+            // nice to have source, but ignore errors if we can't
+        }
     }
 }

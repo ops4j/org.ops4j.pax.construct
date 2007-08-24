@@ -800,67 +800,6 @@
           <editable>false</editable>
           <description></description>
         </parameter>
-      </parameters>
-      <configuration>
-        <remoteArtifactRepositories implementation="java.util.List">${project.remoteArtifactRepositories}</remoteArtifactRepositories>
-        <downloadSources implementation="boolean">${downloadSources}</downloadSources>
-        <localRepository implementation="org.apache.maven.artifact.repository.ArtifactRepository">${localRepository}</localRepository>
-        <executedProject implementation="org.apache.maven.project.MavenProject">${project}</executedProject>
-        <project implementation="org.apache.maven.project.MavenProject">${project}</project>
-        <reactorProjects implementation="java.util.List">${reactorProjects}</reactorProjects>
-        <downloadJavadocs implementation="boolean">${downloadJavadocs}</downloadJavadocs>
-      </configuration>
-      <requirements>
-        <requirement>
-          <role>org.apache.maven.artifact.resolver.ArtifactCollector</role>
-          <field-name>artifactCollector</field-name>
-        </requirement>
-        <requirement>
-          <role>org.apache.maven.artifact.resolver.ArtifactResolver</role>
-          <field-name>artifactResolver</field-name>
-        </requirement>
-        <requirement>
-          <role>org.apache.maven.artifact.factory.ArtifactFactory</role>
-          <field-name>artifactFactory</field-name>
-        </requirement>
-        <requirement>
-          <role>org.codehaus.plexus.archiver.manager.ArchiverManager</role>
-          <field-name>archiverManager</field-name>
-        </requirement>
-        <requirement>
-          <role>org.apache.maven.artifact.metadata.ArtifactMetadataSource</role>
-          <field-name>artifactMetadataSource</field-name>
-        </requirement>
-      </requirements>
-    </mojo>
-    <mojo>
-      <goal>eclipse-dependencies</goal>
-      <description>Extend maven-eclipse-plugin to process multiple OSGi dependencies.</description>
-      <requiresDirectInvocation>false</requiresDirectInvocation>
-      <requiresProject>true</requiresProject>
-      <requiresReports>false</requiresReports>
-      <aggregator>false</aggregator>
-      <requiresOnline>false</requiresOnline>
-      <inheritedByDefault>true</inheritedByDefault>
-      <implementation>org.ops4j.pax.construct.lifecycle.EclipseDependenciesMojo</implementation>
-      <language>java</language>
-      <instantiationStrategy>per-lookup</instantiationStrategy>
-      <executionStrategy>once-per-session</executionStrategy>
-      <parameters>
-        <parameter>
-          <name>downloadJavadocs</name>
-          <type>boolean</type>
-          <required>false</required>
-          <editable>true</editable>
-          <description></description>
-        </parameter>
-        <parameter>
-          <name>downloadSources</name>
-          <type>boolean</type>
-          <required>false</required>
-          <editable>true</editable>
-          <description></description>
-        </parameter>
         <parameter>
           <name>excludeTransitive</name>
           <type>boolean</type>
@@ -868,51 +807,16 @@
           <editable>true</editable>
           <description></description>
         </parameter>
-        <parameter>
-          <name>executedProject</name>
-          <type>org.apache.maven.project.MavenProject</type>
-          <required>false</required>
-          <editable>false</editable>
-          <description></description>
-        </parameter>
-        <parameter>
-          <name>localRepository</name>
-          <type>org.apache.maven.artifact.repository.ArtifactRepository</type>
-          <required>true</required>
-          <editable>false</editable>
-          <description></description>
-        </parameter>
-        <parameter>
-          <name>project</name>
-          <type>org.apache.maven.project.MavenProject</type>
-          <required>true</required>
-          <editable>false</editable>
-          <description></description>
-        </parameter>
-        <parameter>
-          <name>reactorProjects</name>
-          <type>java.util.List</type>
-          <required>true</required>
-          <editable>false</editable>
-          <description></description>
-        </parameter>
-        <parameter>
-          <name>remoteArtifactRepositories</name>
-          <type>java.util.List</type>
-          <required>true</required>
-          <editable>false</editable>
-          <description></description>
-        </parameter>
       </parameters>
       <configuration>
         <remoteArtifactRepositories implementation="java.util.List">${project.remoteArtifactRepositories}</remoteArtifactRepositories>
         <downloadSources implementation="boolean">${downloadSources}</downloadSources>
-        <excludeTransitive implementation="boolean">${excludeTransitive}</excludeTransitive>
         <localRepository implementation="org.apache.maven.artifact.repository.ArtifactRepository">${localRepository}</localRepository>
         <executedProject implementation="org.apache.maven.project.MavenProject">${project}</executedProject>
         <project implementation="org.apache.maven.project.MavenProject">${project}</project>
         <reactorProjects implementation="java.util.List">${reactorProjects}</reactorProjects>
         <downloadJavadocs implementation="boolean">${downloadJavadocs}</downloadJavadocs>
+        <excludeTransitive implementation="boolean">${excludeTransitive}</excludeTransitive>
       </configuration>
       <requirements>
         <requirement>
@@ -928,16 +832,16 @@
           <field-name>artifactFactory</field-name>
         </requirement>
         <requirement>
-          <role>org.apache.maven.project.MavenProjectBuilder</role>
-          <field-name>mavenProjectBuilder</field-name>
-        </requirement>
-        <requirement>
           <role>org.codehaus.plexus.archiver.manager.ArchiverManager</role>
           <field-name>archiverManager</field-name>
         </requirement>
         <requirement>
           <role>org.apache.maven.artifact.metadata.ArtifactMetadataSource</role>
           <field-name>artifactMetadataSource</field-name>
+        </requirement>
+        <requirement>
+          <role>org.apache.maven.project.MavenProjectBuilder</role>
+          <field-name>mavenProjectBuilder</field-name>
         </requirement>
       </requirements>
     </mojo>

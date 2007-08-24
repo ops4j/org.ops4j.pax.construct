@@ -149,10 +149,7 @@ public final class ProvisionMojo extends AbstractMojo
             m_properties = new Properties();
             m_bundleArtifacts = new TreeSet();
             m_projectCount = 0;
-        }
 
-        if( !project.hasParent() )
-        {
             initializeRunnerPom();
         }
 
@@ -166,8 +163,8 @@ public final class ProvisionMojo extends AbstractMojo
 
     private void initializeRunnerPom()
     {
-        m_runnerPom.setGroupId( project.getGroupId() + "." + project.getArtifactId() );
-        m_runnerPom.setArtifactId( "runner" );
+        m_runnerPom.setGroupId( project.getGroupId() );
+        m_runnerPom.setArtifactId( "runner-config" );
         m_runnerPom.setVersion( project.getVersion() );
 
         m_runnerPom.setName( project.getName() );

@@ -40,25 +40,5 @@
     -->
   </dependencies>
 
-  <build>
-    <plugins>
-      <plugin>
-        <groupId>org.ops4j.pax.construct.ng</groupId>
-        <artifactId>maven-pax-plugin</artifactId>
-        <version>0.2.0-SNAPSHOT</version>
-        <inherited>false</inherited>
-        <executions>
-          <execution>
-            <id>add-ide-support</id>
-            <phase>package</phase>
-            <goals>
-              <goal>eclipse-dependencies</goal>
-            </goals>
-          </execution>
-        </executions>
-      </plugin>
-    </plugins>
-  </build>
-
 #end
 </project>
