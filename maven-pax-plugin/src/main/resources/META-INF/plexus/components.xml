@@ -48,11 +48,10 @@
       <implementation>org.apache.maven.artifact.handler.DefaultArtifactHandler</implementation>
       <configuration>
         <type>bundle</type>
-        <extension>jar</extension>
-        <packaging>jar</packaging>
-        <language>java</language>
-        <addedToClasspath>true</addedToClasspath>
         <includesDependencies>true</includesDependencies>
+        <language>java</language>
+        <extension>jar</extension>
+        <addedToClasspath>true</addedToClasspath>
       </configuration>
     </component>
   </components>
