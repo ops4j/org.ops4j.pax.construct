@@ -42,6 +42,15 @@
           <groupId>org.ops4j.pax.construct.ng</groupId>
           <artifactId>maven-pax-plugin</artifactId>
           <version>${paxPluginVersion}</version>
+          <extensions>true</extensions>
+          <configuration>
+            <!--
+              change if version should be independent of build JDK
+            -->
+            <source>\${java.specification.version}</source>
+            <target>\${java.specification.version}</target>
+            <debug>true</debug>
+          </configuration>
           <executions>
             <execution>
               <id>add-ide-support</id>
