@@ -32,38 +32,36 @@
     <!--
       wrapper specific plugin configuration
     -->
-    <pluginManagement>
-      <plugins>
-        <plugin>
-          <groupId>org.apache.felix</groupId>
-          <artifactId>maven-bundle-plugin</artifactId>
-          <configuration>
-            <instructions>
-              <Bundle-SymbolicName>${bundle.symbolicName}</Bundle-SymbolicName>
-              <Bundle-Version>${wrapped.version}</Bundle-Version>
-              <!--
-                export contents of bundle: don't use Export-Package:* as this bundles everything on the classpath
-              -->
-              <Private-Package>!*</Private-Package>
-              <_exportcontents>*</_exportcontents>
-              <!--
-                inline main artifact and embed all compile and runtime dependencies
-              -->
-              <Embed-Dependency>
-                ${wrapped.artifactId};groupId=${wrapped.groupId};inline=true,
-                *;scope=compile|runtime
-              </Embed-Dependency>
-              <Embed-StripVersion>true</Embed-StripVersion>
-              <Embed-Transitive>true</Embed-Transitive>
-              <!--
-                load project specific settings
-              -->
-              <_include>-osgi.bnd</_include>
-            </instructions>
-          </configuration>
-        </plugin>
-      </plugins>
-    </pluginManagement>
+    <plugins>
+      <plugin>
+        <groupId>org.apache.felix</groupId>
+        <artifactId>maven-bundle-plugin</artifactId>
+        <configuration>
+          <instructions>
+            <Bundle-SymbolicName>${bundle.symbolicName}</Bundle-SymbolicName>
+            <Bundle-Version>${wrapped.version}</Bundle-Version>
+            <!--
+              export contents of bundle: don't use Export-Package:* as this bundles everything on the classpath
+            -->
+            <Private-Package>!*</Private-Package>
+            <_exportcontents>*</_exportcontents>
+            <!--
+              inline main artifact and embed all compile and runtime dependencies
+            -->
+            <Embed-Dependency>
+              ${wrapped.artifactId};groupId=${wrapped.groupId};inline=true,
+              *;scope=compile|runtime
+            </Embed-Dependency>
+            <Embed-StripVersion>true</Embed-StripVersion>
+            <Embed-Transitive>true</Embed-Transitive>
+            <!--
+              load project specific settings
+            -->
+            <_include>-osgi.bnd</_include>
+          </instructions>
+        </configuration>
+      </plugin>
+    </plugins>
   </build>
 
 #end
