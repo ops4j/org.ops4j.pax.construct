@@ -13,7 +13,7 @@
   <artifactId>provision</artifactId>
 #literal()
 
-  <name>Provision OSGi bundles from Maven/OBR</name>
+  <name>Import OSGi bundles</name>
 
   <packaging>pom</packaging>
 

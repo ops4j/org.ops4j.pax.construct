@@ -192,9 +192,6 @@ public final class PomUtils
         final String groupIdText = parentModel.getGroupId() + "." + parentModel.getArtifactId();
         final String artifactIdText = targetDir.getName();
 
-        Element name = project.createElement( null, "name" );
-        name.addChild( Element.TEXT, groupIdText + "." + artifactIdText );
-
         Element modelVersion = project.createElement( null, "modelVersion" );
         modelVersion.addChild( Element.TEXT, "4.0.0" );
         Element groupId = project.createElement( null, "groupId" );
@@ -211,6 +208,7 @@ public final class PomUtils
         pom.addChild( Element.TEXT, NL );
         pom.addChild( Element.ELEMENT, project );
 
+        Element name = project.createElement( null, "name" );
         project.addChild( Element.TEXT, NL + NL + "  " );
         project.addChild( Element.ELEMENT, name );
 

@@ -12,7 +12,7 @@
   <modelVersion>4.0.0</modelVersion>
   <artifactId>wrap-jar-as-bundle</artifactId>
 
-  <name>Configure OSGi wrappers for third-party jar(s)</name>
+  <name>Wrapper instructions</name>
 
   <organization/>
   <description>
@@ -29,11 +29,11 @@
   </properties>
 
   <build>
-    <!--
-      wrapper specific plugin configuration
-    -->
     <plugins>
       <plugin>
+        <!--
+          the following instructions are optimized for wrapping general-purpose libraries as OSGi bundles
+        -->
         <groupId>org.apache.felix</groupId>
         <artifactId>maven-bundle-plugin</artifactId>
         <configuration>
@@ -41,7 +41,7 @@
             <Bundle-SymbolicName>${bundle.symbolicName}</Bundle-SymbolicName>
             <Bundle-Version>${wrapped.version}</Bundle-Version>
             <!--
-              export contents of bundle: don't use Export-Package:* as this bundles everything on the classpath
+              export wrapped contents: don't use Export-Package:* as this bundles everything on the classpath
             -->
             <Private-Package>!*</Private-Package>
             <_exportcontents>*</_exportcontents>
@@ -55,7 +55,7 @@
             <Embed-StripVersion>true</Embed-StripVersion>
             <Embed-Transitive>true</Embed-Transitive>
             <!--
-              load project specific settings
+              each module can override these defaults in their osgi.bnd file
             -->
             <_include>-osgi.bnd</_include>
           </instructions>

@@ -20,10 +20,10 @@
   </licenses>
 ..............-->
 
-  <name>Simple OSGi project</name>
+  <name>\${groupId}.\${artifactId} (OSGi project)</name>
 
   <description>
-    Build layout for a simple OSGi application
+    Generated using Pax-Construct v2
   </description>
 
   <modelVersion>4.0.0</modelVersion>
@@ -32,6 +32,9 @@
   <version>\${version}</version>
 
   <properties>
+    <!--
+      example OSGi runtime properties
+    -->
     <org.osgi.service.http.port>8080</org.osgi.service.http.port>
     <org.osgi.service.http.port.secure>8443</org.osgi.service.http.port.secure>
   </properties>
@@ -46,7 +49,6 @@
   <build>
     <plugins>
       <plugin>
-        <!-- help find the right 'pax' plugin -->
         <groupId>org.ops4j.pax.construct.ng</groupId>
         <artifactId>maven-pax-plugin</artifactId>
         <version>${paxPluginVersion}</version>
@@ -58,9 +60,6 @@
     <repository>
       <id>ops4j-repository</id>
       <url>http://repository.ops4j.org/maven2</url>
-      <snapshots>
-        <enabled>false</enabled>
-      </snapshots>
     </repository>
   </repositories>
 
@@ -68,11 +67,6 @@
     <pluginRepository>
       <id>ops4j-repository</id>
       <url>http://repository.ops4j.org/maven2</url>
-<!--
-      <snapshots>
-        <enabled>false</enabled>
-      </snapshots>
--->
     </pluginRepository>
   </pluginRepositories>
 
