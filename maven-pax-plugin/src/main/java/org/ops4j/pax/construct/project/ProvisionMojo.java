@@ -164,7 +164,7 @@ public final class ProvisionMojo extends AbstractMojo
     private void initializeRunnerPom()
     {
         m_runnerPom.setGroupId( project.getGroupId() );
-        m_runnerPom.setArtifactId( "runner-config" );
+        m_runnerPom.setArtifactId( project.getArtifactId() + "-deployment" );
         m_runnerPom.setVersion( project.getVersion() );
 
         m_runnerPom.setName( project.getName() );
@@ -174,7 +174,7 @@ public final class ProvisionMojo extends AbstractMojo
 
         m_properties.putAll( project.getProperties() );
 
-        String runnerPath = project.getFile().getParent() + "/target/runner/pom.xml";
+        String runnerPath = project.getFile().getParent() + "/target/deployed/pom.xml";
 
         File runnerPomFile = new File( runnerPath );
         runnerPomFile.getParentFile().mkdirs();

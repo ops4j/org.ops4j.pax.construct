@@ -10,7 +10,7 @@ a {
 
 v {
   name = 'version'
-  example = '0.1.0-SNAPSHOT'
+  example = '1.0-SNAPSHOT'
   optional = true
 }
 

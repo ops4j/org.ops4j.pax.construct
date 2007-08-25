@@ -51,7 +51,7 @@ public final class OSGiBundleArchetypeMojo extends AbstractChildArchetypeMojo
     /**
      * The version of the new bundle.
      * 
-     * @parameter expression="${version}" default-value="0.1.0-SNAPSHOT"
+     * @parameter expression="${version}" default-value="1.0-SNAPSHOT"
      */
     private String version;
 

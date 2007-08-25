@@ -47,7 +47,7 @@ public final class OSGiProjectArchetypeMojo extends AbstractArchetypeMojo
     /**
      * The version of the new OSGi project.
      * 
-     * @parameter expression="${version}" default-value="0.1.0-SNAPSHOT"
+     * @parameter expression="${version}" default-value="1.0-SNAPSHOT"
      */
     private String version;
 
