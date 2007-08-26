@@ -20,10 +20,17 @@ import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.OutputStream;
-import java.util.Collections;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
 import java.util.Properties;
 
+import org.apache.maven.artifact.Artifact;
+import org.apache.maven.artifact.factory.ArtifactFactory;
+import org.apache.maven.model.Dependency;
 import org.apache.maven.plugin.MojoExecutionException;
+import org.apache.maven.project.MavenProject;
+import org.apache.maven.project.MavenProjectBuilder;
 import org.codehaus.plexus.util.IOUtil;
 import org.codehaus.plexus.util.PropertyUtils;
 
@@ -95,13 +102,69 @@ public final class OSGiWrapperArchetypeMojo extends AbstractChildArchetypeMojo
      */
     private boolean addVersion;
 
+    /**
+     * @parameter expression="${component.org.apache.maven.artifact.factory.ArtifactFactory}"
+     * @required
+     * @readonly
+     */
+    private ArtifactFactory artifactFactory;
+
+    /**
+     * @component role="org.apache.maven.project.MavenProjectBuilder"
+     * @required
+     * @readonly
+     */
+    protected MavenProjectBuilder mavenProjectBuilder;
+
+    private static String bundleGroupId;
+
     protected boolean checkEnvironment()
         throws MojoExecutionException
     {
         // this is the logical parent of the new bundle project
         if( TARGET_PARENT_ARTIFACT.equals( project.getArtifactId() ) )
         {
-            linkChildToParent( Collections.EMPTY_LIST );
+            List bundleDependencies = new ArrayList();
+
+            try
+            {
+                if( false /* don't use this yet */&& excludeTransitive )
+                {
+                    Artifact artifact = artifactFactory.createProjectArtifact( groupId, artifactId, version );
+                    MavenProject wrappedProject = mavenProjectBuilder.buildFromRepository( artifact,
+                        remoteArtifactRepositories, localRepository );
+
+                    for( Iterator i = wrappedProject.getDependencies().iterator(); i.hasNext(); )
+                    {
+                        Dependency dependency = (Dependency) i.next();
+
+                        String compoundWrapperName = getCompoundName( dependency.getGroupId(), dependency
+                            .getArtifactId() );
+
+                        dependency.setGroupId( bundleGroupId );
+                        dependency.setScope( Artifact.SCOPE_PROVIDED );
+
+                        if( addVersion )
+                        {
+                            dependency.setArtifactId( compoundWrapperName + "-" + dependency.getVersion() );
+                            dependency.setVersion( "${project.version}" );
+                        }
+                        else
+                        {
+                            dependency.setArtifactId( compoundWrapperName );
+                            dependency.setVersion( dependency.getVersion() + "-001" );
+                        }
+
+                        bundleDependencies.add( dependency );
+                    }
+                }
+            }
+            catch( Exception e )
+            {
+                e.printStackTrace();
+            }
+
+            linkChildToParent( bundleDependencies );
         }
 
         // only create archetype under physical parent (ie. the _root_ project)
@@ -119,7 +182,9 @@ public final class OSGiWrapperArchetypeMojo extends AbstractChildArchetypeMojo
             compoundWrapperName += "-" + version;
         }
 
-        setField( "groupId", getCompoundName( project.getGroupId(), project.getArtifactId() ) );
+        bundleGroupId = getCompoundName( project.getGroupId(), project.getArtifactId() );
+
+        setField( "groupId", bundleGroupId );
         setField( "artifactId", compoundWrapperName );
         setField( "version", (addVersion ? '+' : ' ') + version );
 

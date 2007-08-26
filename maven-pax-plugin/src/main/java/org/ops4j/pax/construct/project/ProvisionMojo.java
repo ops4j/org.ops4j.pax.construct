@@ -89,14 +89,14 @@ public final class ProvisionMojo extends AbstractMojo
      * @required
      * @readonly
      */
-    private ArtifactFactory factory;
+    private ArtifactFactory artifactFactory;
 
     /**
      * @parameter expression="${component.org.apache.maven.artifact.installer.ArtifactInstaller}"
      * @required
      * @readonly
      */
-    private ArtifactInstaller installer;
+    private ArtifactInstaller artifactInstaller;
 
     /**
      * @component role="org.apache.maven.project.MavenProjectBuilder"
@@ -166,7 +166,7 @@ public final class ProvisionMojo extends AbstractMojo
 
         try
         {
-            Set artifacts = deployableProject.createArtifacts( factory, null, null );
+            Set artifacts = deployableProject.createArtifacts( artifactFactory, null, null );
             for( Iterator i = artifacts.iterator(); i.hasNext(); )
             {
                 Artifact artifact = (Artifact) i.next();
@@ -246,8 +246,8 @@ public final class ProvisionMojo extends AbstractMojo
             String artifactId = m_runnerPom.getArtifactId();
             String version = m_runnerPom.getVersion();
 
-            Artifact artifact = factory.createProjectArtifact( groupId, artifactId, version );
-            installer.install( pomFile, artifact, localRepository );
+            Artifact artifact = artifactFactory.createProjectArtifact( groupId, artifactId, version );
+            artifactInstaller.install( pomFile, artifact, localRepository );
 
             if( deploy )
             {
