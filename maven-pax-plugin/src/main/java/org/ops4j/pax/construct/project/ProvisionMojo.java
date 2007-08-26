@@ -28,11 +28,7 @@ import java.util.TreeSet;
 import org.apache.maven.artifact.Artifact;
 import org.apache.maven.artifact.factory.ArtifactFactory;
 import org.apache.maven.artifact.installer.ArtifactInstaller;
-import org.apache.maven.artifact.metadata.ArtifactMetadataSource;
 import org.apache.maven.artifact.repository.ArtifactRepository;
-import org.apache.maven.artifact.resolver.ArtifactCollector;
-import org.apache.maven.artifact.resolver.ArtifactResolutionResult;
-import org.apache.maven.artifact.resolver.ArtifactResolver;
 import org.apache.maven.model.Dependency;
 import org.apache.maven.model.Model;
 import org.apache.maven.plugin.AbstractMojo;
@@ -63,11 +59,6 @@ public final class ProvisionMojo extends AbstractMojo
      * @parameter expression="${deploy}" default-value="true"
      */
     private boolean deploy;
-
-    /**
-     * @parameter expression="${excludeTransitive}"
-     */
-    private boolean excludeTransitive;
 
     /**
      * @parameter expression="${deploy.poms}"
@@ -106,27 +97,6 @@ public final class ProvisionMojo extends AbstractMojo
      * @readonly
      */
     private ArtifactInstaller installer;
-
-    /**
-     * @component role="org.apache.maven.artifact.resolver.ArtifactResolver"
-     * @required
-     * @readonly
-     */
-    protected ArtifactResolver artifactResolver;
-
-    /**
-     * @component role="org.apache.maven.artifact.resolver.ArtifactCollector"
-     * @required
-     * @readonly
-     */
-    protected ArtifactCollector artifactCollector;
-
-    /**
-     * @component role="org.apache.maven.artifact.metadata.ArtifactMetadataSource" hint="maven"
-     * @required
-     * @readonly
-     */
-    protected ArtifactMetadataSource artifactMetadataSource;
 
     /**
      * @component role="org.apache.maven.project.MavenProjectBuilder"
@@ -197,15 +167,6 @@ public final class ProvisionMojo extends AbstractMojo
         try
         {
             Set artifacts = deployableProject.createArtifacts( factory, null, null );
-
-            if( !excludeTransitive )
-            {
-                ArtifactResolutionResult result = artifactResolver.resolveTransitively( artifacts, keyArtifact,
-                    remoteArtifactRepositories, localRepository, artifactMetadataSource );
-
-                artifacts = result.getArtifacts();
-            }
-
             for( Iterator i = artifacts.iterator(); i.hasNext(); )
             {
                 Artifact artifact = (Artifact) i.next();

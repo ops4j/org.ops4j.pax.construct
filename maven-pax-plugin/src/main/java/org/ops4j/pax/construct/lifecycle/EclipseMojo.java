@@ -35,7 +35,6 @@ import java.util.jar.Manifest;
 import java.util.regex.Pattern;
 
 import org.apache.maven.artifact.Artifact;
-import org.apache.maven.artifact.resolver.ArtifactResolutionResult;
 import org.apache.maven.model.Model;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.eclipse.EclipsePlugin;
@@ -77,11 +76,6 @@ public class EclipseMojo extends EclipsePlugin
      * @readonly
      */
     protected MavenProjectBuilder mavenProjectBuilder;
-
-    /**
-     * @parameter
-     */
-    private boolean excludeTransitive;
 
     private List resolvedDependencies;
 
@@ -399,39 +393,15 @@ public class EclipseMojo extends EclipsePlugin
             Set artifacts = MavenMetadataSource
                 .createArtifacts( artifactFactory, dependencies, null, null, thisProject );
 
-            if( excludeTransitive )
-            {
-                for( Iterator i = artifacts.iterator(); i.hasNext(); )
-                {
-                    artifactResolver.resolve( (Artifact) i.next(), remoteArtifactRepositories, localRepository );
-                }
-            }
-            else if( artifacts.size() > 0 )
-            {
-                ArtifactResolutionResult result = artifactResolver.resolveTransitively( artifacts, thisProject
-                    .getArtifact(), remoteArtifactRepositories, localRepository, artifactMetadataSource );
-
-                artifacts = result.getArtifacts();
-            }
-
             for( Iterator i = artifacts.iterator(); i.hasNext(); )
             {
                 Artifact artifact = (Artifact) i.next();
+
                 if( Artifact.SCOPE_PROVIDED.equals( artifact.getScope() ) )
                 {
                     String groupId = artifact.getGroupId();
                     String artifactId = artifact.getArtifactId();
-                    String version;
-
-                    try
-                    {
-                        // use symbolic version if available (ie. 1.0.0-SNAPSHOT)
-                        version = artifact.getSelectedVersion().toString();
-                    }
-                    catch( Exception e )
-                    {
-                        version = artifact.getVersion();
-                    }
+                    String version = artifact.getVersion();
 
                     Artifact pomArtifact = artifactFactory.createProjectArtifact( groupId, artifactId, version );
 
@@ -452,9 +422,10 @@ public class EclipseMojo extends EclipsePlugin
                     setBuildOutputDirectory( new File( localDir, ".ignore" ) );
                     setEclipseProjectDir( localDir );
 
+                    artifactResolver.resolve( artifact, remoteArtifactRepositories, localRepository );
+
                     setProject( dependencyProject );
                     setExecutedProject( dependencyProject );
-
                     unpackBundle( artifact.getFile(), "." );
 
                     execute();

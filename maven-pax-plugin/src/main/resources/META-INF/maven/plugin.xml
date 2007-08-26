@@ -169,13 +169,6 @@
           <description></description>
         </parameter>
         <parameter>
-          <name>excludeTransitive</name>
-          <type>boolean</type>
-          <required>false</required>
-          <editable>true</editable>
-          <description></description>
-        </parameter>
-        <parameter>
           <name>framework</name>
           <type>java.lang.String</type>
           <required>false</required>
@@ -214,7 +207,6 @@
       <configuration>
         <remoteArtifactRepositories implementation="java.util.List">${project.remoteArtifactRepositories}</remoteArtifactRepositories>
         <framework implementation="java.lang.String" default-value="felix">${framework}</framework>
-        <excludeTransitive implementation="boolean">${excludeTransitive}</excludeTransitive>
         <additionalPoms implementation="java.lang.String">${deploy.poms}</additionalPoms>
         <localRepository implementation="org.apache.maven.artifact.repository.ArtifactRepository">${localRepository}</localRepository>
         <deploy implementation="boolean" default-value="true">${deploy}</deploy>
@@ -223,16 +215,8 @@
       </configuration>
       <requirements>
         <requirement>
-          <role>org.apache.maven.artifact.resolver.ArtifactCollector</role>
-          <field-name>artifactCollector</field-name>
-        </requirement>
-        <requirement>
           <role>org.apache.maven.artifact.installer.ArtifactInstaller</role>
           <field-name>installer</field-name>
-        </requirement>
-        <requirement>
-          <role>org.apache.maven.artifact.resolver.ArtifactResolver</role>
-          <field-name>artifactResolver</field-name>
         </requirement>
         <requirement>
           <role>org.apache.maven.project.MavenProjectBuilder</role>
@@ -241,10 +225,6 @@
         <requirement>
           <role>org.apache.maven.artifact.factory.ArtifactFactory</role>
           <field-name>factory</field-name>
-        </requirement>
-        <requirement>
-          <role>org.apache.maven.artifact.metadata.ArtifactMetadataSource</role>
-          <field-name>artifactMetadataSource</field-name>
         </requirement>
       </requirements>
     </mojo>
@@ -800,13 +780,6 @@
           <editable>false</editable>
           <description></description>
         </parameter>
-        <parameter>
-          <name>excludeTransitive</name>
-          <type>boolean</type>
-          <required>false</required>
-          <editable>true</editable>
-          <description></description>
-        </parameter>
       </parameters>
       <configuration>
         <remoteArtifactRepositories implementation="java.util.List">${project.remoteArtifactRepositories}</remoteArtifactRepositories>
@@ -816,7 +789,6 @@
         <project implementation="org.apache.maven.project.MavenProject">${project}</project>
         <reactorProjects implementation="java.util.List">${reactorProjects}</reactorProjects>
         <downloadJavadocs implementation="boolean">${downloadJavadocs}</downloadJavadocs>
-        <excludeTransitive implementation="boolean">${excludeTransitive}</excludeTransitive>
       </configuration>
       <requirements>
         <requirement>
