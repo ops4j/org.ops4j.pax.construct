@@ -170,7 +170,7 @@ public final class ProvisionMojo extends AbstractMojo
             for( Iterator i = artifacts.iterator(); i.hasNext(); )
             {
                 Artifact artifact = (Artifact) i.next();
-                if( Artifact.SCOPE_PROVIDED.equals( artifact.getScope() ) )
+                if( Artifact.SCOPE_PROVIDED.equals( artifact.getScope() ) && !artifact.isOptional() )
                 {
                     m_bundleArtifacts.add( artifact );
                 }

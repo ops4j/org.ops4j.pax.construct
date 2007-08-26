@@ -35,7 +35,6 @@ import java.util.jar.Manifest;
 import java.util.regex.Pattern;
 
 import org.apache.maven.artifact.Artifact;
-import org.apache.maven.model.Model;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.eclipse.EclipsePlugin;
 import org.apache.maven.plugin.eclipse.writers.EclipseClasspathWriter;
@@ -45,7 +44,6 @@ import org.apache.maven.plugin.eclipse.writers.EclipseWriterConfig;
 import org.apache.maven.plugin.ide.IdeDependency;
 import org.apache.maven.project.MavenProject;
 import org.apache.maven.project.MavenProjectBuilder;
-import org.apache.maven.project.artifact.MavenMetadataSource;
 import org.codehaus.plexus.archiver.UnArchiver;
 import org.codehaus.plexus.archiver.manager.ArchiverManager;
 import org.codehaus.plexus.util.FileUtils;
@@ -86,12 +84,7 @@ public class EclipseMojo extends EclipsePlugin
     {
         if( null == thisProject && "pom".equals( executedProject.getPackaging() ) )
         {
-            Model originalModel = executedProject.getOriginalModel();
-            if( originalModel != null )
-            {
-                // FIXME: handle missing versions (when using dep mgmt)
-                setupImportedBundles( originalModel.getDependencies() );
-            }
+            setupImportedBundles();
             return false;
         }
 
@@ -382,7 +375,7 @@ public class EclipseMojo extends EclipsePlugin
         return null;
     }
 
-    public void setupImportedBundles( List dependencies )
+    public void setupImportedBundles()
         throws MojoExecutionException
     {
         thisProject = getExecutedProject();
@@ -390,9 +383,7 @@ public class EclipseMojo extends EclipsePlugin
 
         try
         {
-            Set artifacts = MavenMetadataSource
-                .createArtifacts( artifactFactory, dependencies, null, null, thisProject );
-
+            Set artifacts = thisProject.createArtifacts( artifactFactory, null, null );
             for( Iterator i = artifacts.iterator(); i.hasNext(); )
             {
                 Artifact artifact = (Artifact) i.next();
