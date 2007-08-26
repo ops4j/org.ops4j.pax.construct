@@ -26,6 +26,7 @@ import java.io.Reader;
 import java.io.Writer;
 import java.util.List;
 
+import org.apache.maven.artifact.Artifact;
 import org.apache.maven.model.Dependency;
 import org.apache.maven.model.Model;
 import org.apache.maven.model.Repository;
@@ -518,20 +519,34 @@ public final class PomUtils
         depElem.addChild( Element.TEXT, NL + WS + WS + WS );
         depElem.addChild( Element.ELEMENT, artifactIdElem );
 
-        // add the version
-        Element versionElem = depElem.createElement( null, "version" );
-        versionElem.addChild( Element.TEXT, dependency.getVersion() );
-        depElem.addChild( Element.TEXT, NL + WS + WS + WS );
-        depElem.addChild( Element.ELEMENT, versionElem );
+        // add the selected version
+        String version = dependency.getVersion();
+        if( version != null )
+        {
+            Element versionElem = depElem.createElement( null, "version" );
+            versionElem.addChild( Element.TEXT, version );
+            depElem.addChild( Element.TEXT, NL + WS + WS + WS );
+            depElem.addChild( Element.ELEMENT, versionElem );
+        }
 
         // add scope (ignore default/compile)
         String scope = dependency.getScope();
-        if( scope != null && !"compile".equals( scope ) )
+        if( scope != null && !Artifact.SCOPE_COMPILE.equals( scope ) )
         {
             Element scopeElem = depElem.createElement( null, "scope" );
             scopeElem.addChild( Element.TEXT, scope );
             depElem.addChild( Element.TEXT, NL + WS + WS + WS );
             depElem.addChild( Element.ELEMENT, scopeElem );
+        }
+
+        // add type (ignore default/jar)
+        String type = dependency.getType();
+        if( type != null && !"jar".equals( type ) )
+        {
+            Element typeElem = depElem.createElement( null, "type" );
+            typeElem.addChild( Element.TEXT, type );
+            depElem.addChild( Element.TEXT, NL + WS + WS + WS );
+            depElem.addChild( Element.ELEMENT, typeElem );
         }
 
         // is it optional?
@@ -600,7 +615,7 @@ public final class PomUtils
     {
         Dependency dependency = new Dependency();
 
-        dependency.setScope( "provided" );
+        dependency.setScope( Artifact.SCOPE_PROVIDED );
         dependency.setOptional( false );
 
         dependency.setGroupId( bundleModel.getGroupId() );

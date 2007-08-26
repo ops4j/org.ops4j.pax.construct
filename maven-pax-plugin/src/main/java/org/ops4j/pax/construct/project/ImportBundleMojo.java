@@ -18,6 +18,7 @@ package org.ops4j.pax.construct.project;
 
 import java.io.File;
 
+import org.apache.maven.artifact.Artifact;
 import org.apache.maven.model.Dependency;
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
@@ -132,7 +133,7 @@ public final class ImportBundleMojo extends AbstractMojo
         dependency.setGroupId( groupId );
         dependency.setArtifactId( artifactId );
         dependency.setVersion( version );
-        dependency.setScope( "provided" );
+        dependency.setScope( Artifact.SCOPE_PROVIDED );
 
         if( deploy )
         {

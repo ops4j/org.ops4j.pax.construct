@@ -19,7 +19,9 @@ package org.ops4j.pax.construct.archetype;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.util.Collections;
 
+import org.apache.maven.model.Dependency;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.shared.model.fileset.FileSet;
 import org.apache.maven.shared.model.fileset.util.FileSetManager;
@@ -32,6 +34,8 @@ import org.codehaus.plexus.util.IOUtil;
  */
 public final class OSGiBundleArchetypeMojo extends AbstractChildArchetypeMojo
 {
+    public static final String TARGET_PARENT_ARTIFACT = "compiled-bundle-settings";
+
     /**
      * The package of the new bundle.
      * 
@@ -69,9 +73,14 @@ public final class OSGiBundleArchetypeMojo extends AbstractChildArchetypeMojo
         throws MojoExecutionException
     {
         // this is the logical parent of the new bundle project
-        if( "compile-bundle".equals( project.getArtifactId() ) )
+        if( TARGET_PARENT_ARTIFACT.equals( project.getArtifactId() ) )
         {
-            linkChildToParent();
+            Dependency dependency = new Dependency();
+            dependency.setGroupId( project.getGroupId() );
+            dependency.setArtifactId( "provision" );
+            dependency.setType( "pom" );
+
+            linkChildToParent( Collections.singletonList( dependency ) );
         }
 
         // only create archetype under physical parent (ie. the _root_ project)

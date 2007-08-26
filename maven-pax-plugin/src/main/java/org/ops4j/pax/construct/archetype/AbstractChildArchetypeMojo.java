@@ -17,7 +17,10 @@ package org.ops4j.pax.construct.archetype;
  */
 
 import java.io.File;
+import java.util.Iterator;
+import java.util.List;
 
+import org.apache.maven.model.Dependency;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.kxml2.kdom.Document;
 import org.kxml2.kdom.Element;
@@ -101,7 +104,7 @@ public abstract class AbstractChildArchetypeMojo extends AbstractArchetypeMojo
         }
     }
 
-    protected void linkChildToParent()
+    protected void linkChildToParent( List initialDependencies )
         throws MojoExecutionException
     {
         try
@@ -115,6 +118,11 @@ public abstract class AbstractChildArchetypeMojo extends AbstractArchetypeMojo
 
             Element projectElem = childPom.getElement( null, "project" );
             PomUtils.setParent( projectElem, project, relativePath, overwrite );
+
+            for( Iterator i = initialDependencies.iterator(); i.hasNext(); )
+            {
+                PomUtils.addDependency( projectElem, (Dependency) i.next(), overwrite );
+            }
 
             PomUtils.writePom( childPomFile, childPom );
         }

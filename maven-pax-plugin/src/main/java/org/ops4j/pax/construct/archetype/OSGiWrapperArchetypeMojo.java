@@ -20,6 +20,7 @@ import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.OutputStream;
+import java.util.Collections;
 import java.util.Properties;
 
 import org.apache.maven.plugin.MojoExecutionException;
@@ -33,6 +34,8 @@ import org.codehaus.plexus.util.PropertyUtils;
  */
 public final class OSGiWrapperArchetypeMojo extends AbstractChildArchetypeMojo
 {
+    public static final String TARGET_PARENT_ARTIFACT = "wrapper-bundle-settings";
+
     /**
      * The groupId of the jarfile to wrap.
      * 
@@ -96,9 +99,9 @@ public final class OSGiWrapperArchetypeMojo extends AbstractChildArchetypeMojo
         throws MojoExecutionException
     {
         // this is the logical parent of the new bundle project
-        if( "wrap-jar-as-bundle".equals( project.getArtifactId() ) )
+        if( TARGET_PARENT_ARTIFACT.equals( project.getArtifactId() ) )
         {
-            linkChildToParent();
+            linkChildToParent( Collections.EMPTY_LIST );
         }
 
         // only create archetype under physical parent (ie. the _root_ project)

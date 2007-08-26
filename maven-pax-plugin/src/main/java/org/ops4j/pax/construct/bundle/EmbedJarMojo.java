@@ -22,6 +22,7 @@ import java.io.FileOutputStream;
 import java.io.OutputStream;
 import java.util.Properties;
 
+import org.apache.maven.artifact.Artifact;
 import org.apache.maven.model.Dependency;
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
@@ -104,7 +105,7 @@ public final class EmbedJarMojo extends AbstractMojo
         dependency.setGroupId( groupId );
         dependency.setArtifactId( artifactId );
         dependency.setVersion( version );
-        dependency.setScope( "compile" );
+        dependency.setScope( Artifact.SCOPE_COMPILE );
 
         // limit transitive nature
         dependency.setOptional( true );

@@ -4,13 +4,13 @@
 
   <parent>
     <groupId>${package}.build</groupId>
-    <artifactId>bundles</artifactId>
+    <artifactId>shared-bundle-settings</artifactId>
     <version>${version}</version>
   </parent>
 #literal()
 
   <modelVersion>4.0.0</modelVersion>
-  <artifactId>wrap-jar-as-bundle</artifactId>
+  <artifactId>wrapper-bundle-settings</artifactId>
 
   <name>Wrapper instructions</name>
 
@@ -46,11 +46,11 @@
             <Private-Package>!*</Private-Package>
             <_exportcontents>*</_exportcontents>
             <!--
-              inline main artifact and embed all compile and runtime dependencies
+              inline main artifact and embed all compile and runtime dependencies (except poms and OSGi framework artifacts)
             -->
             <Embed-Dependency>
               ${wrapped.artifactId};groupId=${wrapped.groupId};inline=true,
-              *;scope=compile|runtime
+              *;scope=compile|runtime;groupId=!org.osgi;type=!pom
             </Embed-Dependency>
             <Embed-StripVersion>true</Embed-StripVersion>
             <Embed-Transitive>true</Embed-Transitive>

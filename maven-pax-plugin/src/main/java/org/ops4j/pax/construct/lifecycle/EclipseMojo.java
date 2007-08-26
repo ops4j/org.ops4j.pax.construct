@@ -417,7 +417,7 @@ public class EclipseMojo extends EclipsePlugin
             for( Iterator i = artifacts.iterator(); i.hasNext(); )
             {
                 Artifact artifact = (Artifact) i.next();
-                if( !artifact.isOptional() && "provided".equals( artifact.getScope() ) )
+                if( Artifact.SCOPE_PROVIDED.equals( artifact.getScope() ) )
                 {
                     String groupId = artifact.getGroupId();
                     String artifactId = artifact.getArtifactId();
