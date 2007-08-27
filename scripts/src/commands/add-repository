@@ -1,6 +1,6 @@
 i {
   name = 'repositoryId'
-  example = 'org.ops4j.repository'
+  example = 'ops4j-repository'
 }
 
 u {

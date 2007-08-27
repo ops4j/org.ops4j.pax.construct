@@ -27,7 +27,8 @@ public final class PomUtils
 {
     public interface Pom
     {
-        public void setParent( MavenProject parent, String relativePath, boolean overwrite );
+        public void setParent( MavenProject project, String relativePath, boolean overwrite )
+            throws MojoExecutionException;
 
         public void adjustRelativePath( int offset );
 
