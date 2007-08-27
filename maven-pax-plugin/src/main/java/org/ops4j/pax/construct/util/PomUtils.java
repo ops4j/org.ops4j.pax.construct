@@ -20,6 +20,7 @@ import java.io.File;
 
 import org.apache.maven.model.Dependency;
 import org.apache.maven.model.Repository;
+import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.project.MavenProject;
 
 public final class PomUtils
@@ -44,17 +45,19 @@ public final class PomUtils
 
         public void removeDependency( Dependency dependency );
 
-        public void write();
+        public void write()
+            throws MojoExecutionException;
+    }
+
+    public static Pom readPom( File pomFile )
+        throws MojoExecutionException
+    {
+        return new XppPom( pomFile );
     }
 
     public static boolean isBundleProject( MavenProject project )
     {
-        throw new UnsupportedOperationException( "TBD: refactoring in progress" );
-    }
-
-    public static Pom readPom( File pomFile )
-    {
-        throw new UnsupportedOperationException( "TBD: refactoring in progress" );
+        return project.getPackaging().indexOf( "bundle" ) >= 0;
     }
 
     public static MavenProject findPom( MavenProject project, String artifactId )
@@ -74,6 +77,50 @@ public final class PomUtils
 
     public static String calculateRelativePath( File baseDir, File targetDir )
     {
-        throw new UnsupportedOperationException( "TBD: refactoring in progress" );
+        try
+        {
+            baseDir = baseDir.getCanonicalFile();
+            targetDir = targetDir.getCanonicalFile();
+        }
+        catch( Exception e )
+        {
+            // ignore, assume original paths will be ok
+        }
+
+        String dottedPath = "";
+        String descentPath = "";
+        while( baseDir != null && targetDir != null && !baseDir.equals( targetDir ) )
+        {
+            if( baseDir.getPath().length() < targetDir.getPath().length() )
+            {
+                descentPath = targetDir.getName() + "/" + descentPath;
+                targetDir = targetDir.getParentFile();
+            }
+            else
+            {
+                dottedPath = "../" + dottedPath;
+                baseDir = baseDir.getParentFile();
+            }
+        }
+
+        String relativePath = null;
+        if( baseDir != null && targetDir != null )
+        {
+            relativePath = dottedPath + descentPath;
+        }
+
+        return relativePath;
+    }
+
+    protected static boolean contains( File baseDir, File targetDir )
+    {
+        for( ; targetDir != null; targetDir = targetDir.getParentFile() )
+        {
+            if( targetDir.equals( baseDir ) )
+            {
+                return true;
+            }
+        }
+        return false;
     }
 }

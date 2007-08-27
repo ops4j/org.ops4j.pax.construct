@@ -35,6 +35,7 @@ import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.project.MavenProject;
 import org.apache.maven.project.MavenProjectBuilder;
+import org.ops4j.pax.construct.util.PomUtils;
 
 /**
  * Create configuration pom file for provisioning via Pax-Runner
@@ -159,7 +160,7 @@ public final class ProvisionMojo extends AbstractMojo
     private void addBundleDependencies( MavenProject deployableProject )
     {
         Artifact keyArtifact = deployableProject.getArtifact();
-        if( deployableProject.getPackaging().indexOf( "bundle" ) >= 0 )
+        if( PomUtils.isBundleProject( deployableProject ) )
         {
             m_bundleArtifacts.add( keyArtifact );
         }
