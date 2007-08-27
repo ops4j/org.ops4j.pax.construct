@@ -29,9 +29,8 @@ import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.project.MavenProject;
 import org.codehaus.plexus.util.IOUtil;
 import org.codehaus.plexus.util.PropertyUtils;
-import org.kxml2.kdom.Document;
-import org.kxml2.kdom.Element;
 import org.ops4j.pax.construct.util.PomUtils;
+import org.ops4j.pax.construct.util.PomUtils.Pom;
 
 /**
  * Embeds a jarfile inside a local bundle project.
@@ -92,15 +91,15 @@ public final class EmbedJarMojo extends AbstractMojo
         throws MojoExecutionException
     {
         // Nothing to be done for non-bundle projects...
-        if( !PomUtils.isBundleProject( project.getModel() ) )
+        if( !PomUtils.isBundleProject( project ) )
         {
+            getLog().warn( "Ignoring non-bundle project" );
             return;
         }
 
-        Document pom = PomUtils.readPom( project.getFile() );
+        Pom pom = PomUtils.readPom( project.getFile() );
 
         // all compiled dependencies are automatically embedded
-        Element projectElem = pom.getElement( null, "project" );
         Dependency dependency = new Dependency();
         dependency.setGroupId( groupId );
         dependency.setArtifactId( artifactId );
@@ -110,8 +109,8 @@ public final class EmbedJarMojo extends AbstractMojo
         // limit transitive nature
         dependency.setOptional( true );
 
-        PomUtils.addDependency( projectElem, dependency, overwrite );
-        PomUtils.writePom( project.getFile(), pom );
+        pom.addDependency( dependency, overwrite );
+        pom.write();
 
         if( unpack || exportContents != null )
         {

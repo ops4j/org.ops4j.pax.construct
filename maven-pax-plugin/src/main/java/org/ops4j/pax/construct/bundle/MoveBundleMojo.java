@@ -21,8 +21,8 @@ import java.io.File;
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.project.MavenProject;
-import org.kxml2.kdom.Document;
 import org.ops4j.pax.construct.util.PomUtils;
+import org.ops4j.pax.construct.util.PomUtils.Pom;
 
 /**
  * Moves a local bundle to a new location in the project tree.
@@ -66,32 +66,30 @@ public final class MoveBundleMojo extends AbstractMojo
         }
         ignore = true;
 
-        File oldBundlePomFile = PomUtils.findBundlePom( project.getBasedir(), bundleName );
-        if( null == oldBundlePomFile || !oldBundlePomFile.exists() )
+        MavenProject bundleProject = PomUtils.findModule( project, bundleName );
+        if( null == bundleProject )
         {
             throw new MojoExecutionException( "Cannot find bundle " + bundleName );
         }
 
-        File newParentFile = PomUtils.createModuleTree( project.getBasedir(), targetDirectory );
-        if( null == newParentFile )
+        Pom newModulesPom = PomUtils.createModuleTree( project.getBasedir(), targetDirectory );
+        if( null == newModulesPom )
         {
             throw new MojoExecutionException( "targetDirectory is outside of this project" );
         }
 
-        File oldBundlePomFolder = oldBundlePomFile.getParentFile();
-        File oldParentPomFolder = oldBundlePomFolder.getParentFile();
-        final String moduleName = oldBundlePomFolder.getName();
-
-        File newBundlePomFolder = new File( targetDirectory, moduleName );
-        File newBundlePomFile = new File( newBundlePomFolder, "pom.xml" );
+        File bundleFolder = bundleProject.getBasedir();
+        File modulesFolder = bundleFolder.getParentFile();
+        final String moduleName = bundleFolder.getName();
 
         // MOVE BUNDLE!
-        if( !oldBundlePomFolder.renameTo( newBundlePomFolder ) )
+        File newBundleFolder = new File( targetDirectory, moduleName );
+        if( !bundleFolder.renameTo( newBundleFolder ) )
         {
             throw new MojoExecutionException( "Unable to move bundle " + bundleName + " to " + targetDirectory );
         }
 
-        String relativePath = PomUtils.calculateRelativePath( targetDirectory, oldParentPomFolder );
+        String relativePath = PomUtils.calculateRelativePath( targetDirectory, modulesFolder );
         String[] pathSegments = relativePath.split( "/" );
 
         int relativeOffset = 0;
@@ -102,19 +100,17 @@ public final class MoveBundleMojo extends AbstractMojo
 
         if( relativeOffset != 0 )
         {
-            Document bundlePom = PomUtils.readPom( newBundlePomFile );
-            PomUtils.adjustRelativePath( bundlePom.getElement( null, "project" ), relativeOffset );
-            PomUtils.writePom( newBundlePomFile, bundlePom );
+            Pom pom = PomUtils.readPom( new File( newBundleFolder, "pom.xml" ) );
+            pom.adjustRelativePath( relativeOffset );
+            pom.write();
         }
 
-        File oldParentFile = new File( oldParentPomFolder, "pom.xml" );
+        Pom modulesPom = PomUtils.readPom( new File( modulesFolder, "pom.xml" ) );
 
-        Document oldParentPom = PomUtils.readPom( oldParentFile );
-        PomUtils.removeModule( oldParentPom.getElement( null, "project" ), moduleName );
-        PomUtils.writePom( oldParentFile, oldParentPom );
+        modulesPom.removeModule( moduleName );
+        modulesPom.write();
 
-        Document newParentPom = PomUtils.readPom( newParentFile );
-        PomUtils.addModule( newParentPom.getElement( null, "project" ), moduleName, true );
-        PomUtils.writePom( newParentFile, newParentPom );
+        newModulesPom.addModule( moduleName, true );
+        newModulesPom.write();
     }
 }

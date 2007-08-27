@@ -16,18 +16,11 @@ package org.ops4j.pax.construct.bundle;
  * limitations under the License.
  */
 
-import java.io.File;
-import java.io.FileReader;
-
-import org.apache.maven.model.Dependency;
-import org.apache.maven.model.Model;
-import org.apache.maven.model.io.xpp3.MavenXpp3Reader;
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.project.MavenProject;
-import org.kxml2.kdom.Document;
-import org.kxml2.kdom.Element;
 import org.ops4j.pax.construct.util.PomUtils;
+import org.ops4j.pax.construct.util.PomUtils.Pom;
 
 /**
  * Use a local bundle inside another bundle sub-project (adds dependency to the compilation classpath)
@@ -59,64 +52,39 @@ public final class UseBundleMojo extends AbstractMojo
     private boolean overwrite;
 
     /**
-     * Records the Maven model for the used bundle.
+     * Records the Maven project for the used bundle.
      */
-    private static Model usedBundleModel;
+    private static MavenProject bundleProject;
 
     public void execute()
         throws MojoExecutionException
     {
         // Nothing to be done for non-bundle projects...
-        if( !PomUtils.isBundleProject( project.getModel() ) )
+        if( !PomUtils.isBundleProject( project ) )
         {
             return;
         }
 
-        if( null == usedBundleModel )
+        if( null == bundleProject )
         {
-            // search from the top of the project
-            MavenProject rootProject = project;
-            while( rootProject.getParent() != null )
-            {
-                rootProject = rootProject.getParent();
-            }
-
-            File usedPomFile = PomUtils.findBundlePom( rootProject.getBasedir(), bundleName );
-            if( null == usedPomFile || !usedPomFile.exists() )
+            bundleProject = PomUtils.findModule( project, bundleName );
+            if( null == bundleProject )
             {
                 throw new MojoExecutionException( "Cannot find bundle " + bundleName );
             }
 
-            try
-            {
-                // cache Maven information about the used bundle
-                FileReader input = new FileReader( usedPomFile );
-                MavenXpp3Reader modelReader = new MavenXpp3Reader();
-                usedBundleModel = modelReader.read( input );
-            }
-            catch( Exception e )
-            {
-                throw new MojoExecutionException( "Unable to open sub-project " + bundleName, e );
-            }
-
-            if( !PomUtils.isBundleProject( usedBundleModel ) )
+            if( !PomUtils.isBundleProject( bundleProject ) )
             {
                 throw new MojoExecutionException( "Sub-project " + bundleName + " is not a bundle" );
             }
         }
 
         // make sure we don't add a bundle dependency to itself!
-        if( project.getId().equals( usedBundleModel.getId() ) )
+        if( !project.getId().equals( bundleProject.getId() ) )
         {
-            return;
+            Pom pom = PomUtils.readPom( project.getFile() );
+            pom.addDependency( bundleProject, overwrite );
+            pom.write();
         }
-
-        Document pom = PomUtils.readPom( project.getFile() );
-
-        Element projectElem = pom.getElement( null, "project" );
-        Dependency dependency = PomUtils.getBundleDependency( usedBundleModel );
-        PomUtils.addDependency( projectElem, dependency, overwrite );
-
-        PomUtils.writePom( project.getFile(), pom );
     }
 }

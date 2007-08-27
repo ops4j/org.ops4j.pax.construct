@@ -20,9 +20,8 @@ import org.apache.maven.model.Repository;
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.project.MavenProject;
-import org.kxml2.kdom.Document;
-import org.kxml2.kdom.Element;
 import org.ops4j.pax.construct.util.PomUtils;
+import org.ops4j.pax.construct.util.PomUtils.Pom;
 
 /**
  * Adds a Maven repository to the current project.
@@ -73,14 +72,14 @@ public final class AddRepositoryMojo extends AbstractMojo
         }
         ignore = true;
 
-        Document pom = PomUtils.readPom( project.getFile() );
+        Pom pom = PomUtils.readPom( project.getFile() );
 
-        Element projectElem = pom.getElement( null, "project" );
         Repository repository = new Repository();
         repository.setId( repositoryId );
         repository.setUrl( repositoryURL );
-        PomUtils.addRepository( projectElem, repository, overwrite );
 
-        PomUtils.writePom( project.getFile(), pom );
+        pom.addRepository( repository, overwrite );
+
+        pom.write();
     }
 }

@@ -16,16 +16,13 @@ package org.ops4j.pax.construct.project;
  * limitations under the License.
  */
 
-import java.io.File;
-
 import org.apache.maven.artifact.Artifact;
 import org.apache.maven.model.Dependency;
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.project.MavenProject;
-import org.kxml2.kdom.Document;
-import org.kxml2.kdom.Element;
 import org.ops4j.pax.construct.util.PomUtils;
+import org.ops4j.pax.construct.util.PomUtils.Pom;
 
 /**
  * Import an externally provided bundle to the OSGi project.
@@ -91,44 +88,6 @@ public final class ImportBundleMojo extends AbstractMojo
         }
         ignore = true;
 
-        /*
-         * the following code attempts to allow updates to the main provisioning pom from elsewhere in the project tree
-         */
-        MavenProject provisionProject = null;
-
-        MavenProject rootProject = project;
-        while( rootProject.getParent() != null )
-        {
-            // scan for the main provisioning pom used in this particular project
-            if( "provision".equals( rootProject.getArtifactId() ) && rootProject.getGroupId().endsWith( ".build" ) )
-            {
-                provisionProject = rootProject;
-            }
-            rootProject = rootProject.getParent();
-        }
-
-        // try provision pom
-        File targetFile = null;
-        if( null != provisionProject )
-        {
-            targetFile = provisionProject.getFile();
-        }
-
-        // not in hierarchy, check default location...
-        if( null == targetFile || !targetFile.exists() )
-        {
-            targetFile = new File( rootProject.getBasedir(), "provision/pom.xml" );
-        }
-
-        // fall back to using the current project
-        if( null == targetFile || !targetFile.exists() )
-        {
-            targetFile = project.getFile();
-        }
-
-        Document pom = PomUtils.readPom( targetFile );
-
-        Element projectElem = pom.getElement( null, "project" );
         Dependency dependency = new Dependency();
         dependency.setGroupId( groupId );
         dependency.setArtifactId( artifactId );
@@ -146,8 +105,14 @@ public final class ImportBundleMojo extends AbstractMojo
             dependency.setOptional( true );
         }
 
-        PomUtils.addDependency( projectElem, dependency, overwrite );
+        MavenProject provisionProject = PomUtils.findPom( project, "provision" );
+        if( null == provisionProject )
+        {
+            provisionProject = project;
+        }
 
-        PomUtils.writePom( targetFile, pom );
+        Pom pom = PomUtils.readPom( provisionProject.getFile() );
+        pom.addDependency( dependency, overwrite );
+        pom.write();
     }
 }

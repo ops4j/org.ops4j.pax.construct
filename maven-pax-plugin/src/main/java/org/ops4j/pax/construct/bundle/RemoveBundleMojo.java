@@ -17,19 +17,14 @@ package org.ops4j.pax.construct.bundle;
  */
 
 import java.io.File;
-import java.io.FileReader;
 
-import org.apache.maven.model.Dependency;
-import org.apache.maven.model.Model;
-import org.apache.maven.model.io.xpp3.MavenXpp3Reader;
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.project.MavenProject;
 import org.apache.maven.shared.model.fileset.FileSet;
 import org.apache.maven.shared.model.fileset.util.FileSetManager;
-import org.kxml2.kdom.Document;
-import org.kxml2.kdom.Element;
 import org.ops4j.pax.construct.util.PomUtils;
+import org.ops4j.pax.construct.util.PomUtils.Pom;
 
 /**
  * Removes a local bundle and any references to it from the project.
@@ -52,73 +47,50 @@ public final class RemoveBundleMojo extends AbstractMojo
     private String bundleName;
 
     /**
-     * Records the Maven model for the removed bundle.
+     * Records the Maven project for the removed bundle.
      */
-    private static Model removedBundleModel;
+    private static MavenProject bundleProject;
 
     public void execute()
         throws MojoExecutionException
     {
-        if( null == removedBundleModel )
+        if( null == bundleProject )
         {
-            // we must traverse from the top!
-            if( project.getParent() != null )
-            {
-                throw new MojoExecutionException( "This command must be run from the project root" );
-            }
-
-            File bundlePomFile = PomUtils.findBundlePom( project.getBasedir(), bundleName );
-            if( null == bundlePomFile || !bundlePomFile.exists() )
+            bundleProject = PomUtils.findModule( project, bundleName );
+            if( null == bundleProject )
             {
                 throw new MojoExecutionException( "Cannot find bundle " + bundleName );
             }
 
-            try
-            {
-                // cache Maven information about the removed bundle
-                FileReader input = new FileReader( bundlePomFile );
-                MavenXpp3Reader modelReader = new MavenXpp3Reader();
-                removedBundleModel = modelReader.read( input );
-            }
-            catch( Exception e )
-            {
-                throw new MojoExecutionException( "Unable to open sub-project " + bundleName, e );
-            }
-
-            if( !PomUtils.isBundleProject( removedBundleModel ) )
+            if( !PomUtils.isBundleProject( bundleProject ) )
             {
                 throw new MojoExecutionException( "Sub-project " + bundleName + " is not a bundle" );
             }
+        }
 
+        if( !project.getId().equals( bundleProject.getId() ) )
+        {
+            Pom pom = PomUtils.readPom( project.getFile() );
+            pom.removeDependency( bundleProject );
+            pom.removeModule( bundleName );
+            pom.write();
+        }
+        else
+        {
             try
             {
                 FileSet bundleFiles = new FileSet();
 
-                File bundlePomFolder = bundlePomFile.getParentFile();
-                bundleFiles.setDirectory( bundlePomFolder.getParent() );
-                bundleFiles.addInclude( bundlePomFolder.getName() );
+                File bundleFolder = bundleProject.getBasedir();
+                bundleFiles.setDirectory( bundleFolder.getParent() );
+                bundleFiles.addInclude( bundleFolder.getName() );
 
                 new FileSetManager( getLog(), true ).delete( bundleFiles );
             }
             catch( Exception e )
             {
-                throw new MojoExecutionException( "Unable to remove the requested bundle", e );
+                getLog().warn( "Unable to remove the requested bundle", e );
             }
         }
-
-        // ignore any removed bundle project(s)
-        if( !project.getFile().exists() )
-        {
-            return;
-        }
-
-        Document pom = PomUtils.readPom( project.getFile() );
-        Element projectElem = pom.getElement( null, "project" );
-
-        Dependency dependency = PomUtils.getBundleDependency( removedBundleModel );
-
-        PomUtils.removeDependency( projectElem, dependency );
-        PomUtils.removeModule( projectElem, new File( bundleName ).getName() );
-        PomUtils.writePom( project.getFile(), pom );
     }
 }

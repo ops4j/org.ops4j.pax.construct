@@ -22,9 +22,8 @@ import java.util.List;
 
 import org.apache.maven.model.Dependency;
 import org.apache.maven.plugin.MojoExecutionException;
-import org.kxml2.kdom.Document;
-import org.kxml2.kdom.Element;
 import org.ops4j.pax.construct.util.PomUtils;
+import org.ops4j.pax.construct.util.PomUtils.Pom;
 
 /**
  * Foundation for all OSGi sub-project goals that use archetypes.
@@ -84,19 +83,14 @@ public abstract class AbstractChildArchetypeMojo extends AbstractArchetypeMojo
         {
             final String childName = childPomFile.getParentFile().getName();
 
-            File parentFile = PomUtils.createModuleTree( project.getBasedir(), targetDirectory );
-
-            if( null == parentFile )
+            Pom parentPom = PomUtils.createModuleTree( project.getBasedir(), targetDirectory );
+            if( null == parentPom )
             {
                 throw new MojoExecutionException( "targetDirectory is outside of this project" );
             }
 
-            Document parentPom = PomUtils.readPom( parentFile );
-
-            Element projectElem = parentPom.getElement( null, "project" );
-            PomUtils.addModule( projectElem, childName, overwrite );
-
-            PomUtils.writePom( parentFile, parentPom );
+            parentPom.addModule( childName, overwrite );
+            parentPom.write();
         }
         catch( Exception e )
         {
@@ -109,22 +103,21 @@ public abstract class AbstractChildArchetypeMojo extends AbstractArchetypeMojo
     {
         try
         {
-            Document childPom = PomUtils.readPom( childPomFile );
+            Pom childPom = PomUtils.readPom( childPomFile );
 
             File sourcePath = childPomFile.getParentFile();
             File targetPath = project.getBasedir();
 
             final String relativePath = PomUtils.calculateRelativePath( sourcePath, targetPath );
 
-            Element projectElem = childPom.getElement( null, "project" );
-            PomUtils.setParent( projectElem, project, relativePath, overwrite );
+            childPom.setParent( project, relativePath, overwrite );
 
             for( Iterator i = initialDependencies.iterator(); i.hasNext(); )
             {
-                PomUtils.addDependency( projectElem, (Dependency) i.next(), overwrite );
+                childPom.addDependency( (Dependency) i.next(), overwrite );
             }
 
-            PomUtils.writePom( childPomFile, childPom );
+            childPom.write();
         }
         catch( Exception e )
         {
