@@ -19,7 +19,6 @@ package org.ops4j.pax.construct.util;
 import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
-import java.io.IOException;
 
 import org.apache.maven.artifact.Artifact;
 import org.apache.maven.model.Dependency;
@@ -28,10 +27,7 @@ import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.project.MavenProject;
 import org.codehaus.plexus.util.xml.Xpp3Dom;
 import org.codehaus.plexus.util.xml.Xpp3DomBuilder;
-import org.codehaus.plexus.util.xml.pull.MXParser;
-import org.codehaus.plexus.util.xml.pull.MXSerializer;
 import org.codehaus.plexus.util.xml.pull.XmlPullParser;
-import org.codehaus.plexus.util.xml.pull.XmlPullParserException;
 import org.codehaus.plexus.util.xml.pull.XmlSerializer;
 import org.ops4j.pax.construct.util.PomUtils.Pom;
 
@@ -39,7 +35,6 @@ public final class XppPom
     implements Pom
 {
     private File file;
-
     private Xpp3Dom pom;
 
     public XppPom( File pomFile )
@@ -49,7 +44,7 @@ public final class XppPom
 
         try
         {
-            XmlPullParser parser = new RoundTripParser();
+            XmlPullParser parser = RoundTripXml.createParser();
             parser.setInput( new FileReader( file ) );
             pom = Xpp3DomBuilder.build( parser, false );
         }
@@ -67,21 +62,11 @@ public final class XppPom
             throw new MojoExecutionException( "Keeping existing data, use -Doverwrite to replace it" );
         }
 
-        Xpp3Dom rPath = new Xpp3Dom( "relativePath" );
-        Xpp3Dom groupId = new Xpp3Dom( "groupId" );
-        Xpp3Dom artifactId = new Xpp3Dom( "artifactId" );
-        Xpp3Dom version = new Xpp3Dom( "version" );
-
-        rPath.setValue( relativePath );
-        groupId.setValue( project.getGroupId() );
-        artifactId.setValue( project.getArtifactId() );
-        version.setValue( project.getVersion() );
-
-        Xpp3Dom parent = new Xpp3Dom( "parent" );
-        parent.addChild( rPath );
-        parent.addChild( groupId );
-        parent.addChild( artifactId );
-        parent.addChild( version );
+        Xpp3DomMap parent = new Xpp3DomMap( "parent" );
+        parent.putValue( "relativePath", relativePath );
+        parent.putValue( "groupId", project.getGroupId() );
+        parent.putValue( "artifactId", project.getArtifactId() );
+        parent.putValue( "version", project.getVersion() );
 
         Xpp3Dom newPom = new Xpp3Dom( "project" );
         newPom.addChild( parent );
@@ -112,15 +97,9 @@ public final class XppPom
     {
         // TBD: CHECK FOR EXISTING DATA
 
-        Xpp3Dom id = new Xpp3Dom( "id" );
-        Xpp3Dom url = new Xpp3Dom( "url" );
-
-        id.setValue( repository.getId() );
-        url.setValue( repository.getUrl() );
-
-        Xpp3Dom repo = new Xpp3Dom( "repository" );
-        repo.addChild( id );
-        repo.addChild( url );
+        Xpp3DomMap repo = new Xpp3DomMap( "repository" );
+        repo.putValue( "id", repository.getId() );
+        repo.putValue( "url", repository.getUrl() );
 
         Xpp3Dom list = new Xpp3DomList( "repositories" );
         list.addChild( repo );
@@ -156,21 +135,11 @@ public final class XppPom
     {
         // TBD: CHECK FOR EXISTING DATA
 
-        Xpp3Dom groupId = new Xpp3Dom( "groupId" );
-        Xpp3Dom artifactId = new Xpp3Dom( "artifactId" );
-        Xpp3Dom version = new Xpp3Dom( "version" );
-        Xpp3Dom scope = new Xpp3Dom( "scope" );
-
-        groupId.setValue( project.getGroupId() );
-        artifactId.setValue( project.getArtifactId() );
-        version.setValue( project.getVersion() );
-        scope.setValue( Artifact.SCOPE_PROVIDED );
-
-        Xpp3Dom dep = new Xpp3Dom( "dependency" );
-        dep.addChild( groupId );
-        dep.addChild( artifactId );
-        dep.addChild( version );
-        dep.addChild( scope );
+        Xpp3DomMap dep = new Xpp3DomMap( "dependency" );
+        dep.putValue( "groupId", project.getGroupId() );
+        dep.putValue( "artifactId", project.getArtifactId() );
+        dep.putValue( "version", project.getVersion() );
+        dep.putValue( "scope", Artifact.SCOPE_PROVIDED );
 
         Xpp3Dom list = new Xpp3DomList( "dependencies" );
         list.addChild( dep );
@@ -185,13 +154,13 @@ public final class XppPom
     {
         // TBD: CHECK FOR EXISTING DATA + OPTIONAL FIELDS
 
-        Xpp3DomTree dep = new Xpp3DomTree( "dependency" );
-        dep.addLeaf( "groupId", dependency.getGroupId() );
-        dep.addLeaf( "artifactId", dependency.getArtifactId() );
-        dep.addLeaf( "version", dependency.getVersion() );
-        dep.addLeaf( "scope", dependency.getScope() );
-        dep.addLeaf( "type", dependency.getType() );
-        dep.addLeaf( "optional", "" + dependency.isOptional() );
+        Xpp3DomMap dep = new Xpp3DomMap( "dependency" );
+        dep.putValue( "groupId", dependency.getGroupId() );
+        dep.putValue( "artifactId", dependency.getArtifactId() );
+        dep.putValue( "version", dependency.getVersion() );
+        dep.putValue( "scope", dependency.getScope() );
+        dep.putValue( "type", dependency.getType() );
+        dep.putValue( "optional", "" + dependency.isOptional() );
 
         Xpp3Dom list = new Xpp3DomList( "dependencies" );
         list.addChild( dep );
@@ -217,7 +186,7 @@ public final class XppPom
     {
         try
         {
-            XmlSerializer serializer = new RoundTripSerializer();
+            XmlSerializer serializer = RoundTripXml.createSerializer();
             serializer.setOutput( new FileWriter( file ) );
             pom.writeToSerializer( null, serializer );
             serializer.flush();
@@ -228,18 +197,18 @@ public final class XppPom
         }
     }
 
-    protected static class Xpp3DomTree extends Xpp3Dom
+    protected static class Xpp3DomMap extends Xpp3Dom
     {
-        public Xpp3DomTree( String name )
+        public Xpp3DomMap( String name )
         {
             super( name );
         }
 
-        public void addLeaf( String name, String value )
+        public void putValue( String name, String value )
         {
-            Xpp3Dom leaf = new Xpp3Dom( name );
-            leaf.setValue( value );
-            addChild( leaf );
+            Xpp3Dom child = new Xpp3Dom( name );
+            child.setValue( value );
+            addChild( child );
         }
     }
 
@@ -250,138 +219,6 @@ public final class XppPom
             super( name );
 
             setAttribute( CHILDREN_COMBINATION_MODE_ATTRIBUTE, CHILDREN_COMBINATION_APPEND );
-        }
-    }
-
-    protected static class RoundTripParser extends MXParser
-    {
-        boolean handleComment = false;
-
-        public int next()
-            throws XmlPullParserException,
-            IOException
-        {
-            if( handleComment )
-            {
-                handleComment = false;
-                return END_TAG;
-            }
-
-            int type = super.nextToken();
-
-            if( COMMENT == eventType )
-            {
-                handleComment = true;
-                return START_TAG;
-            }
-
-            return type;
-        }
-
-        public String getName()
-        {
-            if( handleComment )
-            {
-                return "!--" + getText();
-            }
-            return super.getName();
-        }
-
-        public boolean isEmptyElementTag()
-            throws XmlPullParserException
-        {
-            if( handleComment )
-            {
-                return true;
-            }
-            return super.isEmptyElementTag();
-        }
-
-        public int getAttributeCount()
-        {
-            if( handleComment )
-            {
-                return 0;
-            }
-            return super.getAttributeCount();
-        }
-    }
-
-    protected static class RoundTripSerializer extends MXSerializer
-    {
-        boolean handleComment = false;
-
-        public RoundTripSerializer()
-            throws IOException
-        {
-            setProperty( PROPERTY_SERIALIZER_INDENTATION, "  " );
-        }
-
-        public XmlSerializer startTag( String namespace, String name )
-            throws IOException
-        {
-            if( name.startsWith( "!--" ) )
-            {
-                if( !handleComment )
-                {
-                    closeStartTag();
-                    writeIndent();
-                }
-
-                handleComment = true;
-
-                out.write( "<" + name + "-->" );
-                if( getDepth() == 1 )
-                {
-                    out.write( lineSeparator );
-                }
-                writeIndent();
-
-                return this;
-            }
-
-            handleComment = false;
-
-            return super.startTag( namespace, name );
-        }
-
-        protected void closeStartTag()
-            throws IOException
-        {
-            super.closeStartTag();
-            if( getDepth() == 1 )
-            {
-                out.write( lineSeparator );
-            }
-        }
-
-        public XmlSerializer endTag( String namespace, String name )
-            throws IOException
-        {
-            if( !handleComment )
-            {
-                super.endTag( namespace, name );
-
-                if( !("modelVersion".equals( name ) || "groupId".equals( name ) || "artifactId".equals( name )) )
-                {
-                    if( getDepth() <= 1 )
-                    {
-                        out.write( lineSeparator );
-                    }
-                }
-            }
-
-            return this;
-        }
-
-        public XmlSerializer attribute( String namespace, String name, String value )
-            throws IOException
-        {
-            if( !Xpp3Dom.CHILDREN_COMBINATION_MODE_ATTRIBUTE.equals( name ) )
-            {
-                return super.attribute( namespace, name, value );
-            }
-            return this;
         }
     }
 }
