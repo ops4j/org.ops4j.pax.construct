@@ -860,50 +860,6 @@
       </configuration>
     </mojo>
     <mojo>
-      <goal>use-bundle</goal>
-      <description>Use a local bundle inside another bundle sub-project (adds dependency to the compilation classpath)
-
-Note: imported (non-local) bundles are available to local bundles via the top-level provision pom.</description>
-      <requiresDirectInvocation>false</requiresDirectInvocation>
-      <requiresProject>true</requiresProject>
-      <requiresReports>false</requiresReports>
-      <aggregator>false</aggregator>
-      <requiresOnline>false</requiresOnline>
-      <inheritedByDefault>true</inheritedByDefault>
-      <implementation>org.ops4j.pax.construct.bundle.UseBundleMojo</implementation>
-      <language>java</language>
-      <instantiationStrategy>per-lookup</instantiationStrategy>
-      <executionStrategy>once-per-session</executionStrategy>
-      <parameters>
-        <parameter>
-          <name>bundleName</name>
-          <type>java.lang.String</type>
-          <required>true</required>
-          <editable>true</editable>
-          <description>The local project name of the bundle to be used.</description>
-        </parameter>
-        <parameter>
-          <name>overwrite</name>
-          <type>boolean</type>
-          <required>false</required>
-          <editable>true</editable>
-          <description>Should we attempt to overwrite entries?</description>
-        </parameter>
-        <parameter>
-          <name>project</name>
-          <type>org.apache.maven.project.MavenProject</type>
-          <required>false</required>
-          <editable>true</editable>
-          <description></description>
-        </parameter>
-      </parameters>
-      <configuration>
-        <overwrite implementation="boolean">${overwrite}</overwrite>
-        <project implementation="org.apache.maven.project.MavenProject">${project}</project>
-        <bundleName implementation="java.lang.String">${bundleName}</bundleName>
-      </configuration>
-    </mojo>
-    <mojo>
       <goal>embed-jar</goal>
       <description>Embeds a jarfile inside a local bundle project.</description>
       <requiresDirectInvocation>false</requiresDirectInvocation>

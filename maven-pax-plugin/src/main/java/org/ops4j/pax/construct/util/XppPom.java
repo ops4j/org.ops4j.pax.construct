@@ -22,6 +22,7 @@ import java.io.FileWriter;
 
 import org.apache.maven.artifact.Artifact;
 import org.apache.maven.model.Dependency;
+import org.apache.maven.model.Model;
 import org.apache.maven.model.Repository;
 import org.apache.maven.project.MavenProject;
 import org.codehaus.plexus.util.xml.Xpp3Dom;
@@ -34,7 +35,7 @@ import org.ops4j.pax.construct.util.PomUtils.PomException;
 public class XppPom
     implements Pom
 {
-    File m_file;
+    final File m_file;
     Xpp3Dom m_pom;
 
     public XppPom( File pomFile )
@@ -44,14 +45,55 @@ public class XppPom
 
         try
         {
-            XmlPullParser parser = RoundTripXml.createParser();
-            parser.setInput( new FileReader( m_file ) );
-            m_pom = Xpp3DomBuilder.build( parser, false );
+            if( m_file.exists() )
+            {
+                XmlPullParser parser = RoundTripXml.createParser();
+                parser.setInput( new FileReader( m_file ) );
+                m_pom = Xpp3DomBuilder.build( parser, false );
+            }
+            else
+            {
+                m_pom = new Xpp3Dom( "project" );
+
+                m_pom.setAttribute( "xmlns", "http://maven.apache.org/POM/4.0.0" );
+                m_pom.setAttribute( "xmlns:xsi", "http://www.w3.org/2001/XMLSchema-instance" );
+                m_pom.setAttribute( "xsi:schemaLocation",
+                    "http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd" );
+
+                /* TODO: populate with defaults */
+            }
         }
         catch( Exception e )
         {
             throw new PomException( "Unable to parse POM " + m_file, e );
         }
+    }
+
+    public String getArtifactId()
+    {
+        return m_pom.getChild( "groupId" ).getValue();
+    }
+
+    public String getGroupId()
+    {
+        return m_pom.getChild( "artifactId" ).getValue();
+    }
+
+    public String getVersion()
+    {
+        return m_pom.getChild( "version" ).getValue();
+    }
+
+    public void setParent( Pom pom, String relativePath, boolean overwrite )
+        throws PomException
+    {
+        MavenProject project = new MavenProject( new Model() );
+
+        project.setGroupId( pom.getGroupId() );
+        project.setArtifactId( pom.getArtifactId() );
+        project.setVersion( pom.getVersion() );
+
+        setParent( project, relativePath, overwrite );
     }
 
     public void setParent( MavenProject project, String relativePath, boolean overwrite )
@@ -184,7 +226,10 @@ public class XppPom
         dep.putValue( "version", dependency.getVersion() );
         dep.putValue( "scope", dependency.getScope() );
         dep.putValue( "type", dependency.getType() );
-        dep.putValue( "optional", "" + dependency.isOptional() );
+        if( dependency.isOptional() )
+        {
+            dep.putValue( "optional", "true" );
+        }
 
         Xpp3Dom list = new Xpp3DomList( "dependencies" );
         list.addChild( dep );
@@ -246,9 +291,12 @@ public class XppPom
 
         public void putValue( String name, String value )
         {
-            Xpp3Dom child = new Xpp3Dom( name );
-            child.setValue( value );
-            addChild( child );
+            if( null != value )
+            {
+                Xpp3Dom child = new Xpp3Dom( name );
+                child.setValue( value );
+                addChild( child );
+            }
         }
     }
 

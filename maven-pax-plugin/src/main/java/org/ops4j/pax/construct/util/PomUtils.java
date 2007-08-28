@@ -41,6 +41,15 @@ public class PomUtils
 
     public interface Pom
     {
+        public String getGroupId();
+
+        public String getArtifactId();
+
+        public String getVersion();
+
+        public void setParent( Pom pom, String relativePath, boolean overwrite )
+            throws PomException;
+
         public void setParent( MavenProject project, String relativePath, boolean overwrite )
             throws PomException;
 
@@ -94,7 +103,45 @@ public class PomUtils
 
     public static Pom createModuleTree( File baseDir, File targetDir )
     {
-        throw new UnsupportedOperationException( "TBD: refactoring in progress" );
+        try
+        {
+            baseDir = baseDir.getCanonicalFile();
+            targetDir = targetDir.getCanonicalFile();
+        }
+        catch( Exception e )
+        {
+            // ignore, assume original paths will be ok
+        }
+
+        return createModuleTreeChecked( baseDir, targetDir );
+    }
+
+    static Pom createModuleTreeChecked( File baseDir, File targetDir )
+    {
+        if( !contains( baseDir, targetDir ) )
+        {
+            return null;
+        }
+
+        File pomFile = new File( targetDir, "pom.xml" );
+        if( pomFile.exists() )
+        {
+            return readPom( pomFile );
+        }
+
+        // recurse to top-most missing pom, then create poms downwards from there
+        Pom parentPom = createModuleTreeChecked( baseDir, targetDir.getParentFile() );
+
+        // link parent to child
+        parentPom.addModule( targetDir.getName(), true );
+        parentPom.write();
+
+        // link child to parent
+        Pom childPom = new XppPom( pomFile );
+        childPom.setParent( parentPom, null, true );
+        childPom.write();
+
+        return childPom;
     }
 
     public static String calculateRelativePath( File baseDir, File targetDir )

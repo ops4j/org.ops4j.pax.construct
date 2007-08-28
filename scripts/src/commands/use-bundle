@@ -1,6 +1,0 @@
-n {
-  name = 'bundleName'
-  example = 'myBundle'
-}
-
-order = [ 'n' ]

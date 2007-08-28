@@ -17,7 +17,7 @@ package org.ops4j.pax.construct.util;
  */
 
 import java.util.ArrayList;
-import java.util.Collections;
+import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
@@ -74,8 +74,7 @@ public class XppPathQuery
         Pattern testPattern = Pattern.compile( TEST );
         String[] testClauses = m_xpathParser.group( 3 ).split( "\\s+" );
 
-        List candidates = new ArrayList();
-        Collections.addAll( candidates, parent.getChildren() );
+        List candidates = new ArrayList( Arrays.asList( parent.getChildren() ) );
 
         Set results = new HashSet();
         for( int i = -1; i < testClauses.length; i += 2 )
