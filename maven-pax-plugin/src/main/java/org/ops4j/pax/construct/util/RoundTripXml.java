@@ -177,6 +177,7 @@ public final class RoundTripXml
             {
                 return super.attribute( namespace, name, value );
             }
+
             return this;
         }
     }

@@ -20,38 +20,59 @@ import java.io.File;
 
 import org.apache.maven.model.Dependency;
 import org.apache.maven.model.Repository;
-import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.project.MavenProject;
 
-public final class PomUtils
+public class PomUtils
 {
+    public static class PomException extends RuntimeException
+    {
+        static final long serialVersionUID = 1L;
+
+        public PomException( String message )
+        {
+            super( message );
+        }
+
+        public PomException( String message, Throwable cause )
+        {
+            super( message, cause );
+        }
+    }
+
     public interface Pom
     {
         public void setParent( MavenProject project, String relativePath, boolean overwrite )
-            throws MojoExecutionException;
+            throws PomException;
 
         public void adjustRelativePath( int offset );
 
-        public void addRepository( Repository repository, boolean overwrite );
+        public void addRepository( Repository repository, boolean overwrite )
+            throws PomException;
 
-        public void addModule( String module, boolean overwrite );
+        public void addModule( String module, boolean overwrite )
+            throws PomException;
 
-        public void removeModule( String module );
+        public void removeModule( String module )
+            throws PomException;
 
-        public void addDependency( MavenProject project, boolean overwrite );
+        public void addDependency( MavenProject project, boolean overwrite )
+            throws PomException;
 
-        public void addDependency( Dependency dependency, boolean overwrite );
+        public void addDependency( Dependency dependency, boolean overwrite )
+            throws PomException;
 
-        public void removeDependency( MavenProject project );
+        public void removeDependency( MavenProject project )
+            throws PomException;
 
-        public void removeDependency( Dependency dependency );
+        public void removeDependency( Dependency dependency )
+            throws PomException;
 
         public void write()
-            throws MojoExecutionException;
+            throws PomException;
     }
 
     public static Pom readPom( File pomFile )
-        throws MojoExecutionException
+        throws PomException
     {
         return new XppPom( pomFile );
     }
@@ -90,6 +111,7 @@ public final class PomUtils
 
         String dottedPath = "";
         String descentPath = "";
+
         while( baseDir != null && targetDir != null && !baseDir.equals( targetDir ) )
         {
             if( baseDir.getPath().length() < targetDir.getPath().length() )
@@ -113,7 +135,7 @@ public final class PomUtils
         return relativePath;
     }
 
-    protected static boolean contains( File baseDir, File targetDir )
+    static boolean contains( File baseDir, File targetDir )
     {
         for( ; targetDir != null; targetDir = targetDir.getParentFile() )
         {

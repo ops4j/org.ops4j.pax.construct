@@ -23,43 +23,43 @@ import java.io.FileWriter;
 import org.apache.maven.artifact.Artifact;
 import org.apache.maven.model.Dependency;
 import org.apache.maven.model.Repository;
-import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.project.MavenProject;
 import org.codehaus.plexus.util.xml.Xpp3Dom;
 import org.codehaus.plexus.util.xml.Xpp3DomBuilder;
 import org.codehaus.plexus.util.xml.pull.XmlPullParser;
 import org.codehaus.plexus.util.xml.pull.XmlSerializer;
 import org.ops4j.pax.construct.util.PomUtils.Pom;
+import org.ops4j.pax.construct.util.PomUtils.PomException;
 
-public final class XppPom
+public class XppPom
     implements Pom
 {
-    private File file;
-    private Xpp3Dom pom;
+    File m_file;
+    Xpp3Dom m_pom;
 
     public XppPom( File pomFile )
-        throws MojoExecutionException
+        throws PomException
     {
-        file = pomFile;
+        m_file = pomFile;
 
         try
         {
             XmlPullParser parser = RoundTripXml.createParser();
-            parser.setInput( new FileReader( file ) );
-            pom = Xpp3DomBuilder.build( parser, false );
+            parser.setInput( new FileReader( m_file ) );
+            m_pom = Xpp3DomBuilder.build( parser, false );
         }
         catch( Exception e )
         {
-            throw new MojoExecutionException( "Unable to parse POM " + file, e );
+            throw new PomException( "Unable to parse POM " + m_file, e );
         }
     }
 
     public void setParent( MavenProject project, String relativePath, boolean overwrite )
-        throws MojoExecutionException
+        throws PomException
     {
-        if( pom.getChild( "parent" ) != null && !overwrite )
+        if( m_pom.getChild( "parent" ) != null && !overwrite )
         {
-            throw new MojoExecutionException( "Keeping existing data, use -Doverwrite to replace it" );
+            throw new PomException( "Keeping existing data, use -Doverwrite to replace it" );
         }
 
         Xpp3DomMap parent = new Xpp3DomMap( "parent" );
@@ -71,12 +71,12 @@ public final class XppPom
         Xpp3Dom newPom = new Xpp3Dom( "project" );
         newPom.addChild( parent );
 
-        pom = Xpp3Dom.mergeXpp3Dom( newPom, pom );
+        m_pom = Xpp3Dom.mergeXpp3Dom( newPom, m_pom );
     }
 
     public void adjustRelativePath( int offset )
     {
-        Xpp3Dom node = pom.getChild( "parent" ).getChild( "relativePath" );
+        Xpp3Dom node = m_pom.getChild( "parent" ).getChild( "relativePath" );
 
         String relativeText = node.getValue();
 
@@ -94,12 +94,18 @@ public final class XppPom
     }
 
     public void addRepository( Repository repository, boolean overwrite )
+        throws PomException
     {
-        // TBD: CHECK FOR EXISTING DATA
+        String id = repository.getId();
+        String url = repository.getUrl();
+
+        String xpath = "repositories/repository[id='" + id + "' or url='" + url + "']";
+
+        removeChildren( xpath, overwrite );
 
         Xpp3DomMap repo = new Xpp3DomMap( "repository" );
-        repo.putValue( "id", repository.getId() );
-        repo.putValue( "url", repository.getUrl() );
+        repo.putValue( "id", id );
+        repo.putValue( "url", url );
 
         Xpp3Dom list = new Xpp3DomList( "repositories" );
         list.addChild( repo );
@@ -107,12 +113,15 @@ public final class XppPom
         Xpp3Dom newPom = new Xpp3Dom( "project" );
         newPom.addChild( list );
 
-        Xpp3Dom.mergeXpp3Dom( pom, newPom );
+        Xpp3Dom.mergeXpp3Dom( m_pom, newPom );
     }
 
     public void addModule( String module, boolean overwrite )
+        throws PomException
     {
-        // TBD: CHECK FOR EXISTING DATA
+        String xpath = "modules/module[.='" + module + "']";
+
+        removeChildren( xpath, overwrite );
 
         Xpp3Dom mod = new Xpp3Dom( "module" );
         mod.setValue( module );
@@ -123,21 +132,30 @@ public final class XppPom
         Xpp3Dom newPom = new Xpp3Dom( "project" );
         newPom.addChild( list );
 
-        Xpp3Dom.mergeXpp3Dom( pom, newPom );
+        Xpp3Dom.mergeXpp3Dom( m_pom, newPom );
     }
 
     public void removeModule( String module )
+        throws PomException
     {
-        throw new UnsupportedOperationException( "TBD: refactoring in progress" );
+        String xpath = "modules/module[.='" + module + "']";
+
+        removeChildren( xpath, true );
     }
 
     public void addDependency( MavenProject project, boolean overwrite )
+        throws PomException
     {
-        // TBD: CHECK FOR EXISTING DATA
+        String groupId = project.getGroupId();
+        String artifactId = project.getArtifactId();
+
+        String xpath = "dependencies/dependency[groupId='" + groupId + "' and artifactId='" + artifactId + "']";
+
+        removeChildren( xpath, overwrite );
 
         Xpp3DomMap dep = new Xpp3DomMap( "dependency" );
-        dep.putValue( "groupId", project.getGroupId() );
-        dep.putValue( "artifactId", project.getArtifactId() );
+        dep.putValue( "groupId", groupId );
+        dep.putValue( "artifactId", artifactId );
         dep.putValue( "version", project.getVersion() );
         dep.putValue( "scope", Artifact.SCOPE_PROVIDED );
 
@@ -147,16 +165,22 @@ public final class XppPom
         Xpp3Dom newPom = new Xpp3Dom( "project" );
         newPom.addChild( list );
 
-        Xpp3Dom.mergeXpp3Dom( pom, newPom );
+        Xpp3Dom.mergeXpp3Dom( m_pom, newPom );
     }
 
     public void addDependency( Dependency dependency, boolean overwrite )
+        throws PomException
     {
-        // TBD: CHECK FOR EXISTING DATA + OPTIONAL FIELDS
+        String groupId = dependency.getGroupId();
+        String artifactId = dependency.getArtifactId();
+
+        String xpath = "dependencies/dependency[groupId='" + groupId + "' and artifactId='" + artifactId + "']";
+
+        removeChildren( xpath, overwrite );
 
         Xpp3DomMap dep = new Xpp3DomMap( "dependency" );
-        dep.putValue( "groupId", dependency.getGroupId() );
-        dep.putValue( "artifactId", dependency.getArtifactId() );
+        dep.putValue( "groupId", groupId );
+        dep.putValue( "artifactId", artifactId );
         dep.putValue( "version", dependency.getVersion() );
         dep.putValue( "scope", dependency.getScope() );
         dep.putValue( "type", dependency.getType() );
@@ -168,40 +192,52 @@ public final class XppPom
         Xpp3Dom newPom = new Xpp3Dom( "project" );
         newPom.addChild( list );
 
-        Xpp3Dom.mergeXpp3Dom( pom, newPom );
+        Xpp3Dom.mergeXpp3Dom( m_pom, newPom );
     }
 
     public void removeDependency( MavenProject project )
+        throws PomException
     {
-        throw new UnsupportedOperationException( "TBD: refactoring in progress" );
+        String groupId = project.getGroupId();
+        String artifactId = project.getArtifactId();
+
+        String xpath = "dependencies/dependency[groupId='" + groupId + "' and artifactId='" + artifactId + "']";
+
+        removeChildren( xpath, true );
     }
 
     public void removeDependency( Dependency dependency )
+        throws PomException
     {
-        throw new UnsupportedOperationException( "TBD: refactoring in progress" );
+        String groupId = dependency.getGroupId();
+        String artifactId = dependency.getArtifactId();
+
+        String xpath = "dependencies/dependency[groupId='" + groupId + "' and artifactId='" + artifactId + "']";
+
+        removeChildren( xpath, true );
     }
 
     public void write()
-        throws MojoExecutionException
+        throws PomException
     {
         try
         {
-            FileWriter writer = new FileWriter( file );
+            FileWriter writer = new FileWriter( m_file );
 
             XmlSerializer serializer = RoundTripXml.createSerializer();
 
             serializer.setOutput( writer );
             serializer.startDocument( writer.getEncoding(), null );
-            pom.writeToSerializer( null, serializer );
+            m_pom.writeToSerializer( null, serializer );
             serializer.endDocument();
         }
         catch( Exception e )
         {
-            throw new MojoExecutionException( "Unable to serialize POM " + file, e );
+            throw new PomException( "Unable to serialize POM " + m_file, e );
         }
     }
 
-    protected static class Xpp3DomMap extends Xpp3Dom
+    static class Xpp3DomMap extends Xpp3Dom
     {
         public Xpp3DomMap( String name )
         {
@@ -216,13 +252,35 @@ public final class XppPom
         }
     }
 
-    protected static class Xpp3DomList extends Xpp3Dom
+    static class Xpp3DomList extends Xpp3Dom
     {
         public Xpp3DomList( String name )
         {
             super( name );
 
             setAttribute( CHILDREN_COMBINATION_MODE_ATTRIBUTE, CHILDREN_COMBINATION_APPEND );
+        }
+    }
+
+    void removeChildren( String xpath, boolean overwrite )
+        throws PomException
+    {
+        XppPathQuery pathQuery = new XppPathQuery( xpath );
+        Xpp3Dom parent = pathQuery.queryParent( m_pom );
+
+        if( null != parent )
+        {
+            int[] children = pathQuery.queryChildren( parent );
+
+            if( children.length > 0 && !overwrite )
+            {
+                throw new PomException( "Keeping existing data, use -Doverwrite to replace it" );
+            }
+
+            for( int i = 0; i < children.length; i++ )
+            {
+                parent.removeChild( children[i] );
+            }
         }
     }
 }
