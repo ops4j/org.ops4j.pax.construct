@@ -52,6 +52,7 @@
       <dependency>
 #end
         <groupId>\${package}.build</groupId>
+#literal()
         <artifactId>provision</artifactId>
         <version>\${project.version}</version>
         <type>pom</type>
@@ -59,4 +60,5 @@
     </dependencies>
   </dependencyManagement>
 
+#end
 </project>

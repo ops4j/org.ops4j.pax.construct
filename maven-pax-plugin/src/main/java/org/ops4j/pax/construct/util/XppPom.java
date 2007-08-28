@@ -186,10 +186,14 @@ public final class XppPom
     {
         try
         {
+            FileWriter writer = new FileWriter( file );
+
             XmlSerializer serializer = RoundTripXml.createSerializer();
-            serializer.setOutput( new FileWriter( file ) );
+
+            serializer.setOutput( writer );
+            serializer.startDocument( writer.getEncoding(), null );
             pom.writeToSerializer( null, serializer );
-            serializer.flush();
+            serializer.endDocument();
         }
         catch( Exception e )
         {

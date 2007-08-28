@@ -68,6 +68,7 @@ public final class RoundTripXml
             {
                 return "!--" + getText();
             }
+
             return super.getName();
         }
 
@@ -78,6 +79,7 @@ public final class RoundTripXml
             {
                 return true;
             }
+
             return super.isEmptyElementTag();
         }
 
@@ -87,6 +89,7 @@ public final class RoundTripXml
             {
                 return 0;
             }
+
             return super.getAttributeCount();
         }
     }
@@ -98,6 +101,7 @@ public final class RoundTripXml
         public RoundTripSerializer()
         {
             setProperty( PROPERTY_SERIALIZER_INDENTATION, "  " );
+            setProperty( PROPERTY_SERIALIZER_LINE_SEPARATOR, System.getProperty( "line.separator" ) );
         }
 
         public XmlSerializer startTag( String namespace, String name )
@@ -118,20 +122,29 @@ public final class RoundTripXml
                 {
                     out.write( lineSeparator );
                 }
+
                 writeIndent();
 
                 return this;
             }
+            else
+            {
+                handleComment = false;
 
-            handleComment = false;
+                if( getDepth() == 0 )
+                {
+                    out.write( lineSeparator );
+                }
 
-            return super.startTag( namespace, name );
+                return super.startTag( namespace, name );
+            }
         }
 
         protected void closeStartTag()
             throws IOException
         {
             super.closeStartTag();
+
             if( getDepth() == 1 )
             {
                 out.write( lineSeparator );
