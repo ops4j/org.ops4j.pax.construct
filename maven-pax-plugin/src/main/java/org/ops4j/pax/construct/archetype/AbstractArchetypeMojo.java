@@ -27,6 +27,7 @@ import org.apache.maven.artifact.repository.layout.ArtifactRepositoryLayout;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.archetype.MavenArchetypeMojo;
 import org.apache.maven.project.MavenProject;
+import org.ops4j.pax.construct.util.PomUtils;
 
 /**
  * Foundation for all OSGi project goals that use archetypes.
@@ -127,14 +128,7 @@ public abstract class AbstractArchetypeMojo extends MavenArchetypeMojo
     {
         if( compactNames )
         {
-            if( artifactId.startsWith( groupId + "." ) || artifactId.equals( groupId ) )
-            {
-                return artifactId;
-            }
-            else if( groupId.endsWith( "." + artifactId ) )
-            {
-                return groupId;
-            }
+            return PomUtils.getCompoundName( groupId, artifactId );
         }
 
         return groupId + "." + artifactId;

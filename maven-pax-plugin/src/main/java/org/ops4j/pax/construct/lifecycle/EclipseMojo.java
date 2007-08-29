@@ -53,6 +53,7 @@ import org.codehaus.plexus.util.xml.Xpp3Dom;
 import org.codehaus.plexus.util.xml.Xpp3DomBuilder;
 import org.codehaus.plexus.util.xml.Xpp3DomWriter;
 import org.codehaus.plexus.util.xml.pull.XmlPullParserException;
+import org.ops4j.pax.construct.util.PomUtils;
 
 /**
  * Extend maven-eclipse-plugin to better handle OSGi bundles.
@@ -184,17 +185,9 @@ public class EclipseMojo extends EclipsePlugin
         {
             projectName = symbolicName;
         }
-        else if( artifactId.startsWith( groupId + "." ) || artifactId.equals( groupId ) )
-        {
-            projectName = artifactId;
-        }
-        else if( groupId.endsWith( "." + artifactId ) )
-        {
-            projectName = groupId;
-        }
         else
         {
-            projectName = groupId + "." + artifactId;
+            projectName = PomUtils.getCompoundName( groupId, artifactId );
         }
 
         if( addVersion )

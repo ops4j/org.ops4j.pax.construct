@@ -88,10 +88,9 @@ public class DirUtils
             parentPom.addModule( descentPath.substring( i, j ), true );
             parentPom.write();
 
-            File subDir = new File( commonDir, descentPath.substring( 0, j ) );
+            String groupId = PomUtils.getCompoundName( parentPom.getGroupId(), parentPom.getArtifactId() );
 
-            // FIXME: make compoundName method global and use it here
-            String groupId = parentPom.getGroupId() + "." + parentPom.getArtifactId();
+            File subDir = new File( commonDir, descentPath.substring( 0, j ) );
             childPom = PomUtils.createPom( subDir, groupId, subDir.getName() );
             childPom.setParent( parentPom, null, true );
             childPom.write();

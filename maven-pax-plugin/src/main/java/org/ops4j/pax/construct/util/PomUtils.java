@@ -112,4 +112,18 @@ public class PomUtils
     {
         return project.getPackaging().indexOf( "bundle" ) >= 0;
     }
+
+    public static String getCompoundName( String groupId, String artifactId )
+    {
+        if( artifactId.startsWith( groupId + "." ) || artifactId.equals( groupId ) )
+        {
+            return artifactId;
+        }
+        else if( groupId.endsWith( "." + artifactId ) )
+        {
+            return groupId;
+        }
+
+        return groupId + "." + artifactId;
+    }
 }

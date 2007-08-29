@@ -91,19 +91,19 @@ public final class MoveBundleMojo extends AbstractMojo
         }
 
         String[] pivot = DirUtils.calculateRelativePath( targetDirectory, modulesFolder );
-        if (null != pivot)
+        if( null != pivot )
         {
             int relativeOffset = 0;
-    
-            for( int i = pivot[0].indexOf('/'); i >= 0; i = pivot[0].indexOf( '/', i+1 ) )
+
+            for( int i = pivot[0].indexOf( '/' ); i >= 0; i = pivot[0].indexOf( '/', i + 1 ) )
             {
                 relativeOffset--;
             }
-            for( int i = pivot[2].indexOf('/'); i >= 0; i = pivot[2].indexOf( '/', i+1 ) )
+            for( int i = pivot[2].indexOf( '/' ); i >= 0; i = pivot[2].indexOf( '/', i + 1 ) )
             {
                 relativeOffset++;
             }
-    
+
             if( relativeOffset != 0 )
             {
                 Pom pom = PomUtils.readPom( new File( newBundleFolder, "pom.xml" ) );
