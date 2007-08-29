@@ -19,6 +19,8 @@ package org.ops4j.pax.construct.util;
 import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
+import java.util.ArrayList;
+import java.util.List;
 
 import org.apache.maven.artifact.Artifact;
 import org.apache.maven.model.Dependency;
@@ -39,7 +41,6 @@ public class XppPom
     Xpp3Dom m_pom;
 
     public XppPom( File pomFile )
-        throws PomException
     {
         m_file = pomFile;
 
@@ -56,7 +57,6 @@ public class XppPom
     }
 
     public XppPom( File pomFile, String groupId, String artifactId )
-        throws PomException
     {
         m_file = pomFile;
 
@@ -74,6 +74,11 @@ public class XppPom
         Xpp3DomMap.putValue( m_pom, "packaging", "pom" );
 
         m_file.getParentFile().mkdirs();
+    }
+
+    public String getId()
+    {
+        return getGroupId() + ":" + getArtifactId() + ":" + getPackaging() + ":" + getVersion();
     }
 
     public String getGroupId()
@@ -101,8 +106,53 @@ public class XppPom
         return m_pom.getChild( "version" ).getValue();
     }
 
+    public String getPackaging()
+    {
+        return m_pom.getChild( "packaging" ).getValue();
+    }
+
+    public List getModules()
+    {
+        List names = new ArrayList();
+
+        Xpp3Dom modules = m_pom.getChild( "modules" );
+        if( null != modules )
+        {
+            Xpp3Dom[] values = modules.getChildren( "module" );
+            for( int i = 0; i < values.length; i++ )
+            {
+                names.add( values[i].getValue() );
+            }
+        }
+
+        return names;
+    }
+
+    public Pom getContainingPom()
+    {
+        try
+        {
+            return PomUtils.readPom( m_file.getParentFile().getParentFile() );
+        }
+        catch( Exception e )
+        {
+            return null;
+        }
+    }
+
+    public Pom getModulePom( String name )
+    {
+        try
+        {
+            return PomUtils.readPom( new File( m_file.getParentFile(), name ) );
+        }
+        catch( Exception e )
+        {
+            return null;
+        }
+    }
+
     public void setParent( Pom pom, String relativePath, boolean overwrite )
-        throws PomException
     {
         MavenProject project = new MavenProject( new Model() );
 
@@ -114,7 +164,6 @@ public class XppPom
     }
 
     public void setParent( MavenProject project, String relativePath, boolean overwrite )
-        throws PomException
     {
         if( m_pom.getChild( "parent" ) != null && !overwrite )
         {
@@ -153,7 +202,6 @@ public class XppPom
     }
 
     public void addRepository( Repository repository, boolean overwrite )
-        throws PomException
     {
         String id = repository.getId();
         String url = repository.getUrl();
@@ -176,7 +224,6 @@ public class XppPom
     }
 
     public void addModule( String module, boolean overwrite )
-        throws PomException
     {
         String xpath = "modules/module[.='" + module + "']";
 
@@ -195,7 +242,6 @@ public class XppPom
     }
 
     public void removeModule( String module )
-        throws PomException
     {
         String xpath = "modules/module[.='" + module + "']";
 
@@ -203,7 +249,6 @@ public class XppPom
     }
 
     public void addDependency( MavenProject project, boolean overwrite )
-        throws PomException
     {
         String groupId = project.getGroupId();
         String artifactId = project.getArtifactId();
@@ -228,7 +273,6 @@ public class XppPom
     }
 
     public void addDependency( Dependency dependency, boolean overwrite )
-        throws PomException
     {
         String groupId = dependency.getGroupId();
         String artifactId = dependency.getArtifactId();
@@ -258,7 +302,6 @@ public class XppPom
     }
 
     public void removeDependency( MavenProject project )
-        throws PomException
     {
         String groupId = project.getGroupId();
         String artifactId = project.getArtifactId();
@@ -269,7 +312,6 @@ public class XppPom
     }
 
     public void removeDependency( Dependency dependency )
-        throws PomException
     {
         String groupId = dependency.getGroupId();
         String artifactId = dependency.getArtifactId();
@@ -280,7 +322,6 @@ public class XppPom
     }
 
     public void write()
-        throws PomException
     {
         try
         {
@@ -333,7 +374,6 @@ public class XppPom
     }
 
     void removeChildren( String xpath, boolean overwrite )
-        throws PomException
     {
         XppPathQuery pathQuery = new XppPathQuery( xpath );
         Xpp3Dom parent = pathQuery.queryParent( m_pom );

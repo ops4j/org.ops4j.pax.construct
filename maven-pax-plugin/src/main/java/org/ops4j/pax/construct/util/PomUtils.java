@@ -17,6 +17,7 @@ package org.ops4j.pax.construct.util;
  */
 
 import java.io.File;
+import java.util.List;
 
 import org.apache.maven.model.Dependency;
 import org.apache.maven.model.Repository;
@@ -41,43 +42,43 @@ public class PomUtils
 
     public interface Pom
     {
+        public String getId();
+
         public String getGroupId();
 
         public String getArtifactId();
 
         public String getVersion();
 
-        public void setParent( Pom pom, String relativePath, boolean overwrite )
-            throws PomException;
+        public String getPackaging();
 
-        public void setParent( MavenProject project, String relativePath, boolean overwrite )
-            throws PomException;
+        public List getModules();
+
+        public Pom getContainingPom();
+
+        public Pom getModulePom( String name );
+
+        public void setParent( Pom pom, String relativePath, boolean overwrite );
+
+        public void setParent( MavenProject project, String relativePath, boolean overwrite );
 
         public void adjustRelativePath( int offset );
 
-        public void addRepository( Repository repository, boolean overwrite )
-            throws PomException;
+        public void addRepository( Repository repository, boolean overwrite );
 
-        public void addModule( String module, boolean overwrite )
-            throws PomException;
+        public void addModule( String module, boolean overwrite );
 
-        public void removeModule( String module )
-            throws PomException;
+        public void removeModule( String module );
 
-        public void addDependency( MavenProject project, boolean overwrite )
-            throws PomException;
+        public void addDependency( MavenProject project, boolean overwrite );
 
-        public void addDependency( Dependency dependency, boolean overwrite )
-            throws PomException;
+        public void addDependency( Dependency dependency, boolean overwrite );
 
-        public void removeDependency( MavenProject project )
-            throws PomException;
+        public void removeDependency( MavenProject project );
 
-        public void removeDependency( Dependency dependency )
-            throws PomException;
+        public void removeDependency( Dependency dependency );
 
-        public void write()
-            throws PomException;
+        public void write();
     }
 
     public static Pom readPom( File here )
@@ -91,7 +92,6 @@ public class PomUtils
     }
 
     public static Pom createPom( File here, String groupId, String artifactId )
-        throws PomException
     {
         if( here.isDirectory() )
         {

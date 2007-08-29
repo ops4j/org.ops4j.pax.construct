@@ -106,14 +106,13 @@ public final class ImportBundleMojo extends AbstractMojo
             dependency.setOptional( true );
         }
 
-        MavenProject provisionProject = DirUtils.findPom( project, "provision" );
-        if( null == provisionProject )
+        Pom provisionPom = DirUtils.findPom( project, "provision" );
+        if( null == provisionPom )
         {
-            provisionProject = project;
+            provisionPom = PomUtils.readPom( project.getFile() );
         }
 
-        Pom pom = PomUtils.readPom( provisionProject.getFile() );
-        pom.addDependency( dependency, overwrite );
-        pom.write();
+        provisionPom.addDependency( dependency, overwrite );
+        provisionPom.write();
     }
 }

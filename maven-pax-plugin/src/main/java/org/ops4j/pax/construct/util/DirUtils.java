@@ -18,15 +18,44 @@ package org.ops4j.pax.construct.util;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.Set;
 
 import org.apache.maven.project.MavenProject;
 import org.ops4j.pax.construct.util.PomUtils.Pom;
 
 public class DirUtils
 {
-    public static MavenProject findPom( MavenProject project, String artifactId )
+    public static Pom findPom( MavenProject project, String artifactId )
     {
-        throw new UnsupportedOperationException( "TBD: refactoring in progress" );
+        Set visited = new HashSet();
+
+        Pom pom = PomUtils.readPom( project.getBasedir() );
+        visited.add( pom.getId() );
+
+        depthFirst: while( null != pom )
+        {
+            if( artifactId.equals( pom.getArtifactId() ) )
+            {
+                return pom;
+            }
+
+            for( Iterator i = pom.getModules().iterator(); i.hasNext(); )
+            {
+                Pom subPom = pom.getModulePom( (String) i.next() );
+
+                if( visited.add( subPom.getId() ) )
+                {
+                    pom = subPom;
+                    continue depthFirst;
+                }
+            }
+
+            pom = pom.getContainingPom();
+        }
+
+        return null;
     }
 
     public static MavenProject findModule( MavenProject project, String module )
