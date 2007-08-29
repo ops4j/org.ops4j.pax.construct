@@ -58,11 +58,6 @@ public class DirUtils
         return null;
     }
 
-    public static MavenProject findModule( MavenProject project, String module )
-    {
-        throw new UnsupportedOperationException( "TBD: refactoring in progress" );
-    }
-
     public static Pom createModuleTree( File baseDir, File targetDir )
     {
         File pomFile = new File( targetDir, "pom.xml" );

@@ -58,6 +58,10 @@ public class PomUtils
 
         public Pom getModulePom( String name );
 
+        public File getFile();
+
+        public boolean isBundleProject();
+
         public void setParent( Pom pom, String relativePath, boolean overwrite );
 
         public void setParent( MavenProject project, String relativePath, boolean overwrite );

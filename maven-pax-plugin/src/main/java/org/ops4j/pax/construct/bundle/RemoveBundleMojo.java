@@ -49,37 +49,49 @@ public final class RemoveBundleMojo extends AbstractMojo
     private String bundleName;
 
     /**
-     * Records the Maven project for the removed bundle.
+     * Records the Maven POM for the removed bundle.
      */
-    private static MavenProject bundleProject;
+    private static Pom bundlePom;
 
     public void execute()
         throws MojoExecutionException
     {
-        if( null == bundleProject )
+        if( null == bundlePom )
         {
-            bundleProject = DirUtils.findModule( project, bundleName );
-            if( null == bundleProject )
+            File bundlePath = new File( bundleName );
+
+            try
+            {
+                bundlePom = PomUtils.readPom( bundlePath );
+            }
+            catch( Exception e )
+            {
+                bundlePom = DirUtils.findPom( project, bundlePath.getName() );
+            }
+
+            if( null == bundlePom )
             {
                 throw new MojoExecutionException( "Cannot find bundle " + bundleName );
             }
 
-            if( !PomUtils.isBundleProject( bundleProject ) )
+            if( !bundlePom.isBundleProject() )
             {
                 throw new MojoExecutionException( "Sub-project " + bundleName + " is not a bundle" );
             }
         }
 
-        if( !project.getId().equals( bundleProject.getId() ) )
+        File bundleFolder = bundlePom.getFile().getParentFile();
+
+        if( !project.getId().equals( bundlePom.getId() ) )
         {
             Pom pom = PomUtils.readPom( project.getFile() );
 
             Dependency dependency = new Dependency();
-            dependency.setGroupId( bundleProject.getGroupId() );
-            dependency.setArtifactId( bundleProject.getArtifactId() );
+            dependency.setGroupId( bundlePom.getGroupId() );
+            dependency.setArtifactId( bundlePom.getArtifactId() );
             pom.removeDependency( dependency );
 
-            pom.removeModule( bundleName );
+            pom.removeModule( bundleFolder.getName() );
             pom.write();
         }
         else
@@ -88,7 +100,6 @@ public final class RemoveBundleMojo extends AbstractMojo
             {
                 FileSet bundleFiles = new FileSet();
 
-                File bundleFolder = bundleProject.getBasedir();
                 bundleFiles.setDirectory( bundleFolder.getParent() );
                 bundleFiles.addInclude( bundleFolder.getName() );
 

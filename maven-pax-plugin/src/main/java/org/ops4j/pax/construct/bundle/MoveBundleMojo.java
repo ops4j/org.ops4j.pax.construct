@@ -67,8 +67,19 @@ public final class MoveBundleMojo extends AbstractMojo
         }
         ignore = true;
 
-        MavenProject bundleProject = DirUtils.findModule( project, bundleName );
-        if( null == bundleProject )
+        File bundlePath = new File( bundleName );
+
+        Pom bundlePom;
+        try
+        {
+            bundlePom = PomUtils.readPom( bundlePath );
+        }
+        catch( Exception e )
+        {
+            bundlePom = DirUtils.findPom( project, bundlePath.getName() );
+        }
+
+        if( null == bundlePom )
         {
             throw new MojoExecutionException( "Cannot find bundle " + bundleName );
         }
@@ -79,18 +90,21 @@ public final class MoveBundleMojo extends AbstractMojo
             throw new MojoExecutionException( "targetDirectory is outside of this project" );
         }
 
-        File bundleFolder = bundleProject.getBasedir();
+        File bundleFolder = bundlePom.getFile().getParentFile();
         File modulesFolder = bundleFolder.getParentFile();
+
         final String moduleName = bundleFolder.getName();
 
+        File newModulesFolder = newModulesPom.getFile().getParentFile();
+        File newBundleFolder = new File( newModulesFolder, moduleName );
+
         // MOVE BUNDLE!
-        File newBundleFolder = new File( targetDirectory, moduleName );
         if( !bundleFolder.renameTo( newBundleFolder ) )
         {
             throw new MojoExecutionException( "Unable to move bundle " + bundleName + " to " + targetDirectory );
         }
 
-        String[] pivot = DirUtils.calculateRelativePath( targetDirectory, modulesFolder );
+        String[] pivot = DirUtils.calculateRelativePath( newModulesFolder, modulesFolder );
         if( null != pivot )
         {
             int relativeOffset = 0;

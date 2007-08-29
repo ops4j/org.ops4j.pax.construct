@@ -151,6 +151,16 @@ public class XppPom
         }
     }
 
+    public File getFile()
+    {
+        return m_file;
+    }
+
+    public boolean isBundleProject()
+    {
+        return m_pom.getChild( "packaging" ).getValue().indexOf( "bundle" ) >= 0;
+    }
+
     public void setParent( Pom pom, String relativePath, boolean overwrite )
     {
         MavenProject project = new MavenProject( new Model() );
