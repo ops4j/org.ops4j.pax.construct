@@ -42,8 +42,8 @@
   <packaging>pom</packaging>
 
   <modules>
-    <module>provision</module>
     <module>poms</module>
+    <module>provision</module>
   </modules>
 
   <build>

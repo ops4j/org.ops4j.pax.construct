@@ -10,7 +10,7 @@
 
   <modelVersion>4.0.0</modelVersion>
   <groupId>\${package}.build</groupId>
-  <artifactId>shared-bundle-settings</artifactId>
+  <artifactId>shared-plugin-settings</artifactId>
 #literal()
 
   <name>Configure plugins</name>
@@ -46,6 +46,30 @@
       </plugins>
     </pluginManagement>
   </build>
+
+  <profiles>
+    <profile>
+      <id>eclipse</id>
+      <build>
+        <pluginManagement>
+          <plugins>
+            <plugin>
+              <groupId>org.ops4j.pax.construct.ng</groupId>
+              <artifactId>maven-pax-plugin</artifactId>
+              <executions>
+                <execution>
+                  <goals>
+                    <goal>clean</goal>
+                    <goal>eclipse</goal>
+                  </goals>
+                </execution>
+              </executions>
+            </plugin>
+          </plugins>
+        </pluginManagement>
+      </build>
+    </profile>
+  </profiles>
 
   <dependencyManagement>
     <dependencies>

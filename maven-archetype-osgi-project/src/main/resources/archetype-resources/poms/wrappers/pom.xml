@@ -4,7 +4,7 @@
 
   <parent>
     <groupId>${package}.build</groupId>
-    <artifactId>shared-bundle-settings</artifactId>
+    <artifactId>shared-plugin-settings</artifactId>
     <version>${version}</version>
   </parent>
 #literal()
