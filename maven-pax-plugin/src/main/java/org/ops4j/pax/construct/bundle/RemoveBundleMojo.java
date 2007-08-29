@@ -80,7 +80,7 @@ public final class RemoveBundleMojo extends AbstractMojo
             }
         }
 
-        File bundleFolder = bundlePom.getFile().getParentFile();
+        File bundleFolder = bundlePom.getBasedir();
 
         if( !project.getId().equals( bundlePom.getId() ) )
         {

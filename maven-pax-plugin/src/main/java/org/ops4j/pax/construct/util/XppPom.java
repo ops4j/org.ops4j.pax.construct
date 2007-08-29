@@ -156,6 +156,11 @@ public class XppPom
         return m_file;
     }
 
+    public File getBasedir()
+    {
+        return m_file.getParentFile();
+    }
+
     public boolean isBundleProject()
     {
         return m_pom.getChild( "packaging" ).getValue().indexOf( "bundle" ) >= 0;

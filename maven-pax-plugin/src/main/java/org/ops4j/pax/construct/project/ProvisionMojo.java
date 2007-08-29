@@ -145,7 +145,7 @@ public final class ProvisionMojo extends AbstractMojo
 
         m_properties.putAll( project.getProperties() );
 
-        String runnerPath = project.getFile().getParent() + "/target/deployed/pom.xml";
+        String runnerPath = project.getBasedir() + "/target/deployed/pom.xml";
 
         File runnerPomFile = new File( runnerPath );
         runnerPomFile.getParentFile().mkdirs();

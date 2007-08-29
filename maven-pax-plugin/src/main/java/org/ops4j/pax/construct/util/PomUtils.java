@@ -60,6 +60,8 @@ public class PomUtils
 
         public File getFile();
 
+        public File getBasedir();
+
         public boolean isBundleProject();
 
         public void setParent( Pom pom, String relativePath, boolean overwrite );

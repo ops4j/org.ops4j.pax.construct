@@ -90,12 +90,12 @@ public final class MoveBundleMojo extends AbstractMojo
             throw new MojoExecutionException( "targetDirectory is outside of this project" );
         }
 
-        File bundleFolder = bundlePom.getFile().getParentFile();
+        File bundleFolder = bundlePom.getBasedir();
         File modulesFolder = bundleFolder.getParentFile();
 
         final String moduleName = bundleFolder.getName();
 
-        File newModulesFolder = newModulesPom.getFile().getParentFile();
+        File newModulesFolder = newModulesPom.getBasedir();
         File newBundleFolder = new File( newModulesFolder, moduleName );
 
         // MOVE BUNDLE!
