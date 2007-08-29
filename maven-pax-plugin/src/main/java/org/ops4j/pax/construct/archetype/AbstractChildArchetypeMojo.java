@@ -22,6 +22,7 @@ import java.util.List;
 
 import org.apache.maven.model.Dependency;
 import org.apache.maven.plugin.MojoExecutionException;
+import org.ops4j.pax.construct.util.DirUtils;
 import org.ops4j.pax.construct.util.PomUtils;
 import org.ops4j.pax.construct.util.PomUtils.Pom;
 
@@ -83,7 +84,7 @@ public abstract class AbstractChildArchetypeMojo extends AbstractArchetypeMojo
         {
             final String childName = childPomFile.getParentFile().getName();
 
-            Pom parentPom = PomUtils.createModuleTree( project.getBasedir(), targetDirectory );
+            Pom parentPom = DirUtils.createModuleTree( project.getBasedir(), targetDirectory );
             if( null == parentPom )
             {
                 throw new MojoExecutionException( "targetDirectory is outside of this project" );
@@ -108,7 +109,12 @@ public abstract class AbstractChildArchetypeMojo extends AbstractArchetypeMojo
             File sourcePath = childPomFile.getParentFile();
             File targetPath = project.getBasedir();
 
-            final String relativePath = PomUtils.calculateRelativePath( sourcePath, targetPath );
+            String relativePath = null;
+            String[] pivot = DirUtils.calculateRelativePath( sourcePath, targetPath );
+            if( null != pivot )
+            {
+                relativePath = pivot[0] + pivot[2];
+            }
 
             childPom.setParent( project, relativePath, overwrite );
 

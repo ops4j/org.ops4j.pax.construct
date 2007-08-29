@@ -45,23 +45,9 @@ public class XppPom
 
         try
         {
-            if( m_file.exists() )
-            {
-                XmlPullParser parser = RoundTripXml.createParser();
-                parser.setInput( new FileReader( m_file ) );
-                m_pom = Xpp3DomBuilder.build( parser, false );
-            }
-            else
-            {
-                m_pom = new Xpp3Dom( "project" );
-
-                m_pom.setAttribute( "xmlns", "http://maven.apache.org/POM/4.0.0" );
-                m_pom.setAttribute( "xmlns:xsi", "http://www.w3.org/2001/XMLSchema-instance" );
-                m_pom.setAttribute( "xsi:schemaLocation",
-                    "http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd" );
-
-                /* TODO: populate with defaults */
-            }
+            XmlPullParser parser = RoundTripXml.createParser();
+            parser.setInput( new FileReader( m_file ) );
+            m_pom = Xpp3DomBuilder.build( parser, false );
         }
         catch( Exception e )
         {
@@ -69,18 +55,49 @@ public class XppPom
         }
     }
 
-    public String getArtifactId()
+    public XppPom( File pomFile, String groupId, String artifactId )
+        throws PomException
     {
-        return m_pom.getChild( "groupId" ).getValue();
+        m_file = pomFile;
+
+        m_pom = new Xpp3Dom( "project" );
+
+        m_pom.setAttribute( "xmlns", "http://maven.apache.org/POM/4.0.0" );
+        m_pom.setAttribute( "xmlns:xsi", "http://www.w3.org/2001/XMLSchema-instance" );
+        m_pom.setAttribute( "xsi:schemaLocation",
+            "http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd" );
+
+        Xpp3DomMap.putValue( m_pom, "modelVersion", "4.0.0" );
+        Xpp3DomMap.putValue( m_pom, "groupId", groupId );
+        Xpp3DomMap.putValue( m_pom, "artifactId", artifactId );
+        Xpp3DomMap.putValue( m_pom, "name", "" );
+        Xpp3DomMap.putValue( m_pom, "packaging", "pom" );
+
+        m_file.getParentFile().mkdirs();
     }
 
     public String getGroupId()
+    {
+        Xpp3Dom groupId = m_pom.getChild( "groupId" );
+        if( null == groupId )
+        {
+            return m_pom.getChild( "parent" ).getChild( "groupId" ).getValue();
+        }
+        return m_pom.getChild( "groupId" ).getValue();
+    }
+
+    public String getArtifactId()
     {
         return m_pom.getChild( "artifactId" ).getValue();
     }
 
     public String getVersion()
     {
+        Xpp3Dom version = m_pom.getChild( "version" );
+        if( null == version )
+        {
+            return m_pom.getChild( "parent" ).getChild( "version" ).getValue();
+        }
         return m_pom.getChild( "version" ).getValue();
     }
 
@@ -291,11 +308,16 @@ public class XppPom
 
         public void putValue( String name, String value )
         {
+            putValue( this, name, value );
+        }
+
+        public static void putValue( Xpp3Dom dom, String name, String value )
+        {
             if( null != value )
             {
                 Xpp3Dom child = new Xpp3Dom( name );
                 child.setValue( value );
-                addChild( child );
+                dom.addChild( child );
             }
         }
     }

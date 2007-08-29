@@ -12,8 +12,6 @@
   <modelVersion>4.0.0</modelVersion>
   <artifactId>wrapper-bundle-settings</artifactId>
 
-  <name>Wrapper instructions</name>
-
   <organization/>
   <description>
     Simple OSGi wrapper around third-party jar(s)
@@ -22,11 +20,13 @@
     <license/>
   </licenses>
 
-  <packaging>pom</packaging>
-
   <properties>
     <bundle.location>${project.build.directory}/${project.build.finalName}.jar</bundle.location>
   </properties>
+
+  <name>Wrapper instructions</name>
+
+  <packaging>pom</packaging>
 
   <build>
     <plugins>

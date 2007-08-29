@@ -21,6 +21,7 @@ import java.io.File;
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.project.MavenProject;
+import org.ops4j.pax.construct.util.DirUtils;
 import org.ops4j.pax.construct.util.PomUtils;
 import org.ops4j.pax.construct.util.PomUtils.Pom;
 
@@ -66,13 +67,13 @@ public final class MoveBundleMojo extends AbstractMojo
         }
         ignore = true;
 
-        MavenProject bundleProject = PomUtils.findModule( project, bundleName );
+        MavenProject bundleProject = DirUtils.findModule( project, bundleName );
         if( null == bundleProject )
         {
             throw new MojoExecutionException( "Cannot find bundle " + bundleName );
         }
 
-        Pom newModulesPom = PomUtils.createModuleTree( project.getBasedir(), targetDirectory );
+        Pom newModulesPom = DirUtils.createModuleTree( project.getBasedir(), targetDirectory );
         if( null == newModulesPom )
         {
             throw new MojoExecutionException( "targetDirectory is outside of this project" );
@@ -89,20 +90,26 @@ public final class MoveBundleMojo extends AbstractMojo
             throw new MojoExecutionException( "Unable to move bundle " + bundleName + " to " + targetDirectory );
         }
 
-        String relativePath = PomUtils.calculateRelativePath( targetDirectory, modulesFolder );
-        String[] pathSegments = relativePath.split( "/" );
-
-        int relativeOffset = 0;
-        for( int i = 0; i < pathSegments.length; i++ )
+        String[] pivot = DirUtils.calculateRelativePath( targetDirectory, modulesFolder );
+        if (null != pivot)
         {
-            relativeOffset += ("..".equals( pathSegments[i] )) ? 1 : -1;
-        }
-
-        if( relativeOffset != 0 )
-        {
-            Pom pom = PomUtils.readPom( new File( newBundleFolder, "pom.xml" ) );
-            pom.adjustRelativePath( relativeOffset );
-            pom.write();
+            int relativeOffset = 0;
+    
+            for( int i = pivot[0].indexOf('/'); i >= 0; i = pivot[0].indexOf( '/', i+1 ) )
+            {
+                relativeOffset--;
+            }
+            for( int i = pivot[2].indexOf('/'); i >= 0; i = pivot[2].indexOf( '/', i+1 ) )
+            {
+                relativeOffset++;
+            }
+    
+            if( relativeOffset != 0 )
+            {
+                Pom pom = PomUtils.readPom( new File( newBundleFolder, "pom.xml" ) );
+                pom.adjustRelativePath( relativeOffset );
+                pom.write();
+            }
         }
 
         Pom modulesPom = PomUtils.readPom( new File( modulesFolder, "pom.xml" ) );

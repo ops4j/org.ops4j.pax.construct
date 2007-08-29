@@ -80,117 +80,36 @@ public class PomUtils
             throws PomException;
     }
 
-    public static Pom readPom( File pomFile )
+    public static Pom readPom( File here )
+    {
+        if( here.isDirectory() )
+        {
+            here = new File( here, "pom.xml" );
+        }
+
+        return new XppPom( here );
+    }
+
+    public static Pom createPom( File here, String groupId, String artifactId )
         throws PomException
     {
-        return new XppPom( pomFile );
+        if( here.isDirectory() )
+        {
+            here = new File( here, "pom.xml" );
+        }
+
+        if( here.exists() )
+        {
+            return new XppPom( here );
+        }
+        else
+        {
+            return new XppPom( here, groupId, artifactId );
+        }
     }
 
     public static boolean isBundleProject( MavenProject project )
     {
         return project.getPackaging().indexOf( "bundle" ) >= 0;
-    }
-
-    public static MavenProject findPom( MavenProject project, String artifactId )
-    {
-        throw new UnsupportedOperationException( "TBD: refactoring in progress" );
-    }
-
-    public static MavenProject findModule( MavenProject project, String module )
-    {
-        throw new UnsupportedOperationException( "TBD: refactoring in progress" );
-    }
-
-    public static Pom createModuleTree( File baseDir, File targetDir )
-    {
-        try
-        {
-            baseDir = baseDir.getCanonicalFile();
-            targetDir = targetDir.getCanonicalFile();
-        }
-        catch( Exception e )
-        {
-            // ignore, assume original paths will be ok
-        }
-
-        return createModuleTreeChecked( baseDir, targetDir );
-    }
-
-    static Pom createModuleTreeChecked( File baseDir, File targetDir )
-    {
-        if( !contains( baseDir, targetDir ) )
-        {
-            return null;
-        }
-
-        File pomFile = new File( targetDir, "pom.xml" );
-        if( pomFile.exists() )
-        {
-            return readPom( pomFile );
-        }
-
-        // recurse to top-most missing pom, then create poms downwards from there
-        Pom parentPom = createModuleTreeChecked( baseDir, targetDir.getParentFile() );
-
-        // link parent to child
-        parentPom.addModule( targetDir.getName(), true );
-        parentPom.write();
-
-        // link child to parent
-        Pom childPom = new XppPom( pomFile );
-        childPom.setParent( parentPom, null, true );
-        childPom.write();
-
-        return childPom;
-    }
-
-    public static String calculateRelativePath( File baseDir, File targetDir )
-    {
-        try
-        {
-            baseDir = baseDir.getCanonicalFile();
-            targetDir = targetDir.getCanonicalFile();
-        }
-        catch( Exception e )
-        {
-            // ignore, assume original paths will be ok
-        }
-
-        String dottedPath = "";
-        String descentPath = "";
-
-        while( baseDir != null && targetDir != null && !baseDir.equals( targetDir ) )
-        {
-            if( baseDir.getPath().length() < targetDir.getPath().length() )
-            {
-                descentPath = targetDir.getName() + "/" + descentPath;
-                targetDir = targetDir.getParentFile();
-            }
-            else
-            {
-                dottedPath = "../" + dottedPath;
-                baseDir = baseDir.getParentFile();
-            }
-        }
-
-        String relativePath = null;
-        if( baseDir != null && targetDir != null )
-        {
-            relativePath = dottedPath + descentPath;
-        }
-
-        return relativePath;
-    }
-
-    static boolean contains( File baseDir, File targetDir )
-    {
-        for( ; targetDir != null; targetDir = targetDir.getParentFile() )
-        {
-            if( targetDir.equals( baseDir ) )
-            {
-                return true;
-            }
-        }
-        return false;
     }
 }

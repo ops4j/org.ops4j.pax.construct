@@ -23,6 +23,7 @@ import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.project.MavenProject;
 import org.apache.maven.shared.model.fileset.FileSet;
 import org.apache.maven.shared.model.fileset.util.FileSetManager;
+import org.ops4j.pax.construct.util.DirUtils;
 import org.ops4j.pax.construct.util.PomUtils;
 import org.ops4j.pax.construct.util.PomUtils.Pom;
 
@@ -56,7 +57,7 @@ public final class RemoveBundleMojo extends AbstractMojo
     {
         if( null == bundleProject )
         {
-            bundleProject = PomUtils.findModule( project, bundleName );
+            bundleProject = DirUtils.findModule( project, bundleName );
             if( null == bundleProject )
             {
                 throw new MojoExecutionException( "Cannot find bundle " + bundleName );

@@ -21,6 +21,7 @@ import org.apache.maven.model.Dependency;
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.project.MavenProject;
+import org.ops4j.pax.construct.util.DirUtils;
 import org.ops4j.pax.construct.util.PomUtils;
 import org.ops4j.pax.construct.util.PomUtils.Pom;
 
@@ -105,7 +106,7 @@ public final class ImportBundleMojo extends AbstractMojo
             dependency.setOptional( true );
         }
 
-        MavenProject provisionProject = PomUtils.findPom( project, "provision" );
+        MavenProject provisionProject = DirUtils.findPom( project, "provision" );
         if( null == provisionProject )
         {
             provisionProject = project;
