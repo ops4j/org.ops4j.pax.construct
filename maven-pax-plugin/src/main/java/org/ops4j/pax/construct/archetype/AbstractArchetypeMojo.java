@@ -17,6 +17,7 @@ package org.ops4j.pax.construct.archetype;
  */
 
 import java.io.File;
+import java.io.IOException;
 import java.lang.reflect.Field;
 import java.util.List;
 
@@ -146,6 +147,15 @@ public abstract class AbstractArchetypeMojo extends MavenArchetypeMojo
 
         if( targetDirectory != null )
         {
+            try
+            {
+                targetDirectory = targetDirectory.getCanonicalFile();
+            }
+            catch( IOException e )
+            {
+                throw new MojoExecutionException( "Bad directory: " + targetDirectory, e );
+            }
+
             System.setProperty( "user.dir", targetDirectory.getPath() );
         }
 

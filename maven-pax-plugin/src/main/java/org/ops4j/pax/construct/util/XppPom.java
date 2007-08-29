@@ -22,7 +22,6 @@ import java.io.FileWriter;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.apache.maven.artifact.Artifact;
 import org.apache.maven.model.Dependency;
 import org.apache.maven.model.Model;
 import org.apache.maven.model.Repository;
@@ -248,30 +247,6 @@ public class XppPom
         removeChildren( xpath, true );
     }
 
-    public void addDependency( MavenProject project, boolean overwrite )
-    {
-        String groupId = project.getGroupId();
-        String artifactId = project.getArtifactId();
-
-        String xpath = "dependencies/dependency[groupId='" + groupId + "' and artifactId='" + artifactId + "']";
-
-        removeChildren( xpath, overwrite );
-
-        Xpp3DomMap dep = new Xpp3DomMap( "dependency" );
-        dep.putValue( "groupId", groupId );
-        dep.putValue( "artifactId", artifactId );
-        dep.putValue( "version", project.getVersion() );
-        dep.putValue( "scope", Artifact.SCOPE_PROVIDED );
-
-        Xpp3Dom list = new Xpp3DomList( "dependencies" );
-        list.addChild( dep );
-
-        Xpp3Dom newPom = new Xpp3Dom( "project" );
-        newPom.addChild( list );
-
-        Xpp3Dom.mergeXpp3Dom( m_pom, newPom );
-    }
-
     public void addDependency( Dependency dependency, boolean overwrite )
     {
         String groupId = dependency.getGroupId();
@@ -286,7 +261,13 @@ public class XppPom
         dep.putValue( "artifactId", artifactId );
         dep.putValue( "version", dependency.getVersion() );
         dep.putValue( "scope", dependency.getScope() );
-        dep.putValue( "type", dependency.getType() );
+
+        String type = dependency.getType();
+        if( null != type && !"jar".equals( type ) )
+        {
+            dep.putValue( "type", dependency.getType() );
+        }
+
         if( dependency.isOptional() )
         {
             dep.putValue( "optional", "true" );
@@ -299,16 +280,6 @@ public class XppPom
         newPom.addChild( list );
 
         Xpp3Dom.mergeXpp3Dom( m_pom, newPom );
-    }
-
-    public void removeDependency( MavenProject project )
-    {
-        String groupId = project.getGroupId();
-        String artifactId = project.getArtifactId();
-
-        String xpath = "dependencies/dependency[groupId='" + groupId + "' and artifactId='" + artifactId + "']";
-
-        removeChildren( xpath, true );
     }
 
     public void removeDependency( Dependency dependency )

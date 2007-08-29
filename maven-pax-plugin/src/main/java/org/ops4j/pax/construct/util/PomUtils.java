@@ -70,11 +70,7 @@ public class PomUtils
 
         public void removeModule( String module );
 
-        public void addDependency( MavenProject project, boolean overwrite );
-
         public void addDependency( Dependency dependency, boolean overwrite );
-
-        public void removeDependency( MavenProject project );
 
         public void removeDependency( Dependency dependency );
 
@@ -98,14 +94,7 @@ public class PomUtils
             here = new File( here, "pom.xml" );
         }
 
-        if( here.exists() )
-        {
-            return new XppPom( here );
-        }
-        else
-        {
-            return new XppPom( here, groupId, artifactId );
-        }
+        return new XppPom( here, groupId, artifactId );
     }
 
     public static boolean isBundleProject( MavenProject project )

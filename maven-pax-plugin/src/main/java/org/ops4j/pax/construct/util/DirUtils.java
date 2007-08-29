@@ -85,15 +85,25 @@ public class DirUtils
 
         for( int i = 0, j = descentPath.indexOf( '/' ); j >= 0; i = j + 1, j = descentPath.indexOf( '/', i ) )
         {
-            parentPom.addModule( descentPath.substring( i, j ), true );
-            parentPom.write();
+            pomFile = new File( commonDir, descentPath.substring( 0, j ) + "/pom.xml" );
 
-            String groupId = PomUtils.getCompoundName( parentPom.getGroupId(), parentPom.getArtifactId() );
+            if( pomFile.exists() )
+            {
+                childPom = PomUtils.readPom( pomFile );
+            }
+            else
+            {
+                String module = descentPath.substring( i, j );
 
-            File subDir = new File( commonDir, descentPath.substring( 0, j ) );
-            childPom = PomUtils.createPom( subDir, groupId, subDir.getName() );
-            childPom.setParent( parentPom, null, true );
-            childPom.write();
+                parentPom.addModule( module, true );
+                parentPom.write();
+
+                String groupId = PomUtils.getCompoundName( parentPom.getGroupId(), parentPom.getArtifactId() );
+
+                childPom = PomUtils.createPom( pomFile, groupId, module );
+                childPom.setParent( parentPom, null, true );
+                childPom.write();
+            }
 
             parentPom = childPom;
         }

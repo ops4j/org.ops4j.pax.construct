@@ -106,13 +106,13 @@ public final class MoveBundleMojo extends AbstractMojo
 
             if( relativeOffset != 0 )
             {
-                Pom pom = PomUtils.readPom( new File( newBundleFolder, "pom.xml" ) );
+                Pom pom = PomUtils.readPom( newBundleFolder );
                 pom.adjustRelativePath( relativeOffset );
                 pom.write();
             }
         }
 
-        Pom modulesPom = PomUtils.readPom( new File( modulesFolder, "pom.xml" ) );
+        Pom modulesPom = PomUtils.readPom( modulesFolder );
 
         modulesPom.removeModule( moduleName );
         modulesPom.write();

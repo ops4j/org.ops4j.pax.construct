@@ -18,6 +18,7 @@ package org.ops4j.pax.construct.bundle;
 
 import java.io.File;
 
+import org.apache.maven.model.Dependency;
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.project.MavenProject;
@@ -72,7 +73,12 @@ public final class RemoveBundleMojo extends AbstractMojo
         if( !project.getId().equals( bundleProject.getId() ) )
         {
             Pom pom = PomUtils.readPom( project.getFile() );
-            pom.removeDependency( bundleProject );
+
+            Dependency dependency = new Dependency();
+            dependency.setGroupId( bundleProject.getGroupId() );
+            dependency.setArtifactId( bundleProject.getArtifactId() );
+            pom.removeDependency( dependency );
+
             pom.removeModule( bundleName );
             pom.write();
         }
