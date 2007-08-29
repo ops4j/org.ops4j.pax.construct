@@ -40,35 +40,47 @@ public final class CleanMojo extends AbstractMojo
      */
     private File basedir;
 
-    /**
-     * @parameter expression="${debug}"
-     */
-    private boolean debug;
-
     public void execute()
         throws MojoExecutionException
     {
+        getLog().info( "[caching meta-data]" );
+
         // cache files that we might have problems re-generating during the current lifecycle
         CacheUtils.pushFile( this, "MANIFEST.MF", new File( basedir, "META-INF/MANIFEST.MF" ) );
         CacheUtils.pushFile( this, ".project", new File( basedir, ".project" ) );
         CacheUtils.pushFile( this, ".classpath", new File( basedir, ".classpath" ) );
+        getPluginContext().put( "basedir", basedir.getPath() );
 
         FileSet generatedPaxFiles = new FileSet();
         generatedPaxFiles.setDirectory( basedir.getPath() );
+        generatedPaxFiles.setUseDefaultExcludes( true );
+        generatedPaxFiles.setFollowSymlinks( false );
 
         // remove Eclipse/PDE files (keep .settings)
-        generatedPaxFiles.addInclude( "META-INF" );
-        generatedPaxFiles.addInclude( "OSGI-INF" );
+        generatedPaxFiles.addInclude( "META-INF/**" );
+        generatedPaxFiles.addInclude( "OSGI-INF/**" );
         generatedPaxFiles.addInclude( ".project" );
         generatedPaxFiles.addInclude( ".classpath" );
 
         try
         {
-            new FileSetManager( getLog(), debug ).delete( generatedPaxFiles );
+            new FileSetManager( getLog(), false ).delete( generatedPaxFiles );
         }
         catch( IOException e )
         {
             throw new MojoExecutionException( "I/O error while deleting files", e );
         }
+    }
+
+    public static void recoverMetaData( AbstractMojo mojo )
+    {
+        mojo.getLog().info( "[recovering meta-data]" );
+
+        String basedir = (String) mojo.getPluginContext().get( "basedir" );
+
+        // Restore generated files (previously removed during clean phase) before re-generation
+        CacheUtils.pullFile( mojo, "MANIFEST.MF", new File( basedir, "META-INF/MANIFEST.MF" ) );
+        CacheUtils.pullFile( mojo, ".project", new File( basedir, ".project" ) );
+        CacheUtils.pullFile( mojo, ".classpath", new File( basedir, ".classpath" ) );
     }
 }

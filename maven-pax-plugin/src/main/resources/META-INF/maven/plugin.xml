@@ -664,33 +664,6 @@
       </requirements>
     </mojo>
     <mojo>
-      <goal>restore-metadata</goal>
-      <description>Restore previous metadata in case compilation fails.</description>
-      <requiresDirectInvocation>false</requiresDirectInvocation>
-      <requiresProject>true</requiresProject>
-      <requiresReports>false</requiresReports>
-      <aggregator>false</aggregator>
-      <requiresOnline>false</requiresOnline>
-      <inheritedByDefault>true</inheritedByDefault>
-      <phase>generate-resources</phase>
-      <implementation>org.ops4j.pax.construct.lifecycle.RestoreMetadataMojo</implementation>
-      <language>java</language>
-      <instantiationStrategy>per-lookup</instantiationStrategy>
-      <executionStrategy>once-per-session</executionStrategy>
-      <parameters>
-        <parameter>
-          <name>basedir</name>
-          <type>java.io.File</type>
-          <required>false</required>
-          <editable>true</editable>
-          <description>The directory containing generated files.</description>
-        </parameter>
-      </parameters>
-      <configuration>
-        <basedir implementation="java.io.File">${project.basedir}</basedir>
-      </configuration>
-    </mojo>
-    <mojo>
       <goal>clean</goal>
       <description>Clean up various generated files.</description>
       <requiresDirectInvocation>false</requiresDirectInvocation>
@@ -712,16 +685,8 @@
           <editable>true</editable>
           <description>The directory containing generated files.</description>
         </parameter>
-        <parameter>
-          <name>debug</name>
-          <type>boolean</type>
-          <required>false</required>
-          <editable>true</editable>
-          <description></description>
-        </parameter>
       </parameters>
       <configuration>
-        <debug implementation="boolean">${debug}</debug>
         <basedir implementation="java.io.File">${project.basedir}</basedir>
       </configuration>
     </mojo>

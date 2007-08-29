@@ -18,6 +18,8 @@ package org.ops4j.pax.construct.lifecycle;
 
 import java.util.List;
 
+import org.apache.maven.plugin.CompilationFailureException;
+import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.TestCompilerMojo;
 
 /**
@@ -27,7 +29,22 @@ public class BundleTestCompilerMojo extends TestCompilerMojo
 {
     protected List getClasspathElements()
     {
-        System.out.println( "@@@@@@@@" );
         return super.getClasspathElements();
+    }
+
+    public void execute()
+        throws MojoExecutionException,
+        CompilationFailureException
+    {
+        try
+        {
+            super.execute();
+        }
+        catch( CompilationFailureException e )
+        {
+            CleanMojo.recoverMetaData( this );
+
+            throw e;
+        }
     }
 }
