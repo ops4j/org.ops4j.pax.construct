@@ -4,6 +4,7 @@ pax-create-project -g examples -a spring-osgi-example
 cd spring-osgi-example
 
 pax-add-repository -i spring-osgi -u http://static.springframework.org/maven2-snapshots
+pax-add-repository -i spring -u https://springframework.svn.sourceforge.net/svnroot/springframework/repos/repo-snapshots
 
 PAX_CONSTRUCT_OPTIONS="-DaddVersion -DtargetDirectory=wrappers"
 export PAX_CONSTRUCT_OPTIONS
