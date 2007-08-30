@@ -18,14 +18,17 @@ package org.ops4j.pax.construct.inherit;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.HashMap;
 import java.util.Iterator;
+import java.util.Map;
 
 import org.apache.maven.artifact.Artifact;
 import org.apache.maven.plugin.AbstractMojo;
+import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.project.MavenProject;
 import org.codehaus.plexus.archiver.UnArchiver;
 import org.codehaus.plexus.archiver.manager.ArchiverManager;
-import org.codehaus.plexus.util.FileUtils;
+import org.codehaus.plexus.util.xml.Xpp3Dom;
 
 /**
  * @goal inherit
@@ -51,6 +54,7 @@ public class InheritMojo extends AbstractMojo
     protected File outputDirectory;
 
     public void execute()
+        throws MojoExecutionException
     {
         PluginXml localXml;
 
@@ -60,44 +64,70 @@ public class InheritMojo extends AbstractMojo
         }
         catch( Exception e )
         {
-            getLog().error( "cannot read local plugin metadata", e );
+            throw new MojoExecutionException( "cannot read local plugin metadata", e );
         }
+
+        Map plugins = new HashMap();
 
         for( Iterator i = project.getDependencyArtifacts().iterator(); i.hasNext(); )
         {
             Artifact artifact = (Artifact) i.next();
             if( "maven-plugin".equals( artifact.getType() ) )
             {
+                String name = artifact.getArtifactId().replaceAll( "(?:maven-)?(\\w+)(?:-maven)?-plugin", "$1" );
+
+                File here = new File( project.getBuild().getDirectory(), artifact.getArtifactId() );
+                here.mkdirs();
+
                 try
                 {
                     UnArchiver unArchiver = archiverManager.getUnArchiver( artifact.getFile() );
-                    File here = new File( project.getBuild().getDirectory(), artifact.getArtifactId() );
-
-                    here.mkdirs();
                     unArchiver.setDestDirectory( here );
                     unArchiver.setSourceFile( artifact.getFile() );
                     unArchiver.extract();
 
-                    PluginXml inheritedXml = new PluginXml( new File( here, "META-INF/maven/plugin.xml" ) );
+                    plugins.put( name, new PluginXml( new File( here, "META-INF/maven/plugin.xml" ) ) );
                 }
                 catch( Exception e )
                 {
-                    getLog().error( "problem unpacking inherited plugin: " + artifact.getId(), e );
+                    throw new MojoExecutionException( "problem unpacking inherited plugin: " + name, e );
                 }
             }
         }
 
-        // ======================================== TEMPORARY HACK =============================================
+        Xpp3Dom[] localMojos = localXml.getMojos();
+        for( int i = 0; i < localMojos.length; i++ )
+        {
+            String goal = localMojos[i].getChild( "goal" ).getValue();
 
-        File patchedPluginXml = new File( project.getBasedir(), "src/main/resources/META-INF/maven/plugin.xml" );
-        File currentPluginXml = new File( project.getBasedir(), "target/classes/META-INF/maven/plugin.xml" );
+            int offset = goal.indexOf( ':' );
+            if( offset > 0 )
+            {
+                getLog().info( "[importing " + goal.replaceAll( "=", " as " ) + "]" );
+
+                String plugin = goal.substring( 0, offset );
+                goal = goal.substring( offset + 1 ).replaceFirst( "=.*", "" );
+
+                Xpp3Dom inheritedMojo = ((PluginXml) plugins.get( plugin )).findMojo( goal );
+
+                if( null == inheritedMojo )
+                {
+                    getLog().warn( "cannot find inherited goal: " + goal + " in plugin: " + plugin );
+                }
+                else
+                {
+                    PluginXml.mergeMojo( localMojos[i], new Xpp3Dom( inheritedMojo ) );
+                }
+            }
+        }
+
         try
         {
-            FileUtils.copyFile( patchedPluginXml, currentPluginXml );
+            localXml.write();
         }
         catch( IOException e )
         {
-            // ignore, this is only placeholder code until proper patching is in place
+            throw new MojoExecutionException( "cannot update local plugin metadata", e );
         }
     }
 }

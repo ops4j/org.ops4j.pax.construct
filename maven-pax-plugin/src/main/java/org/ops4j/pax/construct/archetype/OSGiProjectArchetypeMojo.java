@@ -23,8 +23,8 @@ import org.apache.maven.plugin.MojoExecutionException;
 /**
  * Creates a new skeleton OSGi project.
  * 
+ * @goal archetype:create=create-project
  * @requiresProject false
- * @goal create-project
  */
 public final class OSGiProjectArchetypeMojo extends AbstractArchetypeMojo
 {

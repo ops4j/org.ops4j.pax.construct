@@ -19,12 +19,7 @@ package org.ops4j.pax.construct.archetype;
 import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.Field;
-import java.util.List;
 
-import org.apache.maven.archetype.Archetype;
-import org.apache.maven.artifact.repository.ArtifactRepository;
-import org.apache.maven.artifact.repository.ArtifactRepositoryFactory;
-import org.apache.maven.artifact.repository.layout.ArtifactRepositoryLayout;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.archetype.MavenArchetypeMojo;
 import org.apache.maven.project.MavenProject;
@@ -32,12 +27,10 @@ import org.ops4j.pax.construct.util.PomUtils;
 
 /**
  * Foundation for all OSGi project goals that use archetypes.
- * 
- * @goal archetype:create
  */
 public abstract class AbstractArchetypeMojo extends MavenArchetypeMojo
 {
-    private final static String archetypeGroupId = "org.ops4j.pax.construct";
+    private final static String PAX_ARCHETYPE_GROUP_ID = "org.ops4j.pax.construct";
 
     /**
      * @parameter expression="${archetypeVersion}" default-value="${plugin.version}"
@@ -48,38 +41,6 @@ public abstract class AbstractArchetypeMojo extends MavenArchetypeMojo
      * @parameter expression="${compactNames}" default-value="true"
      */
     private boolean compactNames;
-
-    /**
-     * @component
-     */
-    protected Archetype archetype;
-
-    /**
-     * @component
-     */
-    protected ArtifactRepositoryFactory artifactRepositoryFactory;
-
-    /**
-     * @component role="org.apache.maven.artifact.repository.layout.ArtifactRepositoryLayout" roleHint="default"
-     */
-    protected ArtifactRepositoryLayout artifactRepositoryLayout;
-
-    /**
-     * @parameter expression="${localRepository}"
-     * @required
-     */
-    protected ArtifactRepository localRepository;
-
-    /**
-     * @parameter expression="${project.remoteArtifactRepositories}"
-     * @required
-     */
-    protected List remoteArtifactRepositories;
-
-    /**
-     * @parameter expression="${remoteRepositories}" default-value="http://repository.ops4j.org/maven2"
-     */
-    protected String remoteRepositories;
 
     /**
      * The containing OSGi project
@@ -180,14 +141,8 @@ public abstract class AbstractArchetypeMojo extends MavenArchetypeMojo
     private final void updateFields()
         throws MojoExecutionException
     {
-        setField( "archetype", archetype );
-        setField( "artifactRepositoryFactory", artifactRepositoryFactory );
-        setField( "defaultArtifactRepositoryLayout", artifactRepositoryLayout );
-        setField( "localRepository", localRepository );
-        setField( "archetypeGroupId", archetypeGroupId );
+        setField( "archetypeGroupId", PAX_ARCHETYPE_GROUP_ID );
         setField( "archetypeVersion", archetypeVersion );
-        setField( "pomRemoteRepositories", remoteArtifactRepositories );
-        setField( "remoteRepositories", remoteRepositories );
         setField( "project", project );
 
         // to be set by the various OSGi archetype sub-classes

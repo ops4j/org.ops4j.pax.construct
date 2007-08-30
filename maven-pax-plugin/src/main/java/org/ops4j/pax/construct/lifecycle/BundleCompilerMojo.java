@@ -24,6 +24,8 @@ import org.apache.maven.plugin.MojoExecutionException;
 
 /**
  * @goal compiler:compile
+ * @phase compile
+ * @requiresDependencyResolution compile
  */
 public class BundleCompilerMojo extends CompilerMojo
 {

@@ -29,7 +29,7 @@ import org.codehaus.plexus.util.IOUtil;
 /**
  * Create a new skeleton bundle and add it to an existing OSGi project.
  * 
- * @goal create-bundle
+ * @goal archetype:create=create-bundle
  */
 public final class OSGiBundleArchetypeMojo extends AbstractChildArchetypeMojo
 {

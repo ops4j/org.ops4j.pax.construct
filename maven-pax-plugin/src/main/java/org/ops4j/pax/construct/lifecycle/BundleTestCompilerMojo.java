@@ -24,6 +24,8 @@ import org.apache.maven.plugin.TestCompilerMojo;
 
 /**
  * @goal compiler:testCompile
+ * @phase test-compile
+ * @requiresDependencyResolution test
  */
 public class BundleTestCompilerMojo extends TestCompilerMojo
 {

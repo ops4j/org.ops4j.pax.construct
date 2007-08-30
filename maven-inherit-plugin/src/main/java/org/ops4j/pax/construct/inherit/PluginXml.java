@@ -18,6 +18,7 @@ package org.ops4j.pax.construct.inherit;
 
 import java.io.File;
 import java.io.FileReader;
+import java.io.FileWriter;
 import java.io.IOException;
 
 import org.codehaus.plexus.util.xml.Xpp3Dom;
@@ -25,6 +26,7 @@ import org.codehaus.plexus.util.xml.Xpp3DomBuilder;
 import org.codehaus.plexus.util.xml.pull.MXParser;
 import org.codehaus.plexus.util.xml.pull.XmlPullParser;
 import org.codehaus.plexus.util.xml.pull.XmlPullParserException;
+import org.codehaus.plexus.util.xml.pull.XmlSerializer;
 
 public class PluginXml
 {
@@ -39,5 +41,122 @@ public class PluginXml
         XmlPullParser parser = new MXParser();
         parser.setInput( new FileReader( m_file ) );
         m_xml = Xpp3DomBuilder.build( parser, false );
+    }
+
+    public Xpp3Dom[] getMojos()
+    {
+        return m_xml.getChild( "mojos" ).getChildren( "mojo" );
+    }
+
+    public Xpp3Dom findMojo( String goal )
+    {
+        Xpp3Dom[] mojos = getMojos();
+        for( int i = 0; i < mojos.length; i++ )
+        {
+            if( goal.equals( mojos[i].getChild( "goal" ).getValue() ) )
+            {
+                return mojos[i];
+            }
+        }
+
+        return null;
+    }
+
+    public static void mergeMojo( Xpp3Dom mojo, Xpp3Dom superMojo )
+    {
+        removeDuplicates( mojo, superMojo, "parameters", "name/", true );
+        removeDuplicates( mojo, superMojo, "configuration", null, false );
+        removeDuplicates( mojo, superMojo, "requirements", "field-name/", true );
+
+        setAppendMode( mojo.getChild( "parameters" ) );
+        setAppendMode( mojo.getChild( "configuration" ) );
+        setAppendMode( mojo.getChild( "requirements" ) );
+
+        Xpp3Dom.mergeXpp3Dom( mojo, superMojo );
+        Xpp3Dom goal = mojo.getChild( "goal" );
+
+        goal.setValue( goal.getValue().replaceAll( "\\w+:(?:\\w+=)?(\\w+)", "$1" ) );
+    }
+
+    protected static void removeDuplicates( Xpp3Dom mojo, Xpp3Dom superMojo, String listName, String idPath,
+        boolean verbose )
+    {
+        Xpp3Dom superList = superMojo.getChild( listName );
+        Xpp3Dom list = mojo.getChild( listName );
+
+        if( null == superList || null == list )
+        {
+            return;
+        }
+
+        nextChild: for( int s = 0; s < superList.getChildCount(); s++ )
+        {
+            Xpp3Dom superNode = getIdNode( superList.getChild( s ), idPath );
+
+            for( int n = 0; n < list.getChildCount(); n++ )
+            {
+                Xpp3Dom node = getIdNode( list.getChild( n ), idPath );
+
+                boolean match;
+                String field;
+
+                if( null != idPath && idPath.endsWith( "/" ) )
+                {
+                    match = superNode.getValue().equals( node.getValue() );
+                    field = node.getValue();
+                }
+                else
+                {
+                    match = superNode.getName().equals( node.getName() );
+                    field = node.getName();
+                }
+
+                if( match )
+                {
+                    if( verbose )
+                    {
+                        System.out.println( "[WARN] overriding field " + field );
+                    }
+
+                    superList.removeChild( s-- );
+                    continue nextChild;
+                }
+            }
+        }
+    }
+
+    protected static Xpp3Dom getIdNode( Xpp3Dom node, String idPath )
+    {
+        if( null != idPath )
+        {
+            String[] idSegments = idPath.split( "/" );
+            for( int i = 0; i < idSegments.length; i++ )
+            {
+                node = node.getChild( idSegments[i] );
+            }
+        }
+
+        return node;
+    }
+
+    protected static void setAppendMode( Xpp3Dom node )
+    {
+        if( null != node )
+        {
+            node.setAttribute( Xpp3Dom.CHILDREN_COMBINATION_MODE_ATTRIBUTE, Xpp3Dom.CHILDREN_COMBINATION_APPEND );
+        }
+    }
+
+    public void write()
+        throws IOException
+    {
+        FileWriter writer = new FileWriter( m_file );
+
+        XmlSerializer serializer = new PluginSerializer();
+
+        serializer.setOutput( writer );
+        serializer.startDocument( writer.getEncoding(), null );
+        m_xml.writeToSerializer( null, serializer );
+        serializer.endDocument();
     }
 }
