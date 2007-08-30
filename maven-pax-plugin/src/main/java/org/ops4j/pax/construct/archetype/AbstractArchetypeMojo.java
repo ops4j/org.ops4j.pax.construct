@@ -32,6 +32,8 @@ import org.ops4j.pax.construct.util.PomUtils;
 
 /**
  * Foundation for all OSGi project goals that use archetypes.
+ * 
+ * @goal archetype:create
  */
 public abstract class AbstractArchetypeMojo extends MavenArchetypeMojo
 {

@@ -31,7 +31,6 @@ pax-import-bundle -g org.springframework.osgi -a spring-osgi-extender -v 1.0-m3-
 
 pax-import-bundle -g org.springframework.osgi.samples -a weather-dao -v 1.0-m3-SNAPSHOT
 pax-import-bundle -g org.springframework.osgi.samples -a weather-service -v 1.0-m3-SNAPSHOT
-pax-import-bundle -g org.springframework.osgi.samples -a weather-service-test -v 1.0-m3-SNAPSHOT
 
 mvn clean install pax:provision
 

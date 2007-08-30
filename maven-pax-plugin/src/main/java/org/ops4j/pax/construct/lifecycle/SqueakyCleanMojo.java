@@ -26,12 +26,12 @@ import org.apache.maven.shared.model.fileset.util.FileSetManager;
 import org.ops4j.pax.construct.util.CacheUtils;
 
 /**
- * Clean up various generated files.
+ * Clean up various generated IDE files.
  * 
  * @goal clean
  * @phase clean
  */
-public final class CleanMojo extends AbstractMojo
+public final class SqueakyCleanMojo extends AbstractMojo
 {
     /**
      * The directory containing generated files.

@@ -58,10 +58,10 @@ import org.ops4j.pax.construct.util.PomUtils;
 /**
  * Extend maven-eclipse-plugin to better handle OSGi bundles.
  * 
- * @goal eclipse
+ * @goal eclipse:eclipse
  * @phase package
  */
-public class EclipseMojo extends EclipsePlugin
+public class EclipseOSGiMojo extends EclipsePlugin
 {
     /**
      * @component role="org.codehaus.plexus.archiver.manager.ArchiverManager"

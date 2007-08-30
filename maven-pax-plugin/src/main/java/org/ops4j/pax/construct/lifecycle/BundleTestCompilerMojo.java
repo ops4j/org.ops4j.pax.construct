@@ -23,7 +23,7 @@ import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.TestCompilerMojo;
 
 /**
- * @goal testCompile
+ * @goal compiler:testCompile
  */
 public class BundleTestCompilerMojo extends TestCompilerMojo
 {
@@ -42,7 +42,7 @@ public class BundleTestCompilerMojo extends TestCompilerMojo
         }
         catch( CompilationFailureException e )
         {
-            CleanMojo.recoverMetaData( this );
+            SqueakyCleanMojo.recoverMetaData( this );
 
             throw e;
         }

@@ -21,7 +21,6 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.util.Collections;
 
-import org.apache.maven.model.Dependency;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.shared.model.fileset.FileSet;
 import org.apache.maven.shared.model.fileset.util.FileSetManager;
@@ -75,12 +74,7 @@ public final class OSGiBundleArchetypeMojo extends AbstractChildArchetypeMojo
         // this is the logical parent of the new bundle project
         if( TARGET_PARENT_ARTIFACT.equals( project.getArtifactId() ) )
         {
-            Dependency dependency = new Dependency();
-            dependency.setGroupId( project.getGroupId() );
-            dependency.setArtifactId( "provision" );
-            dependency.setType( "pom" );
-
-            linkChildToParent( Collections.singletonList( dependency ) );
+            linkChildToParent( Collections.EMPTY_LIST );
         }
 
         // only create archetype under physical parent (ie. the _root_ project)
