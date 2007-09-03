@@ -54,11 +54,6 @@ public final class OSGiProjectArchetypeMojo extends AbstractArchetypeMojo
     protected boolean checkEnvironment()
         throws MojoExecutionException
     {
-        if( project.getFile() != null )
-        {
-            throw new MojoExecutionException( "Cannot use this plugin inside an existing project." );
-        }
-
         return true;
     }
 

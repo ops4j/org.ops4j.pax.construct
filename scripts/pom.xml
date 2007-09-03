@@ -10,7 +10,7 @@
   <groupId>org.ops4j.pax.construct</groupId>
   <artifactId>scripts</artifactId>
 
-  <name>OPS4J - Pax Construct scripts</name>
+  <name>OPS4J - Generate Pax Scripts</name>
 
   <packaging>pom</packaging>
 

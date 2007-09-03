@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+
+  <modelVersion>4.0.0</modelVersion>
+  <groupId>org.ops4j.pax.construct.tests</groupId>
+  <artifactId>archetype.create-project.suffix</artifactId>
+  <version>0.2.0</version>
+
+  <name>TEST ${project.artifactId}</name>
+
+  <packaging>pom</packaging>
+
+  <build>
+    <plugins>
+      <plugin>
+        <groupId>org.ops4j.pax.construct.ng</groupId>
+        <artifactId>maven-pax-plugin</artifactId>
+        <executions>
+          <execution>
+            <phase>package</phase>
+            <goals>
+              <goal>create-project</goal>
+            </goals>
+            <configuration>
+              <groupId>my.example.project</groupId>
+              <artifactId>project</artifactId>
+              <targetDirectory>
+                ${sandpit}/${project.artifactId}
+              </targetDirectory>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
+    </plugins>
+  </build>
+
+</project>

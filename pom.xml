@@ -52,6 +52,7 @@ limitations under the License.
     <module>maven-archetype-osgi-bundle</module>
     <module>maven-inherit-plugin</module>
     <module>maven-pax-plugin</module>
+    <module>tests</module>
     <module>scripts</module>
   </modules>
 

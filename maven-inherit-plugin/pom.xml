@@ -10,7 +10,7 @@
   <groupId>org.ops4j.pax.construct.ng</groupId>
   <artifactId>maven-inherit-plugin</artifactId>
 
-  <name>OPS4J - Support plugin inheritance</name>
+  <name>OPS4J - Support Maven Mojo inheritance</name>
 
   <packaging>maven-plugin</packaging>
 
