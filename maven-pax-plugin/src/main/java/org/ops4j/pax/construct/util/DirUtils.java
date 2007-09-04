@@ -17,21 +17,24 @@ package org.ops4j.pax.construct.util;
  */
 
 import java.io.File;
-import java.io.IOException;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
 
-import org.apache.maven.project.MavenProject;
 import org.ops4j.pax.construct.util.PomUtils.Pom;
 
 public class DirUtils
 {
-    public static Pom findPom( MavenProject project, String artifactId )
+    public static Pom findPom( File baseDir, String artifactId )
     {
+        if( null == artifactId || artifactId.trim().length() == 0 )
+        {
+            return null;
+        }
+
         Set visited = new HashSet();
 
-        Pom pom = PomUtils.readPom( project.getBasedir() );
+        Pom pom = PomUtils.readPom( baseDir );
         visited.add( pom.getId() );
 
         depthFirst: while( null != pom )
@@ -67,7 +70,7 @@ public class DirUtils
         }
 
         String[] pivot = calculateRelativePath( baseDir, targetDir );
-        if( null == pivot )
+        if( null == pivot || pivot[2].length() == 0 )
         {
             return null;
         }
@@ -113,24 +116,24 @@ public class DirUtils
             baseDir = baseDir.getCanonicalFile();
             targetDir = targetDir.getCanonicalFile();
         }
-        catch( IOException e )
+        catch( Exception e )
         {
             return null;
         }
 
-        String dottedPath = "";
-        String descentPath = "";
+        StringBuffer dottedPath = new StringBuffer();
+        StringBuffer descentPath = new StringBuffer();
 
         while( !baseDir.equals( targetDir ) )
         {
             if( baseDir.getPath().length() < targetDir.getPath().length() )
             {
-                descentPath = targetDir.getName() + "/" + descentPath;
+                descentPath.insert( 0, targetDir.getName() + '/' );
                 targetDir = targetDir.getParentFile();
             }
             else
             {
-                dottedPath = "../" + dottedPath;
+                dottedPath.append( "../" );
                 baseDir = baseDir.getParentFile();
             }
 
@@ -142,7 +145,7 @@ public class DirUtils
 
         return new String[]
         {
-            dottedPath, targetDir.getPath(), descentPath
+            dottedPath.toString(), targetDir.getPath(), descentPath.toString()
         };
     }
 }

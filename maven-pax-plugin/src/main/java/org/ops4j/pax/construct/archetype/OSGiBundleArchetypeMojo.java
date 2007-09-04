@@ -19,7 +19,6 @@ package org.ops4j.pax.construct.archetype;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.util.Collections;
 
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.shared.model.fileset.FileSet;
@@ -27,77 +26,58 @@ import org.apache.maven.shared.model.fileset.util.FileSetManager;
 import org.codehaus.plexus.util.IOUtil;
 
 /**
- * Create a new skeleton bundle and add it to an existing OSGi project.
- * 
  * @goal archetype:create=create-bundle
  */
-public final class OSGiBundleArchetypeMojo extends AbstractChildArchetypeMojo
+public class OSGiBundleArchetypeMojo extends AbstractPaxArchetypeMojo
 {
-    public static final String TARGET_PARENT_ARTIFACT = "compiled-bundle-settings";
+    /**
+     * @parameter expression="${parentArtifactId}" default-value="compiled-bundle-settings"
+     */
+    String parentArtifactId;
 
     /**
-     * The package of the new bundle.
-     * 
      * @parameter expression="${package}"
      * @required
      */
-    private String packageName;
+    String packageName;
 
     /**
-     * The name of the new bundle.
-     * 
      * @parameter expression="${bundleName}"
      * @required
      */
-    private String bundleName;
+    String bundleName;
 
     /**
-     * The version of the new bundle.
-     * 
      * @parameter expression="${version}" default-value="1.0-SNAPSHOT"
      */
-    private String version;
+    String version;
 
     /**
      * @parameter expression="${interface}" default-value="true"
      */
-    private boolean provideInterface;
+    boolean provideInterface;
 
     /**
      * @parameter expression="${activator}" default-value="true"
      */
-    private boolean provideActivator;
-
-    protected boolean checkEnvironment()
-        throws MojoExecutionException
-    {
-        // this is the logical parent of the new bundle project
-        if( TARGET_PARENT_ARTIFACT.equals( project.getArtifactId() ) )
-        {
-            linkChildToParent( Collections.EMPTY_LIST );
-        }
-
-        // only create archetype under physical parent (ie. the _root_ project)
-        return super.checkEnvironment();
-    }
+    boolean provideActivator;
 
     protected void updateExtensionFields()
-        throws MojoExecutionException
     {
-        setField( "archetypeArtifactId", "maven-archetype-osgi-bundle" );
+        m_mojo.setField( "archetypeArtifactId", "maven-archetype-osgi-bundle" );
 
-        setField( "groupId", getCompoundName( project.getGroupId(), project.getArtifactId() ) );
-        setField( "artifactId", bundleName );
-        setField( "version", version );
+        m_mojo.setField( "groupId", getCompactName( project.getGroupId(), project.getArtifactId() ) );
+        m_mojo.setField( "artifactId", bundleName );
+        m_mojo.setField( "version", version );
 
-        setField( "packageName", packageName );
-
-        setChildProjectName( bundleName );
+        m_mojo.setField( "packageName", packageName );
     }
 
     protected void postProcess()
         throws MojoExecutionException
     {
+        super.postProcess();
+
         FileSet activatorFiles = new FileSet();
         activatorFiles.setDirectory( project.getBasedir() + File.separator + bundleName );
 
@@ -143,5 +123,10 @@ public final class OSGiBundleArchetypeMojo extends AbstractChildArchetypeMojo
         {
             IOUtil.close( out );
         }
+    }
+
+    protected String getParentArtifactId()
+    {
+        return parentArtifactId;
     }
 }

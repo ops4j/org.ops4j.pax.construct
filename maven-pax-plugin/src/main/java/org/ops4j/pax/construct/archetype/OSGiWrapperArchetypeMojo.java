@@ -20,7 +20,6 @@ import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.OutputStream;
-import java.util.Collections;
 import java.util.Properties;
 
 import org.apache.maven.plugin.MojoExecutionException;
@@ -29,121 +28,98 @@ import org.codehaus.plexus.util.IOUtil;
 import org.codehaus.plexus.util.PropertyUtils;
 
 /**
- * Wrap a third-party jar as a bundle and add it to an existing OSGi project.
- * 
  * @goal archetype:create=wrap-jar
  */
-public final class OSGiWrapperArchetypeMojo extends AbstractChildArchetypeMojo
+public final class OSGiWrapperArchetypeMojo extends AbstractPaxArchetypeMojo
 {
-    public static final String TARGET_PARENT_ARTIFACT = "wrapper-bundle-settings";
+    /**
+     * @parameter expression="${parentArtifactId}" default-value="wrapper-bundle-settings"
+     */
+    String parentArtifactId;
 
     /**
-     * The groupId of the jarfile to wrap.
-     * 
      * @parameter expression="${groupId}"
      * @required
      */
-    private String groupId;
+    String groupId;
 
     /**
-     * The artifactId of the jarfile to wrap.
-     * 
      * @parameter expression="${artifactId}"
      * @required
      */
-    private String artifactId;
+    String artifactId;
 
     /**
-     * The version of the jarfile to wrap.
-     * 
      * @parameter expression="${version}"
      * @required
      */
-    private String version;
+    String version;
 
     /**
      * @parameter expression="${includeResource}"
      */
-    private String includeResource;
+    String includeResource;
 
     /**
      * @parameter expression="${importPackage}"
      */
-    private String importPackage;
+    String importPackage;
 
     /**
      * @parameter expression="${exportContents}"
      */
-    private String exportContents;
+    String exportContents;
 
     /**
      * @parameter expression="${requireBundle}"
      */
-    private String requireBundle;
+    String requireBundle;
 
     /**
      * @parameter expression="${dynamicImportPackage}"
      */
-    private String dynamicImportPackage;
+    String dynamicImportPackage;
 
     /**
      * @parameter expression="${excludeTransitive}"
      */
-    private boolean excludeTransitive;
+    boolean excludeTransitive;
 
     /**
      * @parameter expression="${addVersion}"
      */
-    private boolean addVersion;
+    boolean addVersion;
 
     /**
-     * @component role="org.apache.maven.project.MavenProjectBuilder"
+     * @component
      * @required
      * @readonly
      */
-    protected MavenProjectBuilder mavenProjectBuilder;
-
-    private static String bundleGroupId;
-
-    protected boolean checkEnvironment()
-        throws MojoExecutionException
-    {
-        // this is the logical parent of the new bundle project
-        if( TARGET_PARENT_ARTIFACT.equals( project.getArtifactId() ) )
-        {
-            linkChildToParent( Collections.EMPTY_LIST );
-        }
-
-        // only create archetype under physical parent (ie. the _root_ project)
-        return super.checkEnvironment();
-    }
+    MavenProjectBuilder mavenProjectBuilder;
 
     protected void updateExtensionFields()
-        throws MojoExecutionException
     {
-        setField( "archetypeArtifactId", "maven-archetype-osgi-wrapper" );
-        String compoundWrapperName = getCompoundName( groupId, artifactId );
+        m_mojo.setField( "archetypeArtifactId", "maven-archetype-osgi-wrapper" );
+        String compoundWrapperName = getCompactName( groupId, artifactId );
 
         if( addVersion )
         {
             compoundWrapperName += "-" + version;
         }
 
-        bundleGroupId = getCompoundName( project.getGroupId(), project.getArtifactId() );
+        m_mojo.setField( "groupId", getCompactName( project.getGroupId(), project.getArtifactId() ) );
+        m_mojo.setField( "artifactId", compoundWrapperName );
+        m_mojo.setField( "version", (addVersion ? '+' : ' ') + version );
 
-        setField( "groupId", bundleGroupId );
-        setField( "artifactId", compoundWrapperName );
-        setField( "version", (addVersion ? '+' : ' ') + version );
-
-        setField( "packageName", getGroupMarker( groupId, artifactId ) );
-
-        setChildProjectName( compoundWrapperName );
+        m_mojo.setField( "packageName", calculateGroupMarker( groupId, artifactId ) );
     }
 
     protected void postProcess()
         throws MojoExecutionException
     {
-        File bndConfig = new File( childPomFile.getParentFile(), "osgi.bnd" );
+        super.postProcess();
+
+        File bndConfig = new File( m_pomFile.getParentFile(), "osgi.bnd" );
 
         if( !bndConfig.exists() )
         {
@@ -192,5 +168,10 @@ public final class OSGiWrapperArchetypeMojo extends AbstractChildArchetypeMojo
         {
             IOUtil.close( propertyStream );
         }
+    }
+
+    protected String getParentArtifactId()
+    {
+        return parentArtifactId;
     }
 }

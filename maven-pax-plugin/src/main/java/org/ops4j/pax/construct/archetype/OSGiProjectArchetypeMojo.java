@@ -21,57 +21,49 @@ import java.io.File;
 import org.apache.maven.plugin.MojoExecutionException;
 
 /**
- * Creates a new skeleton OSGi project.
- * 
  * @goal archetype:create=create-project
  * @requiresProject false
  */
-public final class OSGiProjectArchetypeMojo extends AbstractArchetypeMojo
+public final class OSGiProjectArchetypeMojo extends AbstractPaxArchetypeMojo
 {
     /**
-     * The groupId of the new OSGi project.
-     * 
+     * @parameter expression="${parentArtifactId}"
+     */
+    String parentArtifactId;
+
+    /**
      * @parameter expression="${groupId}"
      * @required
      */
-    private String groupId;
+    String groupId;
 
     /**
-     * The artifactId of the new OSGi project.
-     * 
      * @parameter expression="${artifactId}"
      * @required
      */
-    private String artifactId;
+    String artifactId;
 
     /**
-     * The version of the new OSGi project.
-     * 
      * @parameter expression="${version}" default-value="1.0-SNAPSHOT"
      */
-    private String version;
-
-    protected boolean checkEnvironment()
-        throws MojoExecutionException
-    {
-        return true;
-    }
+    String version;
 
     protected void updateExtensionFields()
-        throws MojoExecutionException
     {
-        setField( "archetypeArtifactId", "maven-archetype-osgi-project" );
+        m_mojo.setField( "archetypeArtifactId", "maven-archetype-osgi-project" );
 
-        setField( "groupId", groupId );
-        setField( "artifactId", artifactId );
-        setField( "version", version );
+        m_mojo.setField( "groupId", groupId );
+        m_mojo.setField( "artifactId", artifactId );
+        m_mojo.setField( "version", version );
 
-        setField( "packageName", getCompoundName( groupId, artifactId ) );
+        m_mojo.setField( "packageName", getCompactName( groupId, artifactId ) );
     }
 
     protected void postProcess()
         throws MojoExecutionException
     {
+        super.postProcess();
+
         File projectFolder = new File( targetDirectory, artifactId );
         File[] pruneFolders = new File[3];
 
@@ -82,5 +74,10 @@ public final class OSGiProjectArchetypeMojo extends AbstractArchetypeMojo
         pruneFolders[2].delete();
         pruneFolders[1].delete();
         pruneFolders[0].delete();
+    }
+
+    protected String getParentArtifactId()
+    {
+        return parentArtifactId;
     }
 }

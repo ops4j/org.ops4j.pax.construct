@@ -1,5 +1,6 @@
 <archetype>
   <id>maven-archetype-osgi-project</id>
+  <allowPartial>true</allowPartial>
   <resources>
     <resource>poms/pom.xml</resource>
     <resource>poms/compiled/pom.xml</resource>

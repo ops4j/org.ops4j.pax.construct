@@ -76,7 +76,7 @@ public final class MoveBundleMojo extends AbstractMojo
         }
         catch( Exception e )
         {
-            bundlePom = DirUtils.findPom( project, bundlePath.getName() );
+            bundlePom = DirUtils.findPom( project.getBasedir(), bundlePath.getName() );
         }
 
         if( null == bundlePom )

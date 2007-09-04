@@ -106,7 +106,7 @@ public final class ImportBundleMojo extends AbstractMojo
             dependency.setOptional( true );
         }
 
-        Pom provisionPom = DirUtils.findPom( project, "provision" );
+        Pom provisionPom = DirUtils.findPom( project.getBasedir(), "provision" );
         if( null == provisionPom )
         {
             provisionPom = PomUtils.readPom( project.getFile() );
