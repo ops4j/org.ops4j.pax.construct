@@ -37,10 +37,10 @@
               <source>
                 println 'Generate scripts'
                 println '================'
-                new File( "${project.build.directory}/bin" ).mkdirs()
+                new File( "${pom.build.directory}/bin" ).mkdirs()
 
                 engine = new groovy.text.SimpleTemplateEngine()
-                new File( "${project.basedir}/src/commands" ).eachFileMatch( ~/[^.]+/ )
+                new File( "${basedir}/src/commands" ).eachFileMatch( ~/[^.]+/ )
                 {
                   print "${it.name}\t"
                   options = new ConfigSlurper().parse( it.toURL() )
@@ -54,17 +54,17 @@
                   println ''
 
                   properties = [:]
-                  properties.version = "${project.version}"
+                  properties.version = "${version}"
                   properties.options = options
                   properties.mojo = "${it.name}"
 
-                  nix = new File( "${project.basedir}/src/groovy/pax-command" )
+                  nix = new File( "${basedir}/src/groovy/pax-command" )
                   template = engine.createTemplate( nix ).make( properties )
-                  new File( "${project.build.directory}/bin/pax-${it.name}" ).write( template.toString() )
+                  new File( "${pom.build.directory}/bin/pax-${it.name}" ).write( template.toString() )
 
-                  bat = new File( "${project.basedir}/src/groovy/pax-command.bat" )
+                  bat = new File( "${basedir}/src/groovy/pax-command.bat" )
                   template = engine.createTemplate( bat ).make( properties )
-                  new File( "${project.build.directory}/bin/pax-${it.name}.bat" ).write( template.toString() )
+                  new File( "${pom.build.directory}/bin/pax-${it.name}.bat" ).write( template.toString() )
                 }
               </source>
             </configuration>
@@ -93,7 +93,7 @@
               <goal>attached</goal>
             </goals>
             <configuration>
-              <finalName>pax-construct-${project.version}</finalName>
+              <finalName>pax-construct-${version}</finalName>
               <appendAssemblyId>false</appendAssemblyId>
               <descriptors>
                 <descriptor>src/assembly/zip.xml</descriptor>
