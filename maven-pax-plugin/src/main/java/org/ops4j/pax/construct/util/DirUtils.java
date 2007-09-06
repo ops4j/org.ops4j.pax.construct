@@ -25,21 +25,26 @@ import org.ops4j.pax.construct.util.PomUtils.Pom;
 
 public class DirUtils
 {
-    public static Pom findPom( File baseDir, String artifactId )
+    public static Pom findPom( File baseDir, String pomId )
     {
-        if( null == artifactId || artifactId.length() == 0 )
+        if( null == pomId || pomId.length() == 0 )
         {
             return null;
         }
 
-        Set visited = new HashSet();
-
         Pom pom = PomUtils.readPom( baseDir );
+
+        Set visited = new HashSet();
         visited.add( pom.getId() );
+
+        int groupMarker = pomId.indexOf( ':' );
+
+        final String groupId = groupMarker > 0 ? pomId.substring( 0, groupMarker ) : null;
+        final String artifactId = pomId.substring( groupMarker + 1 );
 
         depthFirst: while( null != pom )
         {
-            if( artifactId.equals( pom.getArtifactId() ) )
+            if( artifactId.equals( pom.getArtifactId() ) && (null == groupId || groupId.equals( pom.getGroupId() )) )
             {
                 return pom;
             }

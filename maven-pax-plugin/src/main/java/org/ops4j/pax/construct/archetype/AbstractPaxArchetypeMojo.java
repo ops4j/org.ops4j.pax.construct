@@ -86,11 +86,8 @@ public abstract class AbstractPaxArchetypeMojo extends MavenArchetypeMojo
         m_mojo.setField( "archetypeVersion", archetypeVersion );
         m_mojo.setField( "project", project );
 
-        if( targetDirectory != null )
-        {
-            targetDirectory = FileUtils.resolveFile( targetDirectory, "" );
-            m_mojo.setField( "basedir", targetDirectory.getPath() );
-        }
+        targetDirectory = FileUtils.resolveFile( targetDirectory, "" );
+        m_mojo.setField( "basedir", targetDirectory.getPath() );
 
         // these must be set by the various archetype sub-classes
         // setField( "archetypeArtifactId", archetypeArtifactId );
@@ -131,9 +128,7 @@ public abstract class AbstractPaxArchetypeMojo extends MavenArchetypeMojo
     protected void postProcess()
         throws MojoExecutionException
     {
-        String parentArtifactId = getParentArtifactId();
-
-        Pom parentPom = DirUtils.findPom( targetDirectory, parentArtifactId );
+        Pom parentPom = DirUtils.findPom( targetDirectory, getParentId() );
         if( null != parentPom )
         {
             Pom thisPom = PomUtils.readPom( m_pomFile );
@@ -150,7 +145,7 @@ public abstract class AbstractPaxArchetypeMojo extends MavenArchetypeMojo
         }
     }
 
-    protected abstract String getParentArtifactId();
+    protected abstract String getParentId();
 
     protected final String calculateGroupMarker( String groupId, String artifactId )
     {

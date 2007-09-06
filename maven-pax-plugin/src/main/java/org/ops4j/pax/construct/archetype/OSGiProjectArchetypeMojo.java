@@ -27,9 +27,9 @@ import org.apache.maven.plugin.MojoExecutionException;
 public final class OSGiProjectArchetypeMojo extends AbstractPaxArchetypeMojo
 {
     /**
-     * @parameter expression="${parentArtifactId}"
+     * @parameter expression="${parentId}"
      */
-    String parentArtifactId;
+    String parentId;
 
     /**
      * @parameter expression="${groupId}"
@@ -76,8 +76,8 @@ public final class OSGiProjectArchetypeMojo extends AbstractPaxArchetypeMojo
         pruneFolders[0].delete();
     }
 
-    protected String getParentArtifactId()
+    protected String getParentId()
     {
-        return parentArtifactId;
+        return parentId;
     }
 }

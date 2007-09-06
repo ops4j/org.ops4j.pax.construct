@@ -22,6 +22,7 @@ import org.apache.maven.plugin.AbstractMojo;
  * Validate everything is ok in the build setup.
  * 
  * @goal validate
+ * @aggregator true
  */
 public final class ValidateMojo extends AbstractMojo
 {

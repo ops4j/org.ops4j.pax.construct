@@ -27,6 +27,7 @@ import org.ops4j.pax.construct.util.PomUtils.Pom;
  * Adds a Maven repository to the current project.
  * 
  * @goal add-repository
+ * @aggregator true
  */
 public final class AddRepositoryMojo extends AbstractMojo
 {
@@ -58,20 +59,9 @@ public final class AddRepositoryMojo extends AbstractMojo
      */
     private boolean overwrite;
 
-    /**
-     * Only update the first pom in the reactor.
-     */
-    private static boolean ignore = false;
-
     public void execute()
         throws MojoExecutionException
     {
-        if( ignore )
-        {
-            return;
-        }
-        ignore = true;
-
         Pom pom = PomUtils.readPom( project.getFile() );
 
         Repository repository = new Repository();

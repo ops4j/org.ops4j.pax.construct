@@ -35,9 +35,14 @@ import org.ops4j.pax.construct.util.PomUtils.Pom;
 public class OSGiBundleArchetypeMojo extends AbstractPaxArchetypeMojo
 {
     /**
-     * @parameter expression="${parentArtifactId}" default-value="compiled-bundle-settings"
+     * @parameter expression="${parentId}" default-value="compiled-bundle-settings"
      */
-    String parentArtifactId;
+    String parentId;
+
+    /**
+     * @parameter expression="${provisionId}" default-value="provision"
+     */
+    String provisionId;
 
     /**
      * @parameter expression="${package}"
@@ -82,7 +87,7 @@ public class OSGiBundleArchetypeMojo extends AbstractPaxArchetypeMojo
     {
         super.postProcess();
 
-        Pom provisionPom = DirUtils.findPom( project.getBasedir(), "provision" );
+        Pom provisionPom = DirUtils.findPom( targetDirectory, provisionId );
         if( null != provisionPom )
         {
             Pom thisPom = PomUtils.readPom( m_pomFile );
@@ -98,7 +103,7 @@ public class OSGiBundleArchetypeMojo extends AbstractPaxArchetypeMojo
         }
 
         FileSet activatorFiles = new FileSet();
-        activatorFiles.setDirectory( project.getBasedir() + File.separator + bundleName );
+        activatorFiles.setDirectory( targetDirectory + File.separator + bundleName );
 
         if( !provideInterface )
         {
@@ -144,8 +149,8 @@ public class OSGiBundleArchetypeMojo extends AbstractPaxArchetypeMojo
         }
     }
 
-    protected String getParentArtifactId()
+    protected String getParentId()
     {
-        return parentArtifactId;
+        return parentId;
     }
 }

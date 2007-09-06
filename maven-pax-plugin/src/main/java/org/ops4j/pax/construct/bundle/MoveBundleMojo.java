@@ -29,6 +29,7 @@ import org.ops4j.pax.construct.util.PomUtils.Pom;
  * Moves a local bundle to a new location in the project tree.
  * 
  * @goal move-bundle
+ * @aggregator true
  */
 public final class MoveBundleMojo extends AbstractMojo
 {
@@ -53,20 +54,9 @@ public final class MoveBundleMojo extends AbstractMojo
      */
     private File targetDirectory;
 
-    /**
-     * Avoid repeated calls when there's more than one project in the reactor.
-     */
-    private static boolean ignore = false;
-
     public void execute()
         throws MojoExecutionException
     {
-        if( ignore )
-        {
-            return;
-        }
-        ignore = true;
-
         File bundlePath = new File( bundleName );
 
         Pom bundlePom;

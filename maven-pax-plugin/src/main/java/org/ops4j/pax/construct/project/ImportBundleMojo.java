@@ -16,11 +16,12 @@ package org.ops4j.pax.construct.project;
  * limitations under the License.
  */
 
+import java.io.File;
+
 import org.apache.maven.artifact.Artifact;
 import org.apache.maven.model.Dependency;
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
-import org.apache.maven.project.MavenProject;
 import org.ops4j.pax.construct.util.DirUtils;
 import org.ops4j.pax.construct.util.PomUtils;
 import org.ops4j.pax.construct.util.PomUtils.Pom;
@@ -29,13 +30,14 @@ import org.ops4j.pax.construct.util.PomUtils.Pom;
  * Import an externally provided bundle to the OSGi project.
  * 
  * @goal import-bundle
+ * @aggregator true
  */
 public final class ImportBundleMojo extends AbstractMojo
 {
     /**
-     * @parameter expression="${project}"
+     * @parameter expression="${provisionId}" default-value="provision"
      */
-    private MavenProject project;
+    String provisionId;
 
     /**
      * The groupId of the bundle to import.
@@ -57,9 +59,13 @@ public final class ImportBundleMojo extends AbstractMojo
      * The version of the bundle to import.
      * 
      * @parameter expression="${version}"
-     * @required
      */
     private String version;
+
+    /**
+     * @parameter expression="${targetDirectory}" default-value="${project.basedir}"
+     */
+    protected File targetDirectory;
 
     /**
      * Should the imported bundle be deployed?
@@ -75,20 +81,9 @@ public final class ImportBundleMojo extends AbstractMojo
      */
     private boolean overwrite;
 
-    /**
-     * Only update one provisioning pom at a time.
-     */
-    private static boolean ignore = false;
-
     public void execute()
         throws MojoExecutionException
     {
-        if( ignore )
-        {
-            return;
-        }
-        ignore = true;
-
         Dependency dependency = new Dependency();
         dependency.setGroupId( groupId );
         dependency.setArtifactId( artifactId );
@@ -106,13 +101,19 @@ public final class ImportBundleMojo extends AbstractMojo
             dependency.setOptional( true );
         }
 
-        Pom provisionPom = DirUtils.findPom( project.getBasedir(), "provision" );
-        if( null == provisionPom )
+        Pom targetPom = null;
+
+        Pom localBundlePom = DirUtils.findPom( targetDirectory, groupId + ':' + artifactId );
+        if( null == localBundlePom )
         {
-            provisionPom = PomUtils.readPom( project.getFile() );
+            targetPom = DirUtils.findPom( targetDirectory, provisionId );
+        }
+        if( null == targetPom )
+        {
+            targetPom = PomUtils.readPom( targetDirectory );
         }
 
-        provisionPom.addDependency( dependency, overwrite );
-        provisionPom.write();
+        targetPom.addDependency( dependency, overwrite );
+        targetPom.write();
     }
 }

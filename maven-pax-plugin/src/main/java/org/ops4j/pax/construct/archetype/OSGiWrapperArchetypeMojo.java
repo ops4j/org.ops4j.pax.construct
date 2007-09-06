@@ -33,9 +33,9 @@ import org.codehaus.plexus.util.PropertyUtils;
 public final class OSGiWrapperArchetypeMojo extends AbstractPaxArchetypeMojo
 {
     /**
-     * @parameter expression="${parentArtifactId}" default-value="wrapper-bundle-settings"
+     * @parameter expression="${parentId}" default-value="wrapper-bundle-settings"
      */
-    String parentArtifactId;
+    String parentId;
 
     /**
      * @parameter expression="${groupId}"
@@ -170,8 +170,8 @@ public final class OSGiWrapperArchetypeMojo extends AbstractPaxArchetypeMojo
         }
     }
 
-    protected String getParentArtifactId()
+    protected String getParentId()
     {
-        return parentArtifactId;
+        return parentId;
     }
 }

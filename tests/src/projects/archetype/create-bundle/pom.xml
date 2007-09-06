@@ -116,6 +116,34 @@
             </configuration>
           </execution>
           <execution>
+            <id>import-api</id>
+            <phase>package</phase>
+            <goals>
+              <goal>run</goal>
+            </goals>
+            <configuration>
+              <pom>${sandpit}/${artifactId}/project/simple-impl/pom.xml</pom>
+              <noLog>true</noLog>
+              <goals>
+                <goal>pax:import-bundle</goal>
+              </goals>
+              <testProperties>
+                <property>
+                  <name>groupId</name>
+                  <value>my.example.project</value>
+                </property>
+                <property>
+                  <name>artifactId</name>
+                  <value>simple-api</value>
+                </property>
+                <property>
+                  <name>version</name>
+                  <value>1.0-SNAPSHOT</value>
+                </property>
+              </testProperties>
+            </configuration>
+          </execution>
+          <execution>
             <id>build</id>
             <phase>package</phase>
             <goals>
