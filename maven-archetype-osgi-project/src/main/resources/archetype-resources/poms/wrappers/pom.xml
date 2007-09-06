@@ -12,6 +12,9 @@
   <modelVersion>4.0.0</modelVersion>
   <artifactId>wrapper-bundle-settings</artifactId>
 
+  <!--
+    don't apply project details to wrapped jars
+  -->
   <organization/>
   <description>
     Simple OSGi wrapper around third-party jar(s)
@@ -19,10 +22,6 @@
   <licenses>
     <license/>
   </licenses>
-
-  <properties>
-    <bundle.location>${project.build.directory}/${project.build.finalName}.jar</bundle.location>
-  </properties>
 
   <name>Wrapper instructions</name>
 

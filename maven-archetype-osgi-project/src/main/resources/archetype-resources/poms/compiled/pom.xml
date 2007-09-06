@@ -12,10 +12,6 @@
   <modelVersion>4.0.0</modelVersion>
   <artifactId>compiled-bundle-settings</artifactId>
 
-  <properties>
-    <bundle.location>${project.build.directory}/${project.build.finalName}.jar</bundle.location>
-  </properties>
-
   <name>Bundle instructions</name>
 
   <packaging>pom</packaging>
@@ -31,12 +27,12 @@
         <configuration>
           <instructions>
             <Bundle-SymbolicName>${bundle.symbolicName}</Bundle-SymbolicName>
-            <Bundle-Version>${project.version}</Bundle-Version>
+            <Bundle-Version>${pom.version}</Bundle-Version>
             <!--
               assume public classes are in the top package, and private classes are under ".internal"
             -->
             <Private-Package>${bundle.namespace}.internal</Private-Package>
-            <Export-Package>!${bundle.namespace}.internal,${bundle.namespace};version="${project.version}"</Export-Package>
+            <Export-Package>!${bundle.namespace}.internal,${bundle.namespace};version="${pom.version}"</Export-Package>
             <!--
               embed all compile and runtime dependencies (except poms and OSGi framework artifacts)
             -->

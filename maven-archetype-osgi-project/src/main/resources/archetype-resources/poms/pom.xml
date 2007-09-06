@@ -33,10 +33,11 @@
         <plugin>
           <groupId>org.ops4j.pax.construct.ng</groupId>
           <artifactId>maven-pax-plugin</artifactId>
+          <version>${paxPluginVersion}</version>
           <extensions>true</extensions>
           <configuration>
             <!--
-              target current JDK (change if you want to target another version, such as 1.3)
+              target build JDK (change if you want to target another version, such as 1.3)
             -->
             <source>\${java.specification.version}</source>
             <target>\${java.specification.version}</target>
@@ -46,6 +47,19 @@
       </plugins>
     </pluginManagement>
   </build>
+
+  <dependencyManagement>
+    <dependencies>
+      <dependency>
+#end
+        <groupId>\${package}.build</groupId>
+        <artifactId>provision</artifactId>
+        <version>\${version}</version>
+#literal()
+        <type>pom</type>
+      </dependency>
+    </dependencies>
+  </dependencyManagement>
 
   <profiles>
     <profile>

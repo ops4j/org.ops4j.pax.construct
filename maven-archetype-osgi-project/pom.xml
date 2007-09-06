@@ -27,19 +27,19 @@
             <configuration>
               <source>
                 engine = new groovy.text.SimpleTemplateEngine()
-                filter = ['paxPluginVersion':"${project.version}"]
+                filter = ['paxPluginVersion':"${version}"]
 
-                pom = 'archetype-resources/pom.xml'
+                pomPath = 'archetype-resources/pom.xml'
 
-                pomFile = new File( "${project.basedir}/src/main/resources/${pom}" )
+                pomFile = new File( "${basedir}/src/main/resources/${pomPath}" )
                 template = engine.createTemplate( pomFile ).make( filter )
-                new File( "${project.build.outputDirectory}/${pom}" ).write( template.toString() )
+                new File( "${pom.build.outputDirectory}/${pomPath}" ).write( template.toString() )
 
-                pom = 'archetype-resources/poms/pom.xml'
+                pomPath = 'archetype-resources/poms/pom.xml'
 
-                pomFile = new File( "${project.basedir}/src/main/resources/${pom}" )
+                pomFile = new File( "${basedir}/src/main/resources/${pomPath}" )
                 template = engine.createTemplate( pomFile ).make( filter )
-                new File( "${project.build.outputDirectory}/${pom}" ).write( template.toString() )
+                new File( "${pom.build.outputDirectory}/${pomPath}" ).write( template.toString() )
               </source>
             </configuration>
           </execution>
