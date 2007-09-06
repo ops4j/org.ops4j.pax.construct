@@ -159,10 +159,9 @@ public final class ProvisionMojo extends AbstractMojo
 
     private void addBundleDependencies( MavenProject deployableProject )
     {
-        Artifact keyArtifact = deployableProject.getArtifact();
         if( PomUtils.isBundleProject( deployableProject ) )
         {
-            m_bundleArtifacts.add( keyArtifact );
+            m_bundleArtifacts.add( deployableProject.getArtifact() );
         }
 
         try

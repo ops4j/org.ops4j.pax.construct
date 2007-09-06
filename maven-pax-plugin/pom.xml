@@ -42,7 +42,7 @@
       <groupId>org.apache.maven.plugins</groupId>
       <artifactId>maven-archetype-plugin</artifactId>
       <type>maven-plugin</type>
-      <version>1.0-alpha-4</version>
+      <version>1.0-alpha-7</version>
     </dependency>
     <dependency>
       <groupId>org.apache.maven.plugins</groupId>

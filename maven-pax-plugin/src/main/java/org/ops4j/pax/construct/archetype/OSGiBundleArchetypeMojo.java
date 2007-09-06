@@ -20,10 +20,14 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 
+import org.apache.maven.model.Dependency;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.shared.model.fileset.FileSet;
 import org.apache.maven.shared.model.fileset.util.FileSetManager;
 import org.codehaus.plexus.util.IOUtil;
+import org.ops4j.pax.construct.util.DirUtils;
+import org.ops4j.pax.construct.util.PomUtils;
+import org.ops4j.pax.construct.util.PomUtils.Pom;
 
 /**
  * @goal archetype:create=create-bundle
@@ -78,6 +82,21 @@ public class OSGiBundleArchetypeMojo extends AbstractPaxArchetypeMojo
     {
         super.postProcess();
 
+        Pom provisionPom = DirUtils.findPom( project.getBasedir(), "provision" );
+        if( null != provisionPom )
+        {
+            Pom thisPom = PomUtils.readPom( m_pomFile );
+
+            Dependency buildDependency = new Dependency();
+            buildDependency.setGroupId( provisionPom.getGroupId() );
+            buildDependency.setArtifactId( provisionPom.getArtifactId() );
+            buildDependency.setType( "pom" );
+
+            thisPom.addDependency( buildDependency, overwrite );
+
+            thisPom.write();
+        }
+
         FileSet activatorFiles = new FileSet();
         activatorFiles.setDirectory( project.getBasedir() + File.separator + bundleName );
 
@@ -89,7 +108,7 @@ public class OSGiBundleArchetypeMojo extends AbstractPaxArchetypeMojo
         if( !provideActivator )
         {
             activatorFiles.addInclude( "src/main/java/**/internal" );
-            activatorFiles.addInclude( "src/main/resources" );
+            activatorFiles.addInclude( "osgi.bnd" );
         }
 
         FileWriter out = null;

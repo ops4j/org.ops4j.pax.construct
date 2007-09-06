@@ -27,7 +27,7 @@ public class DirUtils
 {
     public static Pom findPom( File baseDir, String artifactId )
     {
-        if( null == artifactId || artifactId.trim().length() == 0 )
+        if( null == artifactId || artifactId.length() == 0 )
         {
             return null;
         }
@@ -70,7 +70,7 @@ public class DirUtils
         }
 
         String[] pivot = calculateRelativePath( baseDir, targetDir );
-        if( null == pivot || pivot[2].length() == 0 )
+        if( null == pivot )
         {
             return null;
         }

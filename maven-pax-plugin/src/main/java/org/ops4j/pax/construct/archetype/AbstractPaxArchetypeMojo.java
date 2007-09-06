@@ -59,6 +59,11 @@ public abstract class AbstractPaxArchetypeMojo extends MavenArchetypeMojo
      */
     boolean compactNames;
 
+    /**
+     * @parameter expression="${attachPom}" default-value="true"
+     */
+    boolean attachPom;
+
     protected ReflectMojo m_mojo;
 
     protected File m_pomFile;
@@ -68,22 +73,9 @@ public abstract class AbstractPaxArchetypeMojo extends MavenArchetypeMojo
     {
         updateFields();
 
-        final String userDir = System.getProperty( "user.dir" );
-
-        if( targetDirectory != null )
-        {
-            targetDirectory = FileUtils.resolveFile( targetDirectory, "" );
-            System.setProperty( "user.dir", targetDirectory.getPath() );
-        }
-
         prepareTarget();
         super.execute();
         postProcess();
-
-        if( targetDirectory != null )
-        {
-            System.setProperty( "user.dir", userDir );
-        }
     }
 
     final void updateFields()
@@ -93,6 +85,12 @@ public abstract class AbstractPaxArchetypeMojo extends MavenArchetypeMojo
         m_mojo.setField( "archetypeGroupId", PAX_ARCHETYPE_GROUP_ID );
         m_mojo.setField( "archetypeVersion", archetypeVersion );
         m_mojo.setField( "project", project );
+
+        if( targetDirectory != null )
+        {
+            targetDirectory = FileUtils.resolveFile( targetDirectory, "" );
+            m_mojo.setField( "basedir", targetDirectory.getPath() );
+        }
 
         // these must be set by the various archetype sub-classes
         // setField( "archetypeArtifactId", archetypeArtifactId );
@@ -118,12 +116,15 @@ public abstract class AbstractPaxArchetypeMojo extends MavenArchetypeMojo
             m_pomFile.delete();
         }
 
-        Pom modulesPom = DirUtils.createModuleTree( project.getBasedir(), targetDirectory );
-        if( null != modulesPom )
+        if( attachPom )
         {
-            pomDirectory.mkdirs();
-            modulesPom.addModule( artifactId, overwrite );
-            modulesPom.write();
+            Pom modulesPom = DirUtils.createModuleTree( project.getBasedir(), targetDirectory );
+            if( null != modulesPom )
+            {
+                pomDirectory.mkdirs();
+                modulesPom.addModule( artifactId, overwrite );
+                modulesPom.write();
+            }
         }
     }
 
