@@ -41,7 +41,7 @@
                   <testProperties>
                     <property>
                       <name>sandpit</name>
-                      <value>${project.basedir}/target</value>
+                      <value>${basedir}/target</value>
                     </property>
                   </testProperties>
                 </configuration>

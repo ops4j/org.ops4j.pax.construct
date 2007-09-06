@@ -6,7 +6,7 @@
   <artifactId>archetype.create-project.append</artifactId>
   <version>0.2.0</version>
 
-  <name>TEST ${project.artifactId}</name>
+  <name>TEST ${artifactId}</name>
 
   <packaging>pom</packaging>
 
@@ -22,10 +22,11 @@
               <goal>create-project</goal>
             </goals>
             <configuration>
+              <attachPom>false</attachPom>
               <groupId>my.example</groupId>
               <artifactId>project</artifactId>
               <targetDirectory>
-                ${sandpit}/${project.artifactId}
+                ${sandpit}/${artifactId}
               </targetDirectory>
             </configuration>
           </execution>
