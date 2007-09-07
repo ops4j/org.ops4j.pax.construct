@@ -27,64 +27,54 @@ import org.ops4j.pax.construct.util.PomUtils;
 import org.ops4j.pax.construct.util.PomUtils.Pom;
 
 /**
- * Import an externally provided bundle to the OSGi project.
- * 
  * @goal import-bundle
  * @aggregator true
  */
-public final class ImportBundleMojo extends AbstractMojo
+public class ImportBundleMojo extends AbstractMojo
 {
+    /**
+     * @parameter expression="${groupId}"
+     * @required
+     */
+    String groupId;
+
+    /**
+     * @parameter expression="${artifactId}"
+     * @required
+     */
+    String artifactId;
+
+    /**
+     * @parameter expression="${version}"
+     * @required
+     */
+    String version;
+
     /**
      * @parameter expression="${provisionId}" default-value="provision"
      */
     String provisionId;
 
     /**
-     * The groupId of the bundle to import.
-     * 
-     * @parameter expression="${groupId}"
-     * @required
-     */
-    private String groupId;
-
-    /**
-     * The artifactId of the bundle to import.
-     * 
-     * @parameter expression="${artifactId}"
-     * @required
-     */
-    private String artifactId;
-
-    /**
-     * The version of the bundle to import.
-     * 
-     * @parameter expression="${version}"
-     */
-    private String version;
-
-    /**
      * @parameter expression="${targetDirectory}" default-value="${project.basedir}"
      */
-    protected File targetDirectory;
+    File targetDirectory;
 
     /**
-     * Should the imported bundle be deployed?
-     * 
      * @parameter expression="${deploy}" default-value="true"
      */
-    private boolean deploy;
+    boolean deploy;
 
     /**
-     * Should we attempt to overwrite entries?
-     * 
      * @parameter expression="${overwrite}"
      */
-    private boolean overwrite;
+    boolean overwrite;
 
     public void execute()
         throws MojoExecutionException
     {
         Dependency dependency = new Dependency();
+
         dependency.setGroupId( groupId );
         dependency.setArtifactId( artifactId );
         dependency.setVersion( version );
@@ -103,11 +93,15 @@ public final class ImportBundleMojo extends AbstractMojo
 
         Pom pom = null;
 
-        Pom localBundlePom = DirUtils.findPom( targetDirectory, groupId + ':' + artifactId );
-        if( null == localBundlePom )
+        if( null != provisionId && provisionId.length() > 0 )
         {
-            pom = DirUtils.findPom( targetDirectory, provisionId );
+            Pom localBundlePom = DirUtils.findPom( targetDirectory, groupId + ':' + artifactId );
+            if( null == localBundlePom )
+            {
+                pom = DirUtils.findPom( targetDirectory, provisionId );
+            }
         }
+
         if( null == pom )
         {
             pom = PomUtils.readPom( targetDirectory );

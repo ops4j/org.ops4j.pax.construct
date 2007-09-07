@@ -38,78 +38,68 @@ import org.apache.maven.project.MavenProjectBuilder;
 import org.ops4j.pax.construct.util.PomUtils;
 
 /**
- * Create configuration pom file for provisioning via Pax-Runner
- * 
  * @goal provision
  */
-public final class ProvisionMojo extends AbstractMojo
+public class ProvisionMojo extends AbstractMojo
 {
     /**
-     * @parameter expression="${project}"
+     * @parameter default-value="${project}"
+     * @required
      */
-    private MavenProject project;
+    MavenProject project;
 
     /**
      * @parameter default-value="${reactorProjects}"
      * @required
-     * @readonly
      */
-    private List reactorProjects;
+    List reactorProjects;
 
     /**
-     * @parameter expression="${deploy}" default-value="true"
-     */
-    private boolean deploy;
-
-    /**
-     * @parameter expression="${deploy.poms}"
-     */
-    private String additionalPoms;
-
-    /**
-     * @parameter expression="${framework}" default-value="felix"
-     */
-    private String framework;
-
-    /**
-     * @parameter expression="${project.remoteArtifactRepositories}"
+     * @parameter expression="${remoteRepositories}" default-value="${project.remoteArtifactRepositories}"
      * @required
-     * @readonly
      */
-    private List remoteArtifactRepositories;
+    List remoteRepositories;
 
     /**
      * @parameter expression="${localRepository}"
      * @required
-     * @readonly
      */
-    private ArtifactRepository localRepository;
+    ArtifactRepository localRepository;
 
     /**
-     * @parameter expression="${component.org.apache.maven.artifact.factory.ArtifactFactory}"
-     * @required
-     * @readonly
+     * @component
      */
-    private ArtifactFactory artifactFactory;
+    ArtifactFactory artifactFactory;
 
     /**
-     * @parameter expression="${component.org.apache.maven.artifact.installer.ArtifactInstaller}"
-     * @required
-     * @readonly
+     * @component
      */
-    private ArtifactInstaller artifactInstaller;
+    ArtifactInstaller artifactInstaller;
 
     /**
-     * @component role="org.apache.maven.project.MavenProjectBuilder"
-     * @required
-     * @readonly
+     * @component
      */
-    protected MavenProjectBuilder mavenProjectBuilder;
+    MavenProjectBuilder mavenProjectBuilder;
 
-    private static MavenProject m_runnerPom;
-    private static Properties m_properties;
-    private static Set m_bundleArtifacts;
-    private static int m_projectCount;
+    /**
+     * @parameter expression="${framework}" default-value="felix"
+     */
+    String framework;
+
+    /**
+     * @parameter expression="${deploy}" default-value="true"
+     */
+    boolean deploy;
+
+    /**
+     * @parameter expression="${deployPoms}"
+     */
+    String additionalPoms;
+
+    static MavenProject m_runnerPom;
+    static Properties m_properties;
+    static Set m_bundleArtifacts;
+    static int m_projectCount;
 
     public void execute()
         throws MojoExecutionException
@@ -132,7 +122,7 @@ public final class ProvisionMojo extends AbstractMojo
         }
     }
 
-    private void initializeRunnerPom()
+    void initializeRunnerPom()
     {
         m_runnerPom.setGroupId( project.getGroupId() );
         m_runnerPom.setArtifactId( project.getArtifactId() + "-deployment" );
@@ -157,7 +147,7 @@ public final class ProvisionMojo extends AbstractMojo
         }
     }
 
-    private void addBundleDependencies( MavenProject deployableProject )
+    void addBundleDependencies( MavenProject deployableProject )
     {
         if( PomUtils.isBundleProject( deployableProject ) )
         {
@@ -182,7 +172,7 @@ public final class ProvisionMojo extends AbstractMojo
         }
     }
 
-    private void addAdditionalPoms()
+    void addAdditionalPoms()
     {
         String[] pomPaths = additionalPoms.split( "," );
         for( int i = 0; i < pomPaths.length; i++ )
@@ -202,7 +192,7 @@ public final class ProvisionMojo extends AbstractMojo
         }
     }
 
-    private void installRunnerPom()
+    void installRunnerPom()
         throws MojoExecutionException
     {
         try
@@ -257,9 +247,8 @@ public final class ProvisionMojo extends AbstractMojo
                 // Force reload of pom
                 cachedPomFile.delete();
 
-                // Pass on current repo list to Pax-Runner
                 StringBuffer repoListBuilder = new StringBuffer();
-                for( Iterator i = remoteArtifactRepositories.iterator(); i.hasNext(); )
+                for( Iterator i = remoteRepositories.iterator(); i.hasNext(); )
                 {
                     ArtifactRepository repo = (ArtifactRepository) i.next();
                     if( repoListBuilder.length() > 0 )

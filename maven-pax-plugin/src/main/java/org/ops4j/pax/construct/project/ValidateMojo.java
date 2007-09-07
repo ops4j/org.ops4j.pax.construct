@@ -19,12 +19,10 @@ package org.ops4j.pax.construct.project;
 import org.apache.maven.plugin.AbstractMojo;
 
 /**
- * Validate everything is ok in the build setup.
- * 
  * @goal validate
  * @aggregator true
  */
-public final class ValidateMojo extends AbstractMojo
+public class ValidateMojo extends AbstractMojo
 {
     public void execute()
     {

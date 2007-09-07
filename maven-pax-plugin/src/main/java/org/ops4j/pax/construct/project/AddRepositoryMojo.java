@@ -16,53 +16,46 @@ package org.ops4j.pax.construct.project;
  * limitations under the License.
  */
 
+import java.io.File;
+
 import org.apache.maven.model.Repository;
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
-import org.apache.maven.project.MavenProject;
 import org.ops4j.pax.construct.util.PomUtils;
 import org.ops4j.pax.construct.util.PomUtils.Pom;
 
 /**
- * Adds a Maven repository to the current project.
- * 
  * @goal add-repository
  * @aggregator true
  */
-public final class AddRepositoryMojo extends AbstractMojo
+public class AddRepositoryMojo extends AbstractMojo
 {
     /**
-     * @parameter expression="${project}"
-     */
-    private MavenProject project;
-
-    /**
-     * The id of the repository.
-     * 
      * @parameter expression="${repositoryId}"
      * @required
      */
-    private String repositoryId;
+    String repositoryId;
 
     /**
-     * The url of the repository.
-     * 
      * @parameter expression="${repositoryURL}"
      * @required
      */
-    private String repositoryURL;
+    String repositoryURL;
 
     /**
-     * Should we attempt to overwrite entries?
-     * 
+     * @parameter expression="${targetDirectory}" default-value="${project.basedir}"
+     */
+    File targetDirectory;
+
+    /**
      * @parameter expression="${overwrite}"
      */
-    private boolean overwrite;
+    boolean overwrite;
 
     public void execute()
         throws MojoExecutionException
     {
-        Pom pom = PomUtils.readPom( project.getFile() );
+        Pom pom = PomUtils.readPom( targetDirectory );
 
         Repository repository = new Repository();
         repository.setId( repositoryId );
