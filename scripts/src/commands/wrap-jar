@@ -11,6 +11,7 @@ a {
 v {
   name = 'version'
   example = '1.0-SNAPSHOT'
+  optional = true
 }
 
 order = [ 'g', 'a', 'v' ]
