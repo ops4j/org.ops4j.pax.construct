@@ -74,11 +74,11 @@ public class PomUtils
 
         public void addModule( String module, boolean overwrite );
 
-        public void removeModule( String module );
+        public boolean removeModule( String module );
 
         public void addDependency( Dependency dependency, boolean overwrite );
 
-        public void removeDependency( Dependency dependency );
+        public boolean removeDependency( Dependency dependency );
 
         public void write();
     }

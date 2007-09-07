@@ -68,6 +68,8 @@ public final class AddRepositoryMojo extends AbstractMojo
         repository.setId( repositoryId );
         repository.setUrl( repositoryURL );
 
+        getLog().info( "Adding repository " + repositoryURL + " to " + pom.getId() );
+
         pom.addRepository( repository, overwrite );
 
         pom.write();

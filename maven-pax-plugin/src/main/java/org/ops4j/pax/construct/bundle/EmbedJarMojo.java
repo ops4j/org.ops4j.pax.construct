@@ -109,6 +109,9 @@ public final class EmbedJarMojo extends AbstractMojo
         // limit transitive nature
         dependency.setOptional( true );
 
+        String id = groupId + ':' + artifactId + ':' + version;
+        getLog().info( "Embedding " + id + " in " + pom.getId() );
+
         pom.addDependency( dependency, overwrite );
         pom.write();
 

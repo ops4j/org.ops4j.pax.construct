@@ -83,11 +83,16 @@ public class XppPom
     public String getGroupId()
     {
         Xpp3Dom groupId = m_pom.getChild( "groupId" );
+        Xpp3Dom parent = m_pom.getChild( "parent" );
+        if( null == groupId && null != parent )
+        {
+            groupId = parent.getChild( "groupId" );
+        }
         if( null == groupId )
         {
-            return m_pom.getChild( "parent" ).getChild( "groupId" ).getValue();
+            return null;
         }
-        return m_pom.getChild( "groupId" ).getValue();
+        return groupId.getValue();
     }
 
     public String getArtifactId()
@@ -98,11 +103,16 @@ public class XppPom
     public String getVersion()
     {
         Xpp3Dom version = m_pom.getChild( "version" );
+        Xpp3Dom parent = m_pom.getChild( "parent" );
+        if( null == version && null != parent )
+        {
+            version = parent.getChild( "version" );
+        }
         if( null == version )
         {
-            return m_pom.getChild( "parent" ).getChild( "version" ).getValue();
+            return null;
         }
-        return m_pom.getChild( "version" ).getValue();
+        return version.getValue();
     }
 
     public String getPackaging()
@@ -255,11 +265,11 @@ public class XppPom
         Xpp3Dom.mergeXpp3Dom( m_pom, newPom );
     }
 
-    public void removeModule( String module )
+    public boolean removeModule( String module )
     {
         String xpath = "modules/module[.='" + module + "']";
 
-        removeChildren( xpath, true );
+        return removeChildren( xpath, true );
     }
 
     public void addDependency( Dependency dependency, boolean overwrite )
@@ -297,14 +307,14 @@ public class XppPom
         Xpp3Dom.mergeXpp3Dom( m_pom, newPom );
     }
 
-    public void removeDependency( Dependency dependency )
+    public boolean removeDependency( Dependency dependency )
     {
         String groupId = dependency.getGroupId();
         String artifactId = dependency.getArtifactId();
 
         String xpath = "dependencies/dependency[groupId='" + groupId + "' and artifactId='" + artifactId + "']";
 
-        removeChildren( xpath, true );
+        return removeChildren( xpath, true );
     }
 
     public void write()
@@ -359,24 +369,28 @@ public class XppPom
         }
     }
 
-    void removeChildren( String xpath, boolean overwrite )
+    boolean removeChildren( String xpath, boolean overwrite )
     {
         XppPathQuery pathQuery = new XppPathQuery( xpath );
         Xpp3Dom parent = pathQuery.queryParent( m_pom );
 
-        if( null != parent )
+        if( null == parent )
         {
-            int[] children = pathQuery.queryChildren( parent );
-
-            if( children.length > 0 && !overwrite )
-            {
-                throw new PomException( "Keeping existing data, use -Doverwrite to replace it" );
-            }
-
-            for( int i = 0; i < children.length; i++ )
-            {
-                parent.removeChild( children[i] );
-            }
+            return false;
         }
+
+        int[] children = pathQuery.queryChildren( parent );
+
+        if( children.length > 0 && !overwrite )
+        {
+            throw new PomException( "Keeping existing data, use -Doverwrite to replace it" );
+        }
+
+        for( int i = 0; i < children.length; i++ )
+        {
+            parent.removeChild( children[i] );
+        }
+
+        return children.length > 0;
     }
 }

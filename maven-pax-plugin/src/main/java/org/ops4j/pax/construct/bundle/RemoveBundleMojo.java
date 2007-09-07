@@ -84,18 +84,28 @@ public final class RemoveBundleMojo extends AbstractMojo
 
         if( !project.getId().equals( bundlePom.getId() ) )
         {
+            boolean needsUpdate = false;
+
             Pom pom = PomUtils.readPom( project.getFile() );
 
             Dependency dependency = new Dependency();
             dependency.setGroupId( bundlePom.getGroupId() );
             dependency.setArtifactId( bundlePom.getArtifactId() );
-            pom.removeDependency( dependency );
 
-            pom.removeModule( bundleFolder.getName() );
-            pom.write();
+            needsUpdate = needsUpdate || pom.removeDependency( dependency );
+            needsUpdate = needsUpdate || pom.removeModule( bundleFolder.getName() );
+
+            if( needsUpdate )
+            {
+                getLog().info( "Removing " + bundlePom.getId() + " from " + pom.getId() );
+
+                pom.write();
+            }
         }
         else
         {
+            getLog().info( "Removing " + bundlePom.getId() );
+
             try
             {
                 FileSet bundleFiles = new FileSet();

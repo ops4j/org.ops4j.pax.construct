@@ -88,6 +88,8 @@ public final class MoveBundleMojo extends AbstractMojo
         File newModulesFolder = newModulesPom.getBasedir();
         File newBundleFolder = new File( newModulesFolder, moduleName );
 
+        getLog().info( "Moving " + bundlePom.getId() + " to " + newBundleFolder );
+
         // MOVE BUNDLE!
         if( !bundleFolder.renameTo( newBundleFolder ) )
         {

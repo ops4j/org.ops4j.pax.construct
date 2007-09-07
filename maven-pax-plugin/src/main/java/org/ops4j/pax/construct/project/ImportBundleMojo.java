@@ -101,19 +101,22 @@ public final class ImportBundleMojo extends AbstractMojo
             dependency.setOptional( true );
         }
 
-        Pom targetPom = null;
+        Pom pom = null;
 
         Pom localBundlePom = DirUtils.findPom( targetDirectory, groupId + ':' + artifactId );
         if( null == localBundlePom )
         {
-            targetPom = DirUtils.findPom( targetDirectory, provisionId );
+            pom = DirUtils.findPom( targetDirectory, provisionId );
         }
-        if( null == targetPom )
+        if( null == pom )
         {
-            targetPom = PomUtils.readPom( targetDirectory );
+            pom = PomUtils.readPom( targetDirectory );
         }
 
-        targetPom.addDependency( dependency, overwrite );
-        targetPom.write();
+        String id = groupId + ':' + artifactId + ':' + version;
+        getLog().info( "Adding " + id + " as a dependency to " + pom.getId() );
+
+        pom.addDependency( dependency, overwrite );
+        pom.write();
     }
 }

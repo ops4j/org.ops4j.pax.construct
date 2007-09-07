@@ -136,7 +136,14 @@ public class OSGiBundleArchetypeMojo extends AbstractPaxArchetypeMojo
                  * We only want interface Y in one bundle (the other one), so we reset our Export-Package setting...
                  */
                 out = new FileWriter( activatorFiles.getDirectory() + "/osgi.bnd", true );
-                out.write( "Export-Package:" + System.getProperty( "line.separator" ) );
+                out.write( "Export-Package:\n" );
+            }
+
+            if( !provideActivator && provideInterface )
+            {
+                out = new FileWriter( activatorFiles.getDirectory() + "/osgi.bnd", true );
+                out.write( "Export-Package: ${bundle.namespace};version=\"${pom.version}\"\n" );
+                out.write( "Private-Package:\n" );
             }
         }
         catch( IOException e )
