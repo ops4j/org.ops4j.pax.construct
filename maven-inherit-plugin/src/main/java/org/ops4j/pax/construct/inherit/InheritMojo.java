@@ -33,25 +33,24 @@ import org.codehaus.plexus.util.xml.Xpp3Dom;
 /**
  * @goal inherit
  * @phase compile
+ * @requiresDependencyResolution compile
  */
 public class InheritMojo extends AbstractMojo
 {
     /**
-     * @component role="org.codehaus.plexus.archiver.manager.ArchiverManager"
-     * @required
-     * @readonly
+     * @parameter default-value="${project}"
      */
-    protected ArchiverManager archiverManager;
+    MavenProject project;
 
     /**
-     * @parameter expression="${project}"
+     * @parameter default-value="${project.build.outputDirectory}"
      */
-    protected MavenProject project;
+    File outputDirectory;
 
     /**
-     * @parameter expression="${project.build.outputDirectory}"
+     * @component
      */
-    protected File outputDirectory;
+    ArchiverManager archiverManager;
 
     public void execute()
         throws MojoExecutionException
@@ -103,7 +102,7 @@ public class InheritMojo extends AbstractMojo
             int offset = goal.indexOf( ':' );
             if( offset > 0 )
             {
-                getLog().info( "[importing " + goal.replaceAll( "=", " as " ) + "]" );
+                getLog().info( "[importing " + goal.replaceAll( "=", " as " ) + ']' );
 
                 String plugin = goal.substring( 0, offset );
                 goal = goal.substring( offset + 1 ).replaceFirst( "=.*", "" );

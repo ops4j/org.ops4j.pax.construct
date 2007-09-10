@@ -22,7 +22,7 @@ import org.codehaus.plexus.util.xml.Xpp3Dom;
 import org.codehaus.plexus.util.xml.pull.MXSerializer;
 import org.codehaus.plexus.util.xml.pull.XmlSerializer;
 
-public final class PluginSerializer extends MXSerializer
+public class PluginSerializer extends MXSerializer
 {
     public PluginSerializer()
     {

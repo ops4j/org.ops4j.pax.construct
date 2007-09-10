@@ -78,7 +78,7 @@ public class PluginXml
         goal.setValue( goal.getValue().replaceAll( "\\w+:(?:\\w+=)?(\\w+)", "$1" ) );
     }
 
-    protected static void removeDuplicates( Xpp3Dom mojo, Xpp3Dom superMojo, String listName, String idPath,
+    static void removeDuplicates( Xpp3Dom mojo, Xpp3Dom superMojo, String listName, String idPath,
         boolean verbose )
     {
         Xpp3Dom superList = superMojo.getChild( listName );
@@ -125,7 +125,7 @@ public class PluginXml
         }
     }
 
-    protected static Xpp3Dom getIdNode( Xpp3Dom node, String idPath )
+    static Xpp3Dom getIdNode( Xpp3Dom node, String idPath )
     {
         if( null != idPath )
         {
@@ -139,7 +139,7 @@ public class PluginXml
         return node;
     }
 
-    protected static void setAppendMode( Xpp3Dom node )
+    static void setAppendMode( Xpp3Dom node )
     {
         if( null != node )
         {
