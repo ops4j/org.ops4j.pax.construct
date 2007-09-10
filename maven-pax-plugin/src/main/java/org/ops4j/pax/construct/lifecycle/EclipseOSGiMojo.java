@@ -24,7 +24,6 @@ import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.Writer;
-import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Iterator;
@@ -54,44 +53,37 @@ import org.codehaus.plexus.util.xml.Xpp3DomBuilder;
 import org.codehaus.plexus.util.xml.Xpp3DomWriter;
 import org.codehaus.plexus.util.xml.pull.XmlPullParserException;
 import org.ops4j.pax.construct.util.PomUtils;
+import org.ops4j.pax.construct.util.ReflectUtils.ReflectMojo;
 
 /**
- * Extend maven-eclipse-plugin to better handle OSGi bundles.
- * 
  * @goal eclipse:eclipse
  * @phase package
  */
 public class EclipseOSGiMojo extends EclipsePlugin
 {
     /**
-     * @component role="org.codehaus.plexus.archiver.manager.ArchiverManager"
-     * @required
-     * @readonly
+     * @component
      */
-    protected ArchiverManager archiverManager;
+    ArchiverManager archiverManager;
 
     /**
-     * @component role="org.apache.maven.project.MavenProjectBuilder"
-     * @required
-     * @readonly
+     * @component
      */
-    protected MavenProjectBuilder mavenProjectBuilder;
+    MavenProjectBuilder mavenProjectBuilder;
 
-    private List resolvedDependencies;
-
-    private MavenProject thisProject;
+    MavenProject pomProject;
+    List resolvedDependencies;
 
     public boolean setup()
         throws MojoExecutionException
     {
-        if( null == thisProject && "pom".equals( executedProject.getPackaging() ) )
+        if( null == pomProject && "pom".equals( executedProject.getPackaging() ) )
         {
             setupImportedBundles();
             return false;
         }
 
-        // fix private params
-        setFlag( "pde", true );
+        new ReflectMojo( this, EclipsePlugin.class ).setField( "pde", Boolean.TRUE );
         setWtpversion( "none" );
 
         if( getBuildOutputDirectory() == null )
@@ -102,26 +94,19 @@ public class EclipseOSGiMojo extends EclipsePlugin
         return super.setup();
     }
 
-    private void setFlag( String name, boolean flag )
-    {
-        try
-        {
-            // Attempt to bypass normal private field protection
-            Field f = EclipsePlugin.class.getDeclaredField( name );
-
-            f.setAccessible( true );
-            f.setBoolean( this, flag );
-        }
-        catch( Exception e )
-        {
-            System.out.println( "Cannot set " + name + " to " + flag + " exception=" + e );
-        }
-    }
-
     public void writeConfiguration( IdeDependency[] deps )
         throws MojoExecutionException
     {
-        if( null == thisProject )
+        try
+        {
+            new File( getEclipseProjectDir(), "build.properties" ).createNewFile();
+        }
+        catch( IOException e )
+        {
+            // ignore existing file
+        }
+
+        if( null == pomProject )
         {
             writeBundleConfiguration( deps );
         }
@@ -149,7 +134,6 @@ public class EclipseOSGiMojo extends EclipsePlugin
             EclipseWriterConfig config = createEclipseWriterConfig( deps );
 
             config.setEclipseProjectName( getEclipseProjectName( executedProject, true ) );
-            config.getEclipseProjectDirectory().mkdirs();
 
             new EclipseSettingsWriter().init( getLog(), config ).write();
             new EclipseClasspathWriter().init( getLog(), config ).write();
@@ -174,7 +158,7 @@ public class EclipseOSGiMojo extends EclipsePlugin
         }
     }
 
-    protected static String getEclipseProjectName( MavenProject project, boolean addVersion )
+    static String getEclipseProjectName( MavenProject project, boolean addVersion )
     {
         String groupId = project.getGroupId();
         String artifactId = project.getArtifactId();
@@ -205,13 +189,13 @@ public class EclipseOSGiMojo extends EclipsePlugin
                 projectVersion = project.getVersion();
             }
 
-            return projectName + " [" + projectVersion + "]";
+            return projectName + " [" + projectVersion + ']';
         }
 
         return projectName;
     }
 
-    protected void unpackBundle( File bundle, String to )
+    void unpackBundle( File bundle, String to )
         throws MojoExecutionException
     {
         try
@@ -230,7 +214,7 @@ public class EclipseOSGiMojo extends EclipsePlugin
         }
     }
 
-    protected void refactorForEclipse( String bundleLocation )
+    void refactorForEclipse( String bundleLocation )
         throws IOException,
         XmlPullParserException
     {
@@ -316,7 +300,7 @@ public class EclipseOSGiMojo extends EclipsePlugin
         manifest.write( new FileOutputStream( manifestFile ) );
     }
 
-    protected void updateEclipseClassPath( String bundleLocation, String bundleClassPath )
+    void updateEclipseClassPath( String bundleLocation, String bundleClassPath )
         throws FileNotFoundException,
         XmlPullParserException,
         IOException
@@ -350,7 +334,7 @@ public class EclipseOSGiMojo extends EclipsePlugin
         IOUtil.close( writer );
     }
 
-    protected File findAttachedSource( String bundleLocation, String classPathEntry )
+    File findAttachedSource( String bundleLocation, String classPathEntry )
     {
         for( Iterator i = resolvedDependencies.iterator(); i.hasNext(); )
         {
@@ -372,12 +356,12 @@ public class EclipseOSGiMojo extends EclipsePlugin
     public void setupImportedBundles()
         throws MojoExecutionException
     {
-        thisProject = getExecutedProject();
+        pomProject = getExecutedProject();
         setResolveDependencies( false );
 
         try
         {
-            Set artifacts = thisProject.createArtifacts( artifactFactory, null, null );
+            Set artifacts = pomProject.createArtifacts( artifactFactory, null, null );
             for( Iterator i = artifacts.iterator(); i.hasNext(); )
             {
                 Artifact artifact = (Artifact) i.next();
@@ -393,8 +377,8 @@ public class EclipseOSGiMojo extends EclipsePlugin
                     MavenProject dependencyProject = mavenProjectBuilder.buildFromRepository( pomArtifact,
                         remoteArtifactRepositories, localRepository );
 
-                    File projectDir = new File( thisProject.getBasedir(), "target/" + groupId );
-                    File localDir = new File( projectDir, artifactId + "/" + version );
+                    File projectDir = new File( pomProject.getBasedir(), "target/" + groupId );
+                    File localDir = new File( projectDir, artifactId + '/' + version );
                     localDir.mkdirs();
 
                     File pomFile = new File( localDir, "pom.xml" );
@@ -433,7 +417,6 @@ public class EclipseOSGiMojo extends EclipsePlugin
             EclipseWriterConfig config = createEclipseWriterConfig( new IdeDependency[0] );
 
             config.setEclipseProjectName( getEclipseProjectName( executedProject, true ) );
-            config.getEclipseProjectDirectory().mkdirs();
 
             new EclipseClasspathWriter().init( getLog(), config ).write();
             new EclipseProjectWriter().init( getLog(), config ).write();
@@ -462,7 +445,7 @@ public class EclipseOSGiMojo extends EclipsePlugin
         }
     }
 
-    protected void attachImportedSource( String sourcePath )
+    void attachImportedSource( String sourcePath )
     {
         try
         {

@@ -44,19 +44,16 @@ public class ProvisionMojo extends AbstractMojo
 {
     /**
      * @parameter default-value="${project}"
-     * @required
      */
     MavenProject project;
 
     /**
      * @parameter default-value="${reactorProjects}"
-     * @required
      */
     List reactorProjects;
 
     /**
      * @parameter expression="${remoteRepositories}" default-value="${project.remoteArtifactRepositories}"
-     * @required
      */
     List remoteRepositories;
 
@@ -242,7 +239,7 @@ public class ProvisionMojo extends AbstractMojo
             if( deploy )
             {
                 String workDir = pomFile.getParent() + "/work";
-                File cachedPomFile = new File( workDir + "/lib/" + artifactId + "_" + version + ".pom" );
+                File cachedPomFile = new File( workDir + "/lib/" + artifactId + '_' + version + ".pom" );
 
                 // Force reload of pom
                 cachedPomFile.delete();

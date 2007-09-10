@@ -36,7 +36,7 @@
   <version>${dollar}{wrapped.version}-001</version>
 #end
 
-  <name>${dollar}{bundle.symbolicName}-${dollar}{wrapped.version} [osgi]</name>
+  <name>${dollar}{bundle.symbolicName} ${dollar}{wrapped.version} [osgi]</name>
 
   <packaging>bundle</packaging>
 

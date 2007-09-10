@@ -26,19 +26,15 @@ import org.apache.maven.shared.model.fileset.util.FileSetManager;
 import org.ops4j.pax.construct.util.CacheUtils;
 
 /**
- * Clean up various generated IDE files.
- * 
  * @goal clean
  * @phase clean
  */
-public final class SqueakyCleanMojo extends AbstractMojo
+public class SqueakyCleanMojo extends AbstractMojo
 {
     /**
-     * The directory containing generated files.
-     * 
-     * @parameter expression="${project.basedir}"
+     * @parameter default-value="${project.basedir}"
      */
-    private File basedir;
+    File basedir;
 
     public void execute()
         throws MojoExecutionException
@@ -49,6 +45,7 @@ public final class SqueakyCleanMojo extends AbstractMojo
         CacheUtils.pushFile( this, "MANIFEST.MF", new File( basedir, "META-INF/MANIFEST.MF" ) );
         CacheUtils.pushFile( this, ".project", new File( basedir, ".project" ) );
         CacheUtils.pushFile( this, ".classpath", new File( basedir, ".classpath" ) );
+        CacheUtils.pushFile( this, "build.properties", new File( basedir, "build.properties" ) );
         getPluginContext().put( "basedir", basedir.getPath() );
 
         FileSet generatedPaxFiles = new FileSet();
@@ -61,6 +58,7 @@ public final class SqueakyCleanMojo extends AbstractMojo
         generatedPaxFiles.addInclude( "OSGI-INF/**" );
         generatedPaxFiles.addInclude( ".project" );
         generatedPaxFiles.addInclude( ".classpath" );
+        generatedPaxFiles.addInclude( "build.properties" );
 
         try
         {
@@ -82,5 +80,6 @@ public final class SqueakyCleanMojo extends AbstractMojo
         CacheUtils.pullFile( mojo, "MANIFEST.MF", new File( basedir, "META-INF/MANIFEST.MF" ) );
         CacheUtils.pullFile( mojo, ".project", new File( basedir, ".project" ) );
         CacheUtils.pullFile( mojo, ".classpath", new File( basedir, ".classpath" ) );
+        CacheUtils.pullFile( mojo, "build.properties", new File( basedir, "build.properties" ) );
     }
 }
