@@ -51,8 +51,6 @@
               ${wrapped.artifactId};groupId=${wrapped.groupId};inline=true,
               *;scope=compile|runtime;groupId=!org.osgi;type=!pom
             </Embed-Dependency>
-            <Embed-StripVersion>true</Embed-StripVersion>
-            <Embed-Transitive>true</Embed-Transitive>
             <!--
               each module can override these defaults in their osgi.bnd file
             -->
