@@ -64,6 +64,10 @@ public class PomUtils
 
         public boolean isBundleProject();
 
+        public String getBundleSymbolicName();
+
+        public File getPackagedBundle();
+
         public void setParent( Pom pom, String relativePath, boolean overwrite );
 
         public void setParent( MavenProject project, String relativePath, boolean overwrite );
@@ -110,15 +114,15 @@ public class PomUtils
 
     public static String getCompoundName( String groupId, String artifactId )
     {
-        if( artifactId.startsWith( groupId + "." ) || artifactId.equals( groupId ) )
+        if( artifactId.startsWith( groupId + '.' ) || artifactId.equals( groupId ) )
         {
             return artifactId;
         }
-        else if( groupId.endsWith( "." + artifactId ) )
+        else if( groupId.endsWith( '.' + artifactId ) )
         {
             return groupId;
         }
 
-        return groupId + "." + artifactId;
+        return groupId + '.' + artifactId;
     }
 }

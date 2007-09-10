@@ -25,7 +25,7 @@ import org.codehaus.plexus.util.xml.pull.XmlPullParser;
 import org.codehaus.plexus.util.xml.pull.XmlPullParserException;
 import org.codehaus.plexus.util.xml.pull.XmlSerializer;
 
-public final class RoundTripXml
+public class RoundTripXml
 {
     public static XmlPullParser createParser()
     {
@@ -37,7 +37,7 @@ public final class RoundTripXml
         return new RoundTripSerializer();
     }
 
-    protected static class RoundTripParser extends MXParser
+    static class RoundTripParser extends MXParser
     {
         boolean handleComment = false;
 
@@ -94,7 +94,7 @@ public final class RoundTripXml
         }
     }
 
-    protected static class RoundTripSerializer extends MXSerializer
+    static class RoundTripSerializer extends MXSerializer
     {
         boolean handleComment = false;
 
@@ -117,7 +117,7 @@ public final class RoundTripXml
 
                 handleComment = true;
 
-                out.write( "<" + name + "-->" );
+                out.write( '<' + name + "-->" );
                 if( getDepth() == 1 )
                 {
                     out.write( lineSeparator );

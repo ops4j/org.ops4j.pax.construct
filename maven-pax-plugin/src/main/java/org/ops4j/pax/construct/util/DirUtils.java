@@ -44,7 +44,12 @@ public class DirUtils
 
         depthFirst: while( null != pom )
         {
-            if( artifactId.equals( pom.getArtifactId() ) && (null == groupId || groupId.equals( pom.getGroupId() )) )
+            boolean sameName = artifactId.equals( pom.getArtifactId() )
+                || artifactId.equals( pom.getBundleSymbolicName() );
+
+            boolean sameGroup = (null == groupId) || groupId.equals( pom.getGroupId() );
+
+            if( sameName && sameGroup )
             {
                 return pom;
             }

@@ -42,7 +42,7 @@ public class XppPathQuery
 
     static final String XPATH = "/?(" + PARENT + ")/(" + NODE + ")\\[\\s*(" + PREDICATE + ")\\s*\\]";
 
-    Matcher m_xpathParser;
+    final Matcher m_xpathParser;
 
     public XppPathQuery( String xpath )
         throws PomException

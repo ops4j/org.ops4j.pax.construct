@@ -41,7 +41,7 @@ public class XppPom
 
     public XppPom( File pomFile )
     {
-        m_file = pomFile;
+        m_file = pomFile.getAbsoluteFile();
 
         try
         {
@@ -51,13 +51,13 @@ public class XppPom
         }
         catch( Exception e )
         {
-            throw new PomException( "Unable to parse POM " + m_file, e );
+            throw new PomException( "Unable to parse POM " + pomFile, e );
         }
     }
 
     public XppPom( File pomFile, String groupId, String artifactId )
     {
-        m_file = pomFile;
+        m_file = pomFile.getAbsoluteFile();
 
         m_pom = new Xpp3Dom( "project" );
 
@@ -77,7 +77,7 @@ public class XppPom
 
     public String getId()
     {
-        return getGroupId() + ":" + getArtifactId() + ":" + getPackaging() + ":" + getVersion();
+        return getGroupId() + ':' + getArtifactId() + ':' + getPackaging() + ':' + getVersion();
     }
 
     public String getGroupId()
@@ -174,6 +174,31 @@ public class XppPom
     public boolean isBundleProject()
     {
         return m_pom.getChild( "packaging" ).getValue().indexOf( "bundle" ) >= 0;
+    }
+
+    public String getBundleSymbolicName()
+    {
+        Xpp3Dom properties = m_pom.getChild( "properties" );
+        if( null != properties )
+        {
+            Xpp3Dom symbolicName = properties.getChild( "bundle.symbolicName" );
+            if( null != symbolicName )
+            {
+                return symbolicName.getValue();
+            }
+        }
+        return null;
+    }
+
+    public File getPackagedBundle()
+    {
+        // TODO: handle other output locations??
+        File outputFolder = new File( getBasedir(), "target" );
+
+        // TODO: fall back to local repo if not there???
+        File bundle = new File( outputFolder, getGroupId() + '.' + getArtifactId() + '-' + getVersion() + ".jar" );
+
+        return bundle;
     }
 
     public void setParent( Pom pom, String relativePath, boolean overwrite )

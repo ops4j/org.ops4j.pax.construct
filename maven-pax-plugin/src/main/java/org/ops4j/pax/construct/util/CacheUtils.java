@@ -27,7 +27,7 @@ import org.codehaus.plexus.util.IOUtil;
 /**
  * Various utility methods for caching files between plugins.
  */
-public final class CacheUtils
+public class CacheUtils
 {
     /**
      * Cache a text-based file inside the plugin context.
