@@ -29,29 +29,22 @@ import org.ops4j.pax.construct.util.PomUtils;
 import org.ops4j.pax.construct.util.PomUtils.Pom;
 
 /**
- * Removes a local bundle and any references to it from the project.
- * 
  * @goal remove-bundle
  */
-public final class RemoveBundleMojo extends AbstractMojo
+public class RemoveBundleMojo extends AbstractMojo
 {
     /**
-     * @parameter expression="${project}"
+     * @parameter default-value="${project}"
      */
-    private MavenProject project;
+    MavenProject project;
 
     /**
-     * The local project name of the bundle to be removed.
-     * 
      * @parameter expression="${bundleName}"
      * @required
      */
-    private String bundleName;
+    String bundleName;
 
-    /**
-     * Records the Maven POM for the removed bundle.
-     */
-    private static Pom bundlePom;
+    static Pom bundlePom;
 
     public void execute()
         throws MojoExecutionException

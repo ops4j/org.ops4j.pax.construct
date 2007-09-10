@@ -26,78 +26,64 @@ import org.apache.maven.artifact.Artifact;
 import org.apache.maven.model.Dependency;
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
-import org.apache.maven.project.MavenProject;
 import org.codehaus.plexus.util.IOUtil;
 import org.codehaus.plexus.util.PropertyUtils;
 import org.ops4j.pax.construct.util.PomUtils;
 import org.ops4j.pax.construct.util.PomUtils.Pom;
 
 /**
- * Embeds a jarfile inside a local bundle project.
- * 
  * @goal embed-jar
+ * @aggregator true
  */
-public final class EmbedJarMojo extends AbstractMojo
+public class EmbedJarMojo extends AbstractMojo
 {
     /**
-     * @parameter expression="${project}"
-     */
-    private MavenProject project;
-
-    /**
-     * The groupId of the jarfile to wrap.
-     * 
      * @parameter expression="${groupId}"
      * @required
      */
-    private String groupId;
+    String groupId;
 
     /**
-     * The artifactId of the jarfile to wrap.
-     * 
      * @parameter expression="${artifactId}"
      * @required
      */
-    private String artifactId;
+    String artifactId;
 
     /**
-     * The version of the jarfile to wrap.
-     * 
      * @parameter expression="${version}"
      * @required
      */
-    private String version;
+    String version;
 
     /**
-     * Should the jar be unpacked inside the bundle?
-     * 
      * @parameter expression="${unpack}"
      */
-    private boolean unpack;
+    boolean unpack;
 
     /**
      * @parameter expression="${exportContents}"
      */
-    private String exportContents;
+    String exportContents;
 
     /**
-     * Should we attempt to overwrite entries?
-     * 
+     * @parameter expression="${targetDirectory}" default-value="${project.basedir}"
+     */
+    File targetDirectory;
+
+    /**
      * @parameter expression="${overwrite}"
      */
-    private boolean overwrite;
+    boolean overwrite;
 
     public void execute()
         throws MojoExecutionException
     {
-        // Nothing to be done for non-bundle projects...
-        if( !PomUtils.isBundleProject( project ) )
+        Pom pom = PomUtils.readPom( targetDirectory );
+        if( !pom.isBundleProject() )
         {
-            getLog().warn( "Ignoring non-bundle project" );
+            getLog().warn( "Cannot embed jar inside non-bundle project" );
             return;
         }
-
-        Pom pom = PomUtils.readPom( project.getFile() );
 
         // all compiled dependencies are automatically embedded
         Dependency dependency = new Dependency();
@@ -117,7 +103,7 @@ public final class EmbedJarMojo extends AbstractMojo
 
         if( unpack || exportContents != null )
         {
-            File bndConfig = new File( project.getBasedir(), "osgi.bnd" );
+            File bndConfig = new File( targetDirectory, "osgi.bnd" );
 
             if( !bndConfig.exists() )
             {
@@ -144,7 +130,7 @@ public final class EmbedJarMojo extends AbstractMojo
                 // check to see if its already inlined...
                 if( embedDependency.indexOf( inlineClause ) < 0 )
                 {
-                    embedDependency += "," + inlineClause;
+                    embedDependency += ',' + inlineClause;
                     properties.setProperty( "Embed-Dependency", embedDependency );
                     propertiesChanged = true;
                 }

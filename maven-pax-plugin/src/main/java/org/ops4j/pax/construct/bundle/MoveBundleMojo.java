@@ -26,33 +26,27 @@ import org.ops4j.pax.construct.util.PomUtils;
 import org.ops4j.pax.construct.util.PomUtils.Pom;
 
 /**
- * Moves a local bundle to a new location in the project tree.
- * 
  * @goal move-bundle
  * @aggregator true
  */
-public final class MoveBundleMojo extends AbstractMojo
+public class MoveBundleMojo extends AbstractMojo
 {
     /**
-     * @parameter expression="${project}"
+     * @parameter default-value="${project}"
      */
-    private MavenProject project;
+    MavenProject project;
 
     /**
-     * The local project name of the bundle to be moved.
-     * 
      * @parameter expression="${bundleName}"
      * @required
      */
-    private String bundleName;
+    String bundleName;
 
     /**
-     * The new location for the bundle.
-     * 
      * @parameter expression="${targetDirectory}"
      * @required
      */
-    private File targetDirectory;
+    File targetDirectory;
 
     public void execute()
         throws MojoExecutionException
