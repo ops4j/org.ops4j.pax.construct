@@ -71,7 +71,7 @@ public class OSGiBundleArchetypeMojo extends AbstractPaxArchetypeMojo
      */
     boolean provideActivator;
 
-    protected void updateExtensionFields()
+    void updateExtensionFields()
     {
         m_mojo.setField( "archetypeArtifactId", "maven-archetype-osgi-bundle" );
 
@@ -82,7 +82,7 @@ public class OSGiBundleArchetypeMojo extends AbstractPaxArchetypeMojo
         m_mojo.setField( "packageName", packageName );
     }
 
-    protected void postProcess()
+    void postProcess()
         throws MojoExecutionException
     {
         super.postProcess();
@@ -156,7 +156,7 @@ public class OSGiBundleArchetypeMojo extends AbstractPaxArchetypeMojo
         }
     }
 
-    protected String getParentId()
+    String getParentId()
     {
         return parentId;
     }

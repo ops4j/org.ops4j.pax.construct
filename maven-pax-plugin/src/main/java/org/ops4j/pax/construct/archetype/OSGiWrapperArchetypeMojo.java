@@ -30,7 +30,7 @@ import org.codehaus.plexus.util.PropertyUtils;
 /**
  * @goal archetype:create=wrap-jar
  */
-public final class OSGiWrapperArchetypeMojo extends AbstractPaxArchetypeMojo
+public class OSGiWrapperArchetypeMojo extends AbstractPaxArchetypeMojo
 {
     /**
      * @parameter expression="${parentId}" default-value="wrapper-bundle-settings"
@@ -81,30 +81,23 @@ public final class OSGiWrapperArchetypeMojo extends AbstractPaxArchetypeMojo
     String dynamicImportPackage;
 
     /**
-     * @parameter expression="${excludeTransitive}"
-     */
-    boolean excludeTransitive;
-
-    /**
      * @parameter expression="${addVersion}"
      */
     boolean addVersion;
 
     /**
      * @component
-     * @required
-     * @readonly
      */
     MavenProjectBuilder mavenProjectBuilder;
 
-    protected void updateExtensionFields()
+    void updateExtensionFields()
     {
         m_mojo.setField( "archetypeArtifactId", "maven-archetype-osgi-wrapper" );
         String compoundWrapperName = getCompactName( groupId, artifactId );
 
         if( addVersion )
         {
-            compoundWrapperName += "-" + version;
+            compoundWrapperName += '-' + version;
         }
 
         m_mojo.setField( "groupId", getCompactName( project.getGroupId(), project.getArtifactId() ) );
@@ -114,7 +107,7 @@ public final class OSGiWrapperArchetypeMojo extends AbstractPaxArchetypeMojo
         m_mojo.setField( "packageName", calculateGroupMarker( groupId, artifactId ) );
     }
 
-    protected void postProcess()
+    void postProcess()
         throws MojoExecutionException
     {
         super.postProcess();
@@ -151,8 +144,6 @@ public final class OSGiWrapperArchetypeMojo extends AbstractPaxArchetypeMojo
         if( dynamicImportPackage != null )
             properties.setProperty( "DynamicImport-Package", dynamicImportPackage );
 
-        properties.setProperty( "Embed-Transitive", "" + !excludeTransitive );
-
         OutputStream propertyStream = null;
 
         try
@@ -170,7 +161,7 @@ public final class OSGiWrapperArchetypeMojo extends AbstractPaxArchetypeMojo
         }
     }
 
-    protected String getParentId()
+    String getParentId()
     {
         return parentId;
     }

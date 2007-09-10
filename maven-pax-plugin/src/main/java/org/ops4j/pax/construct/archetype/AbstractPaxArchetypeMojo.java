@@ -40,19 +40,9 @@ public abstract class AbstractPaxArchetypeMojo extends MavenArchetypeMojo
     String archetypeVersion;
 
     /**
-     * @parameter
-     */
-    protected MavenProject project;
-
-    /**
      * @parameter expression="${targetDirectory}" default-value="${project.basedir}"
      */
-    protected File targetDirectory;
-
-    /**
-     * @parameter expression="${overwrite}"
-     */
-    protected boolean overwrite;
+    File targetDirectory;
 
     /**
      * @parameter expression="${compactNames}" default-value="true"
@@ -64,9 +54,14 @@ public abstract class AbstractPaxArchetypeMojo extends MavenArchetypeMojo
      */
     boolean attachPom;
 
-    protected ReflectMojo m_mojo;
+    /**
+     * @parameter expression="${overwrite}"
+     */
+    boolean overwrite;
 
-    protected File m_pomFile;
+    MavenProject project;
+    ReflectMojo m_mojo;
+    File m_pomFile;
 
     public final void execute()
         throws MojoExecutionException
@@ -99,9 +94,9 @@ public abstract class AbstractPaxArchetypeMojo extends MavenArchetypeMojo
         updateExtensionFields();
     }
 
-    protected abstract void updateExtensionFields();
+    abstract void updateExtensionFields();
 
-    protected void prepareTarget()
+    void prepareTarget()
         throws MojoExecutionException
     {
         String artifactId = (String) m_mojo.getField( "artifactId" );
@@ -125,7 +120,7 @@ public abstract class AbstractPaxArchetypeMojo extends MavenArchetypeMojo
         }
     }
 
-    protected void postProcess()
+    void postProcess()
         throws MojoExecutionException
     {
         Pom parentPom = DirUtils.findPom( targetDirectory, getParentId() );
@@ -145,32 +140,32 @@ public abstract class AbstractPaxArchetypeMojo extends MavenArchetypeMojo
         }
     }
 
-    protected abstract String getParentId();
+    abstract String getParentId();
 
-    protected final String calculateGroupMarker( String groupId, String artifactId )
+    final String calculateGroupMarker( String groupId, String artifactId )
     {
         if( compactNames )
         {
-            if( artifactId.startsWith( groupId + "." ) || artifactId.equals( groupId ) )
+            if( artifactId.startsWith( groupId + '.' ) || artifactId.equals( groupId ) )
             {
-                return "=" + groupId;
+                return '=' + groupId;
             }
-            else if( groupId.endsWith( "." + artifactId ) )
+            else if( groupId.endsWith( '.' + artifactId ) )
             {
-                return "~" + artifactId;
+                return '~' + artifactId;
             }
         }
 
-        return "+" + groupId;
+        return '+' + groupId;
     }
 
-    protected final String getCompactName( String groupId, String artifactId )
+    final String getCompactName( String groupId, String artifactId )
     {
         if( compactNames )
         {
             return PomUtils.getCompoundName( groupId, artifactId );
         }
 
-        return groupId + "." + artifactId;
+        return groupId + '.' + artifactId;
     }
 }

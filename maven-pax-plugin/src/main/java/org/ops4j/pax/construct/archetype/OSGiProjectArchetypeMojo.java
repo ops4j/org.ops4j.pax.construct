@@ -24,7 +24,7 @@ import org.apache.maven.plugin.MojoExecutionException;
  * @goal archetype:create=create-project
  * @requiresProject false
  */
-public final class OSGiProjectArchetypeMojo extends AbstractPaxArchetypeMojo
+public class OSGiProjectArchetypeMojo extends AbstractPaxArchetypeMojo
 {
     /**
      * @parameter expression="${parentId}"
@@ -48,7 +48,7 @@ public final class OSGiProjectArchetypeMojo extends AbstractPaxArchetypeMojo
      */
     String version;
 
-    protected void updateExtensionFields()
+    void updateExtensionFields()
     {
         m_mojo.setField( "archetypeArtifactId", "maven-archetype-osgi-project" );
 
@@ -59,7 +59,7 @@ public final class OSGiProjectArchetypeMojo extends AbstractPaxArchetypeMojo
         m_mojo.setField( "packageName", getCompactName( groupId, artifactId ) );
     }
 
-    protected void postProcess()
+    void postProcess()
         throws MojoExecutionException
     {
         super.postProcess();
@@ -76,7 +76,7 @@ public final class OSGiProjectArchetypeMojo extends AbstractPaxArchetypeMojo
         pruneFolders[0].delete();
     }
 
-    protected String getParentId()
+    String getParentId()
     {
         return parentId;
     }
