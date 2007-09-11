@@ -45,7 +45,6 @@ public class SqueakyCleanMojo extends AbstractMojo
         CacheUtils.pushFile( this, "MANIFEST.MF", new File( basedir, "META-INF/MANIFEST.MF" ) );
         CacheUtils.pushFile( this, ".project", new File( basedir, ".project" ) );
         CacheUtils.pushFile( this, ".classpath", new File( basedir, ".classpath" ) );
-        CacheUtils.pushFile( this, "build.properties", new File( basedir, "build.properties" ) );
         getPluginContext().put( "basedir", basedir.getPath() );
 
         FileSet generatedPaxFiles = new FileSet();
@@ -58,7 +57,6 @@ public class SqueakyCleanMojo extends AbstractMojo
         generatedPaxFiles.addInclude( "OSGI-INF/**" );
         generatedPaxFiles.addInclude( ".project" );
         generatedPaxFiles.addInclude( ".classpath" );
-        generatedPaxFiles.addInclude( "build.properties" );
 
         try
         {
@@ -80,6 +78,5 @@ public class SqueakyCleanMojo extends AbstractMojo
         CacheUtils.pullFile( mojo, "MANIFEST.MF", new File( basedir, "META-INF/MANIFEST.MF" ) );
         CacheUtils.pullFile( mojo, ".project", new File( basedir, ".project" ) );
         CacheUtils.pullFile( mojo, ".classpath", new File( basedir, ".classpath" ) );
-        CacheUtils.pullFile( mojo, "build.properties", new File( basedir, "build.properties" ) );
     }
 }

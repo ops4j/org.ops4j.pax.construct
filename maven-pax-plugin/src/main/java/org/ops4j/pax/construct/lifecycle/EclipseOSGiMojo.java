@@ -52,6 +52,7 @@ import org.codehaus.plexus.util.xml.Xpp3Dom;
 import org.codehaus.plexus.util.xml.Xpp3DomBuilder;
 import org.codehaus.plexus.util.xml.Xpp3DomWriter;
 import org.codehaus.plexus.util.xml.pull.XmlPullParserException;
+import org.ops4j.pax.construct.util.DirUtils;
 import org.ops4j.pax.construct.util.PomUtils;
 import org.ops4j.pax.construct.util.ReflectUtils.ReflectMojo;
 
@@ -97,15 +98,6 @@ public class EclipseOSGiMojo extends EclipsePlugin
     public void writeConfiguration( IdeDependency[] deps )
         throws MojoExecutionException
     {
-        try
-        {
-            new File( getEclipseProjectDir(), "build.properties" ).createNewFile();
-        }
-        catch( IOException e )
-        {
-            // ignore existing file
-        }
-
         if( null == pomProject )
         {
             writeBundleConfiguration( deps );
@@ -268,30 +260,8 @@ public class EclipseOSGiMojo extends EclipsePlugin
         }
         else
         {
-            String[] classPathEntries = bundleClassPath.split( "," );
-
-            StringBuffer refactoredClassPath = new StringBuffer();
-            for( int i = 0; i < classPathEntries.length; i++ )
-            {
-                if( i > 0 )
-                {
-                    refactoredClassPath.append( ',' );
-                }
-
-                if( ".".equals( classPathEntries[i] ) )
-                {
-                    refactoredClassPath.append( ".," );
-                    refactoredClassPath.append( bundleLocation );
-                }
-                else
-                {
-                    refactoredClassPath.append( bundleLocation );
-                    refactoredClassPath.append( '/' );
-                    refactoredClassPath.append( classPathEntries[i] );
-                }
-            }
-
-            mainAttributes.putValue( "Bundle-ClassPath", refactoredClassPath.toString() );
+            String rebasedClassPath = DirUtils.rebasePaths( bundleClassPath, bundleLocation, ',' );
+            mainAttributes.putValue( "Bundle-ClassPath", ".," + rebasedClassPath );
         }
 
         updateEclipseClassPath( bundleLocation, mainAttributes.getValue( "Bundle-ClassPath" ) );

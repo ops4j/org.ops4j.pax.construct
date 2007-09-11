@@ -17,10 +17,18 @@ package org.ops4j.pax.construct.util;
  */
 
 import java.io.File;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Set;
+import java.util.jar.Attributes;
+import java.util.jar.JarFile;
+import java.util.jar.Manifest;
 
+import org.codehaus.plexus.archiver.UnArchiver;
+import org.codehaus.plexus.archiver.manager.ArchiverManager;
 import org.ops4j.pax.construct.util.PomUtils.Pom;
 
 public class DirUtils
@@ -157,5 +165,87 @@ public class DirUtils
         {
             dottedPath.toString(), targetDir.getPath(), descentPath.toString()
         };
+    }
+
+    public static String rebasePaths( String path, String baseDir, char pathSeparator )
+    {
+        String[] entries = path.split( Character.toString( pathSeparator ) );
+
+        StringBuffer rebasedPath = new StringBuffer();
+        for( int i = 0; i < entries.length; i++ )
+        {
+            if( i > 0 )
+            {
+                rebasedPath.append( pathSeparator );
+            }
+
+            if( ".".equals( entries[i] ) )
+            {
+                rebasedPath.append( baseDir );
+            }
+            else
+            {
+                rebasedPath.append( baseDir );
+                rebasedPath.append( '/' );
+                rebasedPath.append( entries[i] );
+            }
+        }
+
+        return rebasedPath.toString();
+    }
+
+    public static List expandBundleClassPath( List classpath, ArchiverManager archiverManager, File tempDir )
+    {
+        List expandedElements = new ArrayList();
+
+        for( Iterator i = classpath.iterator(); i.hasNext(); )
+        {
+            File element = new File( (String) i.next() );
+            expandedElements.add( element.getPath() );
+            Manifest manifest;
+
+            try
+            {
+                Pom reactorPom = PomUtils.readPom( element.getParentFile().getParentFile() );
+                if( reactorPom.isBundleProject() )
+                {
+                    element = reactorPom.getPackagedBundle();
+                }
+
+                JarFile jar = new JarFile( element );
+                manifest = jar.getManifest();
+            }
+            catch( Exception e )
+            {
+                continue;
+            }
+
+            Attributes mainAttributes = manifest.getMainAttributes();
+            String bundleClassPath = mainAttributes.getValue( "Bundle-ClassPath" );
+
+            if( null != bundleClassPath && bundleClassPath.length() > 1 )
+            {
+                File here = new File( tempDir, element.getName() );
+
+                try
+                {
+                    UnArchiver unArchiver = archiverManager.getUnArchiver( element );
+
+                    here.mkdirs();
+                    unArchiver.setDestDirectory( here );
+                    unArchiver.setSourceFile( element );
+                    unArchiver.extract();
+                }
+                catch( Exception e )
+                {
+                    continue;
+                }
+
+                String rebasedClassPath = DirUtils.rebasePaths( bundleClassPath, here.getPath(), ',' );
+                expandedElements.addAll( Arrays.asList( rebasedClassPath.split( "," ) ) );
+            }
+        }
+
+        return expandedElements;
     }
 }

@@ -196,7 +196,7 @@ public class XppPom
         File outputFolder = new File( getBasedir(), "target" );
 
         // TODO: fall back to local repo if not there???
-        File bundle = new File( outputFolder, getGroupId() + '.' + getArtifactId() + '-' + getVersion() + ".jar" );
+        File bundle = new File( outputFolder, getArtifactId() + '-' + getVersion() + ".jar" );
 
         return bundle;
     }

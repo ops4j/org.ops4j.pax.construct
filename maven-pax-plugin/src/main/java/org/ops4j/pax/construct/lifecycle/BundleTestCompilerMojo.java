@@ -16,11 +16,14 @@ package org.ops4j.pax.construct.lifecycle;
  * limitations under the License.
  */
 
+import java.io.File;
 import java.util.List;
 
 import org.apache.maven.plugin.CompilationFailureException;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.TestCompilerMojo;
+import org.codehaus.plexus.archiver.manager.ArchiverManager;
+import org.ops4j.pax.construct.util.DirUtils;
 
 /**
  * @goal compiler:testCompile
@@ -29,9 +32,16 @@ import org.apache.maven.plugin.TestCompilerMojo;
  */
 public class BundleTestCompilerMojo extends TestCompilerMojo
 {
+    /**
+     * @component
+     */
+    ArchiverManager archiverManager;
+
     protected List getClasspathElements()
     {
-        return super.getClasspathElements();
+        File tempDir = getOutputDirectory().getParentFile();
+
+        return DirUtils.expandBundleClassPath( super.getClasspathElements(), archiverManager, tempDir );
     }
 
     public void execute()

@@ -104,6 +104,7 @@ public class OSGiBundleArchetypeMojo extends AbstractPaxArchetypeMojo
 
         FileSet activatorFiles = new FileSet();
         activatorFiles.setDirectory( targetDirectory + File.separator + bundleName );
+        activatorFiles.addInclude( "src/main/resources" );
 
         if( !provideInterface )
         {
