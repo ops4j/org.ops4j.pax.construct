@@ -11,30 +11,9 @@
 
   <modelVersion>4.0.0</modelVersion>
   <artifactId>provision</artifactId>
-#literal()
 
-  <name>Import OSGi bundles</name>
+  <name>Imported OSGi bundles for ${package}</name>
 
   <packaging>pom</packaging>
 
-  <dependencies>
-    <!--
-      non-deployed OSGi development dependencies (compile scope)
-    -->
-    <dependency>
-      <groupId>org.osgi</groupId>
-      <artifactId>osgi_R4_core</artifactId>
-      <version>1.0</version>
-    </dependency>
-    <dependency>
-      <groupId>org.osgi</groupId>
-      <artifactId>osgi_R4_compendium</artifactId>
-      <version>1.0</version>
-    </dependency>
-    <!--
-      imported OSGi bundles for provisioning (provided scope)
-    -->
-  </dependencies>
-
-#end
 </project>

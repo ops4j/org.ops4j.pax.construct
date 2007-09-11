@@ -25,6 +25,9 @@
   <artifactId>\${artifactId}</artifactId>
   <version>\${version}</version>
 
+  <name>\${groupId}.\${artifactId} (OSGi project)</name>
+#literal()
+
   <description>
     Generated using Pax-Construct v2
   </description>
@@ -36,8 +39,6 @@
     <org.osgi.service.http.port>8080</org.osgi.service.http.port>
     <org.osgi.service.http.port.secure>8443</org.osgi.service.http.port.secure>
   </properties>
-
-  <name>\${groupId}.\${artifactId} (OSGi project)</name>
 
   <packaging>pom</packaging>
 
@@ -70,4 +71,5 @@
     </pluginRepository>
   </pluginRepositories>
 
+#end
 </project>

@@ -25,7 +25,6 @@ import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.shared.model.fileset.FileSet;
 import org.apache.maven.shared.model.fileset.util.FileSetManager;
 import org.codehaus.plexus.util.IOUtil;
-import org.ops4j.pax.construct.util.DirUtils;
 import org.ops4j.pax.construct.util.PomUtils;
 import org.ops4j.pax.construct.util.PomUtils.Pom;
 
@@ -71,6 +70,11 @@ public class OSGiBundleArchetypeMojo extends AbstractPaxArchetypeMojo
      */
     boolean provideActivator;
 
+    /**
+     * @parameter expression="${addOSGiDependencies}" default-value="true"
+     */
+    boolean addOSGiDependencies;
+
     void updateExtensionFields()
     {
         m_mojo.setField( "archetypeArtifactId", "maven-archetype-osgi-bundle" );
@@ -87,17 +91,19 @@ public class OSGiBundleArchetypeMojo extends AbstractPaxArchetypeMojo
     {
         super.postProcess();
 
-        Pom provisionPom = DirUtils.findPom( targetDirectory, provisionId );
-        if( null != provisionPom )
+        if( addOSGiDependencies )
         {
             Pom thisPom = PomUtils.readPom( m_pomFile );
 
-            Dependency buildDependency = new Dependency();
-            buildDependency.setGroupId( provisionPom.getGroupId() );
-            buildDependency.setArtifactId( provisionPom.getArtifactId() );
-            buildDependency.setType( "pom" );
+            Dependency osgiCore = new Dependency();
+            osgiCore.setGroupId( "org.osgi" );
+            osgiCore.setArtifactId( "osgi_R4_core" );
+            thisPom.addDependency( osgiCore, overwrite );
 
-            thisPom.addDependency( buildDependency, overwrite );
+            Dependency osgiCompendium = new Dependency();
+            osgiCompendium.setGroupId( "org.osgi" );
+            osgiCompendium.setArtifactId( "osgi_R4_compendium" );
+            thisPom.addDependency( osgiCompendium, overwrite );
 
             thisPom.write();
         }

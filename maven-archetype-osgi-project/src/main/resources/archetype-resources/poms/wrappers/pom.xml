@@ -7,10 +7,12 @@
     <artifactId>shared-plugin-settings</artifactId>
     <version>${version}</version>
   </parent>
-#literal()
 
   <modelVersion>4.0.0</modelVersion>
   <artifactId>wrapper-bundle-settings</artifactId>
+
+  <name>Wrapper instructions for ${package}</name>
+#literal()
 
   <!--
     don't apply project details to wrapped jars
@@ -22,8 +24,6 @@
   <licenses>
     <license/>
   </licenses>
-
-  <name>Wrapper instructions</name>
 
   <packaging>pom</packaging>
 

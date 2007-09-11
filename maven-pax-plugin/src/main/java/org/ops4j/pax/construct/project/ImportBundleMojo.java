@@ -66,7 +66,9 @@ public class ImportBundleMojo extends AbstractMojo
     boolean deploy;
 
     /**
-     * @parameter expression="${overwrite}"
+     * @parameter expression="${overwrite}" default-value="true"
+     * 
+     * FIXME: what about importing different versions of same bundle??
      */
     boolean overwrite;
 
@@ -91,26 +93,29 @@ public class ImportBundleMojo extends AbstractMojo
             dependency.setOptional( true );
         }
 
-        Pom pom = null;
+        String id = groupId + ':' + artifactId + ':' + version;
 
         if( null != provisionId && provisionId.length() > 0 )
         {
             Pom localBundlePom = DirUtils.findPom( targetDirectory, groupId + ':' + artifactId );
             if( null == localBundlePom )
             {
-                pom = DirUtils.findPom( targetDirectory, provisionId );
+                Pom provisionPom = DirUtils.findPom( targetDirectory, provisionId );
+
+                getLog().info( "Importing " + id + " to " + provisionPom.getId() );
+
+                provisionPom.addDependency( dependency, overwrite );
+                provisionPom.write();
             }
         }
 
-        if( null == pom )
+        Pom pom = PomUtils.readPom( targetDirectory );
+        if( pom.isBundleProject() )
         {
-            pom = PomUtils.readPom( targetDirectory );
+            getLog().info( "Adding " + id + " as a dependency to " + pom.getId() );
+
+            pom.addDependency( dependency, overwrite );
+            pom.write();
         }
-
-        String id = groupId + ':' + artifactId + ':' + version;
-        getLog().info( "Adding " + id + " as a dependency to " + pom.getId() );
-
-        pom.addDependency( dependency, overwrite );
-        pom.write();
     }
 }
