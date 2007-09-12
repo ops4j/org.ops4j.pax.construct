@@ -19,6 +19,7 @@ package org.ops4j.pax.construct.util;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
@@ -247,5 +248,30 @@ public class DirUtils
         }
 
         return expandedElements;
+    }
+
+    public static void pruneEmptyFolders( File baseDir )
+    {
+        List candidates = new ArrayList();
+        candidates.add( baseDir );
+
+        List prunable = new ArrayList();
+        while( !candidates.isEmpty() )
+        {
+            File f = (File) candidates.remove( 0 );
+            if( f.isDirectory() )
+            {
+                File[] files = f.listFiles();
+                candidates.addAll( Arrays.asList( files ) );
+                prunable.add( f );
+            }
+        }
+
+        Collections.reverse( prunable );
+
+        for( Iterator i = prunable.iterator(); i.hasNext(); )
+        {
+            ((File) i.next()).delete();
+        }
     }
 }

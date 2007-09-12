@@ -16,13 +16,8 @@ package org.ops4j.pax.construct.archetype;
  * limitations under the License.
  */
 
-import java.io.File;
-import java.io.IOException;
-
 import org.apache.maven.model.Dependency;
 import org.apache.maven.plugin.MojoExecutionException;
-import org.apache.maven.shared.model.fileset.FileSet;
-import org.apache.maven.shared.model.fileset.util.FileSetManager;
 import org.ops4j.pax.construct.util.BndFileUtils;
 import org.ops4j.pax.construct.util.PomUtils;
 import org.ops4j.pax.construct.util.BndFileUtils.BndFile;
@@ -66,6 +61,11 @@ public class OSGiBundleArchetypeMojo extends AbstractPaxArchetypeMojo
     boolean provideInterface;
 
     /**
+     * @parameter expression="${internals}" default-value="true"
+     */
+    boolean provideInternals;
+
+    /**
      * @parameter expression="${activator}" default-value="true"
      */
     boolean provideActivator;
@@ -89,6 +89,19 @@ public class OSGiBundleArchetypeMojo extends AbstractPaxArchetypeMojo
     void postProcess()
         throws MojoExecutionException
     {
+        if( !provideInterface )
+        {
+            m_tempFiles.addInclude( "src/main/java/**/ExampleService.java" );
+        }
+        if( !provideInternals )
+        {
+            m_tempFiles.addInclude( "src/main/java/**/internal" );
+        }
+        if( !provideActivator )
+        {
+            m_tempFiles.addInclude( "src/main/java/**/Activator.java" );
+        }
+
         super.postProcess();
 
         if( addOSGiDependencies )
@@ -108,40 +121,19 @@ public class OSGiBundleArchetypeMojo extends AbstractPaxArchetypeMojo
             thisPom.write();
         }
 
-        FileSet bogusFiles = new FileSet();
-        bogusFiles.setDirectory( targetDirectory + File.separator + bundleName );
-        bogusFiles.addInclude( "src/main/resources" );
-
-        if( !provideInterface )
-        {
-            bogusFiles.addInclude( "src/main/java/**/ExampleService.java" );
-        }
-
-        if( !provideActivator )
-        {
-            bogusFiles.addInclude( "src/main/java/**/internal" );
-        }
-
-        try
-        {
-            new FileSetManager( getLog(), false ).delete( bogusFiles );
-        }
-        catch( IOException e )
-        {
-            throw new MojoExecutionException( "I/O error while patching files", e );
-        }
-
         BndFile bndFile = BndFileUtils.readBndFile( m_pomFile.getParentFile() );
 
-        if( provideActivator && !provideInterface )
+        if( provideInternals && !provideInterface )
         {
             bndFile.setInstruction( "Export-Package", null, overwrite );
         }
-
-        if( !provideActivator && provideInterface )
+        if( !provideInternals && provideInterface )
+        {
+            bndFile.setInstruction( "Private-Package", null, overwrite );
+        }
+        if( !provideActivator || !provideInternals )
         {
             bndFile.removeInstruction( "Bundle-Activator" );
-            bndFile.setInstruction( "Private-Package", null, overwrite );
         }
 
         bndFile.write();

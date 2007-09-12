@@ -17,11 +17,14 @@ package org.ops4j.pax.construct.archetype;
  */
 
 import java.io.File;
+import java.io.IOException;
 
 import org.apache.maven.archetype.FileUtils;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.archetype.MavenArchetypeMojo;
 import org.apache.maven.project.MavenProject;
+import org.apache.maven.shared.model.fileset.FileSet;
+import org.apache.maven.shared.model.fileset.util.FileSetManager;
 import org.ops4j.pax.construct.util.DirUtils;
 import org.ops4j.pax.construct.util.PomUtils;
 import org.ops4j.pax.construct.util.PomUtils.Pom;
@@ -61,6 +64,7 @@ public abstract class AbstractPaxArchetypeMojo extends MavenArchetypeMojo
 
     MavenProject project;
     ReflectMojo m_mojo;
+    FileSet m_tempFiles;
     File m_pomFile;
 
     public final void execute()
@@ -108,6 +112,9 @@ public abstract class AbstractPaxArchetypeMojo extends MavenArchetypeMojo
             m_pomFile.delete();
         }
 
+        m_tempFiles = new FileSet();
+        m_tempFiles.setDirectory( pomDirectory.getAbsolutePath() );
+
         if( attachPom )
         {
             Pom modulesPom = DirUtils.createModuleTree( project.getBasedir(), targetDirectory );
@@ -123,6 +130,19 @@ public abstract class AbstractPaxArchetypeMojo extends MavenArchetypeMojo
     void postProcess()
         throws MojoExecutionException
     {
+        try
+        {
+            if( !m_tempFiles.getIncludes().isEmpty() )
+            {
+                new FileSetManager( getLog(), false ).delete( m_tempFiles );
+            }
+            DirUtils.pruneEmptyFolders( new File( m_tempFiles.getDirectory() ) );
+        }
+        catch( IOException e )
+        {
+            getLog().warn( "I/O error while cleaning temporary files", e );
+        }
+
         Pom parentPom = DirUtils.findPom( targetDirectory, getParentId() );
         if( null != parentPom )
         {

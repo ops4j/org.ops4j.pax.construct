@@ -16,10 +16,6 @@ package org.ops4j.pax.construct.archetype;
  * limitations under the License.
  */
 
-import java.io.File;
-
-import org.apache.maven.plugin.MojoExecutionException;
-
 /**
  * @goal archetype:create=create-project
  * @requiresProject false
@@ -57,23 +53,6 @@ public class OSGiProjectArchetypeMojo extends AbstractPaxArchetypeMojo
         m_mojo.setField( "version", version );
 
         m_mojo.setField( "packageName", getCompactName( groupId, artifactId ) );
-    }
-
-    void postProcess()
-        throws MojoExecutionException
-    {
-        super.postProcess();
-
-        File projectFolder = new File( targetDirectory, artifactId );
-        File[] pruneFolders = new File[3];
-
-        pruneFolders[0] = new File( projectFolder, "src" );
-        pruneFolders[1] = new File( pruneFolders[0], "main" );
-        pruneFolders[2] = new File( pruneFolders[1], "resources" );
-
-        pruneFolders[2].delete();
-        pruneFolders[1].delete();
-        pruneFolders[0].delete();
     }
 
     String getParentId()
