@@ -50,6 +50,11 @@ public class OSGiWrapperArchetypeMojo extends AbstractPaxArchetypeMojo
     String version;
 
     /**
+     * @parameter expression="${embedTransitive}"
+     */
+    boolean embedTransitive;
+
+    /**
      * @parameter expression="${includeResource}"
      */
     String includeResource;
@@ -107,6 +112,9 @@ public class OSGiWrapperArchetypeMojo extends AbstractPaxArchetypeMojo
         super.postProcess();
 
         BndFile bndFile = BndFileUtils.readBndFile( m_pomFile.getParentFile() );
+
+        if( embedTransitive )
+            bndFile.setInstruction( "Embed-Transitive", "true", overwrite );
 
         if( includeResource != null )
             bndFile.setInstruction( "Include-Resource", includeResource, overwrite );

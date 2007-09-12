@@ -121,7 +121,10 @@ public class RoundTripBndFile
     {
         List lines = new ArrayList();
         BufferedReader bndReader = new BufferedReader( new FileReader( m_file ) );
-        lines.add( bndReader.readLine() );
+        while( bndReader.ready() )
+        {
+            lines.add( bndReader.readLine() );
+        }
         bndReader.close();
 
         boolean skip = false;

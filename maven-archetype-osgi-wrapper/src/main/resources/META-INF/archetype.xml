@@ -1,4 +1,7 @@
 <archetype>
   <id>maven-archetype-osgi-wrapper</id>
   <allowPartial>true</allowPartial>
+  <resources>
+    <resource>osgi.bnd</resource>
+  </resources>
 </archetype>
