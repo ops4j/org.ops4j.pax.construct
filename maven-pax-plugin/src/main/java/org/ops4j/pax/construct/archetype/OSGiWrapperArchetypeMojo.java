@@ -16,16 +16,10 @@ package org.ops4j.pax.construct.archetype;
  * limitations under the License.
  */
 
-import java.io.BufferedOutputStream;
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.OutputStream;
-import java.util.Properties;
-
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.project.MavenProjectBuilder;
-import org.codehaus.plexus.util.IOUtil;
-import org.codehaus.plexus.util.PropertyUtils;
+import org.ops4j.pax.construct.util.BndFileUtils;
+import org.ops4j.pax.construct.util.BndFileUtils.BndFile;
 
 /**
  * @goal archetype:create=wrap-jar
@@ -112,53 +106,24 @@ public class OSGiWrapperArchetypeMojo extends AbstractPaxArchetypeMojo
     {
         super.postProcess();
 
-        File bndConfig = new File( m_pomFile.getParentFile(), "osgi.bnd" );
-
-        if( !bndConfig.exists() )
-        {
-            try
-            {
-                bndConfig.getParentFile().mkdirs();
-                bndConfig.createNewFile();
-            }
-            catch( Exception e )
-            {
-                throw new MojoExecutionException( "Unable to create BND tool config file", e );
-            }
-        }
-
-        Properties properties = PropertyUtils.loadProperties( bndConfig );
+        BndFile bndFile = BndFileUtils.readBndFile( m_pomFile.getParentFile() );
 
         if( includeResource != null )
-            properties.setProperty( "Include-Resource", includeResource );
+            bndFile.setInstruction( "Include-Resource", includeResource, overwrite );
 
         if( importPackage != null )
-            properties.setProperty( "Import-Package", importPackage );
+            bndFile.setInstruction( "Import-Package", importPackage, overwrite );
 
         if( exportContents != null )
-            properties.setProperty( "-exportcontents", exportContents );
+            bndFile.setInstruction( "-exportcontents", exportContents, overwrite );
 
         if( requireBundle != null )
-            properties.setProperty( "Require-Bundle", requireBundle );
+            bndFile.setInstruction( "Require-Bundle", requireBundle, overwrite );
 
         if( dynamicImportPackage != null )
-            properties.setProperty( "DynamicImport-Package", dynamicImportPackage );
+            bndFile.setInstruction( "DynamicImport-Package", dynamicImportPackage, overwrite );
 
-        OutputStream propertyStream = null;
-
-        try
-        {
-            propertyStream = new BufferedOutputStream( new FileOutputStream( bndConfig ) );
-            properties.store( propertyStream, null );
-        }
-        catch( Exception e )
-        {
-            throw new MojoExecutionException( "Unable to save the new BND tool instructions", e );
-        }
-        finally
-        {
-            IOUtil.close( propertyStream );
-        }
+        bndFile.write();
     }
 
     String getParentId()

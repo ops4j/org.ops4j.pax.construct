@@ -16,19 +16,15 @@ package org.ops4j.pax.construct.bundle;
  * limitations under the License.
  */
 
-import java.io.BufferedOutputStream;
 import java.io.File;
-import java.io.FileOutputStream;
-import java.io.OutputStream;
-import java.util.Properties;
 
 import org.apache.maven.artifact.Artifact;
 import org.apache.maven.model.Dependency;
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
-import org.codehaus.plexus.util.IOUtil;
-import org.codehaus.plexus.util.PropertyUtils;
+import org.ops4j.pax.construct.util.BndFileUtils;
 import org.ops4j.pax.construct.util.PomUtils;
+import org.ops4j.pax.construct.util.BndFileUtils.BndFile;
 import org.ops4j.pax.construct.util.PomUtils.Pom;
 
 /**
@@ -101,65 +97,42 @@ public class EmbedJarMojo extends AbstractMojo
         pom.addDependency( dependency, overwrite );
         pom.write();
 
-        if( unpack || exportContents != null )
+        BndFile bndFile = BndFileUtils.readBndFile( targetDirectory );
+
+        final String embedKey = artifactId + ";groupId=" + groupId;
+        final String embedClause = embedKey + ";inline=" + unpack;
+
+        String embedDependency = bndFile.getInstruction( "Embed-Dependency" );
+        if( null == embedDependency )
         {
-            File bndConfig = new File( targetDirectory, "osgi.bnd" );
-
-            if( !bndConfig.exists() )
-            {
-                try
-                {
-                    bndConfig.getParentFile().mkdirs();
-                    bndConfig.createNewFile();
-                }
-                catch( Exception e )
-                {
-                    throw new MojoExecutionException( "Unable to create BND tool config file", e );
-                }
-            }
-
-            Properties properties = PropertyUtils.loadProperties( bndConfig );
-            boolean propertiesChanged = false;
-
-            if( unpack )
-            {
-                // Use FELIX-308 to inline selected artifacts
-                String embedDependency = properties.getProperty( "Embed-Dependency", "*;scope=compile|runtime" );
-                String inlineClause = artifactId + ";groupId=" + groupId + ";inline=true";
-
-                // check to see if its already inlined...
-                if( embedDependency.indexOf( inlineClause ) < 0 )
-                {
-                    embedDependency += ',' + inlineClause;
-                    properties.setProperty( "Embed-Dependency", embedDependency );
-                    propertiesChanged = true;
-                }
-            }
-
-            if( exportContents != null )
-            {
-                properties.setProperty( "-exportcontents", exportContents );
-                propertiesChanged = true;
-            }
-
-            if( propertiesChanged )
-            {
-                OutputStream propertyStream = null;
-
-                try
-                {
-                    propertyStream = new BufferedOutputStream( new FileOutputStream( bndConfig ) );
-                    properties.store( propertyStream, null );
-                }
-                catch( Exception e )
-                {
-                    throw new MojoExecutionException( "Unable to save the new BND tool instructions", e );
-                }
-                finally
-                {
-                    IOUtil.close( propertyStream );
-                }
-            }
+            embedDependency = embedClause;
         }
+        else
+        {
+            StringBuffer buf = new StringBuffer();
+
+            String[] clauses = embedDependency.split( "," );
+            for( int i = 0; i < clauses.length; i++ )
+            {
+                final String c = clauses[i].trim();
+                if( c.length() > 0 && !c.startsWith( embedClause ) )
+                {
+                    buf.append( c );
+                    buf.append( ',' );
+                }
+            }
+            buf.append( embedClause );
+
+            embedDependency = buf.toString();
+        }
+
+        bndFile.setInstruction( "Embed-Dependency", embedDependency, true );
+
+        if( exportContents != null )
+        {
+            bndFile.setInstruction( "-exportcontents", exportContents, overwrite );
+        }
+
+        bndFile.write();
     }
 }

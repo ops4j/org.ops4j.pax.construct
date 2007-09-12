@@ -12,7 +12,7 @@
   <groupId>\${package}.build</groupId>
   <artifactId>shared-plugin-settings</artifactId>
 
-  <name>Plugin configuration for \${package}</name>
+  <name>\${artifactId} - plugin configuration</name>
 #literal()
 
   <packaging>pom</packaging>

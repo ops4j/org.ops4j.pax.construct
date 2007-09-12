@@ -17,15 +17,15 @@ package org.ops4j.pax.construct.archetype;
  */
 
 import java.io.File;
-import java.io.FileWriter;
 import java.io.IOException;
 
 import org.apache.maven.model.Dependency;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.shared.model.fileset.FileSet;
 import org.apache.maven.shared.model.fileset.util.FileSetManager;
-import org.codehaus.plexus.util.IOUtil;
+import org.ops4j.pax.construct.util.BndFileUtils;
 import org.ops4j.pax.construct.util.PomUtils;
+import org.ops4j.pax.construct.util.BndFileUtils.BndFile;
 import org.ops4j.pax.construct.util.PomUtils.Pom;
 
 /**
@@ -108,59 +108,43 @@ public class OSGiBundleArchetypeMojo extends AbstractPaxArchetypeMojo
             thisPom.write();
         }
 
-        FileSet activatorFiles = new FileSet();
-        activatorFiles.setDirectory( targetDirectory + File.separator + bundleName );
-        activatorFiles.addInclude( "src/main/resources" );
+        FileSet bogusFiles = new FileSet();
+        bogusFiles.setDirectory( targetDirectory + File.separator + bundleName );
+        bogusFiles.addInclude( "src/main/resources" );
 
         if( !provideInterface )
         {
-            activatorFiles.addInclude( "src/main/java/**/ExampleService.java" );
+            bogusFiles.addInclude( "src/main/java/**/ExampleService.java" );
         }
 
         if( !provideActivator )
         {
-            activatorFiles.addInclude( "src/main/java/**/internal" );
-            activatorFiles.addInclude( "osgi.bnd" );
+            bogusFiles.addInclude( "src/main/java/**/internal" );
         }
-
-        FileWriter out = null;
 
         try
         {
-            if( activatorFiles.getIncludes() != null && !activatorFiles.getIncludes().isEmpty() )
-            {
-                new FileSetManager( getLog(), false ).delete( activatorFiles );
-            }
-
-            if( provideActivator && !provideInterface )
-            {
-                /*
-                 * Interface x.Y will be in another bundle, so null the export packages (default is export package x)
-                 * 
-                 * If we don't do this then BND will automatically add interface Y to our generated bundle, as without
-                 * interface Y we'd only be exporting part of package x, which is bad as it leads to a split package.
-                 * 
-                 * We only want interface Y in one bundle (the other one), so we reset our Export-Package setting...
-                 */
-                out = new FileWriter( activatorFiles.getDirectory() + "/osgi.bnd", true );
-                out.write( "Export-Package:\n" );
-            }
-
-            if( !provideActivator && provideInterface )
-            {
-                out = new FileWriter( activatorFiles.getDirectory() + "/osgi.bnd", true );
-                out.write( "Export-Package: ${bundle.namespace};version=\"${pom.version}\"\n" );
-                out.write( "Private-Package:\n" );
-            }
+            new FileSetManager( getLog(), false ).delete( bogusFiles );
         }
         catch( IOException e )
         {
             throw new MojoExecutionException( "I/O error while patching files", e );
         }
-        finally
+
+        BndFile bndFile = BndFileUtils.readBndFile( m_pomFile.getParentFile() );
+
+        if( provideActivator && !provideInterface )
         {
-            IOUtil.close( out );
+            bndFile.setInstruction( "Export-Package", null, overwrite );
         }
+
+        if( !provideActivator && provideInterface )
+        {
+            bndFile.removeInstruction( "Bundle-Activator" );
+            bndFile.setInstruction( "Private-Package", null, overwrite );
+        }
+
+        bndFile.write();
     }
 
     String getParentId()

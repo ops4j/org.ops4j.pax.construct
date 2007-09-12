@@ -216,7 +216,7 @@ public class XppPom
     {
         if( m_pom.getChild( "parent" ) != null && !overwrite )
         {
-            throw new PomException( "Keeping existing data, use -Doverwrite to replace it" );
+            throw new PomException( "Entry already exists, use -Doverwrite to replace it" );
         }
 
         Xpp3DomMap parent = new Xpp3DomMap( "parent" );
@@ -408,7 +408,7 @@ public class XppPom
 
         if( children.length > 0 && !overwrite )
         {
-            throw new PomException( "Keeping existing data, use -Doverwrite to replace it" );
+            throw new PomException( "Entry already exists, use -Doverwrite to replace it" );
         }
 
         for( int i = 0; i < children.length; i++ )

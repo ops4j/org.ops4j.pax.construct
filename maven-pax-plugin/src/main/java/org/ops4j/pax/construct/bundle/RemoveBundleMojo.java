@@ -106,7 +106,7 @@ public class RemoveBundleMojo extends AbstractMojo
                 bundleFiles.setDirectory( bundleFolder.getParent() );
                 bundleFiles.addInclude( bundleFolder.getName() );
 
-                new FileSetManager( getLog(), true ).delete( bundleFiles );
+                new FileSetManager( getLog(), false ).delete( bundleFiles );
             }
             catch( Exception e )
             {

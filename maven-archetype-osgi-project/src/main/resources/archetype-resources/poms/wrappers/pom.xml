@@ -11,7 +11,7 @@
   <modelVersion>4.0.0</modelVersion>
   <artifactId>wrapper-bundle-settings</artifactId>
 
-  <name>Wrapper instructions for ${package}</name>
+  <name>${artifactId} - wrapper instructions</name>
 #literal()
 
   <!--
