@@ -42,8 +42,8 @@
             <!--
               export wrapped contents: don't use Export-Package:* as this bundles everything on the classpath
             -->
-            <Private-Package>!*</Private-Package>
             <_exportcontents>*</_exportcontents>
+            <Private-Package>!*</Private-Package>
             <!--
               inline main artifact and embed all compile and runtime dependencies (except poms and OSGi framework artifacts)
             -->
