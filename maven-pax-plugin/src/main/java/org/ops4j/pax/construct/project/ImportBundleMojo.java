@@ -17,11 +17,20 @@ package org.ops4j.pax.construct.project;
  */
 
 import java.io.File;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Set;
 
 import org.apache.maven.artifact.Artifact;
+import org.apache.maven.artifact.factory.ArtifactFactory;
+import org.apache.maven.artifact.repository.ArtifactRepository;
 import org.apache.maven.model.Dependency;
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
+import org.apache.maven.project.MavenProject;
+import org.apache.maven.project.MavenProjectBuilder;
 import org.ops4j.pax.construct.util.DirUtils;
 import org.ops4j.pax.construct.util.PomUtils;
 import org.ops4j.pax.construct.util.PomUtils.Pom;
@@ -32,6 +41,27 @@ import org.ops4j.pax.construct.util.PomUtils.Pom;
  */
 public class ImportBundleMojo extends AbstractMojo
 {
+    /**
+     * @component
+     */
+    ArtifactFactory artifactFactory;
+
+    /**
+     * @parameter expression="${remoteRepositories}" default-value="${project.remoteArtifactRepositories}"
+     */
+    List remoteRepositories;
+
+    /**
+     * @parameter expression="${localRepository}"
+     * @required
+     */
+    ArtifactRepository localRepository;
+
+    /**
+     * @component
+     */
+    MavenProjectBuilder projectBuilder;
+
     /**
      * @parameter expression="${groupId}"
      * @required
@@ -61,25 +91,93 @@ public class ImportBundleMojo extends AbstractMojo
     File targetDirectory;
 
     /**
+     * @parameter expression="${importTransitive}"
+     */
+    boolean importTransitive;
+
+    /**
      * @parameter expression="${deploy}" default-value="true"
      */
     boolean deploy;
 
     /**
      * @parameter expression="${overwrite}" default-value="true"
-     * 
-     * FIXME: what about importing different versions of same bundle??
      */
     boolean overwrite;
+
+    Pom m_provisionPom;
+    Pom m_targetPom;
+
+    List m_candidateIds;
+    Set m_visitedIds;
 
     public void execute()
         throws MojoExecutionException
     {
+        m_provisionPom = DirUtils.findPom( targetDirectory, provisionId );
+        m_targetPom = PomUtils.readPom( targetDirectory );
+
+        String id = groupId + ':' + artifactId + ':' + version;
+
+        m_candidateIds = new ArrayList();
+        m_visitedIds = new HashSet();
+
+        m_candidateIds.add( id );
+        m_visitedIds.add( id );
+
+        while( !m_candidateIds.isEmpty() )
+        {
+            id = (String) m_candidateIds.remove( 0 );
+            String[] fields = id.split( ":" );
+
+            Artifact pom = artifactFactory.createProjectArtifact( fields[0], fields[1], fields[2] );
+
+            try
+            {
+                MavenProject project = projectBuilder.buildFromRepository( pom, remoteRepositories, localRepository );
+                if( !PomUtils.isBundleProject( project ) )
+                {
+                    continue;
+                }
+
+                importBundle( project );
+
+                if( !importTransitive )
+                {
+                    return;
+                }
+
+                Set artifacts = project.createArtifacts( artifactFactory, Artifact.SCOPE_PROVIDED, null );
+                for( Iterator i = artifacts.iterator(); i.hasNext(); )
+                {
+                    Artifact artifact = (Artifact) i.next();
+                    id = getCandidateId( artifact );
+
+                    if( m_visitedIds.add( id ) && Artifact.SCOPE_PROVIDED.equals( artifact.getScope() ) )
+                    {
+                        m_candidateIds.add( id );
+                    }
+                }
+            }
+            catch( Exception e )
+            {
+                getLog().warn( e );
+            }
+        }
+    }
+
+    String getCandidateId( Artifact artifact )
+    {
+        return artifact.getGroupId() + ':' + artifact.getArtifactId() + ':' + artifact.getVersion();
+    }
+
+    void importBundle( MavenProject project )
+    {
         Dependency dependency = new Dependency();
 
-        dependency.setGroupId( groupId );
-        dependency.setArtifactId( artifactId );
-        dependency.setVersion( version );
+        dependency.setGroupId( project.getGroupId() );
+        dependency.setArtifactId( project.getArtifactId() );
+        dependency.setVersion( project.getVersion() );
         dependency.setScope( Artifact.SCOPE_PROVIDED );
 
         if( deploy )
@@ -93,29 +191,22 @@ public class ImportBundleMojo extends AbstractMojo
             dependency.setOptional( true );
         }
 
-        String id = groupId + ':' + artifactId + ':' + version;
+        boolean localProject = m_targetPom != null && m_targetPom.getGroupId().equals( dependency.getGroupId() );
 
-        if( null != provisionId && provisionId.length() > 0 )
+        if( m_provisionPom != null && !localProject )
         {
-            Pom localBundlePom = DirUtils.findPom( targetDirectory, groupId + ':' + artifactId );
-            if( null == localBundlePom )
-            {
-                Pom provisionPom = DirUtils.findPom( targetDirectory, provisionId );
+            getLog().info( "Importing " + project.getName() + " to " + m_provisionPom.getId() );
 
-                getLog().info( "Importing " + id + " to " + provisionPom.getId() );
-
-                provisionPom.addDependency( dependency, overwrite );
-                provisionPom.write();
-            }
+            m_provisionPom.addDependency( dependency, true );
+            m_provisionPom.write();
         }
 
-        Pom pom = PomUtils.readPom( targetDirectory );
-        if( pom.isBundleProject() )
+        if( m_targetPom != null && m_targetPom.isBundleProject() )
         {
-            getLog().info( "Adding " + id + " as a dependency to " + pom.getId() );
+            getLog().info( "Adding " + project.getName() + " as a dependency to " + m_targetPom.getId() );
 
-            pom.addDependency( dependency, overwrite );
-            pom.write();
+            m_targetPom.addDependency( dependency, overwrite );
+            m_targetPom.write();
         }
     }
 }

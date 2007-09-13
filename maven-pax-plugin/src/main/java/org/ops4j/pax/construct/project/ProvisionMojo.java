@@ -19,11 +19,11 @@ package org.ops4j.pax.construct.project;
 import java.io.File;
 import java.io.FileWriter;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Properties;
 import java.util.Set;
-import java.util.TreeSet;
 
 import org.apache.maven.artifact.Artifact;
 import org.apache.maven.artifact.factory.ArtifactFactory;
@@ -105,7 +105,7 @@ public class ProvisionMojo extends AbstractMojo
         {
             m_runnerPom = new MavenProject( new Model() );
             m_properties = new Properties();
-            m_bundleArtifacts = new TreeSet();
+            m_bundleArtifacts = new HashSet();
             m_projectCount = 0;
 
             initializeRunnerPom();
