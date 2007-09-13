@@ -6,8 +6,8 @@ cd spring-osgi-example
 pax-add-repository -i spring-osgi -u http://static.springframework.org/maven2-snapshots
 pax-add-repository -i spring -u http://s3.amazonaws.com/maven.springframework.org/milestone
 
-OLD_CONSTRUCT_OPTIONS=${PAX_CONSTRUCT_OPTIONS}
-PAX_CONSTRUCT_OPTIONS="-DaddVersion -DtargetDirectory=wrappers ${PAX_CONSTRUCT_OPTIONS}"
+OLD_CONSTRUCT_OPTIONS="${PAX_CONSTRUCT_OPTIONS}"
+PAX_CONSTRUCT_OPTIONS="-DaddVersion -DtargetDirectory=wrappers ${OLD_CONSTRUCT_OPTIONS}"
 export PAX_CONSTRUCT_OPTIONS
 
 pax-wrap-jar -g backport-util-concurrent -a backport-util-concurrent -v 3.0 -- "-DimportPackage=sun.misc;resolution:=optional,*"
