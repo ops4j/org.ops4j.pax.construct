@@ -91,9 +91,9 @@ public class ImportBundleMojo extends AbstractMojo
     File targetDirectory;
 
     /**
-     * @parameter expression="${importTransitive}"
+     * @parameter expression="${excludeTransitive}"
      */
-    boolean importTransitive;
+    boolean excludeTransitive;
 
     /**
      * @parameter expression="${deploy}" default-value="true"
@@ -117,17 +117,17 @@ public class ImportBundleMojo extends AbstractMojo
         m_provisionPom = DirUtils.findPom( targetDirectory, provisionId );
         m_targetPom = PomUtils.readPom( targetDirectory );
 
-        String id = groupId + ':' + artifactId + ':' + version;
+        String rootId = groupId + ':' + artifactId + ':' + version;
 
         m_candidateIds = new ArrayList();
         m_visitedIds = new HashSet();
 
-        m_candidateIds.add( id );
-        m_visitedIds.add( id );
+        m_candidateIds.add( rootId );
+        m_visitedIds.add( rootId );
 
         while( !m_candidateIds.isEmpty() )
         {
-            id = (String) m_candidateIds.remove( 0 );
+            String id = (String) m_candidateIds.remove( 0 );
             String[] fields = id.split( ":" );
 
             Artifact pom = artifactFactory.createProjectArtifact( fields[0], fields[1], fields[2] );
@@ -135,14 +135,14 @@ public class ImportBundleMojo extends AbstractMojo
             try
             {
                 MavenProject project = projectBuilder.buildFromRepository( pom, remoteRepositories, localRepository );
-                if( !PomUtils.isBundleProject( project ) )
+                if( !id.equals( rootId ) && !PomUtils.isBundleProject( project ) )
                 {
                     continue;
                 }
 
                 importBundle( project );
 
-                if( !importTransitive )
+                if( excludeTransitive )
                 {
                     return;
                 }
@@ -161,7 +161,7 @@ public class ImportBundleMojo extends AbstractMojo
             }
             catch( Exception e )
             {
-                getLog().warn( e );
+                getLog().warn( e.getMessage() );
             }
         }
     }
@@ -197,7 +197,7 @@ public class ImportBundleMojo extends AbstractMojo
         {
             getLog().info( "Importing " + project.getName() + " to " + m_provisionPom.getId() );
 
-            m_provisionPom.addDependency( dependency, true );
+            m_provisionPom.addDependency( dependency, overwrite );
             m_provisionPom.write();
         }
 

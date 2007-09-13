@@ -24,13 +24,8 @@ pax-import-bundle -g org.springframework -a spring-core -v 2.1-m3
 pax-import-bundle -g org.springframework -a spring-context -v 2.1-m3
 pax-import-bundle -g org.springframework -a spring-beans -v 2.1-m3
 
-pax-import-bundle -g org.springframework.osgi -a spring-aop -v 2.1-osgi-m4-SNAPSHOT
-
-pax-import-bundle -g org.springframework.osgi -a spring-osgi-io -v 1.0-m3-SNAPSHOT
-pax-import-bundle -g org.springframework.osgi -a spring-osgi-core -v 1.0-m3-SNAPSHOT
 pax-import-bundle -g org.springframework.osgi -a spring-osgi-extender -v 1.0-m3-SNAPSHOT
 
-pax-import-bundle -g org.springframework.osgi.samples -a weather-dao -v 1.0-m3-SNAPSHOT
 pax-import-bundle -g org.springframework.osgi.samples -a weather-service -v 1.0-m3-SNAPSHOT
 
 mvn clean install pax:provision
