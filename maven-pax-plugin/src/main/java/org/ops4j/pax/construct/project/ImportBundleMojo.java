@@ -185,19 +185,7 @@ public class ImportBundleMojo extends AbstractMojo
 
     String getCandidateId( Artifact artifact )
     {
-        String symbolicVersion;
-
-        try
-        {
-            // use symbolic version if available (ie. 1.0.0-SNAPSHOT)
-            symbolicVersion = artifact.getSelectedVersion().toString();
-        }
-        catch( Exception e )
-        {
-            symbolicVersion = artifact.getVersion();
-        }
-
-        return artifact.getGroupId() + ':' + artifact.getArtifactId() + ':' + symbolicVersion;
+        return artifact.getGroupId() + ':' + artifact.getArtifactId() + ':' + PomUtils.getMetaVersion( artifact );
     }
 
     boolean hasBundleMetadata( MavenProject project )

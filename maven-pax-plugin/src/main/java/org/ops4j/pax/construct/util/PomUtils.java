@@ -19,6 +19,7 @@ package org.ops4j.pax.construct.util;
 import java.io.File;
 import java.util.List;
 
+import org.apache.maven.artifact.Artifact;
 import org.apache.maven.model.Dependency;
 import org.apache.maven.model.Repository;
 import org.apache.maven.project.MavenProject;
@@ -125,5 +126,18 @@ public class PomUtils
         }
 
         return groupId + '.' + artifactId;
+    }
+
+    public static String getMetaVersion( Artifact artifact )
+    {
+        try
+        {
+            // use metaversion if available (ie. 1.0-SNAPSHOT)
+            return artifact.getSelectedVersion().toString();
+        }
+        catch( Exception e )
+        {
+            return artifact.getVersion();
+        }
     }
 }

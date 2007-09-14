@@ -26,11 +26,14 @@ import org.apache.maven.artifact.Artifact;
 import org.apache.maven.artifact.factory.ArtifactFactory;
 import org.apache.maven.artifact.repository.ArtifactRepository;
 import org.apache.maven.artifact.resolver.ArtifactResolver;
+import org.apache.maven.model.Dependency;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.project.MavenProject;
 import org.apache.maven.project.MavenProjectBuilder;
 import org.ops4j.pax.construct.util.BndFileUtils;
+import org.ops4j.pax.construct.util.PomUtils;
 import org.ops4j.pax.construct.util.BndFileUtils.BndFile;
+import org.ops4j.pax.construct.util.PomUtils.Pom;
 
 /**
  * @goal archetype:create=wrap-jar
@@ -147,12 +150,6 @@ public class OSGiWrapperArchetypeMojo extends AbstractPaxArchetypeMojo
             m_visitedIds.add( rootId );
         }
 
-        if( wrapTransitive )
-        {
-            scheduleTransitiveArtifacts();
-            embedTransitive = false;
-        }
-
         String id = (String) m_candidateIds.remove( 0 );
         String[] fields = id.split( ":" );
 
@@ -179,6 +176,12 @@ public class OSGiWrapperArchetypeMojo extends AbstractPaxArchetypeMojo
         throws MojoExecutionException
     {
         super.postProcess();
+
+        if( wrapTransitive )
+        {
+            scheduleTransitiveArtifacts();
+            embedTransitive = false;
+        }
 
         BndFile bndFile = BndFileUtils.readBndFile( m_pomFile.getParentFile() );
 
@@ -215,6 +218,8 @@ public class OSGiWrapperArchetypeMojo extends AbstractPaxArchetypeMojo
 
     void scheduleTransitiveArtifacts()
     {
+        Pom thisPom = PomUtils.readPom( m_pomFile );
+
         Artifact pom = artifactFactory.createProjectArtifact( groupId, artifactId, version );
 
         try
@@ -239,6 +244,8 @@ public class OSGiWrapperArchetypeMojo extends AbstractPaxArchetypeMojo
                     if( !"pom".equals( project.getPackaging() ) )
                     {
                         m_candidateIds.add( id );
+
+                        thisPom.addDependency( getWrappedDependency( artifact ), true );
                     }
                 }
             }
@@ -247,22 +254,36 @@ public class OSGiWrapperArchetypeMojo extends AbstractPaxArchetypeMojo
         {
             getLog().warn( e.getMessage() );
         }
+
+        thisPom.write();
     }
 
     String getCandidateId( Artifact artifact )
     {
-        String symbolicVersion;
+        return artifact.getGroupId() + ':' + artifact.getArtifactId() + ':' + PomUtils.getMetaVersion( artifact );
+    }
 
-        try
+    Dependency getWrappedDependency( Artifact artifact )
+    {
+        Dependency dependency = new Dependency();
+
+        dependency.setGroupId( getCompactName( project.getGroupId(), project.getArtifactId() ) );
+        String wrappedArtifactId = getCompactName( artifact.getGroupId(), artifact.getArtifactId() );
+        String metaVersion = PomUtils.getMetaVersion( artifact );
+
+        if( addVersion )
         {
-            // use symbolic version if available (ie. 1.0.0-SNAPSHOT)
-            symbolicVersion = artifact.getSelectedVersion().toString();
+            dependency.setArtifactId( wrappedArtifactId + '-' + metaVersion );
+            dependency.setVersion( project.getVersion() );
         }
-        catch( Exception e )
+        else
         {
-            symbolicVersion = artifact.getVersion();
+            dependency.setArtifactId( wrappedArtifactId );
+            dependency.setVersion( metaVersion + "-001" );
         }
 
-        return artifact.getGroupId() + ':' + artifact.getArtifactId() + ':' + symbolicVersion;
+        dependency.setScope( Artifact.SCOPE_PROVIDED );
+
+        return dependency;
     }
 }
