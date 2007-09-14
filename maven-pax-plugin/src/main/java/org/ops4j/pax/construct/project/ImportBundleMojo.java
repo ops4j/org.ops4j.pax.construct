@@ -166,9 +166,11 @@ public class ImportBundleMojo extends AbstractMojo
                 {
                     Artifact artifact = (Artifact) i.next();
                     id = getCandidateId( artifact );
+                    String scope = artifact.getScope();
 
-                    if( m_visitedIds.add( id ) && !artifact.isOptional()
-                        && Artifact.SCOPE_PROVIDED.equals( artifact.getScope() ) )
+                    boolean inScope = Artifact.SCOPE_PROVIDED.equals( scope );
+
+                    if( m_visitedIds.add( id ) && inScope && !artifact.isOptional() )
                     {
                         m_candidateIds.add( id );
                     }
@@ -183,7 +185,19 @@ public class ImportBundleMojo extends AbstractMojo
 
     String getCandidateId( Artifact artifact )
     {
-        return artifact.getGroupId() + ':' + artifact.getArtifactId() + ':' + artifact.getVersion();
+        String symbolicVersion;
+
+        try
+        {
+            // use symbolic version if available (ie. 1.0.0-SNAPSHOT)
+            symbolicVersion = artifact.getSelectedVersion().toString();
+        }
+        catch( Exception e )
+        {
+            symbolicVersion = artifact.getVersion();
+        }
+
+        return artifact.getGroupId() + ':' + artifact.getArtifactId() + ':' + symbolicVersion;
     }
 
     boolean hasBundleMetadata( MavenProject project )

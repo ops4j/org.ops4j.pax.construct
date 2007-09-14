@@ -72,9 +72,20 @@ public abstract class AbstractPaxArchetypeMojo extends MavenArchetypeMojo
     {
         updateFields();
 
-        prepareTarget();
-        super.execute();
-        postProcess();
+        do
+        {
+            updateExtensionFields();
+
+            prepareTarget();
+            super.execute();
+            postProcess();
+
+        } while( createMoreArtifacts() );
+    }
+
+    boolean createMoreArtifacts()
+    {
+        return false;
     }
 
     final void updateFields()
@@ -94,11 +105,11 @@ public abstract class AbstractPaxArchetypeMojo extends MavenArchetypeMojo
         // setField( "artifactId", artifactId );
         // setField( "version", version );
         // setField( "packageName", packageName );
-
-        updateExtensionFields();
     }
 
     abstract void updateExtensionFields();
+
+    abstract String getParentId();
 
     void prepareTarget()
         throws MojoExecutionException
@@ -159,8 +170,6 @@ public abstract class AbstractPaxArchetypeMojo extends MavenArchetypeMojo
             thisPom.write();
         }
     }
-
-    abstract String getParentId();
 
     final String calculateGroupMarker( String groupId, String artifactId )
     {
