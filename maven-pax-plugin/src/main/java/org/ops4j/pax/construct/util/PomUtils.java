@@ -109,7 +109,8 @@ public class PomUtils
 
     public static boolean isBundleProject( MavenProject project )
     {
-        return project.getPackaging().indexOf( "bundle" ) >= 0;
+        String packaging = project.getPackaging();
+        return packaging != null && packaging.indexOf( "bundle" ) >= 0;
     }
 
     public static String getCompoundName( String groupId, String artifactId )

@@ -19,12 +19,7 @@ call pax-wrap-jar -g junit -a junit -v 3.8.1
 
 set PAX_CONSTRUCT_OPTIONS=%OLD_CONSTRUCT_OPTIONS%
 
-call pax-import-bundle -g org.springframework -a spring-core -v 2.1-m3
-call pax-import-bundle -g org.springframework -a spring-context -v 2.1-m3
-call pax-import-bundle -g org.springframework -a spring-beans -v 2.1-m3
-
 call pax-import-bundle -g org.springframework.osgi -a spring-osgi-extender -v 1.0-m3-SNAPSHOT
-
 call pax-import-bundle -g org.springframework.osgi.samples -a weather-service -v 1.0-m3-SNAPSHOT
 
 call mvn clean install pax:provision

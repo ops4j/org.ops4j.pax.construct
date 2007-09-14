@@ -22,10 +22,14 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
+import java.util.jar.Attributes;
+import java.util.jar.JarFile;
+import java.util.jar.Manifest;
 
 import org.apache.maven.artifact.Artifact;
 import org.apache.maven.artifact.factory.ArtifactFactory;
 import org.apache.maven.artifact.repository.ArtifactRepository;
+import org.apache.maven.artifact.resolver.ArtifactResolver;
 import org.apache.maven.model.Dependency;
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
@@ -45,6 +49,11 @@ public class ImportBundleMojo extends AbstractMojo
      * @component
      */
     ArtifactFactory artifactFactory;
+
+    /**
+     * @component
+     */
+    ArtifactResolver artifactResolver;
 
     /**
      * @parameter expression="${remoteRepositories}" default-value="${project.remoteArtifactRepositories}"
@@ -135,16 +144,21 @@ public class ImportBundleMojo extends AbstractMojo
             try
             {
                 MavenProject project = projectBuilder.buildFromRepository( pom, remoteRepositories, localRepository );
-                if( !id.equals( rootId ) && !PomUtils.isBundleProject( project ) )
+                if( !"pom".equals( project.getPackaging() ) )
                 {
-                    continue;
-                }
+                    if( PomUtils.isBundleProject( project ) || hasBundleMetadata( project ) )
+                    {
+                        importBundle( project );
+                    }
+                    else
+                    {
+                        continue;
+                    }
 
-                importBundle( project );
-
-                if( excludeTransitive )
-                {
-                    return;
+                    if( excludeTransitive )
+                    {
+                        return;
+                    }
                 }
 
                 Set artifacts = project.createArtifacts( artifactFactory, Artifact.SCOPE_PROVIDED, null );
@@ -153,7 +167,8 @@ public class ImportBundleMojo extends AbstractMojo
                     Artifact artifact = (Artifact) i.next();
                     id = getCandidateId( artifact );
 
-                    if( m_visitedIds.add( id ) && Artifact.SCOPE_PROVIDED.equals( artifact.getScope() ) )
+                    if( m_visitedIds.add( id ) && !artifact.isOptional()
+                        && Artifact.SCOPE_PROVIDED.equals( artifact.getScope() ) )
                     {
                         m_candidateIds.add( id );
                     }
@@ -169,6 +184,29 @@ public class ImportBundleMojo extends AbstractMojo
     String getCandidateId( Artifact artifact )
     {
         return artifact.getGroupId() + ':' + artifact.getArtifactId() + ':' + artifact.getVersion();
+    }
+
+    boolean hasBundleMetadata( MavenProject project )
+    {
+        try
+        {
+            Artifact bundleArtifact = project.getArtifact();
+            if( bundleArtifact.getFile() == null || !bundleArtifact.getFile().exists() )
+            {
+                artifactResolver.resolve( bundleArtifact, remoteRepositories, localRepository );
+            }
+
+            JarFile jarFile = new JarFile( bundleArtifact.getFile() );
+            Manifest manifest = jarFile.getManifest();
+
+            Attributes mainAttributes = manifest.getMainAttributes();
+            return null != mainAttributes.getValue( "Bundle-ManifestVersion" );
+        }
+        catch( Exception e )
+        {
+            getLog().warn( e.getMessage() );
+            return false;
+        }
     }
 
     void importBundle( MavenProject project )
