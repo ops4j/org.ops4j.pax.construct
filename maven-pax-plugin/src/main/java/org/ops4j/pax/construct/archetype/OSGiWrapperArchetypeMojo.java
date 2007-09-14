@@ -21,6 +21,9 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
+import java.util.jar.Attributes;
+import java.util.jar.JarFile;
+import java.util.jar.Manifest;
 
 import org.apache.maven.artifact.Artifact;
 import org.apache.maven.artifact.factory.ArtifactFactory;
@@ -130,6 +133,11 @@ public class OSGiWrapperArchetypeMojo extends AbstractPaxArchetypeMojo
     String dynamicImportPackage;
 
     /**
+     * @parameter expression="${testForMetadata}" default-value="true"
+     */
+    boolean testForMetadata;
+
+    /**
      * @parameter expression="${addVersion}"
      */
     boolean addVersion;
@@ -220,39 +228,60 @@ public class OSGiWrapperArchetypeMojo extends AbstractPaxArchetypeMojo
     {
         Pom thisPom = PomUtils.readPom( m_pomFile );
 
-        Artifact pom = artifactFactory.createProjectArtifact( groupId, artifactId, version );
+        List dependencyPoms = new ArrayList();
+        dependencyPoms.add( artifactFactory.createProjectArtifact( groupId, artifactId, version ) );
 
-        try
+        while( !dependencyPoms.isEmpty() )
         {
-            MavenProject project = projectBuilder.buildFromRepository( pom, remoteRepos, localRepo );
+            Artifact pomArtifact = (Artifact) dependencyPoms.remove( 0 );
 
-            Set artifacts = project.createArtifacts( artifactFactory, null, null );
-            for( Iterator i = artifacts.iterator(); i.hasNext(); )
+            try
             {
-                Artifact artifact = (Artifact) i.next();
-                String id = getCandidateId( artifact );
-                String scope = artifact.getScope();
+                MavenProject pomProject = projectBuilder.buildFromRepository( pomArtifact, remoteRepos, localRepo );
 
-                boolean inScope = true;
-                if( scope != null )
+                Set artifacts = pomProject.createArtifacts( artifactFactory, null, null );
+                for( Iterator i = artifacts.iterator(); i.hasNext(); )
                 {
-                    inScope = Artifact.SCOPE_COMPILE.equals( scope ) || Artifact.SCOPE_RUNTIME.equals( scope );
-                }
+                    Artifact artifact = (Artifact) i.next();
+                    String id = getCandidateId( artifact );
+                    String scope = artifact.getScope();
 
-                if( m_visitedIds.add( id ) && inScope && (wrapOptional || !artifact.isOptional()) )
-                {
-                    if( !"pom".equals( project.getPackaging() ) )
+                    boolean doWrap = wrapOptional || !artifact.isOptional();
+
+                    if( Artifact.SCOPE_SYSTEM.equals( scope ) || Artifact.SCOPE_TEST.equals( scope ) )
                     {
-                        m_candidateIds.add( id );
+                        doWrap = false;
+                    }
 
-                        thisPom.addDependency( getWrappedDependency( artifact ), true );
+                    if( m_visitedIds.add( id ) && doWrap )
+                    {
+                        String type = artifact.getType();
+                        if( null == type )
+                        {
+                            type = "jar";
+                        }
+
+                        if( "pom".equals( type ) )
+                        {
+                            dependencyPoms.add( artifact );
+                        }
+                        else if( type.indexOf( "bundle" ) >= 0 || hasBundleMetadata( artifact ) )
+                        {
+                            thisPom.addDependency( getBundleDependency( artifact ), true );
+                        }
+                        else
+                        {
+                            m_candidateIds.add( id );
+
+                            thisPom.addDependency( getWrappedDependency( artifact ), true );
+                        }
                     }
                 }
             }
-        }
-        catch( Exception e )
-        {
-            getLog().warn( e.getMessage() );
+            catch( Exception e )
+            {
+                getLog().warn( "Problem resolving " + pomArtifact.getId() );
+            }
         }
 
         thisPom.write();
@@ -261,6 +290,44 @@ public class OSGiWrapperArchetypeMojo extends AbstractPaxArchetypeMojo
     String getCandidateId( Artifact artifact )
     {
         return artifact.getGroupId() + ':' + artifact.getArtifactId() + ':' + PomUtils.getMetaVersion( artifact );
+    }
+
+    boolean hasBundleMetadata( Artifact artifact )
+    {
+        if( !testForMetadata )
+        {
+            return false;
+        }
+
+        try
+        {
+            if( artifact.getFile() == null || !artifact.getFile().exists() )
+            {
+                artifactResolver.resolve( artifact, remoteRepos, localRepo );
+            }
+
+            JarFile jarFile = new JarFile( artifact.getFile() );
+            Manifest manifest = jarFile.getManifest();
+
+            Attributes mainAttributes = manifest.getMainAttributes();
+            return null != mainAttributes.getValue( "Bundle-ManifestVersion" );
+        }
+        catch( Exception e )
+        {
+            return false;
+        }
+    }
+
+    Dependency getBundleDependency( Artifact artifact )
+    {
+        Dependency dependency = new Dependency();
+
+        dependency.setGroupId( artifact.getGroupId() );
+        dependency.setArtifactId( artifact.getArtifactId() );
+        dependency.setVersion( PomUtils.getMetaVersion( artifact ) );
+        dependency.setScope( Artifact.SCOPE_PROVIDED );
+
+        return dependency;
     }
 
     Dependency getWrappedDependency( Artifact artifact )

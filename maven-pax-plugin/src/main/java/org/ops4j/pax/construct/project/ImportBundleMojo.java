@@ -105,6 +105,16 @@ public class ImportBundleMojo extends AbstractMojo
     boolean excludeTransitive;
 
     /**
+     * @parameter expression="${includeDefaultScope}"
+     */
+    boolean includeDefaultScope;
+
+    /**
+     * @parameter expression="${testForMetadata}" default-value="true"
+     */
+    boolean testForMetadata;
+
+    /**
      * @parameter expression="${deploy}" default-value="true"
      */
     boolean deploy;
@@ -161,16 +171,26 @@ public class ImportBundleMojo extends AbstractMojo
                     }
                 }
 
-                Set artifacts = project.createArtifacts( artifactFactory, Artifact.SCOPE_PROVIDED, null );
+                if( includeDefaultScope )
+                {
+                    for( Iterator i = project.getDependencies().iterator(); i.hasNext(); )
+                    {
+                        Dependency dependency = (Dependency) i.next();
+                        if( dependency.getScope() == null )
+                        {
+                            dependency.setScope( Artifact.SCOPE_PROVIDED );
+                        }
+                    }
+                }
+
+                Set artifacts = project.createArtifacts( artifactFactory, null, null );
                 for( Iterator i = artifacts.iterator(); i.hasNext(); )
                 {
                     Artifact artifact = (Artifact) i.next();
                     id = getCandidateId( artifact );
                     String scope = artifact.getScope();
 
-                    boolean inScope = Artifact.SCOPE_PROVIDED.equals( scope );
-
-                    if( m_visitedIds.add( id ) && inScope && !artifact.isOptional() )
+                    if( m_visitedIds.add( id ) && !artifact.isOptional() && Artifact.SCOPE_PROVIDED.equals( scope ) )
                     {
                         m_candidateIds.add( id );
                     }
@@ -178,7 +198,7 @@ public class ImportBundleMojo extends AbstractMojo
             }
             catch( Exception e )
             {
-                getLog().warn( e.getMessage() );
+                getLog().warn( "Problem resolving " + pom.getId() );
             }
         }
     }
@@ -190,15 +210,20 @@ public class ImportBundleMojo extends AbstractMojo
 
     boolean hasBundleMetadata( MavenProject project )
     {
+        if( !testForMetadata )
+        {
+            return false;
+        }
+
         try
         {
-            Artifact bundleArtifact = project.getArtifact();
-            if( bundleArtifact.getFile() == null || !bundleArtifact.getFile().exists() )
+            Artifact artifact = project.getArtifact();
+            if( artifact.getFile() == null || !artifact.getFile().exists() )
             {
-                artifactResolver.resolve( bundleArtifact, remoteRepositories, localRepository );
+                artifactResolver.resolve( artifact, remoteRepositories, localRepository );
             }
 
-            JarFile jarFile = new JarFile( bundleArtifact.getFile() );
+            JarFile jarFile = new JarFile( artifact.getFile() );
             Manifest manifest = jarFile.getManifest();
 
             Attributes mainAttributes = manifest.getMainAttributes();
@@ -206,7 +231,6 @@ public class ImportBundleMojo extends AbstractMojo
         }
         catch( Exception e )
         {
-            getLog().warn( e.getMessage() );
             return false;
         }
     }
