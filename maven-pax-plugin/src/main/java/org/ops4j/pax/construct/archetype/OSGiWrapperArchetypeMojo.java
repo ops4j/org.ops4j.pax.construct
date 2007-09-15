@@ -21,9 +21,6 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
-import java.util.jar.Attributes;
-import java.util.jar.JarFile;
-import java.util.jar.Manifest;
 
 import org.apache.maven.artifact.Artifact;
 import org.apache.maven.artifact.factory.ArtifactFactory;
@@ -51,7 +48,7 @@ public class OSGiWrapperArchetypeMojo extends AbstractPaxArchetypeMojo
     /**
      * @component
      */
-    ArtifactResolver artifactResolver;
+    ArtifactResolver resolver;
 
     /**
      * @parameter expression="${remoteRepositories}" default-value="${project.remoteArtifactRepositories}"
@@ -133,9 +130,9 @@ public class OSGiWrapperArchetypeMojo extends AbstractPaxArchetypeMojo
     String dynamicImportPackage;
 
     /**
-     * @parameter expression="${testForMetadata}" default-value="true"
+     * @parameter expression="${testMetadata}" default-value="true"
      */
-    boolean testForMetadata;
+    boolean testMetadata;
 
     /**
      * @parameter expression="${addVersion}"
@@ -255,17 +252,11 @@ public class OSGiWrapperArchetypeMojo extends AbstractPaxArchetypeMojo
 
                     if( m_visitedIds.add( id ) && doWrap )
                     {
-                        String type = artifact.getType();
-                        if( null == type )
-                        {
-                            type = "jar";
-                        }
-
-                        if( "pom".equals( type ) )
+                        if( "pom".equals( artifact.getType() ) )
                         {
                             dependencyPoms.add( artifact );
                         }
-                        else if( type.indexOf( "bundle" ) >= 0 || hasBundleMetadata( artifact ) )
+                        else if( PomUtils.isBundleArtifact( artifact, resolver, remoteRepos, localRepo, testMetadata ) )
                         {
                             thisPom.addDependency( getBundleDependency( artifact ), true );
                         }
@@ -290,32 +281,6 @@ public class OSGiWrapperArchetypeMojo extends AbstractPaxArchetypeMojo
     String getCandidateId( Artifact artifact )
     {
         return artifact.getGroupId() + ':' + artifact.getArtifactId() + ':' + PomUtils.getMetaVersion( artifact );
-    }
-
-    boolean hasBundleMetadata( Artifact artifact )
-    {
-        if( !testForMetadata )
-        {
-            return false;
-        }
-
-        try
-        {
-            if( artifact.getFile() == null || !artifact.getFile().exists() )
-            {
-                artifactResolver.resolve( artifact, remoteRepos, localRepo );
-            }
-
-            JarFile jarFile = new JarFile( artifact.getFile() );
-            Manifest manifest = jarFile.getManifest();
-
-            Attributes mainAttributes = manifest.getMainAttributes();
-            return null != mainAttributes.getValue( "Bundle-ManifestVersion" );
-        }
-        catch( Exception e )
-        {
-            return false;
-        }
     }
 
     Dependency getBundleDependency( Artifact artifact )

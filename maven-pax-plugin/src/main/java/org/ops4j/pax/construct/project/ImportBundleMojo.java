@@ -22,9 +22,6 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
-import java.util.jar.Attributes;
-import java.util.jar.JarFile;
-import java.util.jar.Manifest;
 
 import org.apache.maven.artifact.Artifact;
 import org.apache.maven.artifact.factory.ArtifactFactory;
@@ -53,18 +50,18 @@ public class ImportBundleMojo extends AbstractMojo
     /**
      * @component
      */
-    ArtifactResolver artifactResolver;
+    ArtifactResolver resolver;
 
     /**
      * @parameter expression="${remoteRepositories}" default-value="${project.remoteArtifactRepositories}"
      */
-    List remoteRepositories;
+    List remoteRepos;
 
     /**
      * @parameter expression="${localRepository}"
      * @required
      */
-    ArtifactRepository localRepository;
+    ArtifactRepository localRepo;
 
     /**
      * @component
@@ -110,9 +107,9 @@ public class ImportBundleMojo extends AbstractMojo
     boolean includeDefaultScope;
 
     /**
-     * @parameter expression="${testForMetadata}" default-value="true"
+     * @parameter expression="${testMetadata}" default-value="true"
      */
-    boolean testForMetadata;
+    boolean testMetadata;
 
     /**
      * @parameter expression="${deploy}" default-value="true"
@@ -153,10 +150,10 @@ public class ImportBundleMojo extends AbstractMojo
 
             try
             {
-                MavenProject project = projectBuilder.buildFromRepository( pom, remoteRepositories, localRepository );
+                MavenProject project = projectBuilder.buildFromRepository( pom, remoteRepos, localRepo );
                 if( !"pom".equals( project.getPackaging() ) )
                 {
-                    if( PomUtils.isBundleProject( project ) || hasBundleMetadata( project ) )
+                    if( PomUtils.isBundleProject( project, resolver, remoteRepos, localRepo, testMetadata ) )
                     {
                         importBundle( project );
                     }
@@ -206,33 +203,6 @@ public class ImportBundleMojo extends AbstractMojo
     String getCandidateId( Artifact artifact )
     {
         return artifact.getGroupId() + ':' + artifact.getArtifactId() + ':' + PomUtils.getMetaVersion( artifact );
-    }
-
-    boolean hasBundleMetadata( MavenProject project )
-    {
-        if( !testForMetadata )
-        {
-            return false;
-        }
-
-        try
-        {
-            Artifact artifact = project.getArtifact();
-            if( artifact.getFile() == null || !artifact.getFile().exists() )
-            {
-                artifactResolver.resolve( artifact, remoteRepositories, localRepository );
-            }
-
-            JarFile jarFile = new JarFile( artifact.getFile() );
-            Manifest manifest = jarFile.getManifest();
-
-            Attributes mainAttributes = manifest.getMainAttributes();
-            return null != mainAttributes.getValue( "Bundle-ManifestVersion" );
-        }
-        catch( Exception e )
-        {
-            return false;
-        }
     }
 
     void importBundle( MavenProject project )

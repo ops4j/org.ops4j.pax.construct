@@ -18,8 +18,13 @@ package org.ops4j.pax.construct.util;
 
 import java.io.File;
 import java.util.List;
+import java.util.jar.Attributes;
+import java.util.jar.JarFile;
+import java.util.jar.Manifest;
 
 import org.apache.maven.artifact.Artifact;
+import org.apache.maven.artifact.repository.ArtifactRepository;
+import org.apache.maven.artifact.resolver.ArtifactResolver;
 import org.apache.maven.model.Dependency;
 import org.apache.maven.model.Repository;
 import org.apache.maven.project.MavenProject;
@@ -110,8 +115,55 @@ public class PomUtils
 
     public static boolean isBundleProject( MavenProject project )
     {
+        return isBundleProject( project, null, null, null, false );
+    }
+
+    public static boolean isBundleProject( MavenProject project, ArtifactResolver resolver, List remoteRepos,
+        ArtifactRepository localRepo, boolean testMetadata )
+    {
         String packaging = project.getPackaging();
-        return packaging != null && packaging.indexOf( "bundle" ) >= 0;
+        if( packaging != null && packaging.indexOf( "bundle" ) >= 0 )
+        {
+            return true;
+        }
+        else
+        {
+            return isBundleArtifact( project.getArtifact(), resolver, remoteRepos, localRepo, testMetadata );
+        }
+    }
+
+    public static boolean isBundleArtifact( Artifact artifact, ArtifactResolver resolver, List remoteRepos,
+        ArtifactRepository localRepo, boolean testMetadata )
+    {
+        String type = artifact.getType();
+        if( null != type && type.indexOf( "bundle" ) >= 0 )
+        {
+            return true;
+        }
+        else if( !testMetadata )
+        {
+            return false;
+        }
+
+        try
+        {
+            if( artifact.getFile() == null || !artifact.getFile().exists() )
+            {
+                resolver.resolve( artifact, remoteRepos, localRepo );
+            }
+
+            JarFile jarFile = new JarFile( artifact.getFile() );
+            Manifest manifest = jarFile.getManifest();
+
+            Attributes mainAttributes = manifest.getMainAttributes();
+
+            return mainAttributes.getValue( "Bundle-SymbolicName" ) != null
+                || mainAttributes.getValue( "Bundle-Name" ) != null;
+        }
+        catch( Exception e )
+        {
+            return false;
+        }
     }
 
     public static String getCompoundName( String groupId, String artifactId )

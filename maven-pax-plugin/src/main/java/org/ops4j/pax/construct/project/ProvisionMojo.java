@@ -55,13 +55,13 @@ public class ProvisionMojo extends AbstractMojo
     /**
      * @parameter expression="${remoteRepositories}" default-value="${project.remoteArtifactRepositories}"
      */
-    List remoteRepositories;
+    List remoteRepos;
 
     /**
      * @parameter expression="${localRepository}"
      * @required
      */
-    ArtifactRepository localRepository;
+    ArtifactRepository localRepo;
 
     /**
      * @component
@@ -179,7 +179,7 @@ public class ProvisionMojo extends AbstractMojo
             {
                 try
                 {
-                    addBundleDependencies( mavenProjectBuilder.build( pomFile, localRepository, null ) );
+                    addBundleDependencies( mavenProjectBuilder.build( pomFile, localRepo, null ) );
                 }
                 catch( Exception e )
                 {
@@ -225,7 +225,7 @@ public class ProvisionMojo extends AbstractMojo
             String version = m_runnerPom.getVersion();
 
             Artifact artifact = artifactFactory.createProjectArtifact( groupId, artifactId, version );
-            artifactInstaller.install( pomFile, artifact, localRepository );
+            artifactInstaller.install( pomFile, artifact, localRepo );
 
             if( deploy )
             {
@@ -236,7 +236,7 @@ public class ProvisionMojo extends AbstractMojo
                 cachedPomFile.delete();
 
                 StringBuffer repoListBuilder = new StringBuffer();
-                for( Iterator i = remoteRepositories.iterator(); i.hasNext(); )
+                for( Iterator i = remoteRepos.iterator(); i.hasNext(); )
                 {
                     ArtifactRepository repo = (ArtifactRepository) i.next();
                     if( repoListBuilder.length() > 0 )
@@ -249,7 +249,7 @@ public class ProvisionMojo extends AbstractMojo
                 String[] deployAppCmds =
                 {
                     "--dir=" + workDir, "--no-md5", "--platform=" + framework, "--profile=default",
-                    "--repository=" + repoListBuilder.toString(), "--localRepository=" + localRepository.getBasedir(),
+                    "--repository=" + repoListBuilder.toString(), "--localRepository=" + localRepo.getBasedir(),
                     m_runnerPom.getGroupId(), m_runnerPom.getArtifactId(), m_runnerPom.getVersion()
                 };
 
