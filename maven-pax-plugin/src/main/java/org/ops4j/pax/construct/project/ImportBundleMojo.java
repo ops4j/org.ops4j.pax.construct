@@ -102,9 +102,9 @@ public class ImportBundleMojo extends AbstractMojo
     boolean excludeTransitive;
 
     /**
-     * @parameter expression="${includeDefaultScope}"
+     * @parameter expression="${widenScope}"
      */
-    boolean includeDefaultScope;
+    boolean widenScope;
 
     /**
      * @parameter expression="${testMetadata}" default-value="true"
@@ -168,24 +168,20 @@ public class ImportBundleMojo extends AbstractMojo
                     }
                 }
 
-                if( includeDefaultScope )
-                {
-                    for( Iterator i = project.getDependencies().iterator(); i.hasNext(); )
-                    {
-                        Dependency dependency = (Dependency) i.next();
-                        if( dependency.getScope() == null )
-                        {
-                            dependency.setScope( Artifact.SCOPE_PROVIDED );
-                        }
-                    }
-                }
-
                 Set artifacts = project.createArtifacts( artifactFactory, null, null );
                 for( Iterator i = artifacts.iterator(); i.hasNext(); )
                 {
                     Artifact artifact = (Artifact) i.next();
                     id = getCandidateId( artifact );
                     String scope = artifact.getScope();
+
+                    if( widenScope )
+                    {
+                        if( !Artifact.SCOPE_SYSTEM.equals( scope ) && !Artifact.SCOPE_TEST.equals( scope ) )
+                        {
+                            scope = Artifact.SCOPE_PROVIDED;
+                        }
+                    }
 
                     if( m_visitedIds.add( id ) && !artifact.isOptional() && Artifact.SCOPE_PROVIDED.equals( scope ) )
                     {
