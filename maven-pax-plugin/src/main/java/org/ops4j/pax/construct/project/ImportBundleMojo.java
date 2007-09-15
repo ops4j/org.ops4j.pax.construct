@@ -149,6 +149,7 @@ public class ImportBundleMojo extends AbstractMojo
             String[] fields = id.split( ":" );
 
             Artifact pom = artifactFactory.createProjectArtifact( fields[0], fields[1], fields[2] );
+            boolean isLocalPom = (m_targetPom != null && m_targetPom.getGroupId().equals( fields[0] ));
 
             try
             {
@@ -157,7 +158,7 @@ public class ImportBundleMojo extends AbstractMojo
                 {
                     if( PomUtils.isBundleProject( project, resolver, remoteRepos, localRepo, testMetadata ) )
                     {
-                        importBundle( project );
+                        importBundle( project, isLocalPom );
                     }
                     else
                     {
@@ -167,6 +168,15 @@ public class ImportBundleMojo extends AbstractMojo
                     if( excludeTransitive )
                     {
                         return;
+                    }
+                }
+                else if( isLocalPom )
+                {
+                    Pom localPom = DirUtils.findPom( targetDirectory, fields[0] + ':' + fields[1] );
+                    if( null != localPom && localPom.isBundleProject() )
+                    {
+                        project.setName( localPom.getId() );
+                        importBundle( project, isLocalPom );
                     }
                 }
 
@@ -204,7 +214,7 @@ public class ImportBundleMojo extends AbstractMojo
         return artifact.getGroupId() + ':' + artifact.getArtifactId() + ':' + PomUtils.getMetaVersion( artifact );
     }
 
-    void importBundle( MavenProject project )
+    void importBundle( MavenProject project, boolean isLocalPom )
     {
         Dependency dependency = new Dependency();
 
@@ -224,9 +234,7 @@ public class ImportBundleMojo extends AbstractMojo
             dependency.setOptional( true );
         }
 
-        boolean localProject = m_targetPom != null && m_targetPom.getGroupId().equals( dependency.getGroupId() );
-
-        if( m_provisionPom != null && !localProject )
+        if( m_provisionPom != null && !isLocalPom )
         {
             getLog().info( "Importing " + project.getName() + " to " + m_provisionPom.getId() );
 
