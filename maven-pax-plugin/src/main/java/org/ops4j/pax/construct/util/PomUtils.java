@@ -166,19 +166,6 @@ public class PomUtils
         }
     }
 
-    public static boolean isFrameworkArtifact( Artifact artifact )
-    {
-        String groupId = artifact.getGroupId();
-        String artifactId = artifact.getArtifactId();
-
-        if( "org.osgi".equals( groupId ) || "org.eclipse.osgi".equals( artifactId ) )
-        {
-            return true;
-        }
-
-        return false;
-    }
-
     public static String getCompoundName( String groupId, String artifactId )
     {
         if( artifactId.startsWith( groupId + '.' ) || artifactId.equals( groupId ) )

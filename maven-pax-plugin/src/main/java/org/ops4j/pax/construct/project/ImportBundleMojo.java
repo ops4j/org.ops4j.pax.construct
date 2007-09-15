@@ -27,12 +27,14 @@ import org.apache.maven.artifact.Artifact;
 import org.apache.maven.artifact.factory.ArtifactFactory;
 import org.apache.maven.artifact.repository.ArtifactRepository;
 import org.apache.maven.artifact.resolver.ArtifactResolver;
+import org.apache.maven.artifact.resolver.filter.ArtifactFilter;
 import org.apache.maven.model.Dependency;
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.project.MavenProject;
 import org.apache.maven.project.MavenProjectBuilder;
 import org.ops4j.pax.construct.util.DirUtils;
+import org.ops4j.pax.construct.util.ExcludeFrameworkArtifactsFilter;
 import org.ops4j.pax.construct.util.PomUtils;
 import org.ops4j.pax.construct.util.PomUtils.Pom;
 
@@ -168,7 +170,8 @@ public class ImportBundleMojo extends AbstractMojo
                     }
                 }
 
-                Set artifacts = project.createArtifacts( artifactFactory, null, null );
+                ArtifactFilter frameworkFilter = new ExcludeFrameworkArtifactsFilter();
+                Set artifacts = project.createArtifacts( artifactFactory, null, frameworkFilter );
                 for( Iterator i = artifacts.iterator(); i.hasNext(); )
                 {
                     Artifact artifact = (Artifact) i.next();
@@ -185,10 +188,7 @@ public class ImportBundleMojo extends AbstractMojo
 
                     if( m_visitedIds.add( id ) && !artifact.isOptional() && Artifact.SCOPE_PROVIDED.equals( scope ) )
                     {
-                        if( !PomUtils.isFrameworkArtifact( artifact ) )
-                        {
-                            m_candidateIds.add( id );
-                        }
+                        m_candidateIds.add( id );
                     }
                 }
             }
