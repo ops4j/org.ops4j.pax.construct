@@ -185,7 +185,10 @@ public class ImportBundleMojo extends AbstractMojo
 
                     if( m_visitedIds.add( id ) && !artifact.isOptional() && Artifact.SCOPE_PROVIDED.equals( scope ) )
                     {
-                        m_candidateIds.add( id );
+                        if( !PomUtils.isFrameworkArtifact( artifact ) )
+                        {
+                            m_candidateIds.add( id );
+                        }
                     }
                 }
             }
