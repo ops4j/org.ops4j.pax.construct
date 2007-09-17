@@ -43,6 +43,11 @@ public abstract class AbstractPaxArchetypeMojo extends MavenArchetypeMojo
     String archetypeVersion;
 
     /**
+     * @parameter expression="${remoteRepositories}" default-value="http://repository.ops4j.org/maven2"
+     */
+    String remoteRepositories;
+
+    /**
      * @parameter expression="${targetDirectory}" default-value="${project.basedir}"
      */
     File targetDirectory;
@@ -94,6 +99,7 @@ public abstract class AbstractPaxArchetypeMojo extends MavenArchetypeMojo
 
         m_mojo.setField( "archetypeGroupId", PAX_ARCHETYPE_GROUP_ID );
         m_mojo.setField( "archetypeVersion", archetypeVersion );
+        m_mojo.setField( "remoteRepositories", remoteRepositories );
         m_mojo.setField( "project", project );
 
         targetDirectory = FileUtils.resolveFile( targetDirectory, "" );
