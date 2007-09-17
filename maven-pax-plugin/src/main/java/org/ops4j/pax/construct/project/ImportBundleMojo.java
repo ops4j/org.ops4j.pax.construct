@@ -24,11 +24,13 @@ import java.util.List;
 import java.util.Set;
 
 import org.apache.maven.artifact.Artifact;
+import org.apache.maven.artifact.ArtifactStatus;
 import org.apache.maven.artifact.factory.ArtifactFactory;
 import org.apache.maven.artifact.repository.ArtifactRepository;
 import org.apache.maven.artifact.resolver.ArtifactResolver;
 import org.apache.maven.artifact.resolver.filter.ArtifactFilter;
 import org.apache.maven.model.Dependency;
+import org.apache.maven.model.DistributionManagement;
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.project.MavenProject;
@@ -154,6 +156,29 @@ public class ImportBundleMojo extends AbstractMojo
             try
             {
                 MavenProject project = projectBuilder.buildFromRepository( pom, remoteRepos, localRepo );
+
+                DistributionManagement dm = project.getDistributionManagement();
+                if( dm != null && ArtifactStatus.GENERATED.toString().equals( dm.getStatus() ) )
+                {
+                    if( isLocalPom )
+                    {
+                        Pom localPom = DirUtils.findPom( targetDirectory, fields[0] + ':' + fields[1] );
+                        if( localPom != null )
+                        {
+                            project.setPackaging( localPom.getPackaging() );
+                            project.setName( localPom.getId() );
+                        }
+                    }
+                    else
+                    {
+                        Artifact jar = artifactFactory.createArtifact( fields[0], fields[1], fields[2], null, "jar" );
+                        project.setArtifact( jar );
+
+                        project.setPackaging( "jar" );
+                        project.setName( jar.getId() );
+                    }
+                }
+
                 if( !"pom".equals( project.getPackaging() ) )
                 {
                     if( PomUtils.isBundleProject( project, resolver, remoteRepos, localRepo, testMetadata ) )
@@ -168,15 +193,6 @@ public class ImportBundleMojo extends AbstractMojo
                     if( excludeTransitive )
                     {
                         return;
-                    }
-                }
-                else if( isLocalPom )
-                {
-                    Pom localPom = DirUtils.findPom( targetDirectory, fields[0] + ':' + fields[1] );
-                    if( null != localPom && localPom.isBundleProject() )
-                    {
-                        project.setName( localPom.getId() );
-                        importBundle( project, isLocalPom );
                     }
                 }
 
