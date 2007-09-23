@@ -30,6 +30,11 @@ import org.codehaus.plexus.archiver.UnArchiver;
 import org.codehaus.plexus.archiver.manager.ArchiverManager;
 import org.codehaus.plexus.util.xml.Xpp3Dom;
 
+import com.thoughtworks.qdox.JavaDocBuilder;
+import com.thoughtworks.qdox.model.DocletTag;
+import com.thoughtworks.qdox.model.JavaClass;
+import com.thoughtworks.qdox.model.JavaSource;
+
 /**
  * @goal inherit
  * @phase compile
@@ -37,6 +42,11 @@ import org.codehaus.plexus.util.xml.Xpp3Dom;
  */
 public class InheritMojo extends AbstractMojo
 {
+    final static String GOAL = "goal";
+
+    final static String INHERIT_MOJO = "inheritMojo";
+    final static String INHERIT_GOAL = "inheritGoal";
+
     /**
      * @parameter default-value="${project}"
      */
@@ -55,11 +65,11 @@ public class InheritMojo extends AbstractMojo
     public void execute()
         throws MojoExecutionException
     {
-        PluginXml localXml;
+        PluginXml targetPluginXml;
 
         try
         {
-            localXml = new PluginXml( new File( outputDirectory, "META-INF/maven/plugin.xml" ) );
+            targetPluginXml = new PluginXml( new File( outputDirectory, "META-INF/maven/plugin.xml" ) );
         }
         catch( Exception e )
         {
@@ -94,35 +104,52 @@ public class InheritMojo extends AbstractMojo
             }
         }
 
-        Xpp3Dom[] localMojos = localXml.getMojos();
-        for( int i = 0; i < localMojos.length; i++ )
+        JavaDocBuilder builder = new JavaDocBuilder();
+        for( Iterator i = project.getCompileSourceRoots().iterator(); i.hasNext(); )
         {
-            String goal = localMojos[i].getChild( "goal" ).getValue();
+            builder.addSourceTree( new File( (String) i.next() ) );
+        }
 
-            int offset = goal.indexOf( ':' );
-            if( offset > 0 )
+        JavaSource[] javaSources = builder.getSources();
+        for( int i = 0; i < javaSources.length; i++ )
+        {
+            JavaClass primaryClass = javaSources[i].getClasses()[0];
+
+            DocletTag targetGoalTag = primaryClass.getTagByName( GOAL );
+            if( null == targetGoalTag )
             {
-                getLog().info( "[importing " + goal.replaceAll( "=", " as " ) + ']' );
-
-                String plugin = goal.substring( 0, offset );
-                goal = goal.substring( offset + 1 ).replaceFirst( "=.*", "" );
-
-                Xpp3Dom inheritedMojo = ((PluginXml) plugins.get( plugin )).findMojo( goal );
-
-                if( null == inheritedMojo )
-                {
-                    getLog().warn( "cannot find inherited goal: " + goal + " in plugin: " + plugin );
-                }
-                else
-                {
-                    PluginXml.mergeMojo( localMojos[i], new Xpp3Dom( inheritedMojo ) );
-                }
+                continue;
             }
+
+            DocletTag inheritMojoTag = primaryClass.getTagByName( INHERIT_MOJO );
+            if( null == inheritMojoTag )
+            {
+                continue;
+            }
+
+            DocletTag inheritGoalTag = primaryClass.getTagByName( INHERIT_GOAL );
+            if( null == inheritGoalTag )
+            {
+                inheritGoalTag = targetGoalTag;
+            }
+
+            String targetGoal = targetGoalTag.getValue();
+            String inheritedMojo = inheritMojoTag.getValue();
+            String inheritedGoal = inheritGoalTag.getValue();
+
+            PluginXml inheritedPluginXml = (PluginXml) plugins.get( inheritedMojo );
+
+            Xpp3Dom targetMojoXml = targetPluginXml.findMojo( targetGoal );
+            Xpp3Dom inheritedMojoXml = inheritedPluginXml.findMojo( inheritedGoal );
+
+            getLog().info( "[importing " + inheritedMojo + ':' + inheritedGoal + " as " + targetGoal + ']' );
+
+            PluginXml.mergeMojo( targetMojoXml, inheritedMojoXml );
         }
 
         try
         {
-            localXml.write();
+            targetPluginXml.write();
         }
         catch( IOException e )
         {

@@ -64,6 +64,8 @@ public class PluginXml
 
     public static void mergeMojo( Xpp3Dom mojo, Xpp3Dom superMojo )
     {
+        superMojo = new Xpp3Dom( superMojo );
+
         removeDuplicates( mojo, superMojo, "parameters", "name/", true );
         removeDuplicates( mojo, superMojo, "configuration", null, false );
         removeDuplicates( mojo, superMojo, "requirements", "field-name/", true );
@@ -78,8 +80,7 @@ public class PluginXml
         goal.setValue( goal.getValue().replaceAll( "\\w+:(?:\\w+=)?(\\w+)", "$1" ) );
     }
 
-    static void removeDuplicates( Xpp3Dom mojo, Xpp3Dom superMojo, String listName, String idPath,
-        boolean verbose )
+    static void removeDuplicates( Xpp3Dom mojo, Xpp3Dom superMojo, String listName, String idPath, boolean verbose )
     {
         Xpp3Dom superList = superMojo.getChild( listName );
         Xpp3Dom list = mojo.getChild( listName );
