@@ -57,7 +57,8 @@ import org.ops4j.pax.construct.util.PomUtils;
 import org.ops4j.pax.construct.util.ReflectUtils.ReflectMojo;
 
 /**
- * @goal eclipse:eclipse
+ * @inheritMojo eclipse
+ * @goal eclipse
  * @phase package
  */
 public class EclipseOSGiMojo extends EclipsePlugin

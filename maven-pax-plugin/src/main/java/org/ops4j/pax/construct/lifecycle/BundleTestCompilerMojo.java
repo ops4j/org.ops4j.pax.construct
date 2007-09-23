@@ -26,7 +26,8 @@ import org.codehaus.plexus.archiver.manager.ArchiverManager;
 import org.ops4j.pax.construct.util.DirUtils;
 
 /**
- * @goal compiler:testCompile
+ * @inheritMojo compiler
+ * @goal testCompile
  * @phase test-compile
  * @requiresDependencyResolution test
  */

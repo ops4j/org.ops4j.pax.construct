@@ -24,7 +24,9 @@ import org.ops4j.pax.construct.util.BndFileUtils.BndFile;
 import org.ops4j.pax.construct.util.PomUtils.Pom;
 
 /**
- * @goal archetype:create=create-bundle
+ * @inheritMojo archetype
+ * @inheritGoal create
+ * @goal create-bundle
  */
 public class OSGiBundleArchetypeMojo extends AbstractPaxArchetypeMojo
 {

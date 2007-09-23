@@ -17,7 +17,9 @@ package org.ops4j.pax.construct.archetype;
  */
 
 /**
- * @goal archetype:create=create-project
+ * @inheritMojo archetype
+ * @inheritGoal create
+ * @goal create-project
  * @requiresProject false
  */
 public class OSGiProjectArchetypeMojo extends AbstractPaxArchetypeMojo
