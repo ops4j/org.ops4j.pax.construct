@@ -37,6 +37,23 @@
     </plugins>
   </build>
 
+  <reporting>
+    <plugins>
+      <plugin>
+        <artifactId>maven-plugin-plugin</artifactId>
+      </plugin>
+      <plugin>
+        <artifactId>maven-jxr-plugin</artifactId>
+      </plugin>
+      <plugin>
+        <artifactId>maven-checkstyle-plugin</artifactId>
+        <configuration>
+          <configLocation>src/site/ops4j-format.xml</configLocation>
+        </configuration>
+      </plugin>
+    </plugins>
+  </reporting>
+
   <dependencies>
     <dependency>
       <groupId>org.apache.maven.plugins</groupId>
