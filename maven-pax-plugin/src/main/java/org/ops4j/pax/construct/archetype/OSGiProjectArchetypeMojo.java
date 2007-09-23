@@ -17,8 +17,8 @@ package org.ops4j.pax.construct.archetype;
  */
 
 /**
- * @inheritMojo archetype
- * @inheritGoal create
+ * @extendsPlugin archetype
+ * @extendsGoal create
  * @goal create-project
  * @requiresProject false
  */

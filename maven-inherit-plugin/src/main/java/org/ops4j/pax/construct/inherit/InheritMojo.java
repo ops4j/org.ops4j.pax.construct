@@ -26,9 +26,12 @@ import org.apache.maven.artifact.Artifact;
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.project.MavenProject;
+import org.codehaus.plexus.archiver.ArchiverException;
 import org.codehaus.plexus.archiver.UnArchiver;
 import org.codehaus.plexus.archiver.manager.ArchiverManager;
+import org.codehaus.plexus.archiver.manager.NoSuchArchiverException;
 import org.codehaus.plexus.util.xml.Xpp3Dom;
+import org.codehaus.plexus.util.xml.pull.XmlPullParserException;
 
 import com.thoughtworks.qdox.JavaDocBuilder;
 import com.thoughtworks.qdox.model.DocletTag;
@@ -42,70 +45,35 @@ import com.thoughtworks.qdox.model.JavaSource;
  */
 public class InheritMojo extends AbstractMojo
 {
-    final static String GOAL = "goal";
+    static final String GOAL = "goal";
 
-    final static String INHERIT_MOJO = "inheritMojo";
-    final static String INHERIT_GOAL = "inheritGoal";
-
-    /**
-     * @parameter default-value="${project}"
-     */
-    MavenProject project;
+    static final String EXTENDS_PLUGIN = "extendsPlugin";
+    static final String EXTENDS_GOAL = "extendsGoal";
 
     /**
-     * @parameter default-value="${project.build.outputDirectory}"
+     * @parameter expression="${project}"
      */
-    File outputDirectory;
+    private MavenProject m_project;
 
     /**
-     * @component
+     * @parameter expression="${project.build.outputDirectory}"
      */
-    ArchiverManager archiverManager;
+    private File m_outputDirectory;
+
+    /**
+     * @component role="org.codehaus.plexus.archiver.manager.ArchiverManager"
+     */
+    private ArchiverManager m_archiverManager;
 
     public void execute()
         throws MojoExecutionException
     {
-        PluginXml targetPluginXml;
+        PluginXml targetPlugin = loadPluginMetadata( m_outputDirectory );
 
-        try
-        {
-            targetPluginXml = new PluginXml( new File( outputDirectory, "META-INF/maven/plugin.xml" ) );
-        }
-        catch( Exception e )
-        {
-            throw new MojoExecutionException( "cannot read local plugin metadata", e );
-        }
-
-        Map plugins = new HashMap();
-
-        for( Iterator i = project.getDependencyArtifacts().iterator(); i.hasNext(); )
-        {
-            Artifact artifact = (Artifact) i.next();
-            if( "maven-plugin".equals( artifact.getType() ) )
-            {
-                String name = artifact.getArtifactId().replaceAll( "(?:maven-)?(\\w+)(?:-maven)?-plugin", "$1" );
-
-                File here = new File( project.getBuild().getDirectory(), artifact.getArtifactId() );
-                here.mkdirs();
-
-                try
-                {
-                    UnArchiver unArchiver = archiverManager.getUnArchiver( artifact.getFile() );
-                    unArchiver.setDestDirectory( here );
-                    unArchiver.setSourceFile( artifact.getFile() );
-                    unArchiver.extract();
-
-                    plugins.put( name, new PluginXml( new File( here, "META-INF/maven/plugin.xml" ) ) );
-                }
-                catch( Exception e )
-                {
-                    throw new MojoExecutionException( "problem unpacking inherited plugin: " + name, e );
-                }
-            }
-        }
+        Map dependentPluginsByName = loadDependentPluginMetaData();
 
         JavaDocBuilder builder = new JavaDocBuilder();
-        for( Iterator i = project.getCompileSourceRoots().iterator(); i.hasNext(); )
+        for( Iterator i = m_project.getCompileSourceRoots().iterator(); i.hasNext(); )
         {
             builder.addSourceTree( new File( (String) i.next() ) );
         }
@@ -113,47 +81,128 @@ public class InheritMojo extends AbstractMojo
         JavaSource[] javaSources = builder.getSources();
         for( int i = 0; i < javaSources.length; i++ )
         {
-            JavaClass primaryClass = javaSources[i].getClasses()[0];
+            JavaClass mojoClass = javaSources[i].getClasses()[0];
 
-            DocletTag targetGoalTag = primaryClass.getTagByName( GOAL );
-            if( null == targetGoalTag )
+            DocletTag extendsTag = mojoClass.getTagByName( EXTENDS_PLUGIN );
+            if( null != extendsTag )
             {
-                continue;
+                String pluginName = extendsTag.getValue();
+                getLog().info( "Extending " + pluginName + " plugin" );
+
+                PluginXml basePlugin = (PluginXml) dependentPluginsByName.get( pluginName );
+                if( null == basePlugin )
+                {
+                    getLog().warn( pluginName + " plugin is not a dependency" );
+                }
+                else
+                {
+                    mergePluginMojo( mojoClass, targetPlugin, basePlugin );
+                }
             }
-
-            DocletTag inheritMojoTag = primaryClass.getTagByName( INHERIT_MOJO );
-            if( null == inheritMojoTag )
-            {
-                continue;
-            }
-
-            DocletTag inheritGoalTag = primaryClass.getTagByName( INHERIT_GOAL );
-            if( null == inheritGoalTag )
-            {
-                inheritGoalTag = targetGoalTag;
-            }
-
-            String targetGoal = targetGoalTag.getValue();
-            String inheritedMojo = inheritMojoTag.getValue();
-            String inheritedGoal = inheritGoalTag.getValue();
-
-            PluginXml inheritedPluginXml = (PluginXml) plugins.get( inheritedMojo );
-
-            Xpp3Dom targetMojoXml = targetPluginXml.findMojo( targetGoal );
-            Xpp3Dom inheritedMojoXml = inheritedPluginXml.findMojo( inheritedGoal );
-
-            getLog().info( "[importing " + inheritedMojo + ':' + inheritedGoal + " as " + targetGoal + ']' );
-
-            PluginXml.mergeMojo( targetMojoXml, inheritedMojoXml );
         }
 
         try
         {
-            targetPluginXml.write();
+            targetPlugin.write();
         }
         catch( IOException e )
         {
             throw new MojoExecutionException( "cannot update local plugin metadata", e );
         }
+    }
+
+    PluginXml loadPluginMetadata( File pluginRoot )
+        throws MojoExecutionException
+    {
+        File metadata = new File( pluginRoot, "META-INF/maven/plugin.xml" );
+
+        try
+        {
+            return new PluginXml( metadata );
+        }
+        catch( IOException e )
+        {
+            throw new MojoExecutionException( "cannot read plugin metadata " + metadata, e );
+        }
+        catch( XmlPullParserException e )
+        {
+            throw new MojoExecutionException( "cannot parse plugin metadata " + metadata, e );
+        }
+    }
+
+    Map loadDependentPluginMetaData()
+        throws MojoExecutionException
+    {
+        String buildArea = m_project.getBuild().getDirectory();
+
+        Map pluginsByName = new HashMap();
+        for( Iterator i = m_project.getDependencyArtifacts().iterator(); i.hasNext(); )
+        {
+            Artifact artifact = (Artifact) i.next();
+            if( "maven-plugin".equals( artifact.getType() ) )
+            {
+                File unpackDir = new File( buildArea, artifact.getArtifactId() );
+                unpackPlugin( artifact, unpackDir );
+
+                String name = artifact.getArtifactId().replaceAll( "(?:maven-)?(\\w+)(?:-maven)?-plugin", "$1" );
+
+                PluginXml dependentPlugin = loadPluginMetadata( unpackDir );
+                pluginsByName.put( name, dependentPlugin );
+            }
+        }
+
+        return pluginsByName;
+    }
+
+    void unpackPlugin( Artifact artifact, File unpackDir )
+        throws MojoExecutionException
+    {
+        File pluginFile = artifact.getFile();
+        unpackDir.mkdirs();
+
+        try
+        {
+            UnArchiver unArchiver = m_archiverManager.getUnArchiver( pluginFile );
+            unArchiver.setDestDirectory( unpackDir );
+            unArchiver.setSourceFile( pluginFile );
+            unArchiver.extract();
+        }
+        catch( NoSuchArchiverException e )
+        {
+            throw new MojoExecutionException( "cannot find unarchiver for " + pluginFile, e );
+        }
+        catch( IOException e )
+        {
+            throw new MojoExecutionException( "problem reading file " + pluginFile, e );
+        }
+        catch( ArchiverException e )
+        {
+            throw new MojoExecutionException( "problem unpacking file " + pluginFile, e );
+        }
+    }
+
+    void mergePluginMojo( JavaClass mojoClass, PluginXml targetPlugin, PluginXml basePlugin )
+    {
+        DocletTag goalTag = mojoClass.getTagByName( GOAL );
+        if( null == goalTag )
+        {
+            return;
+        }
+
+        DocletTag baseGoalTag = mojoClass.getTagByName( EXTENDS_GOAL );
+        if( null == baseGoalTag )
+        {
+            baseGoalTag = goalTag;
+        }
+
+        String goal = goalTag.getValue();
+        String baseGoal = baseGoalTag.getValue();
+
+        getLog().info( baseGoal + " => " + goal );
+
+        Xpp3Dom targetMojoXml = targetPlugin.findMojo( goal );
+        Xpp3Dom baseMojoXml = basePlugin.findMojo( baseGoal );
+
+        PluginXml.mergeMojo( targetMojoXml, baseMojoXml );
     }
 }

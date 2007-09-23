@@ -36,8 +36,8 @@ import org.ops4j.pax.construct.util.BndFileUtils.BndFile;
 import org.ops4j.pax.construct.util.PomUtils.Pom;
 
 /**
- * @inheritMojo archetype
- * @inheritGoal create
+ * @extendsPlugin archetype
+ * @extendsGoal create
  * @goal wrap-jar
  */
 public class OSGiWrapperArchetypeMojo extends AbstractPaxArchetypeMojo

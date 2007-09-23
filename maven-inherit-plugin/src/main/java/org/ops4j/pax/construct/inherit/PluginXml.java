@@ -30,8 +30,8 @@ import org.codehaus.plexus.util.xml.pull.XmlSerializer;
 
 public class PluginXml
 {
-    final File m_file;
-    Xpp3Dom m_xml;
+    private final File m_file;
+    private Xpp3Dom m_xml;
 
     public PluginXml( File pluginFile )
         throws XmlPullParserException, IOException
@@ -64,17 +64,17 @@ public class PluginXml
 
     public static void mergeMojo( Xpp3Dom mojo, Xpp3Dom superMojo )
     {
-        superMojo = new Xpp3Dom( superMojo );
+        Xpp3Dom tempMojo = new Xpp3Dom( superMojo );
 
-        removeDuplicates( mojo, superMojo, "parameters", "name/", true );
-        removeDuplicates( mojo, superMojo, "configuration", null, false );
-        removeDuplicates( mojo, superMojo, "requirements", "field-name/", true );
+        removeDuplicates( mojo, tempMojo, "parameters", "name/", true );
+        removeDuplicates( mojo, tempMojo, "configuration", null, false );
+        removeDuplicates( mojo, tempMojo, "requirements", "field-name/", true );
 
         setAppendMode( mojo.getChild( "parameters" ) );
         setAppendMode( mojo.getChild( "configuration" ) );
         setAppendMode( mojo.getChild( "requirements" ) );
 
-        Xpp3Dom.mergeXpp3Dom( mojo, superMojo );
+        Xpp3Dom.mergeXpp3Dom( mojo, tempMojo );
         Xpp3Dom goal = mojo.getChild( "goal" );
 
         goal.setValue( goal.getValue().replaceAll( "\\w+:(?:\\w+=)?(\\w+)", "$1" ) );
@@ -90,54 +90,64 @@ public class PluginXml
             return;
         }
 
-        nextChild: for( int s = 0; s < superList.getChildCount(); s++ )
+        for( int s = 0; s < superList.getChildCount(); s++ )
         {
             Xpp3Dom superNode = getIdNode( superList.getChild( s ), idPath );
-
-            for( int n = 0; n < list.getChildCount(); n++ )
+            if( hasMatchingNode( list, idPath, verbose, superNode ) )
             {
-                Xpp3Dom node = getIdNode( list.getChild( n ), idPath );
-
-                boolean match;
-                String field;
-
-                if( null != idPath && idPath.endsWith( "/" ) )
-                {
-                    match = superNode.getValue().equals( node.getValue() );
-                    field = node.getValue();
-                }
-                else
-                {
-                    match = superNode.getName().equals( node.getName() );
-                    field = node.getName();
-                }
-
-                if( match )
-                {
-                    if( verbose )
-                    {
-                        System.out.println( "[WARN] overriding field " + field );
-                    }
-
-                    superList.removeChild( s-- );
-                    continue nextChild;
-                }
+                superList.removeChild( s-- );
             }
         }
     }
 
+    static boolean hasMatchingNode( Xpp3Dom list, String idPath, boolean verbose, Xpp3Dom superNode )
+    {
+        for( int n = 0; n < list.getChildCount(); n++ )
+        {
+            Xpp3Dom node = getIdNode( list.getChild( n ), idPath );
+
+            String lhs;
+            String rhs;
+
+            if( null != idPath && idPath.endsWith( "/" ) )
+            {
+                lhs = superNode.getValue();
+                rhs = node.getValue();
+            }
+            else
+            {
+                lhs = superNode.getName();
+                rhs = node.getName();
+            }
+
+            if( lhs.equals( rhs ) )
+            {
+                if( verbose )
+                {
+                    System.out.println( "[WARN] overriding field " + lhs );
+                }
+
+                return true;
+            }
+        }
+
+        return false;
+    }
+
     static Xpp3Dom getIdNode( Xpp3Dom node, String idPath )
     {
+        Xpp3Dom idNode = node;
+
         if( null != idPath )
         {
             String[] idSegments = idPath.split( "/" );
             for( int i = 0; i < idSegments.length; i++ )
             {
-                node = node.getChild( idSegments[i] );
+                idNode = node.getChild( idSegments[i] );
             }
         }
 
-        return node;
+        return idNode;
     }
 
     static void setAppendMode( Xpp3Dom node )
