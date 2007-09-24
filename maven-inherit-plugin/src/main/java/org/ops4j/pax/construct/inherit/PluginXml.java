@@ -28,26 +28,47 @@ import org.codehaus.plexus.util.xml.pull.XmlPullParser;
 import org.codehaus.plexus.util.xml.pull.XmlPullParserException;
 import org.codehaus.plexus.util.xml.pull.XmlSerializer;
 
+/**
+ * Plugin metadata, usually stored in META-INF/maven/plugin.xml
+ */
 public class PluginXml
 {
     private final File m_file;
     private Xpp3Dom m_xml;
 
-    public PluginXml( File pluginFile )
+    /**
+     * Parses a file presumed to contain plugin metadata
+     * 
+     * @param file file containing plugin metadata
+     * @throws XmlPullParserException
+     * @throws IOException
+     */
+    public PluginXml( File file )
         throws XmlPullParserException, IOException
     {
-        m_file = pluginFile;
+        m_file = file;
 
         XmlPullParser parser = new MXParser();
         parser.setInput( new FileReader( m_file ) );
         m_xml = Xpp3DomBuilder.build( parser, false );
     }
 
+    /**
+     * Gets all mojo descriptors
+     * 
+     * @return an array of mojo descriptors
+     */
     public Xpp3Dom[] getMojos()
     {
         return m_xml.getChild( "mojos" ).getChildren( "mojo" );
     }
 
+    /**
+     * Finds a mojo descriptor with a named goal
+     * 
+     * @param goal mojo goal
+     * @return first matching mojo descriptor, null if not found
+     */
     public Xpp3Dom findMojo( String goal )
     {
         Xpp3Dom[] mojos = getMojos();
@@ -62,62 +83,97 @@ public class PluginXml
         return null;
     }
 
+    /**
+     * Merges a mojo descriptor with its super-mojo (inherit from it)
+     * 
+     * The local mojo is considered the dominant one - if any parameters, configuration or requirements match then the
+     * local version is kept. Any parameters, configuration or requirements not in the local mojo are appended to its
+     * descriptor
+     * 
+     * @param mojo local mojo inheriting from superMojo
+     * @param superMojo mojo being extended
+     */
     public static void mergeMojo( Xpp3Dom mojo, Xpp3Dom superMojo )
     {
+        // clone superMojo to get an editable copy
         Xpp3Dom tempMojo = new Xpp3Dom( superMojo );
 
+        // duplicates are removed from the temp copy of the superMojo
         removeDuplicates( mojo, tempMojo, "parameters", "name/", true );
         removeDuplicates( mojo, tempMojo, "configuration", null, false );
         removeDuplicates( mojo, tempMojo, "requirements", "field-name/", true );
 
+        // now we can safely append these sections
         setAppendMode( mojo.getChild( "parameters" ) );
         setAppendMode( mojo.getChild( "configuration" ) );
         setAppendMode( mojo.getChild( "requirements" ) );
 
         Xpp3Dom.mergeXpp3Dom( mojo, tempMojo );
-        Xpp3Dom goal = mojo.getChild( "goal" );
-
-        goal.setValue( goal.getValue().replaceAll( "\\w+:(?:\\w+=)?(\\w+)", "$1" ) );
     }
 
-    static void removeDuplicates( Xpp3Dom mojo, Xpp3Dom superMojo, String listName, String idPath, boolean verbose )
+    /**
+     * Removes any common elements from a given list in the temporary mojo
+     * 
+     * Elements are matched by comparing their ids, which are located using a simple XML path notation. If the path ends
+     * in '/' then the content of the id element is used, otherwise the name of the id element itself is used
+     * 
+     * @param mojo dominant mojo
+     * @param tempMojo temporary mojo
+     * @param listName name of the element list to check
+     * @param idPath simple XML path with the location of the id element
+     * @param verbose print warnings about any matching elements
+     */
+    static void removeDuplicates( Xpp3Dom mojo, Xpp3Dom tempMojo, String listName, String idPath, boolean verbose )
     {
-        Xpp3Dom superList = superMojo.getChild( listName );
         Xpp3Dom list = mojo.getChild( listName );
+        Xpp3Dom tempList = tempMojo.getChild( listName );
 
-        if( null == superList || null == list )
+        if( null == tempList || null == list )
         {
             return;
         }
 
-        for( int s = 0; s < superList.getChildCount(); s++ )
+        for( int s = 0; s < tempList.getChildCount(); s++ )
         {
-            Xpp3Dom superNode = getIdNode( superList.getChild( s ), idPath );
-            if( hasMatchingNode( list, idPath, verbose, superNode ) )
+            Xpp3Dom idElement = getIdElement( tempList.getChild( s ), idPath );
+            if( hasMatchingElement( list, idPath, verbose, idElement ) )
             {
-                superList.removeChild( s-- );
+                // decrement index to avoid skipping entries, as list shrinks by one
+                tempList.removeChild( s-- );
             }
         }
     }
 
-    static boolean hasMatchingNode( Xpp3Dom list, String idPath, boolean verbose, Xpp3Dom superNode )
+    /**
+     * Searches an element list for any elements with the same id
+     * 
+     * Elements are matched by comparing their ids, which are located using a simple XML path notation. If the path is
+     * not null and ends in / then the content of the id element is used, otherwise the name of the id element is used
+     * 
+     * @param list element list
+     * @param idPath simple XML path with the location of the id element
+     * @param verbose print warnings about any matching elements
+     * @param theIdElement id element to compare against
+     * @return true if element list contains a matching element
+     */
+    static boolean hasMatchingElement( Xpp3Dom list, String idPath, boolean verbose, Xpp3Dom theIdElement )
     {
         for( int n = 0; n < list.getChildCount(); n++ )
         {
-            Xpp3Dom node = getIdNode( list.getChild( n ), idPath );
+            Xpp3Dom idElement = getIdElement( list.getChild( n ), idPath );
 
             String lhs;
             String rhs;
 
             if( null != idPath && idPath.endsWith( "/" ) )
             {
-                lhs = superNode.getValue();
-                rhs = node.getValue();
+                lhs = theIdElement.getValue();
+                rhs = idElement.getValue();
             }
             else
             {
-                lhs = superNode.getName();
-                rhs = node.getName();
+                lhs = theIdElement.getName();
+                rhs = idElement.getName();
             }
 
             if( lhs.equals( rhs ) )
@@ -134,30 +190,47 @@ public class PluginXml
         return false;
     }
 
-    static Xpp3Dom getIdNode( Xpp3Dom node, String idPath )
+    /**
+     * Finds the element that represents the id, according to an XML path
+     * 
+     * @param element start element
+     * @param idPath simple XML path with the location of the id element
+     * @return id element
+     */
+    static Xpp3Dom getIdElement( Xpp3Dom element, String idPath )
     {
-        Xpp3Dom idNode = node;
+        Xpp3Dom idElement = element;
 
         if( null != idPath )
         {
             String[] idSegments = idPath.split( "/" );
             for( int i = 0; i < idSegments.length; i++ )
             {
-                idNode = node.getChild( idSegments[i] );
+                idElement = element.getChild( idSegments[i] );
             }
         }
 
-        return idNode;
+        return idElement;
     }
 
-    static void setAppendMode( Xpp3Dom node )
+    /**
+     * Requests that all child elements are appended when the metadata is merged
+     * 
+     * @param element an element in the plugin metadata
+     */
+    static void setAppendMode( Xpp3Dom element )
     {
-        if( null != node )
+        if( null != element )
         {
-            node.setAttribute( Xpp3Dom.CHILDREN_COMBINATION_MODE_ATTRIBUTE, Xpp3Dom.CHILDREN_COMBINATION_APPEND );
+            element.setAttribute( Xpp3Dom.CHILDREN_COMBINATION_MODE_ATTRIBUTE, Xpp3Dom.CHILDREN_COMBINATION_APPEND );
         }
     }
 
+    /**
+     * Writes the plugin metadata back to the file where it was loaded from
+     * 
+     * @throws IOException
+     */
     public void write()
         throws IOException
     {

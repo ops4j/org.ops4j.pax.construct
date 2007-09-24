@@ -75,6 +75,28 @@ limitations under the License.
     <url>http://issues.ops4j.org/jira/browse/PAXCONSTRUCT</url>
   </issueManagement>
 
+  <developers>
+    <developer>
+      <id>mcculls</id>
+      <name>Stuart McCulloch</name>
+      <email>stuart.mcculloch@jayway.net</email>
+      <organization>Jayway Malaysia Sdn Bhd</organization>
+      <roles>
+        <role>Developer</role>
+      </roles>
+      <timezone>UTC+8</timezone>
+    </developer>
+    <developer>
+      <id>adreghiciu</id>
+      <name>Alin Dreghiciu</name>
+      <email>adreghiciu@gmail.com</email>
+      <roles>
+        <role>Developer</role>
+      </roles>
+      <timezone>UTC+2</timezone>
+    </developer>
+  </developers>
+
   <repositories>
     <repository>
       <id>ops4j-repository</id>

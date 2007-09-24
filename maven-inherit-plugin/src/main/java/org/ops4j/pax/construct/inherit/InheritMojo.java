@@ -39,64 +39,108 @@ import com.thoughtworks.qdox.model.JavaClass;
 import com.thoughtworks.qdox.model.JavaSource;
 
 /**
+ * Support mojo inheritance by merging the local plugin metadata with metadata from dependent plugins.
+ * 
+ * Mojo inheritance is requested using a custom javadoc tag:
+ * 
+ * <code><pre>
+ *   ...
+ *   &#64;extendsPlugin archetype
+ *   &#64;goal create
+ *   ...
+ * </pre></code>
+ * 
+ * By default the current goal is taken as the goal to be extended. To extend a different goal use:
+ * 
+ * <code><pre>
+ *   ...
+ *   &#64;extendsPlugin archetype
+ *   &#64;extendsGoal create
+ *   &#64;goal create-project
+ *   ...
+ * </pre></code>
+ * 
  * @goal inherit
  * @phase compile
  * @requiresDependencyResolution compile
  */
 public class InheritMojo extends AbstractMojo
 {
+    /**
+     * classic mojo tag
+     */
     static final String GOAL = "goal";
 
+    /**
+     * new inheritance mojo tag
+     */
     static final String EXTENDS_PLUGIN = "extendsPlugin";
+
+    /**
+     * new inheritance mojo tag
+     */
     static final String EXTENDS_GOAL = "extendsGoal";
 
     /**
+     * local plugin project
+     * 
      * @parameter expression="${project}"
      */
     private MavenProject m_project;
 
     /**
+     * output directory for the plugin project
+     * 
      * @parameter expression="${project.build.outputDirectory}"
      */
     private File m_outputDirectory;
 
     /**
+     * support for accessing archives
+     * 
      * @component role="org.codehaus.plexus.archiver.manager.ArchiverManager"
      */
     private ArchiverManager m_archiverManager;
 
+    /**
+     * Maven plugin entry-point
+     */
     public void execute()
         throws MojoExecutionException
     {
+        // pre-load available plugin metadata - local and dependencies
         PluginXml targetPlugin = loadPluginMetadata( m_outputDirectory );
-
         Map dependentPluginsByName = loadDependentPluginMetaData();
 
+        // select maven source directories
         JavaDocBuilder builder = new JavaDocBuilder();
         for( Iterator i = m_project.getCompileSourceRoots().iterator(); i.hasNext(); )
         {
             builder.addSourceTree( new File( (String) i.next() ) );
         }
 
+        // scan local source for javadoc tags
         JavaSource[] javaSources = builder.getSources();
         for( int i = 0; i < javaSources.length; i++ )
         {
             JavaClass mojoClass = javaSources[i].getClasses()[0];
 
+            // need plugin inheritance
             DocletTag extendsTag = mojoClass.getTagByName( EXTENDS_PLUGIN );
             if( null != extendsTag )
             {
                 String pluginName = extendsTag.getValue();
                 getLog().info( "Extending " + pluginName + " plugin" );
 
-                PluginXml basePlugin = (PluginXml) dependentPluginsByName.get( pluginName );
-                if( null == basePlugin )
+                // lookup using simple plugin name (ie. compiler, archetype, etc.)
+                PluginXml superPlugin = (PluginXml) dependentPluginsByName.get( pluginName );
+                if( null == superPlugin )
                 {
                     getLog().warn( pluginName + " plugin is not a dependency" );
                 }
                 else
                 {
-                    mergePluginMojo( mojoClass, targetPlugin, basePlugin );
+                    mergePluginMojo( mojoClass, targetPlugin, superPlugin );
                 }
             }
         }
@@ -111,10 +155,17 @@ public class InheritMojo extends AbstractMojo
         }
     }
 
-    PluginXml loadPluginMetadata( File pluginRoot )
+    /**
+     * Loads plugin metadata for the given plugin location
+     * 
+     * @param pluginDir root directory for the compiled plugin
+     * @return plugin metadata
+     * @throws MojoExecutionException
+     */
+    PluginXml loadPluginMetadata( File pluginDir )
         throws MojoExecutionException
     {
-        File metadata = new File( pluginRoot, "META-INF/maven/plugin.xml" );
+        File metadata = new File( pluginDir, "META-INF/maven/plugin.xml" );
 
         try
         {
@@ -130,10 +181,16 @@ public class InheritMojo extends AbstractMojo
         }
     }
 
+    /**
+     * Loads plugin metadata for all plugins found in this project's dependencies
+     * 
+     * @return mapping from simple plugin name to plugin metadata
+     * @throws MojoExecutionException
+     */
     Map loadDependentPluginMetaData()
         throws MojoExecutionException
     {
-        String buildArea = m_project.getBuild().getDirectory();
+        File buildArea = new File( m_project.getBuild().getDirectory(), "plugins" );
 
         Map pluginsByName = new HashMap();
         for( Iterator i = m_project.getDependencyArtifacts().iterator(); i.hasNext(); )
@@ -144,16 +201,23 @@ public class InheritMojo extends AbstractMojo
                 File unpackDir = new File( buildArea, artifact.getArtifactId() );
                 unpackPlugin( artifact, unpackDir );
 
+                // extract simple plugin name by applying the standard maven naming rules in reverse
                 String name = artifact.getArtifactId().replaceAll( "(?:maven-)?(\\w+)(?:-maven)?-plugin", "$1" );
 
-                PluginXml dependentPlugin = loadPluginMetadata( unpackDir );
-                pluginsByName.put( name, dependentPlugin );
+                pluginsByName.put( name, loadPluginMetadata( unpackDir ) );
             }
         }
 
         return pluginsByName;
     }
 
+    /**
+     * Unpacks a maven plugin artifact to the given directory
+     * 
+     * @param artifact maven plugin
+     * @param unpackDir directory to unpack to
+     * @throws MojoExecutionException
+     */
     void unpackPlugin( Artifact artifact, File unpackDir )
         throws MojoExecutionException
     {
@@ -181,7 +245,14 @@ public class InheritMojo extends AbstractMojo
         }
     }
 
-    void mergePluginMojo( JavaClass mojoClass, PluginXml targetPlugin, PluginXml basePlugin )
+    /**
+     * Inherits a mojo descriptor from a dependent plugin and merge it with the local plugin metadata
+     * 
+     * @param mojoClass local mojo code requiring inheritance
+     * @param targetPlugin local plugin metadata
+     * @param superPlugin plugin metadata being extended
+     */
+    void mergePluginMojo( JavaClass mojoClass, PluginXml targetPlugin, PluginXml superPlugin )
     {
         DocletTag goalTag = mojoClass.getTagByName( GOAL );
         if( null == goalTag )
@@ -189,20 +260,20 @@ public class InheritMojo extends AbstractMojo
             return;
         }
 
-        DocletTag baseGoalTag = mojoClass.getTagByName( EXTENDS_GOAL );
-        if( null == baseGoalTag )
+        DocletTag superGoalTag = mojoClass.getTagByName( EXTENDS_GOAL );
+        if( null == superGoalTag )
         {
-            baseGoalTag = goalTag;
+            superGoalTag = goalTag;
         }
 
         String goal = goalTag.getValue();
-        String baseGoal = baseGoalTag.getValue();
+        String superGoal = superGoalTag.getValue();
 
-        getLog().info( baseGoal + " => " + goal );
+        getLog().info( superGoal + " => " + goal );
 
         Xpp3Dom targetMojoXml = targetPlugin.findMojo( goal );
-        Xpp3Dom baseMojoXml = basePlugin.findMojo( baseGoal );
+        Xpp3Dom superMojoXml = superPlugin.findMojo( superGoal );
 
-        PluginXml.mergeMojo( targetMojoXml, baseMojoXml );
+        PluginXml.mergeMojo( targetMojoXml, superMojoXml );
     }
 }

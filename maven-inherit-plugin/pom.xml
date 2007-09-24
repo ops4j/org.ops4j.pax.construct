@@ -12,6 +12,10 @@
 
   <name>OPS4J - Support Maven Mojo inheritance</name>
 
+  <description>
+    A simple plugin to help extend non-local mojos where the source is not available
+  </description>
+
   <packaging>maven-plugin</packaging>
 
   <build>

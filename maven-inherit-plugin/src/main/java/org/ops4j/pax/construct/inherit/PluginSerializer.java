@@ -22,14 +22,25 @@ import org.codehaus.plexus.util.xml.Xpp3Dom;
 import org.codehaus.plexus.util.xml.pull.MXSerializer;
 import org.codehaus.plexus.util.xml.pull.XmlSerializer;
 
+/**
+ * Customized XML serializer for plugin metadata
+ */
 public class PluginSerializer extends MXSerializer
 {
+    /**
+     * Configures basic formatting rules
+     */
     public PluginSerializer()
     {
         setProperty( PROPERTY_SERIALIZER_INDENTATION, "  " );
         setProperty( PROPERTY_SERIALIZER_LINE_SEPARATOR, System.getProperty( "line.separator" ) );
     }
 
+    /**
+     * Overrides method to hide internal attributes used in processing plugin metadata
+     * 
+     * {@inheritDoc}
+     */
     public XmlSerializer attribute( String namespace, String name, String value )
         throws IOException
     {

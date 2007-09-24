@@ -9,7 +9,7 @@
 
   <body>
     <links>
-      <item name="Pax" href="http://www.ops4j.org/pax/" />
+      <item name="Pax" href="http://wiki.ops4j.org/confluence/display/ops4j/Pax"/>
       <item name="Maven 2" href="http://maven.apache.org/"/>
     </links>
 
@@ -17,11 +17,6 @@
       <item name="Introduction" href="index.html"/>
       <item name="Goals" href="plugin-info.html"/>
       <item name="Usage" href="usage.html"/>
-      <item name="FAQ" href="faq.html"/>
-    </menu>
-
-    <menu name="Examples">
-      <item name="TODO" href="examples/example-one.html"/>
     </menu>
 
     <menu ref="reports"/>

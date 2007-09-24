@@ -115,7 +115,11 @@
       <property name="separated" value="true"/>
       <property name="caseSensitive" value="true"/>
     </module>
-    <module name="JavadocMethod"/>
+    <module name="JavadocMethod">
+      <!-- for some reason check-style reports @throws as missing -->
+      <!-- when it's there in the javadoc, so turn off this check -->
+      <property name="allowMissingThrowsTags" value="true"/>
+    </module>
     <module name="JavadocType"/>
     <module name="JavadocVariable">
       <property name="scope" value="package"/>
