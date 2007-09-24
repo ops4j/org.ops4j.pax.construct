@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<project name="Pax Construct">
+
+  <bannerRight>
+    <name>OPS4J</name>
+    <src>images/logo.png</src>
+    <href>http://www.ops4j.org/</href>
+  </bannerRight>
+
+  <body>
+    <links>
+      <item name="Pax" href="http://wiki.ops4j.org/confluence/display/ops4j/Pax"/>
+      <item name="OSGi" href="http://www.osgi.org/"/>
+      <item name="Maven 2" href="http://maven.apache.org/"/>
+    </links>
+
+    <menu name="Overview">
+      <item name="Introduction" href="index.html"/>
+      <item name="FAQ" href="faq.html"/>
+    </menu>
+
+    <menu name="Tools">
+      <item name="maven-pax-plugin" href="maven-pax-plugin/index.html"/>
+      <item name="maven-inherit-plugin" href="maven-inherit-plugin/index.html"/>
+    </menu>
+
+  </body>
+</project>
