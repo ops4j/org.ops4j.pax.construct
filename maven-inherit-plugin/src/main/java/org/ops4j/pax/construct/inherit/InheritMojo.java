@@ -196,7 +196,7 @@ public class InheritMojo extends AbstractMojo
         for( Iterator i = m_project.getDependencyArtifacts().iterator(); i.hasNext(); )
         {
             Artifact artifact = (Artifact) i.next();
-            if( "maven-plugin".equals( artifact.getType() ) )
+            if( "maven-plugin".equals( artifact.getType() ) && artifact.getFile() != null )
             {
                 File unpackDir = new File( buildArea, artifact.getArtifactId() );
                 unpackPlugin( artifact, unpackDir );

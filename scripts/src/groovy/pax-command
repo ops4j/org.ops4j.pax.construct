@@ -7,7 +7,7 @@ then
   PAX_CONSTRUCT_VERSION=${version}
 fi
 
-PAX_PLUGIN=org.ops4j.pax.construct.ng:maven-pax-plugin:\${PAX_CONSTRUCT_VERSION}
+PAX_PLUGIN=org.ops4j:maven-pax-plugin:\${PAX_CONSTRUCT_VERSION}
 <%
   options.order.each {
 %>

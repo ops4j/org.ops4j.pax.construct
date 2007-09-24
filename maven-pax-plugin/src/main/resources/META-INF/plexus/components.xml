@@ -29,9 +29,9 @@
             <!-- START SNIPPET: bundle-lifecycle -->
             <phases>
               <process-resources>org.apache.maven.plugins:maven-resources-plugin:resources</process-resources>
-              <compile>org.ops4j.pax.construct.ng:maven-pax-plugin:compile</compile>
+              <compile>org.ops4j:maven-pax-plugin:compile</compile>
               <process-test-resources>org.apache.maven.plugins:maven-resources-plugin:testResources</process-test-resources>
-              <test-compile>org.ops4j.pax.construct.ng:maven-pax-plugin:testCompile</test-compile>
+              <test-compile>org.ops4j:maven-pax-plugin:testCompile</test-compile>
               <test>org.apache.maven.plugins:maven-surefire-plugin:test</test>
               <package>org.apache.felix:maven-bundle-plugin:bundle</package>
               <install>org.apache.maven.plugins:maven-install-plugin:install</install>

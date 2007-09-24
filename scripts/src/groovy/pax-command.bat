@@ -4,7 +4,7 @@ set _SCRIPTS_=%~dp0
 call "%_SCRIPTS_%\\pax-validate"
 
 if ""=="%PAX_CONSTRUCT_VERSION%" set PAX_CONSTRUCT_VERSION=${version}
-set PAX_PLUGIN=org.ops4j.pax.construct.ng:maven-pax-plugin:%PAX_CONSTRUCT_VERSION%
+set PAX_PLUGIN=org.ops4j:maven-pax-plugin:%PAX_CONSTRUCT_VERSION%
 
 set _BATFILE_=%0<%
   options.order.each {
