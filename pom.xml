@@ -26,8 +26,8 @@ limitations under the License.
   </licenses>
 
   <parent>
-    <groupId>org.ops4j</groupId>
-    <artifactId>pax</artifactId>
+    <groupId>org.ops4j.pax</groupId>
+    <artifactId>project</artifactId>
     <version>1.9</version>
   </parent>
 
