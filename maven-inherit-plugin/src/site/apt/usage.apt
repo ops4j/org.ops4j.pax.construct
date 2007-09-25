@@ -25,6 +25,29 @@
 
 Maven 2 Inherit Plugin: Usage
 
+* Adding the Inherit Plugin to your build
+
+  Assuming you build from the latest code in subversion, all you need to add is:
+
++---+
+  <build>
+    <plugins>
+      <plugin>
+        <groupId>org.ops4j</groupId>
+        <artifactId>maven-inherit-plugin</artifactId>
+        <version>0.2.0-SNAPSHOT</version>
+        <executions>
+          <execution>
+            <goals>
+              <goal>inherit</goal>
+            </goals>
+          </execution>
+        </executions>
+      </plugin>
+    </plugins>
+  </build>
++---+
+
 * Extending a goal from an existing plugin
 
 +---+
