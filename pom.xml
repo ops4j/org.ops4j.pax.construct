@@ -99,20 +99,20 @@ limitations under the License.
 
   <repositories>
     <repository>
-      <id>ops4j-repository</id>
-      <name>The OPS4J Repository</name>
+      <id>standard</id>
+      <name>The OPS4J Standard Repository</name>
       <url>http://repository.ops4j.org/maven2/</url>
       <snapshots>
         <enabled>false</enabled>
       </snapshots>
     </repository>
     <repository>
-      <id>central</id>
-      <name>Maven Repository Switchboard</name>
-      <url>http://repo1.maven.org/maven2</url>
-      <snapshots>
+      <id>snapshots</id>
+      <name>The OPS4J Snapshot Repository</name>
+      <url>http://repository.ops4j.org/mvn-snapshots/</url>
+      <releases>
         <enabled>false</enabled>
-      </snapshots>
+      </releases>
     </repository>
   </repositories>
 
