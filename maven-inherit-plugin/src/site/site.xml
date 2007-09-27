@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="ISO-8859-1"?>
 <project name="maven-inherit-plugin">
 
-  <bannerRight>
+  <bannerLeft>
     <name>OPS4J</name>
-    <src>images/logo.png</src>
+    <src>http://www.ops4j.org/images/logo.png</src>
     <href>http://www.ops4j.org/</href>
-  </bannerRight>
+  </bannerLeft>
 
   <body>
     <links>
