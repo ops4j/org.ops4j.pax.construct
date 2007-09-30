@@ -37,10 +37,10 @@
               <source>
                 println 'Generate scripts'
                 println '================'
-                new File( "${pom.build.directory}/bin" ).mkdirs()
+                new File( pom.build.directory, "bin" ).mkdirs()
 
                 engine = new groovy.text.SimpleTemplateEngine()
-                new File( "${basedir}/src/commands" ).eachFileMatch( ~/[^.]+/ )
+                new File( pom.basedir, "src/commands" ).eachFileMatch( ~/[^.]+/ )
                 {
                   print "${it.name}\t"
                   options = new ConfigSlurper().parse( it.toURL() )
@@ -58,13 +58,13 @@
                   properties.options = options
                   properties.mojo = "${it.name}"
 
-                  nix = new File( "${basedir}/src/groovy/pax-command" )
+                  nix = new File( pom.basedir, "src/groovy/pax-command" )
                   template = engine.createTemplate( nix ).make( properties )
-                  new File( "${pom.build.directory}/bin/pax-${it.name}" ).write( template.toString() )
+                  new File( pom.build.directory, "bin/pax-${it.name}" ).write( template.toString() )
 
-                  bat = new File( "${basedir}/src/groovy/pax-command.bat" )
+                  bat = new File( pom.basedir, "src/groovy/pax-command.bat" )
                   template = engine.createTemplate( bat ).make( properties )
-                  new File( "${pom.build.directory}/bin/pax-${it.name}.bat" ).write( template.toString() )
+                  new File( pom.build.directory, "bin/pax-${it.name}.bat" ).write( template.toString() )
                 }
               </source>
             </configuration>

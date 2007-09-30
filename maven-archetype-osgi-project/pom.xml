@@ -31,15 +31,15 @@
 
                 pomPath = 'archetype-resources/pom.xml'
 
-                pomFile = new File( "${basedir}/src/main/resources/${pomPath}" )
+                pomFile = new File( pom.basedir, "src/main/resources/${pomPath}" )
                 template = engine.createTemplate( pomFile ).make( filter )
-                new File( "${pom.build.outputDirectory}/${pomPath}" ).write( template.toString() )
+                new File( pom.build.outputDirectory, pomPath ).write( template.toString() )
 
                 pomPath = 'archetype-resources/poms/pom.xml'
 
-                pomFile = new File( "${basedir}/src/main/resources/${pomPath}" )
+                pomFile = new File( pom.basedir, "src/main/resources/${pomPath}" )
                 template = engine.createTemplate( pomFile ).make( filter )
-                new File( "${pom.build.outputDirectory}/${pomPath}" ).write( template.toString() )
+                new File( pom.build.outputDirectory, pomPath ).write( template.toString() )
               </source>
             </configuration>
           </execution>
