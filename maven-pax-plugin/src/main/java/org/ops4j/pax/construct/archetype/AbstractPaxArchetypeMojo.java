@@ -19,7 +19,6 @@ package org.ops4j.pax.construct.archetype;
 import java.io.File;
 import java.io.IOException;
 
-import org.apache.maven.archetype.FileUtils;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.archetype.MavenArchetypeMojo;
 import org.apache.maven.project.MavenProject;
@@ -102,7 +101,15 @@ public abstract class AbstractPaxArchetypeMojo extends MavenArchetypeMojo
         m_mojo.setField( "remoteRepositories", remoteRepositories );
         m_mojo.setField( "project", project );
 
-        targetDirectory = FileUtils.resolveFile( targetDirectory, "" );
+        try
+        {
+            targetDirectory = targetDirectory.getCanonicalFile();
+        }
+        catch( IOException e )
+        {
+            // ignore for now
+        }
+
         m_mojo.setField( "basedir", targetDirectory.getPath() );
 
         // these must be set by the various archetype sub-classes
