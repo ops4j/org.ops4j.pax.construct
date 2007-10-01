@@ -114,7 +114,7 @@ public abstract class AbstractPaxArchetypeMojo extends MavenArchetypeMojo
         }
         catch( IOException e )
         {
-            // ignore for now
+            getLog().warn( "Problem getting absolute path for " + targetDirectory, e );
         }
 
         m_mojo.setField( "basedir", targetDirectory.getPath() );

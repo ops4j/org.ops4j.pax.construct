@@ -46,7 +46,7 @@ public class CacheUtils
         }
         catch( IOException e )
         {
-            // ignore, this is a non-critical cache
+            mojo.getLog().debug( "Unable to read file " + file );
         }
     }
 
@@ -74,7 +74,7 @@ public class CacheUtils
             }
             catch( IOException e )
             {
-                // ignore, this is a non-critical cache
+                mojo.getLog().debug( "Unable to write file " + file );
             }
         }
     }

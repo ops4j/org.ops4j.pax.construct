@@ -17,6 +17,8 @@ package org.ops4j.pax.construct.util;
  */
 
 import java.io.IOException;
+import java.util.Arrays;
+import java.util.List;
 
 import org.codehaus.plexus.util.xml.Xpp3Dom;
 import org.codehaus.plexus.util.xml.pull.MXParser;
@@ -158,12 +160,14 @@ public class RoundTripXml
             {
                 super.endTag( namespace, name );
 
-                if( !("modelVersion".equals( name ) || "groupId".equals( name ) || "artifactId".equals( name )) )
+                List stickyTags = Arrays.asList( new String[]
                 {
-                    if( getDepth() <= 1 )
-                    {
-                        out.write( lineSeparator );
-                    }
+                    "modelVersion", "groupId", "artifactId"
+                } );
+
+                if( getDepth() <= 1 && !stickyTags.contains( name ) )
+                {
+                    out.write( lineSeparator );
                 }
             }
 

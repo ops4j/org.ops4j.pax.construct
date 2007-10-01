@@ -204,12 +204,9 @@ public class ImportBundleMojo extends AbstractMojo
                     id = getCandidateId( artifact );
                     String scope = artifact.getScope();
 
-                    if( widenScope )
+                    if( widenScope && !Artifact.SCOPE_SYSTEM.equals( scope ) && !Artifact.SCOPE_TEST.equals( scope ) )
                     {
-                        if( !Artifact.SCOPE_SYSTEM.equals( scope ) && !Artifact.SCOPE_TEST.equals( scope ) )
-                        {
-                            scope = Artifact.SCOPE_PROVIDED;
-                        }
+                        scope = Artifact.SCOPE_PROVIDED;
                     }
 
                     if( m_visitedIds.add( id ) && !artifact.isOptional() && Artifact.SCOPE_PROVIDED.equals( scope ) )

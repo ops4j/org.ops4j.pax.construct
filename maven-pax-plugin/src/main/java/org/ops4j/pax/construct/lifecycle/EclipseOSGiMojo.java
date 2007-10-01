@@ -34,6 +34,8 @@ import java.util.jar.Manifest;
 import java.util.regex.Pattern;
 
 import org.apache.maven.artifact.Artifact;
+import org.apache.maven.artifact.resolver.ArtifactNotFoundException;
+import org.apache.maven.artifact.resolver.ArtifactResolutionException;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.eclipse.EclipsePlugin;
 import org.apache.maven.plugin.eclipse.writers.EclipseClasspathWriter;
@@ -399,20 +401,22 @@ public class EclipseOSGiMojo extends EclipsePlugin
             throw new MojoExecutionException( "ERROR creating Eclipse files", e );
         }
 
+        Artifact artifact = artifactFactory.createArtifactWithClassifier( executedProject.getGroupId(), executedProject
+            .getArtifactId(), executedProject.getVersion(), "java-source", "sources" );
+
         try
         {
             List remoteRepos = downloadSources ? remoteArtifactRepositories : Collections.EMPTY_LIST;
-
-            Artifact artifact = artifactFactory.createArtifactWithClassifier( executedProject.getGroupId(),
-                executedProject.getArtifactId(), executedProject.getVersion(), "java-source", "sources" );
-
             artifactResolver.resolve( artifact, remoteRepos, localRepository );
-
             attachImportedSource( artifact.getFile().getPath() );
         }
-        catch( Exception e )
+        catch( ArtifactNotFoundException e )
         {
-            // ignore missing sources
+            getLog().debug( "Unable to find source artifact " + artifact );
+        }
+        catch( ArtifactResolutionException e )
+        {
+            getLog().debug( "Unable to resolve source artifact " + artifact );
         }
     }
 
@@ -434,9 +438,13 @@ public class EclipseOSGiMojo extends EclipsePlugin
             Xpp3DomWriter.write( new PrettyPrintXMLWriter( writer ), classPathXML );
             IOUtil.close( writer );
         }
-        catch( Exception e )
+        catch( IOException e )
         {
-            // nice to have source, but ignore errors if we can't
+            getLog().warn( "Unable to find Eclipse .classpath file" );
+        }
+        catch( XmlPullParserException e )
+        {
+            getLog().warn( "Unable to parse Eclipse .classpath file" );
         }
     }
 }
