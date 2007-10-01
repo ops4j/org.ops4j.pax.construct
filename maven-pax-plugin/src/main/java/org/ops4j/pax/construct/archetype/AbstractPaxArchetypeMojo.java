@@ -103,7 +103,14 @@ public abstract class AbstractPaxArchetypeMojo extends MavenArchetypeMojo
 
         try
         {
-            targetDirectory = targetDirectory.getCanonicalFile();
+            if( targetDirectory != null )
+            {
+                targetDirectory = targetDirectory.getCanonicalFile();
+            }
+            else
+            {
+                targetDirectory = new File( "." ).getCanonicalFile();
+            }
         }
         catch( IOException e )
         {
