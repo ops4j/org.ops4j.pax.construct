@@ -229,6 +229,8 @@ public final class PomUtils
      * Factory method that provides an editor for a new Maven project file
      * 
      * @param here a file, or a directory for the Maven project
+     * @param groupId project group id
+     * @param artifactId project artifact id
      * @return simple Maven project editor
      */
     public static Pom createPom( File here, String groupId, String artifactId )
@@ -290,42 +292,57 @@ public final class PomUtils
         {
             return true;
         }
-        else if( !testMetadata )
+        else if( !testMetadata || !haveArtifactFile( artifact, resolver, remoteRepos, localRepo ) )
         {
             return false;
         }
+
+        Manifest manifest;
 
         try
         {
-            if( artifact.getFile() == null || !artifact.getFile().exists() )
-            {
-                resolver.resolve( artifact, remoteRepos, localRepo );
-            }
-
-            JarFile jarFile = new JarFile( artifact.getFile() );
-            Manifest manifest = jarFile.getManifest();
-
-            Attributes mainAttributes = manifest.getMainAttributes();
-
-            return mainAttributes.getValue( "Bundle-SymbolicName" ) != null
-                || mainAttributes.getValue( "Bundle-Name" ) != null;
-        }
-        catch( ArtifactResolutionException e )
-        {
-            return false;
-        }
-        catch( ArtifactNotFoundException e )
-        {
-            return false;
+            manifest = new JarFile( artifact.getFile() ).getManifest();
         }
         catch( IOException e )
         {
             return false;
         }
-        catch( NullPointerException e )
+
+        Attributes mainAttributes = manifest.getMainAttributes();
+
+        return mainAttributes.getValue( "Bundle-SymbolicName" ) != null
+            || mainAttributes.getValue( "Bundle-Name" ) != null;
+    }
+
+    /**
+     * Look for the artifact in local and remote Maven repositories
+     * 
+     * @param artifact Maven artifact
+     * @param resolver artifact resolver
+     * @param remoteRepos sequence of remote repositories
+     * @param localRepo local Maven repository
+     * @return true if the artifact is available, otherwise false
+     */
+    private static boolean haveArtifactFile( Artifact artifact, ArtifactResolver resolver, List remoteRepos,
+        ArtifactRepository localRepo )
+    {
+        if( artifact.getFile() == null || !artifact.getFile().exists() )
         {
-            return false;
+            try
+            {
+                resolver.resolve( artifact, remoteRepos, localRepo );
+            }
+            catch( ArtifactResolutionException e )
+            {
+                return false;
+            }
+            catch( ArtifactNotFoundException e )
+            {
+                return false;
+            }
         }
+
+        return true;
     }
 
     /**
