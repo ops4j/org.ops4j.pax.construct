@@ -34,16 +34,16 @@ public final class BndFileUtils
     }
 
     /**
-     * Thrown when a BND instruction can't be updated {@link BndFile.setInstruction}
+     * Thrown when a BND instruction can't be updated {@link BndFile}
      */
-    public static class ExistingInstruction extends MojoExecutionException
+    public static class ExistingInstructionException extends MojoExecutionException
     {
         private static final long serialVersionUID = 1L;
 
         /**
          * @param directive the directive that couldn't be updated
          */
-        public ExistingInstruction( String directive )
+        public ExistingInstructionException( String directive )
         {
             super( directive );
         }
@@ -63,10 +63,11 @@ public final class BndFileUtils
         /**
          * @param directive a BND directive
          * @param instruction a BND instruction
-         * @param overwrite overwrite existing instruction if true, otherwise throw {@link ExistingInstruction}
+         * @param overwrite overwrite existing instruction if true, otherwise throw {@link ExistingInstructionException}
+         * @throws ExistingInstructionException
          */
         public void setInstruction( String directive, String instruction, boolean overwrite )
-            throws ExistingInstruction;
+            throws ExistingInstructionException;
 
         /**
          * @param directive a BND directive
@@ -96,12 +97,14 @@ public final class BndFileUtils
      * 
      * @param here a BND file, or a directory containing a file named 'osgi.bnd'
      * @return simple BND file editor
+     * @throws IOException
      */
     public static BndFile readBndFile( File here )
+        throws IOException
     {
         File candidate = here;
 
-        if( candidate.isDirectory() )
+        if( here.isDirectory() )
         {
             candidate = new File( here, "osgi.bnd" );
         }

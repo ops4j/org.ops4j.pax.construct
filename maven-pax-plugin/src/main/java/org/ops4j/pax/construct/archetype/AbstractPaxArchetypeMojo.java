@@ -148,12 +148,19 @@ public abstract class AbstractPaxArchetypeMojo extends MavenArchetypeMojo
 
         if( attachPom )
         {
-            Pom modulesPom = DirUtils.createModuleTree( project.getBasedir(), targetDirectory );
-            if( null != modulesPom )
+            try
             {
-                pomDirectory.mkdirs();
-                modulesPom.addModule( artifactId, overwrite );
-                modulesPom.write();
+                Pom modulesPom = DirUtils.createModuleTree( project.getBasedir(), targetDirectory );
+                if( null != modulesPom )
+                {
+                    pomDirectory.mkdirs();
+                    modulesPom.addModule( artifactId, overwrite );
+                    modulesPom.write();
+                }
+            }
+            catch( IOException e )
+            {
+                getLog().warn( "Unable to attach POM to project" );
             }
         }
     }
@@ -174,20 +181,27 @@ public abstract class AbstractPaxArchetypeMojo extends MavenArchetypeMojo
             getLog().warn( "I/O error while cleaning temporary files", e );
         }
 
-        Pom parentPom = DirUtils.findPom( targetDirectory, getParentId() );
-        if( null != parentPom )
+        try
         {
-            Pom thisPom = PomUtils.readPom( m_pomFile );
-
-            String relativePath = null;
-            String[] pivot = DirUtils.calculateRelativePath( thisPom.getBasedir(), parentPom.getBasedir() );
-            if( null != pivot )
+            Pom parentPom = DirUtils.findPom( targetDirectory, getParentId() );
+            if( null != parentPom )
             {
-                relativePath = pivot[0] + pivot[2];
-            }
+                Pom thisPom = PomUtils.readPom( m_pomFile );
 
-            thisPom.setParent( parentPom, relativePath, overwrite );
-            thisPom.write();
+                String relativePath = null;
+                String[] pivot = DirUtils.calculateRelativePath( thisPom.getBasedir(), parentPom.getBasedir() );
+                if( null != pivot )
+                {
+                    relativePath = pivot[0] + pivot[2];
+                }
+
+                thisPom.setParent( parentPom, relativePath, overwrite );
+                thisPom.write();
+            }
+        }
+        catch( IOException e )
+        {
+            getLog().warn( "Unable to set parent POM: " + getParentId(), e );
         }
     }
 

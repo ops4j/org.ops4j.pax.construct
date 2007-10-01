@@ -110,7 +110,16 @@ public class OSGiBundleArchetypeMojo extends AbstractPaxArchetypeMojo
 
         if( addOSGiDependencies )
         {
-            Pom thisPom = PomUtils.readPom( m_pomFile );
+            Pom thisPom;
+
+            try
+            {
+                thisPom = PomUtils.readPom( m_pomFile );
+            }
+            catch( IOException e )
+            {
+                throw new MojoExecutionException( "Problem reading Maven POM: " + m_pomFile );
+            }
 
             Dependency osgiCore = new Dependency();
             osgiCore.setGroupId( "org.osgi" );
@@ -122,10 +131,26 @@ public class OSGiBundleArchetypeMojo extends AbstractPaxArchetypeMojo
             osgiCompendium.setArtifactId( "osgi_R4_compendium" );
             thisPom.addDependency( osgiCompendium, overwrite );
 
-            thisPom.write();
+            try
+            {
+                thisPom.write();
+            }
+            catch( IOException e )
+            {
+                throw new MojoExecutionException( "Problem writing Maven POM: " + thisPom.getFile() );
+            }
         }
 
-        BndFile bndFile = BndFileUtils.readBndFile( m_pomFile.getParentFile() );
+        BndFile bndFile;
+
+        try
+        {
+            bndFile = BndFileUtils.readBndFile( m_pomFile.getParentFile() );
+        }
+        catch( IOException e1 )
+        {
+            throw new MojoExecutionException( "Problem reading BND file: " + m_pomFile.getParentFile() + "/osgi.bnd" );
+        }
 
         if( provideInternals && !provideInterface )
         {

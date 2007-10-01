@@ -17,6 +17,7 @@ package org.ops4j.pax.construct.project;
  */
 
 import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -38,6 +39,7 @@ import org.apache.maven.project.MavenProjectBuilder;
 import org.ops4j.pax.construct.util.DirUtils;
 import org.ops4j.pax.construct.util.ExcludeFrameworkArtifactsFilter;
 import org.ops4j.pax.construct.util.PomUtils;
+import org.ops4j.pax.construct.util.PomUtils.ExistingElementException;
 import org.ops4j.pax.construct.util.PomUtils.Pom;
 
 /**
@@ -134,8 +136,21 @@ public class ImportBundleMojo extends AbstractMojo
     public void execute()
         throws MojoExecutionException
     {
-        m_provisionPom = DirUtils.findPom( targetDirectory, provisionId );
-        m_targetPom = PomUtils.readPom( targetDirectory );
+        try
+        {
+            m_provisionPom = DirUtils.findPom( targetDirectory, provisionId );
+        }
+        catch( IOException e )
+        {
+        }
+
+        try
+        {
+            m_targetPom = PomUtils.readPom( targetDirectory );
+        }
+        catch( IOException e )
+        {
+        }
 
         String rootId = groupId + ':' + artifactId + ':' + version;
 
@@ -228,6 +243,8 @@ public class ImportBundleMojo extends AbstractMojo
     }
 
     void importBundle( MavenProject project, boolean isLocalPom )
+        throws ExistingElementException,
+        IOException
     {
         Dependency dependency = new Dependency();
 

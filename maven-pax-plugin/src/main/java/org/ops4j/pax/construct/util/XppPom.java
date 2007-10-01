@@ -19,6 +19,7 @@ package org.ops4j.pax.construct.util;
 import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -29,9 +30,10 @@ import org.apache.maven.project.MavenProject;
 import org.codehaus.plexus.util.xml.Xpp3Dom;
 import org.codehaus.plexus.util.xml.Xpp3DomBuilder;
 import org.codehaus.plexus.util.xml.pull.XmlPullParser;
+import org.codehaus.plexus.util.xml.pull.XmlPullParserException;
 import org.codehaus.plexus.util.xml.pull.XmlSerializer;
 import org.ops4j.pax.construct.util.PomUtils.Pom;
-import org.ops4j.pax.construct.util.PomUtils.PomException;
+import org.ops4j.pax.construct.util.PomUtils.ExistingElementException;
 
 public class XppPom
     implements Pom
@@ -40,6 +42,7 @@ public class XppPom
     Xpp3Dom m_pom;
 
     public XppPom( File pomFile )
+        throws IOException
     {
         m_file = pomFile.getAbsoluteFile();
 
@@ -49,9 +52,9 @@ public class XppPom
             parser.setInput( new FileReader( m_file ) );
             m_pom = Xpp3DomBuilder.build( parser, false );
         }
-        catch( Exception e )
+        catch( XmlPullParserException e )
         {
-            throw new PomException( "Unable to parse POM " + pomFile, e );
+            throw new IOException( e.getLocalizedMessage() );
         }
     }
 
@@ -202,6 +205,7 @@ public class XppPom
     }
 
     public void setParent( Pom pom, String relativePath, boolean overwrite )
+        throws ExistingElementException
     {
         MavenProject project = new MavenProject( new Model() );
 
@@ -213,10 +217,11 @@ public class XppPom
     }
 
     public void setParent( MavenProject project, String relativePath, boolean overwrite )
+        throws ExistingElementException
     {
         if( m_pom.getChild( "parent" ) != null && !overwrite )
         {
-            throw new PomException( "Entry already exists, use -Doverwrite to replace it" );
+            throw new ExistingElementException( "parent" );
         }
 
         Xpp3DomMap parent = new Xpp3DomMap( "parent" );
@@ -251,6 +256,7 @@ public class XppPom
     }
 
     public void addRepository( Repository repository, boolean overwrite )
+        throws ExistingElementException
     {
         String id = repository.getId();
         String url = repository.getUrl();
@@ -273,6 +279,7 @@ public class XppPom
     }
 
     public void addModule( String module, boolean overwrite )
+        throws ExistingElementException
     {
         String xpath = "modules/module[.='" + module + "']";
 
@@ -291,6 +298,7 @@ public class XppPom
     }
 
     public boolean removeModule( String module )
+        throws ExistingElementException
     {
         String xpath = "modules/module[.='" + module + "']";
 
@@ -298,6 +306,7 @@ public class XppPom
     }
 
     public void addDependency( Dependency dependency, boolean overwrite )
+        throws ExistingElementException
     {
         String groupId = dependency.getGroupId();
         String artifactId = dependency.getArtifactId();
@@ -333,6 +342,7 @@ public class XppPom
     }
 
     public boolean removeDependency( Dependency dependency )
+        throws ExistingElementException
     {
         String groupId = dependency.getGroupId();
         String artifactId = dependency.getArtifactId();
@@ -343,22 +353,16 @@ public class XppPom
     }
 
     public void write()
+        throws IOException
     {
-        try
-        {
-            FileWriter writer = new FileWriter( m_file );
+        FileWriter writer = new FileWriter( m_file );
 
-            XmlSerializer serializer = RoundTripXml.createSerializer();
+        XmlSerializer serializer = RoundTripXml.createSerializer();
 
-            serializer.setOutput( writer );
-            serializer.startDocument( writer.getEncoding(), null );
-            m_pom.writeToSerializer( null, serializer );
-            serializer.endDocument();
-        }
-        catch( Exception e )
-        {
-            throw new PomException( "Unable to serialize POM " + m_file, e );
-        }
+        serializer.setOutput( writer );
+        serializer.startDocument( writer.getEncoding(), null );
+        m_pom.writeToSerializer( null, serializer );
+        serializer.endDocument();
     }
 
     static class Xpp3DomMap extends Xpp3Dom
@@ -395,6 +399,7 @@ public class XppPom
     }
 
     boolean removeChildren( String xpath, boolean overwrite )
+        throws ExistingElementException
     {
         XppPathQuery pathQuery = new XppPathQuery( xpath );
         Xpp3Dom parent = pathQuery.queryParent( m_pom );
@@ -408,7 +413,7 @@ public class XppPom
 
         if( children.length > 0 && !overwrite )
         {
-            throw new PomException( "Entry already exists, use -Doverwrite to replace it" );
+            throw new ExistingElementException( parent.getChild( children[0] ).getName() );
         }
 
         for( int i = 0; i < children.length; i++ )

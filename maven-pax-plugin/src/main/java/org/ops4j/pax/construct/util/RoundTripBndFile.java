@@ -31,7 +31,7 @@ import java.util.List;
 import java.util.Properties;
 
 import org.ops4j.pax.construct.util.BndFileUtils.BndFile;
-import org.ops4j.pax.construct.util.BndFileUtils.ExistingInstruction;
+import org.ops4j.pax.construct.util.BndFileUtils.ExistingInstructionException;
 
 public class RoundTripBndFile
     implements BndFile
@@ -42,22 +42,16 @@ public class RoundTripBndFile
     Properties m_oldInstructions;
 
     public RoundTripBndFile( File bndFile )
+        throws IOException
     {
         m_file = bndFile.getAbsoluteFile();
 
         m_oldInstructions = new Properties();
         m_newInstructions = new Properties();
 
-        try
-        {
-            InputStream bndStream = new FileInputStream( m_file );
-            m_oldInstructions.load( bndStream );
-            bndStream.close();
-        }
-        catch( Exception e )
-        {
-            // no file means empty instructions
-        }
+        InputStream bndStream = new FileInputStream( m_file );
+        m_oldInstructions.load( bndStream );
+        bndStream.close();
 
         m_newInstructions.putAll( m_oldInstructions );
     }
@@ -68,7 +62,7 @@ public class RoundTripBndFile
     }
 
     public void setInstruction( String name, String value, boolean overwrite )
-        throws ExistingInstruction
+        throws ExistingInstructionException
     {
         if( overwrite || !m_newInstructions.containsKey( name ) )
         {
@@ -76,7 +70,7 @@ public class RoundTripBndFile
         }
         else
         {
-            throw new ExistingInstruction( name );
+            throw new ExistingInstructionException( name );
         }
     }
 

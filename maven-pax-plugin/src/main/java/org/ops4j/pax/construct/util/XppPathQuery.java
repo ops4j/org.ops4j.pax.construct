@@ -26,7 +26,6 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.codehaus.plexus.util.xml.Xpp3Dom;
-import org.ops4j.pax.construct.util.PomUtils.PomException;
 
 public class XppPathQuery
 {
@@ -45,12 +44,12 @@ public class XppPathQuery
     final Matcher m_xpathParser;
 
     public XppPathQuery( String xpath )
-        throws PomException
+        throws IllegalArgumentException
     {
         m_xpathParser = Pattern.compile( XPATH ).matcher( xpath );
         if( !m_xpathParser.matches() )
         {
-            throw new PomException( "Unsupported XPATH syntax: " + xpath );
+            throw new IllegalArgumentException( "Unsupported XPATH syntax: " + xpath );
         }
     }
 

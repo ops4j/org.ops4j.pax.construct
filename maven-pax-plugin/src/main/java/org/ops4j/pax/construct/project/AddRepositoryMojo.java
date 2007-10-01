@@ -17,6 +17,7 @@ package org.ops4j.pax.construct.project;
  */
 
 import java.io.File;
+import java.io.IOException;
 
 import org.apache.maven.model.Repository;
 import org.apache.maven.plugin.AbstractMojo;
@@ -55,7 +56,16 @@ public class AddRepositoryMojo extends AbstractMojo
     public void execute()
         throws MojoExecutionException
     {
-        Pom pom = PomUtils.readPom( targetDirectory );
+        Pom pom;
+
+        try
+        {
+            pom = PomUtils.readPom( targetDirectory );
+        }
+        catch( IOException e )
+        {
+            throw new MojoExecutionException( "Problem reading Maven POM: " + targetDirectory );
+        }
 
         Repository repository = new Repository();
         repository.setId( repositoryId );
@@ -65,6 +75,13 @@ public class AddRepositoryMojo extends AbstractMojo
 
         pom.addRepository( repository, overwrite );
 
-        pom.write();
+        try
+        {
+            pom.write();
+        }
+        catch( IOException e )
+        {
+            throw new MojoExecutionException( "Problem writing Maven POM: " + pom.getFile() );
+        }
     }
 }

@@ -75,7 +75,16 @@ public class EmbedJarMojo extends AbstractMojo
     public void execute()
         throws MojoExecutionException
     {
-        Pom pom = PomUtils.readPom( targetDirectory );
+        Pom pom;
+        try
+        {
+            pom = PomUtils.readPom( targetDirectory );
+        }
+        catch( IOException e )
+        {
+            throw new MojoExecutionException( "Problem reading Maven POM: " + targetDirectory );
+        }
+
         if( !pom.isBundleProject() )
         {
             getLog().warn( "Cannot embed jar inside non-bundle project" );
@@ -96,9 +105,26 @@ public class EmbedJarMojo extends AbstractMojo
         getLog().info( "Embedding " + id + " in " + pom.getId() );
 
         pom.addDependency( dependency, overwrite );
-        pom.write();
 
-        BndFile bndFile = BndFileUtils.readBndFile( targetDirectory );
+        try
+        {
+            pom.write();
+        }
+        catch( IOException e1 )
+        {
+            throw new MojoExecutionException( "Problem writing Maven POM: " + pom.getFile() );
+        }
+
+        BndFile bndFile;
+
+        try
+        {
+            bndFile = BndFileUtils.readBndFile( targetDirectory );
+        }
+        catch( IOException e )
+        {
+            throw new MojoExecutionException( "Problem reading BND file: " + targetDirectory + "/osgi.bnd" );
+        }
 
         final String embedKey = artifactId + ";groupId=" + groupId;
         final String embedClause = embedKey + ";inline=" + unpack;

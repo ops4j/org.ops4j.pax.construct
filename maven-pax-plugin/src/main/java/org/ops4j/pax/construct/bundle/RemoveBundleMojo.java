@@ -17,6 +17,7 @@ package org.ops4j.pax.construct.bundle;
  */
 
 import java.io.File;
+import java.io.IOException;
 
 import org.apache.maven.model.Dependency;
 import org.apache.maven.plugin.AbstractMojo;
@@ -57,9 +58,16 @@ public class RemoveBundleMojo extends AbstractMojo
             {
                 bundlePom = PomUtils.readPom( bundlePath );
             }
-            catch( Exception e )
+            catch( IOException e )
             {
-                bundlePom = DirUtils.findPom( project.getBasedir(), bundlePath.getName() );
+                try
+                {
+                    bundlePom = DirUtils.findPom( project.getBasedir(), bundlePath.getName() );
+                }
+                catch( IOException e2 )
+                {
+                    bundlePom = null;
+                }
             }
 
             if( null == bundlePom )
@@ -79,7 +87,16 @@ public class RemoveBundleMojo extends AbstractMojo
         {
             boolean needsUpdate = false;
 
-            Pom pom = PomUtils.readPom( project.getFile() );
+            Pom pom;
+
+            try
+            {
+                pom = PomUtils.readPom( project.getFile() );
+            }
+            catch( IOException e )
+            {
+                throw new MojoExecutionException( "Problem reading Maven POM: " + project.getFile() );
+            }
 
             Dependency dependency = new Dependency();
             dependency.setGroupId( bundlePom.getGroupId() );
@@ -92,7 +109,14 @@ public class RemoveBundleMojo extends AbstractMojo
             {
                 getLog().info( "Removing " + bundlePom.getId() + " from " + pom.getId() );
 
-                pom.write();
+                try
+                {
+                    pom.write();
+                }
+                catch( IOException e )
+                {
+                    throw new MojoExecutionException( "Problem writing Maven POM: " + pom.getFile() );
+                }
             }
         }
         else

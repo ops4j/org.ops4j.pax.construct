@@ -17,6 +17,7 @@ package org.ops4j.pax.construct.bundle;
  */
 
 import java.io.File;
+import java.io.IOException;
 
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
@@ -58,9 +59,16 @@ public class MoveBundleMojo extends AbstractMojo
         {
             bundlePom = PomUtils.readPom( bundlePath );
         }
-        catch( Exception e )
+        catch( IOException e )
         {
-            bundlePom = DirUtils.findPom( project.getBasedir(), bundlePath.getName() );
+            try
+            {
+                bundlePom = DirUtils.findPom( project.getBasedir(), bundlePath.getName() );
+            }
+            catch( IOException e1 )
+            {
+                bundlePom = null;
+            }
         }
 
         if( null == bundlePom )
@@ -68,7 +76,17 @@ public class MoveBundleMojo extends AbstractMojo
             throw new MojoExecutionException( "Cannot find bundle " + bundleName );
         }
 
-        Pom newModulesPom = DirUtils.createModuleTree( project.getBasedir(), targetDirectory );
+        Pom newModulesPom;
+
+        try
+        {
+            newModulesPom = DirUtils.createModuleTree( project.getBasedir(), targetDirectory );
+        }
+        catch( IOException e )
+        {
+            newModulesPom = null;
+        }
+
         if( null == newModulesPom )
         {
             throw new MojoExecutionException( "targetDirectory is outside of this project" );
@@ -106,18 +124,32 @@ public class MoveBundleMojo extends AbstractMojo
 
             if( relativeOffset != 0 )
             {
-                Pom pom = PomUtils.readPom( newBundleFolder );
-                pom.adjustRelativePath( relativeOffset );
-                pom.write();
+                try
+                {
+                    Pom pom = PomUtils.readPom( newBundleFolder );
+                    pom.adjustRelativePath( relativeOffset );
+                    pom.write();
+                }
+                catch( IOException e )
+                {
+                    throw new MojoExecutionException( "Problem updating relative path: " + pivot[0] + pivot[2] );
+                }
             }
         }
 
-        Pom modulesPom = PomUtils.readPom( modulesFolder );
+        try
+        {
+            Pom modulesPom = PomUtils.readPom( modulesFolder );
 
-        modulesPom.removeModule( moduleName );
-        modulesPom.write();
+            modulesPom.removeModule( moduleName );
+            modulesPom.write();
 
-        newModulesPom.addModule( moduleName, true );
-        newModulesPom.write();
+            newModulesPom.addModule( moduleName, true );
+            newModulesPom.write();
+        }
+        catch( IOException e )
+        {
+            throw new MojoExecutionException( "Problem refactoring: " + modulesFolder + " => " + newModulesFolder );
+        }
     }
 }

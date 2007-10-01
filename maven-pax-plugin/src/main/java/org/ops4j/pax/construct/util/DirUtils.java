@@ -17,6 +17,7 @@ package org.ops4j.pax.construct.util;
  */
 
 import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -30,6 +31,7 @@ import java.util.jar.Manifest;
 
 import org.codehaus.plexus.archiver.UnArchiver;
 import org.codehaus.plexus.archiver.manager.ArchiverManager;
+import org.ops4j.pax.construct.util.PomUtils.ExistingElementException;
 import org.ops4j.pax.construct.util.PomUtils.Pom;
 
 public final class DirUtils
@@ -42,6 +44,7 @@ public final class DirUtils
     }
 
     public static Pom findPom( File baseDir, String pomId )
+        throws IOException
     {
         if( null == pomId || pomId.length() == 0 )
         {
@@ -88,6 +91,7 @@ public final class DirUtils
     }
 
     public static Pom createModuleTree( File baseDir, File targetDir )
+        throws IOException
     {
         File pomFile = new File( targetDir, "pom.xml" );
         if( pomFile.exists() )
@@ -117,16 +121,23 @@ public final class DirUtils
             }
             else
             {
-                String module = descentPath.substring( i, j );
+                try
+                {
+                    String module = descentPath.substring( i, j );
 
-                parentPom.addModule( module, true );
-                parentPom.write();
+                    parentPom.addModule( module, true );
+                    parentPom.write();
 
-                String groupId = PomUtils.getCompoundName( parentPom.getGroupId(), parentPom.getArtifactId() );
+                    String groupId = PomUtils.getCompoundName( parentPom.getGroupId(), parentPom.getArtifactId() );
 
-                childPom = PomUtils.createPom( pomFile, groupId, module );
-                childPom.setParent( parentPom, null, true );
-                childPom.write();
+                    childPom = PomUtils.createPom( pomFile, groupId, module );
+                    childPom.setParent( parentPom, null, true );
+                    childPom.write();
+                }
+                catch( ExistingElementException e )
+                {
+                    // this shouldn't happen
+                }
             }
 
             parentPom = childPom;
