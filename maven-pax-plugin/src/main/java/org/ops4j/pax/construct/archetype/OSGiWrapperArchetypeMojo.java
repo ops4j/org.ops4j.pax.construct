@@ -16,6 +16,7 @@ package org.ops4j.pax.construct.archetype;
  * limitations under the License.
  */
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -210,7 +211,14 @@ public class OSGiWrapperArchetypeMojo extends AbstractPaxArchetypeMojo
         if( dynamicImportPackage != null )
             bndFile.setInstruction( "DynamicImport-Package", dynamicImportPackage, overwrite );
 
-        bndFile.write();
+        try
+        {
+            bndFile.write();
+        }
+        catch( IOException e )
+        {
+            throw new MojoExecutionException( "Problem writing BND file: " + bndFile.getFile() );
+        }
     }
 
     String getParentId()

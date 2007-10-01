@@ -25,16 +25,23 @@ import org.apache.maven.plugin.AbstractMojo;
 import org.codehaus.plexus.util.IOUtil;
 
 /**
- * Various utility methods for caching files between plugins.
+ * Various utility methods for caching files between plugins
  */
-public class CacheUtils
+public final class CacheUtils
 {
     /**
-     * Cache a text-based file inside the plugin context.
+     * Hide constructor for utility class
+     */
+    private CacheUtils()
+    {
+    }
+
+    /**
+     * Cache a text-based file inside the plugin context
      * 
-     * @param mojo The currently executing mojo.
-     * @param key A key used to reference the file.
-     * @param file The text-based file.
+     * @param mojo currently executing mojo
+     * @param key unique identifier
+     * @param file text-based file
      */
     public static void pushFile( AbstractMojo mojo, String key, File file )
     {
@@ -46,16 +53,16 @@ public class CacheUtils
         }
         catch( IOException e )
         {
-            mojo.getLog().debug( "Unable to read file " + file );
+            mojo.getLog().warn( "Unable to read file into cache: " + file );
         }
     }
 
     /**
-     * Restore a text-based file from the plugin context.
+     * Restore a text-based file from the plugin context
      * 
-     * @param mojo The currently executing mojo.
-     * @param key A key used to reference the file.
-     * @param file The text-based file.
+     * @param mojo currently executing mojo
+     * @param key unique identifier
+     * @param file text-based file
      */
     public static void pullFile( AbstractMojo mojo, String key, File file )
     {
@@ -74,7 +81,7 @@ public class CacheUtils
             }
             catch( IOException e )
             {
-                mojo.getLog().debug( "Unable to write file " + file );
+                mojo.getLog().warn( "Unable to write file back from cache: " + file );
             }
         }
     }

@@ -16,6 +16,8 @@ package org.ops4j.pax.construct.archetype;
  * limitations under the License.
  */
 
+import java.io.IOException;
+
 import org.apache.maven.model.Dependency;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.ops4j.pax.construct.util.BndFileUtils;
@@ -138,7 +140,14 @@ public class OSGiBundleArchetypeMojo extends AbstractPaxArchetypeMojo
             bndFile.removeInstruction( "Bundle-Activator" );
         }
 
-        bndFile.write();
+        try
+        {
+            bndFile.write();
+        }
+        catch( IOException e )
+        {
+            throw new MojoExecutionException( "Problem writing BND file: " + bndFile.getFile() );
+        }
     }
 
     String getParentId()

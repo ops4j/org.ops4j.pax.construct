@@ -32,8 +32,15 @@ import org.codehaus.plexus.archiver.UnArchiver;
 import org.codehaus.plexus.archiver.manager.ArchiverManager;
 import org.ops4j.pax.construct.util.PomUtils.Pom;
 
-public class DirUtils
+public final class DirUtils
 {
+    /**
+     * Hide constructor for utility class
+     */
+    private DirUtils()
+    {
+    }
+
     public static Pom findPom( File baseDir, String pomId )
     {
         if( null == pomId || pomId.length() == 0 )

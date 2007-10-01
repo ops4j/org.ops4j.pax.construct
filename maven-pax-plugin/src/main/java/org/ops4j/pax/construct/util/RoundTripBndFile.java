@@ -31,7 +31,7 @@ import java.util.List;
 import java.util.Properties;
 
 import org.ops4j.pax.construct.util.BndFileUtils.BndFile;
-import org.ops4j.pax.construct.util.BndFileUtils.BndFileException;
+import org.ops4j.pax.construct.util.BndFileUtils.ExistingInstruction;
 
 public class RoundTripBndFile
     implements BndFile
@@ -68,6 +68,7 @@ public class RoundTripBndFile
     }
 
     public void setInstruction( String name, String value, boolean overwrite )
+        throws ExistingInstruction
     {
         if( overwrite || !m_newInstructions.containsKey( name ) )
         {
@@ -75,7 +76,7 @@ public class RoundTripBndFile
         }
         else
         {
-            throw new BndFileException( "Entry already exists, use -Doverwrite to replace it" );
+            throw new ExistingInstruction( name );
         }
     }
 
@@ -95,21 +96,15 @@ public class RoundTripBndFile
     }
 
     public void write()
+        throws IOException
     {
-        try
+        if( m_newInstructions.isEmpty() )
         {
-            if( m_newInstructions.isEmpty() )
-            {
-                m_file.delete();
-            }
-            else if( !m_newInstructions.equals( m_oldInstructions ) )
-            {
-                writeUpdatedInstructions();
-            }
+            m_file.delete();
         }
-        catch( Exception e )
+        else if( !m_newInstructions.equals( m_oldInstructions ) )
         {
-            throw new BndFileException( "Unable to write BND file " + m_file, e );
+            writeUpdatedInstructions();
         }
 
         m_oldInstructions.clear();

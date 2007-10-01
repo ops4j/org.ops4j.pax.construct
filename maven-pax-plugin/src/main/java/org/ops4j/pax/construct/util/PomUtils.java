@@ -29,8 +29,15 @@ import org.apache.maven.model.Dependency;
 import org.apache.maven.model.Repository;
 import org.apache.maven.project.MavenProject;
 
-public class PomUtils
+public final class PomUtils
 {
+    /**
+     * Hide constructor for utility class
+     */
+    private PomUtils()
+    {
+    }
+
     public static class PomException extends RuntimeException
     {
         static final long serialVersionUID = 1L;

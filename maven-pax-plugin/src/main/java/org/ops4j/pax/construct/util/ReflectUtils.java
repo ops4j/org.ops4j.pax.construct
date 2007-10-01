@@ -22,8 +22,15 @@ import java.security.PrivilegedAction;
 
 import org.apache.maven.plugin.AbstractMojo;
 
-public abstract class ReflectUtils
+public final class ReflectUtils
 {
+    /**
+     * Hide constructor for utility class
+     */
+    private ReflectUtils()
+    {
+    }
+
     public static class ReflectMojo
     {
         final AbstractMojo m_mojo;

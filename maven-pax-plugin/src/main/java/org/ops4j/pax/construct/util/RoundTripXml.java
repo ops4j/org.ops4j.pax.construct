@@ -27,8 +27,15 @@ import org.codehaus.plexus.util.xml.pull.XmlPullParser;
 import org.codehaus.plexus.util.xml.pull.XmlPullParserException;
 import org.codehaus.plexus.util.xml.pull.XmlSerializer;
 
-public class RoundTripXml
+public final class RoundTripXml
 {
+    /**
+     * Hide constructor for utility class
+     */
+    private RoundTripXml()
+    {
+    }
+
     public static XmlPullParser createParser()
     {
         return new RoundTripParser();

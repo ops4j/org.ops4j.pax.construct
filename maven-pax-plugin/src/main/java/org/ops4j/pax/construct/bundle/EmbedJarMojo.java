@@ -17,6 +17,7 @@ package org.ops4j.pax.construct.bundle;
  */
 
 import java.io.File;
+import java.io.IOException;
 
 import org.apache.maven.artifact.Artifact;
 import org.apache.maven.model.Dependency;
@@ -133,6 +134,13 @@ public class EmbedJarMojo extends AbstractMojo
             bndFile.setInstruction( "-exportcontents", exportContents, overwrite );
         }
 
-        bndFile.write();
+        try
+        {
+            bndFile.write();
+        }
+        catch( IOException e )
+        {
+            throw new MojoExecutionException( "Problem writing BND file: " + bndFile.getFile() );
+        }
     }
 }

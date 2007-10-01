@@ -17,46 +17,95 @@ package org.ops4j.pax.construct.util;
  */
 
 import java.io.File;
+import java.io.IOException;
 
-public class BndFileUtils
+import org.apache.maven.plugin.MojoExecutionException;
+
+/**
+ * Provide API and factory for editing BND instruction files
+ */
+public final class BndFileUtils
 {
-    public static class BndFileException extends RuntimeException
+    /**
+     * Hide constructor for utility class
+     */
+    private BndFileUtils()
     {
-        static final long serialVersionUID = 1L;
+    }
 
-        public BndFileException( String message )
-        {
-            super( message );
-        }
+    /**
+     * Thrown when a BND instruction can't be updated {@link BndFile.setInstruction}
+     */
+    public static class ExistingInstruction extends MojoExecutionException
+    {
+        private static final long serialVersionUID = 1L;
 
-        public BndFileException( String message, Throwable cause )
+        /**
+         * @param directive the directive that couldn't be updated
+         */
+        public ExistingInstruction( String directive )
         {
-            super( message, cause );
+            super( directive );
         }
     }
 
+    /**
+     * API for editing BND files
+     */
     public interface BndFile
     {
-        public String getInstruction( String name );
+        /**
+         * @param directive a BND directive
+         * @return assigned BND instruction
+         */
+        public String getInstruction( String directive );
 
-        public void setInstruction( String name, String value, boolean overwrite );
+        /**
+         * @param directive a BND directive
+         * @param instruction a BND instruction
+         * @param overwrite overwrite existing instruction if true, otherwise throw {@link ExistingInstruction}
+         */
+        public void setInstruction( String directive, String instruction, boolean overwrite )
+            throws ExistingInstruction;
 
-        public boolean removeInstruction( String name );
+        /**
+         * @param directive a BND directive
+         * @return true if there was an existing instruction, otherwise false
+         */
+        public boolean removeInstruction( String directive );
 
+        /**
+         * @return the underlying BND instruction file
+         */
         public File getFile();
 
+        /**
+         * @return the directory containing the BND file
+         */
         public File getBasedir();
 
-        public void write();
+        /**
+         * @throws IOException
+         */
+        public void write()
+            throws IOException;
     }
 
+    /**
+     * Factory method that provides an editor for a given BND file
+     * 
+     * @param here a BND file, or a directory containing a file named 'osgi.bnd'
+     * @return simple BND file editor
+     */
     public static BndFile readBndFile( File here )
     {
-        if( here.isDirectory() )
+        File candidate = here;
+
+        if( candidate.isDirectory() )
         {
-            here = new File( here, "osgi.bnd" );
+            candidate = new File( here, "osgi.bnd" );
         }
 
-        return new RoundTripBndFile( here );
+        return new RoundTripBndFile( candidate );
     }
 }
