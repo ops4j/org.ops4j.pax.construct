@@ -123,7 +123,7 @@ public class XppPom
         return m_pom.getChild( "packaging" ).getValue();
     }
 
-    public List getModules()
+    public List getModuleNames()
     {
         List names = new ArrayList();
 
@@ -193,7 +193,7 @@ public class XppPom
         return null;
     }
 
-    public File getPackagedBundle()
+    public File getFinalBundle()
     {
         // TODO: handle other output locations??
         File outputFolder = new File( getBasedir(), "target" );
@@ -298,11 +298,17 @@ public class XppPom
     }
 
     public boolean removeModule( String module )
-        throws ExistingElementException
     {
         String xpath = "modules/module[.='" + module + "']";
 
-        return removeChildren( xpath, true );
+        try
+        {
+            return removeChildren( xpath, true );
+        }
+        catch( ExistingElementException e )
+        {
+            return false; // should not occur
+        }
     }
 
     public void addDependency( Dependency dependency, boolean overwrite )
@@ -342,14 +348,20 @@ public class XppPom
     }
 
     public boolean removeDependency( Dependency dependency )
-        throws ExistingElementException
     {
         String groupId = dependency.getGroupId();
         String artifactId = dependency.getArtifactId();
 
         String xpath = "dependencies/dependency[groupId='" + groupId + "' and artifactId='" + artifactId + "']";
 
-        return removeChildren( xpath, true );
+        try
+        {
+            return removeChildren( xpath, true );
+        }
+        catch( ExistingElementException e )
+        {
+            return false; // should not occur
+        }
     }
 
     public void write()

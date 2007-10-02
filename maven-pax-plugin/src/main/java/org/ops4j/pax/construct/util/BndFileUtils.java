@@ -22,7 +22,7 @@ import java.io.IOException;
 import org.apache.maven.plugin.MojoExecutionException;
 
 /**
- * Provide API and factory for editing BND instruction files
+ * Provide API {@link BndFile} and factory for editing BND instruction files
  */
 public final class BndFileUtils
 {
@@ -31,22 +31,6 @@ public final class BndFileUtils
      */
     private BndFileUtils()
     {
-    }
-
-    /**
-     * Thrown when a BND instruction can't be updated {@link BndFile}
-     */
-    public static class ExistingInstructionException extends MojoExecutionException
-    {
-        private static final long serialVersionUID = 1L;
-
-        /**
-         * @param directive the directive that couldn't be updated
-         */
-        public ExistingInstructionException( String directive )
-        {
-            super( directive );
-        }
     }
 
     /**
@@ -93,7 +77,23 @@ public final class BndFileUtils
     }
 
     /**
-     * Factory method that provides an editor for a given BND file
+     * Thrown when a BND instruction already exists and can't be overwritten {@link BndFile}
+     */
+    public static class ExistingInstructionException extends MojoExecutionException
+    {
+        private static final long serialVersionUID = 1L;
+
+        /**
+         * @param directive directive name for the existing instruction
+         */
+        public ExistingInstructionException( String directive )
+        {
+            super( directive );
+        }
+    }
+
+    /**
+     * Factory method that provides an editor for an existing or new BND file
      * 
      * @param here a BND file, or a directory containing a file named 'osgi.bnd'
      * @return simple BND file editor

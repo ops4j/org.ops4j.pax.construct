@@ -35,7 +35,7 @@ import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.project.MavenProject;
 
 /**
- * Provide API and factory for editing Maven project files
+ * Provide API {@link Pom} and factory for editing Maven project files
  */
 public final class PomUtils
 {
@@ -44,22 +44,6 @@ public final class PomUtils
      */
     private PomUtils()
     {
-    }
-
-    /**
-     * Thrown when a POM element can't be updated {@link Pom}
-     */
-    public static class ExistingElementException extends MojoExecutionException
-    {
-        private static final long serialVersionUID = 1L;
-
-        /**
-         * @param element the XML element that couldn't be updated
-         */
-        public ExistingElementException( String element )
-        {
-            super( element );
-        }
     }
 
     /**
@@ -93,9 +77,9 @@ public final class PomUtils
         public String getPackaging();
 
         /**
-         * @return sequence of module names contained in this project
+         * @return names of modules contained in this project
          */
-        public List getModules();
+        public List getModuleNames();
 
         /**
          * @return the physical parent project
@@ -103,7 +87,7 @@ public final class PomUtils
         public Pom getContainingPom();
 
         /**
-         * @param module a module contained in this project
+         * @param module name of a module in this project
          * @return the module POM, null if it doesn't exist
          */
         public Pom getModulePom( String module );
@@ -129,13 +113,13 @@ public final class PomUtils
         public String getBundleSymbolicName();
 
         /**
-         * @return the final bundle produced by this Maven project
+         * @return the final bundle produced by this Maven project, null if not yet built
          */
-        public File getPackagedBundle();
+        public File getFinalBundle();
 
         /**
-         * @param pom the new parent project
-         * @param relativePath the relative path from this POM to the parent
+         * @param pom the new logical parent project
+         * @param relativePath the relative path from this POM to its new parent
          * @param overwrite overwrite element if true, otherwise throw {@link ExistingElementException}
          * @throws ExistingElementException
          */
@@ -143,7 +127,7 @@ public final class PomUtils
             throws ExistingElementException;
 
         /**
-         * @param project the new parent project
+         * @param project the new logical parent project
          * @param relativePath the relative path from this POM to the parent
          * @param overwrite overwrite element if true, otherwise throw {@link ExistingElementException}
          * @throws ExistingElementException
@@ -152,9 +136,9 @@ public final class PomUtils
             throws ExistingElementException;
 
         /**
-         * Apply refactoring offset to the relative path element
+         * Allow limited refactoring of the relative path element
          * 
-         * @param offset positive if POM has been moved down, negative if it has been moved up
+         * @param offset positive if this POM was moved down, negative if it was moved up
          */
         public void adjustRelativePath( int offset );
 
@@ -177,10 +161,8 @@ public final class PomUtils
         /**
          * @param module module name
          * @return true if module was removed from the project, otherwise false
-         * @throws ExistingElementException
          */
-        public boolean removeModule( String module )
-            throws ExistingElementException;
+        public boolean removeModule( String module );
 
         /**
          * @param dependency project dependency
@@ -193,10 +175,8 @@ public final class PomUtils
         /**
          * @param dependency project dependency
          * @return true if dependency was removed from the project, otherwise false
-         * @throws ExistingElementException
          */
-        public boolean removeDependency( Dependency dependency )
-            throws ExistingElementException;
+        public boolean removeDependency( Dependency dependency );
 
         /**
          * @throws IOException
@@ -206,7 +186,23 @@ public final class PomUtils
     }
 
     /**
-     * Factory method that provides an editor for a given Maven project file
+     * Thrown when a POM element already exists and can't be overwritten {@link Pom}
+     */
+    public static class ExistingElementException extends MojoExecutionException
+    {
+        private static final long serialVersionUID = 1L;
+
+        /**
+         * @param element name of the existing POM element
+         */
+        public ExistingElementException( String element )
+        {
+            super( element );
+        }
+    }
+
+    /**
+     * Factory method that provides an editor for an existing Maven project file
      * 
      * @param here a Maven POM, or a directory containing a file named 'pom.xml'
      * @return simple Maven project editor
@@ -228,7 +224,7 @@ public final class PomUtils
     /**
      * Factory method that provides an editor for a new Maven project file
      * 
-     * @param here a file, or a directory for the Maven project
+     * @param here the file, or directory for the new Maven project
      * @param groupId project group id
      * @param artifactId project artifact id
      * @return simple Maven project editor

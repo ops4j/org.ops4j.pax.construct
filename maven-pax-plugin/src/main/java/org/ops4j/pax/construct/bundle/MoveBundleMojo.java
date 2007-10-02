@@ -132,7 +132,7 @@ public class MoveBundleMojo extends AbstractMojo
                 }
                 catch( IOException e )
                 {
-                    throw new MojoExecutionException( "Problem updating relative path: " + pivot[0] + pivot[2] );
+                    throw new MojoExecutionException( "Problem applying relative path offset: " + pivot[0] + pivot[2] );
                 }
             }
         }

@@ -43,6 +43,29 @@ public final class DirUtils
     {
     }
 
+    public static File resolveFile( File file, boolean ignoreErrors )
+    {
+        File candidate = file;
+        if( null == file )
+        {
+            candidate = new File( "." );
+        }
+
+        try
+        {
+            candidate = candidate.getCanonicalFile();
+        }
+        catch( IOException e )
+        {
+            if( !ignoreErrors )
+            {
+                throw new RuntimeException( e );
+            }
+        }
+
+        return candidate;
+    }
+
     public static Pom findPom( File baseDir, String pomId )
         throws IOException
     {
@@ -73,7 +96,7 @@ public final class DirUtils
                 return pom;
             }
 
-            for( Iterator i = pom.getModules().iterator(); i.hasNext(); )
+            for( Iterator i = pom.getModuleNames().iterator(); i.hasNext(); )
             {
                 Pom subPom = pom.getModulePom( (String) i.next() );
 
@@ -228,7 +251,7 @@ public final class DirUtils
                 Pom reactorPom = PomUtils.readPom( element.getParentFile().getParentFile() );
                 if( reactorPom.isBundleProject() )
                 {
-                    element = reactorPom.getPackagedBundle();
+                    element = reactorPom.getFinalBundle();
                 }
 
                 JarFile jar = new JarFile( element );
