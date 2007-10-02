@@ -32,15 +32,29 @@ import org.codehaus.plexus.util.xml.Xpp3DomBuilder;
 import org.codehaus.plexus.util.xml.pull.XmlPullParser;
 import org.codehaus.plexus.util.xml.pull.XmlPullParserException;
 import org.codehaus.plexus.util.xml.pull.XmlSerializer;
-import org.ops4j.pax.construct.util.PomUtils.Pom;
 import org.ops4j.pax.construct.util.PomUtils.ExistingElementException;
+import org.ops4j.pax.construct.util.PomUtils.Pom;
 
+/**
+ * Support round-trip editing of Maven POMs, preserving comments and formatting as much as possible
+ */
 public class XppPom
     implements Pom
 {
-    final File m_file;
-    Xpp3Dom m_pom;
+    /**
+     * Underlying XML file
+     */
+    private final File m_file;
 
+    /**
+     * Current XML document
+     */
+    private Xpp3Dom m_pom;
+
+    /**
+     * @param pomFile XML file containing Maven project model
+     * @throws IOException
+     */
     public XppPom( File pomFile )
         throws IOException
     {
@@ -59,12 +73,19 @@ public class XppPom
         }
     }
 
+    /**
+     * @param pomFile XML file, may or may not exist
+     * @param groupId project group id
+     * @param artifactId project artifact id
+     */
     public XppPom( File pomFile, String groupId, String artifactId )
     {
+        // protect against changes in working directory
         m_file = pomFile.getAbsoluteFile();
 
         m_pom = new Xpp3Dom( "project" );
 
+        // standard header cruft
         m_pom.setAttribute( "xmlns", "http://maven.apache.org/POM/4.0.0" );
         m_pom.setAttribute( "xmlns:xsi", "http://www.w3.org/2001/XMLSchema-instance" );
         m_pom.setAttribute( "xsi:schemaLocation",
@@ -79,17 +100,25 @@ public class XppPom
         m_file.getParentFile().mkdirs();
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public String getId()
     {
+        // follow the Maven standard...
         return getGroupId() + ':' + getArtifactId() + ':' + getPackaging() + ':' + getVersion();
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public String getGroupId()
     {
         Xpp3Dom groupId = m_pom.getChild( "groupId" );
         Xpp3Dom parent = m_pom.getChild( "parent" );
         if( null == groupId && null != parent )
         {
+            // inherit group from parent element
             groupId = parent.getChild( "groupId" );
         }
         if( null == groupId )
@@ -99,17 +128,24 @@ public class XppPom
         return groupId.getValue();
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public String getArtifactId()
     {
         return m_pom.getChild( "artifactId" ).getValue();
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public String getVersion()
     {
         Xpp3Dom version = m_pom.getChild( "version" );
         Xpp3Dom parent = m_pom.getChild( "parent" );
         if( null == version && null != parent )
         {
+            // inherit version from parent element
             version = parent.getChild( "version" );
         }
         if( null == version )
@@ -119,11 +155,17 @@ public class XppPom
         return version.getValue();
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public String getPackaging()
     {
         return m_pom.getChild( "packaging" ).getValue();
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public List getModuleNames()
     {
         List names = new ArrayList();
@@ -141,45 +183,64 @@ public class XppPom
         return names;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public Pom getContainingPom()
     {
         try
         {
             return PomUtils.readPom( m_file.getParentFile().getParentFile() );
         }
-        catch( Exception e )
+        catch( IOException e )
         {
             return null;
         }
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public Pom getModulePom( String name )
     {
         try
         {
             return PomUtils.readPom( new File( m_file.getParentFile(), name ) );
         }
-        catch( Exception e )
+        catch( IOException e )
         {
             return null;
         }
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public File getFile()
     {
         return m_file;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public File getBasedir()
     {
         return m_file.getParentFile();
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public boolean isBundleProject()
     {
+        // local project, so can use very simple test based on packaging type
         return m_pom.getChild( "packaging" ).getValue().indexOf( "bundle" ) >= 0;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public String getBundleSymbolicName()
     {
         Xpp3Dom properties = m_pom.getChild( "properties" );
@@ -194,17 +255,28 @@ public class XppPom
         return null;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public File getFinalBundle()
     {
-        // TODO: handle other output locations??
-        File outputFolder = new File( getBasedir(), "target" );
+        // assume standard output location for now - finding real output folder and final name is non-trivial
+        File bundle = new File( getBasedir(), "target/" + getArtifactId() + '-' + getVersion() + ".jar" );
 
-        // TODO: fall back to local repo if not there???
-        File bundle = new File( outputFolder, getArtifactId() + '-' + getVersion() + ".jar" );
-
-        return bundle;
+        // has it been built?
+        if( bundle.exists() )
+        {
+            return bundle;
+        }
+        else
+        {
+            return null;
+        }
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public void setParent( Pom pom, String relativePath, boolean overwrite )
         throws ExistingElementException
     {
@@ -217,6 +289,9 @@ public class XppPom
         setParent( project, relativePath, overwrite );
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public void setParent( MavenProject project, String relativePath, boolean overwrite )
         throws ExistingElementException
     {
@@ -237,25 +312,40 @@ public class XppPom
         m_pom = Xpp3Dom.mergeXpp3Dom( newPom, m_pom );
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public void adjustRelativePath( int offset )
     {
         Xpp3Dom node = m_pom.getChild( "parent" ).getChild( "relativePath" );
 
         String relativeText = node.getValue();
 
+        // project has moved down from parent
         for( int i = 0; i < offset; i++ )
         {
             relativeText = "../" + relativeText;
         }
 
+        // project has moved up towards parent
         for( int i = 0; i > offset; i-- )
         {
-            relativeText = relativeText.substring( 3 );
+            if( relativeText.startsWith( "../" ) )
+            {
+                relativeText = relativeText.substring( 3 );
+            }
+            else
+            {
+                break; // refactored too far away!
+            }
         }
 
         node.setValue( relativeText );
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public void addRepository( Repository repository, boolean overwrite )
         throws ExistingElementException
     {
@@ -264,7 +354,11 @@ public class XppPom
 
         String xpath = "repositories/repository[id='" + id + "' or url='" + url + "']";
 
-        removeChildren( xpath, overwrite );
+        // clear old elements when overwriting
+        if( findChildren( xpath, overwrite ) && !overwrite )
+        {
+            throw new ExistingElementException( "repository" );
+        }
 
         Xpp3DomMap repo = new Xpp3DomMap( "repository" );
         repo.putValue( "id", id );
@@ -279,12 +373,19 @@ public class XppPom
         Xpp3Dom.mergeXpp3Dom( m_pom, newPom );
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public void addModule( String module, boolean overwrite )
         throws ExistingElementException
     {
         String xpath = "modules/module[.='" + module + "']";
 
-        removeChildren( xpath, overwrite );
+        // clear old elements when overwriting
+        if( findChildren( xpath, overwrite ) && !overwrite )
+        {
+            throw new ExistingElementException( "module" );
+        }
 
         Xpp3Dom mod = new Xpp3Dom( "module" );
         mod.setValue( module );
@@ -298,20 +399,19 @@ public class XppPom
         Xpp3Dom.mergeXpp3Dom( m_pom, newPom );
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public boolean removeModule( String module )
     {
         String xpath = "modules/module[.='" + module + "']";
 
-        try
-        {
-            return removeChildren( xpath, true );
-        }
-        catch( ExistingElementException e )
-        {
-            return false; // should not occur
-        }
+        return findChildren( xpath, true );
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public void addDependency( Dependency dependency, boolean overwrite )
         throws ExistingElementException
     {
@@ -320,7 +420,11 @@ public class XppPom
 
         String xpath = "dependencies/dependency[groupId='" + groupId + "' and artifactId='" + artifactId + "']";
 
-        removeChildren( xpath, overwrite );
+        // clear old elements when overwriting
+        if( findChildren( xpath, overwrite ) && !overwrite )
+        {
+            throw new ExistingElementException( "dependency" );
+        }
 
         Xpp3DomMap dep = new Xpp3DomMap( "dependency" );
         dep.putValue( "groupId", groupId );
@@ -329,9 +433,10 @@ public class XppPom
         dep.putValue( "scope", dependency.getScope() );
 
         String type = dependency.getType();
-        if( null != type && !"jar".equals( type ) )
+        if( !"jar".equals( type ) )
         {
-            dep.putValue( "type", dependency.getType() );
+            // jar is the default type
+            dep.putValue( "type", type );
         }
 
         if( dependency.isOptional() )
@@ -348,6 +453,9 @@ public class XppPom
         Xpp3Dom.mergeXpp3Dom( m_pom, newPom );
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public boolean removeDependency( Dependency dependency )
     {
         String groupId = dependency.getGroupId();
@@ -355,16 +463,12 @@ public class XppPom
 
         String xpath = "dependencies/dependency[groupId='" + groupId + "' and artifactId='" + artifactId + "']";
 
-        try
-        {
-            return removeChildren( xpath, true );
-        }
-        catch( ExistingElementException e )
-        {
-            return false; // should not occur
-        }
+        return findChildren( xpath, true );
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public void write()
         throws IOException
     {
@@ -378,41 +482,76 @@ public class XppPom
         serializer.endDocument();
     }
 
+    /**
+     * Local utility class to help construct a "map" style XML fragment
+     */
     static class Xpp3DomMap extends Xpp3Dom
     {
+        /**
+         * Create a new map fragment
+         * 
+         * @param name name of the map element
+         */
         public Xpp3DomMap( String name )
         {
             super( name );
         }
 
+        /**
+         * Add a mapping to the map
+         * 
+         * @param name element name
+         * @param value element value
+         */
         public void putValue( String name, String value )
         {
             putValue( this, name, value );
         }
 
-        public static void putValue( Xpp3Dom dom, String name, String value )
+        /**
+         * @param map map fragment
+         * @param name element name
+         * @param value element value
+         */
+        static void putValue( Xpp3Dom map, String name, String value )
         {
             if( null != value )
             {
+                // only store non-null mapppings
                 Xpp3Dom child = new Xpp3Dom( name );
                 child.setValue( value );
-                dom.addChild( child );
+                map.addChild( child );
             }
         }
     }
 
+    /**
+     * Private utility class to help construct a "list" style XML fragment
+     */
     static class Xpp3DomList extends Xpp3Dom
     {
+        /**
+         * Create a new list fragment
+         * 
+         * @param name name of the list element
+         */
         public Xpp3DomList( String name )
         {
             super( name );
 
+            // list elements must append their children when merging with other fragments
             setAttribute( CHILDREN_COMBINATION_MODE_ATTRIBUTE, CHILDREN_COMBINATION_APPEND );
         }
     }
 
-    boolean removeChildren( String xpath, boolean overwrite )
-        throws ExistingElementException
+    /**
+     * Local utility method to check for child elements based on a simple XPATH query
+     * 
+     * @param xpath simple XPATH query
+     * @param clear remove matching elements
+     * @return true if any child elements matched, otherwise false
+     */
+    boolean findChildren( String xpath, boolean clear )
     {
         XppPathQuery pathQuery = new XppPathQuery( xpath );
         Xpp3Dom parent = pathQuery.queryParent( m_pom );
@@ -424,14 +563,12 @@ public class XppPom
 
         int[] children = pathQuery.queryChildren( parent );
 
-        if( children.length > 0 && !overwrite )
+        if( clear )
         {
-            throw new ExistingElementException( parent.getChild( children[0] ).getName() );
-        }
-
-        for( int i = 0; i < children.length; i++ )
-        {
-            parent.removeChild( children[i] );
+            for( int i = 0; i < children.length; i++ )
+            {
+                parent.removeChild( children[i] );
+            }
         }
 
         return children.length > 0;
