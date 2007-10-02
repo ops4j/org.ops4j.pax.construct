@@ -56,7 +56,7 @@ import org.codehaus.plexus.util.xml.Xpp3DomWriter;
 import org.codehaus.plexus.util.xml.pull.XmlPullParserException;
 import org.ops4j.pax.construct.util.DirUtils;
 import org.ops4j.pax.construct.util.PomUtils;
-import org.ops4j.pax.construct.util.ReflectUtils.ReflectMojo;
+import org.ops4j.pax.construct.util.ReflectMojo;
 
 /**
  * @extendsPlugin eclipse

@@ -27,7 +27,7 @@ import org.apache.maven.shared.model.fileset.util.FileSetManager;
 import org.ops4j.pax.construct.util.DirUtils;
 import org.ops4j.pax.construct.util.PomUtils;
 import org.ops4j.pax.construct.util.PomUtils.Pom;
-import org.ops4j.pax.construct.util.ReflectUtils.ReflectMojo;
+import org.ops4j.pax.construct.util.ReflectMojo;
 
 /**
  * @aggregator true
@@ -101,21 +101,7 @@ public abstract class AbstractPaxArchetypeMojo extends MavenArchetypeMojo
         m_mojo.setField( "remoteRepositories", remoteRepositories );
         m_mojo.setField( "project", project );
 
-        try
-        {
-            if( targetDirectory != null )
-            {
-                targetDirectory = targetDirectory.getCanonicalFile();
-            }
-            else
-            {
-                targetDirectory = new File( "." ).getCanonicalFile();
-            }
-        }
-        catch( IOException e )
-        {
-            getLog().warn( "Problem getting absolute path for " + targetDirectory, e );
-        }
+        targetDirectory = DirUtils.resolveFile( targetDirectory, true );
 
         m_mojo.setField( "basedir", targetDirectory.getPath() );
 

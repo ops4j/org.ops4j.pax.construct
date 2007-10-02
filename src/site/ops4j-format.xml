@@ -152,7 +152,9 @@
     <module name="ParameterNumber">
       <property name="max" value="12"/>
     </module>
-    <module name="EmptyForIteratorPad"/>
+    <module name="EmptyForIteratorPad">
+      <property name="option" value="space"/>
+    </module>
     <module name="NoWhitespaceAfter">
       <property name="tokens" value="BNOT,DEC,DOT,INC,UNARY_MINUS,UNARY_PLUS"/>
     </module>

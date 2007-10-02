@@ -171,15 +171,8 @@ public final class DirUtils
 
     public static String[] calculateRelativePath( File baseDir, File targetDir )
     {
-        try
-        {
-            baseDir = baseDir.getCanonicalFile();
-            targetDir = targetDir.getCanonicalFile();
-        }
-        catch( Exception e )
-        {
-            return null;
-        }
+        baseDir = resolveFile( baseDir, true );
+        targetDir = resolveFile( targetDir, true );
 
         StringBuffer dottedPath = new StringBuffer();
         StringBuffer descentPath = new StringBuffer();

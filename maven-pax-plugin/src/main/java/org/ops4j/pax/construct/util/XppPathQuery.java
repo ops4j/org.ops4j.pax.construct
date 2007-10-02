@@ -27,22 +27,52 @@ import java.util.regex.Pattern;
 
 import org.codehaus.plexus.util.xml.Xpp3Dom;
 
+/**
+ * Provide a very simple XPATH query implementation for XML pull-parser (Xpp) documents
+ */
 public class XppPathQuery
 {
-    static final String NODE = "\\w+";
+    /**
+     * Node is a word
+     */
+    private static final String NODE = "\\w+";
 
-    static final String PARENT = NODE + "(?:/" + NODE + ")*";
+    /**
+     * Parent is a node followed by zero or more slash-separated nodes
+     */
+    private static final String PARENT = NODE + "(?:/" + NODE + ")*";
 
-    static final String TEST = "(.|" + NODE + ")='(.*)'";
+    /**
+     * Test compares dot (ie. current node) or a node to a quoted string
+     */
+    private static final String TEST = "(.|" + NODE + ")='(.*)'";
 
-    static final String BIN_OP = "(?:and|or)";
+    /**
+     * Binary operator can be and / or
+     */
+    private static final String BIN_OP = "(?:and|or)";
 
-    static final String PREDICATE = TEST + "(?:\\s+" + BIN_OP + "\\s+" + TEST + ")*";
+    /**
+     * Predicate is a test combined with zero or more tests using binary operators
+     */
+    private static final String PREDICATE = TEST + "(?:\\s+" + BIN_OP + "\\s+" + TEST + ")*";
 
-    static final String XPATH = "/?(" + PARENT + ")/(" + NODE + ")\\[\\s*(" + PREDICATE + ")\\s*\\]";
+    /**
+     * XPATH is a parent followed by a node and a predicate
+     */
+    private static final String XPATH = "/?(" + PARENT + ")/(" + NODE + ")\\[\\s*(" + PREDICATE + ")\\s*\\]";
 
-    final Matcher m_xpathParser;
+    /**
+     * Compiled XPATH expression matcher
+     */
+    private final Matcher m_xpathParser;
 
+    /**
+     * Create a new XPATH query object from a given string
+     * 
+     * @param xpath simple XPATH query
+     * @throws IllegalArgumentException
+     */
     public XppPathQuery( String xpath )
         throws IllegalArgumentException
     {
@@ -53,6 +83,12 @@ public class XppPathQuery
         }
     }
 
+    /**
+     * Find the parent node for this XPATH query
+     * 
+     * @param dom document root
+     * @return the parent node
+     */
     public Xpp3Dom queryParent( Xpp3Dom dom )
     {
         String[] nodes = m_xpathParser.group( 1 ).split( "/" );
@@ -66,29 +102,39 @@ public class XppPathQuery
         return parent;
     }
 
+    /**
+     * Find all children matching the XPATH predicate
+     * 
+     * @param parent the parent node
+     * @return array of child indices
+     */
     public int[] queryChildren( Xpp3Dom parent )
     {
-        String nodeName = m_xpathParser.group( 2 );
+        String pivotNode = m_xpathParser.group( 2 );
 
+        // split into tests and binary operators
         Pattern testPattern = Pattern.compile( TEST );
         String[] testClauses = m_xpathParser.group( 3 ).split( "\\s+" );
 
-        List candidates = new ArrayList( Arrays.asList( parent.getChildren() ) );
+        List children = new ArrayList( Arrays.asList( parent.getChildren() ) );
 
         Set results = new HashSet();
         for( int i = -1; i < testClauses.length; i += 2 )
         {
+            // parse test clause (at every even index)
             Matcher matcher = testPattern.matcher( testClauses[i + 1] );
             matcher.matches();
 
-            Set selection = filter( candidates, nodeName, matcher.group( 1 ), matcher.group( 2 ) );
+            Set selection = filter( children, pivotNode, matcher.group( 1 ), matcher.group( 2 ) );
 
             if( i > 0 && "and".equals( testClauses[i] ) )
             {
+                // and == intersect
                 results.retainAll( selection );
             }
             else
             {
+                // or == union
                 results.addAll( selection );
             }
         }
@@ -98,27 +144,34 @@ public class XppPathQuery
         int n = 0;
         for( Iterator i = results.iterator(); i.hasNext(); )
         {
-            indices[n++] = candidates.indexOf( i.next() );
+            indices[n++] = children.indexOf( i.next() );
         }
 
         return indices;
     }
 
-    Set filter( List candidates, String nodeName, String keyName, String keyValue )
+    /**
+     * @param children complete list of child nodes
+     * @param pivotNode pivot node
+     * @param testNode test node
+     * @param testValue test value
+     * @return matching child nodes
+     */
+    private Set filter( List children, String pivotNode, String testNode, String testValue )
     {
         Set results = new HashSet();
 
-        for( Iterator i = candidates.iterator(); i.hasNext(); )
+        for( Iterator i = children.iterator(); i.hasNext(); )
         {
             Xpp3Dom node = (Xpp3Dom) i.next();
             Xpp3Dom test = node;
 
-            if( !keyName.startsWith( "." ) )
+            if( !testNode.startsWith( "." ) )
             {
-                test = node.getChild( keyName );
+                test = node.getChild( testNode );
             }
 
-            if( nodeName.equals( node.getName() ) && keyValue.equals( test.getValue() ) )
+            if( pivotNode.equals( node.getName() ) && testValue.equals( test.getValue() ) )
             {
                 results.add( node );
             }

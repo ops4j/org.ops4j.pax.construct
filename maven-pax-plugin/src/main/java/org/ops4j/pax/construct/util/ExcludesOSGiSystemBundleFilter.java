@@ -20,9 +20,15 @@ import java.util.Arrays;
 
 import org.apache.maven.artifact.resolver.filter.ExcludesArtifactFilter;
 
-public class ExcludeFrameworkArtifactsFilter extends ExcludesArtifactFilter
+/**
+ * Special artifact filter that excludes known OSGi system bundles
+ */
+public class ExcludesOSGiSystemBundleFilter extends ExcludesArtifactFilter
 {
-    static final String[] frameworkArtifacts =
+    /**
+     * List of OSGi system bundles found in Maven repositories
+     */
+    private static final String[] SYSTEM_BUNDLE_ARTIFACTS =
     {
         "org.eclipse:osgi",
         "org.eclipse.osgi:org.eclipse.osgi",
@@ -30,8 +36,11 @@ public class ExcludeFrameworkArtifactsFilter extends ExcludesArtifactFilter
         "org.knopflerfish.osgi:framework"
     };
 
-    public ExcludeFrameworkArtifactsFilter()
+    /**
+     * By default exclude all OSGi system bundles
+     */
+    public ExcludesOSGiSystemBundleFilter()
     {
-        super( Arrays.asList( frameworkArtifacts ) );
+        super( Arrays.asList( SYSTEM_BUNDLE_ARTIFACTS ) );
     }
 }
