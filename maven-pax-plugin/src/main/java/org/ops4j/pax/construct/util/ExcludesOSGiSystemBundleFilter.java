@@ -30,9 +30,7 @@ public class ExcludesOSGiSystemBundleFilter extends ExcludesArtifactFilter
      */
     private static final String[] SYSTEM_BUNDLE_ARTIFACTS =
     {
-        "org.eclipse:osgi",
-        "org.eclipse.osgi:org.eclipse.osgi",
-        "org.apache.felix:org.apache.felix.main",
+        "org.eclipse:osgi", "org.eclipse.osgi:org.eclipse.osgi", "org.apache.felix:org.apache.felix.main",
         "org.knopflerfish.osgi:framework"
     };
 

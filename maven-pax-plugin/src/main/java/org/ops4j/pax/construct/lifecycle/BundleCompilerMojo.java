@@ -40,7 +40,7 @@ public class BundleCompilerMojo extends CompilerMojo
 
     protected List getClasspathElements()
     {
-        File tempDir = getOutputDirectory().getParentFile();
+        File tempDir = new File( getOutputDirectory().getParent(), "dependencies" );
 
         return DirUtils.expandBundleClassPath( super.getClasspathElements(), archiverManager, tempDir );
     }

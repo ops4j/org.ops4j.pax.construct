@@ -29,11 +29,16 @@ import java.util.jar.Attributes;
 import java.util.jar.JarFile;
 import java.util.jar.Manifest;
 
+import org.codehaus.plexus.archiver.ArchiverException;
 import org.codehaus.plexus.archiver.UnArchiver;
 import org.codehaus.plexus.archiver.manager.ArchiverManager;
+import org.codehaus.plexus.archiver.manager.NoSuchArchiverException;
 import org.ops4j.pax.construct.util.PomUtils.ExistingElementException;
 import org.ops4j.pax.construct.util.PomUtils.Pom;
 
+/**
+ * Various utility methods for managing and refactoring directories and paths
+ */
 public final class DirUtils
 {
     /**
@@ -43,6 +48,13 @@ public final class DirUtils
     {
     }
 
+    /**
+     * Resolve a file to its unique canonical path - null resolves to the current directory
+     * 
+     * @param file file, may be null
+     * @param ignoreErrors ignore checked exceptions when true
+     * @return file representing the canonical path
+     */
     public static File resolveFile( File file, boolean ignoreErrors )
     {
         File candidate = file;
@@ -66,56 +78,123 @@ public final class DirUtils
         return candidate;
     }
 
+    /**
+     * Search the local project tree for a Maven POM with the given id
+     * 
+     * @param baseDir directory in the project tree
+     * @param pomId either artifactId or groupId:artifactId
+     * @return a Maven POM with the given id, null if not found
+     * @throws IOException
+     */
     public static Pom findPom( File baseDir, String pomId )
         throws IOException
     {
+        // no searching required
         if( null == pomId || pomId.length() == 0 )
         {
             return null;
         }
 
+        // check id for groupId:artifactId
+        int groupMarker = pomId.indexOf( ':' );
+
+        String groupId;
+        String artifactId;
+
+        if( groupMarker > 0 )
+        {
+            groupId = pomId.substring( 0, groupMarker );
+            artifactId = pomId.substring( groupMarker + 1 );
+        }
+        else
+        {
+            groupId = null;
+            artifactId = pomId;
+        }
+
         Pom pom = PomUtils.readPom( baseDir );
 
+        // keep track of search
         Set visited = new HashSet();
         visited.add( pom.getId() );
 
-        int groupMarker = pomId.indexOf( ':' );
-
-        final String groupId = groupMarker > 0 ? pomId.substring( 0, groupMarker ) : null;
-        final String artifactId = pomId.substring( groupMarker + 1 );
-
-        depthFirst: while( null != pom )
+        while( null != pom )
         {
-            boolean sameName = artifactId.equals( pom.getArtifactId() )
-                || artifactId.equals( pom.getBundleSymbolicName() );
-
-            boolean sameGroup = (null == groupId) || groupId.equals( pom.getGroupId() );
-
-            if( sameName && sameGroup )
+            if( sameProject( pom, groupId, artifactId ) )
             {
                 return pom;
             }
 
-            for( Iterator i = pom.getModuleNames().iterator(); i.hasNext(); )
+            // use depth-first search pattern
+            Pom subPom = nextModule( pom, visited );
+
+            if( null == subPom )
             {
-                Pom subPom = pom.getModulePom( (String) i.next() );
-
-                if( visited.add( subPom.getId() ) )
-                {
-                    pom = subPom;
-                    continue depthFirst;
-                }
+                // no more modules, backtrack
+                pom = pom.getContainingPom();
             }
+            else
+            {
+                pom = subPom;
+            }
+        }
 
-            pom = pom.getContainingPom();
+        // exhausted project tree
+        return null;
+    }
+
+    /**
+     * @param pom Maven project model
+     * @param groupId optional project group id
+     * @param artifactId project artifact id or bundle symbolic name
+     * @return true if the project has matching ids, otherwise false
+     */
+    static boolean sameProject( Pom pom, String groupId, String artifactId )
+    {
+        if( artifactId.equals( pom.getArtifactId() ) || artifactId.equals( pom.getBundleSymbolicName() ) )
+        {
+            if( null == groupId || groupId.equals( pom.getGroupId() ) )
+            {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    /**
+     * @param pom current Maven project
+     * @param visited already visited projects
+     * @return next project to visit, null if local search is complete
+     */
+    static Pom nextModule( Pom pom, Set visited )
+    {
+        for( Iterator i = pom.getModuleNames().iterator(); i.hasNext(); )
+        {
+            Pom subPom = pom.getModulePom( (String) i.next() );
+
+            // avoid re-visiting modules
+            if( visited.add( subPom.getId() ) )
+            {
+                return subPom;
+            }
         }
 
         return null;
     }
 
+    /**
+     * Verify all Maven POMs from the base directory to the target, adding missing POMs as required
+     * 
+     * @param baseDir base directory
+     * @param targetDir target directory
+     * @return the Maven project in the target directory
+     * @throws IOException
+     */
     public static Pom createModuleTree( File baseDir, File targetDir )
         throws IOException
     {
+        // shortcut: target directory already has a POM
         File pomFile = new File( targetDir, "pom.xml" );
         if( pomFile.exists() )
         {
@@ -125,17 +204,21 @@ public final class DirUtils
         String[] pivot = calculateRelativePath( baseDir, targetDir );
         if( null == pivot )
         {
+            // unable to find common parent directory!
             return null;
         }
 
         File commonDir = new File( pivot[1] );
         String descentPath = pivot[2];
 
+        // start checking path from common directory
         Pom parentPom = PomUtils.readPom( commonDir );
         Pom childPom = parentPom;
 
-        for( int i = 0, j = descentPath.indexOf( '/' ); j >= 0; i = j + 1, j = descentPath.indexOf( '/', i ) )
+        int i = 0;
+        for( int j = descentPath.indexOf( '/' ); j >= 0; i = j + 1, j = descentPath.indexOf( '/', i ) )
         {
+            // check the next module pom...
             pomFile = new File( commonDir, descentPath.substring( 0, j ) + "/pom.xml" );
 
             if( pomFile.exists() )
@@ -146,51 +229,68 @@ public final class DirUtils
             {
                 try
                 {
+                    // no such pom, need to create new module pom
                     String module = descentPath.substring( i, j );
 
+                    // link parent to new module pom
                     parentPom.addModule( module, true );
                     parentPom.write();
 
                     String groupId = PomUtils.getCompoundName( parentPom.getGroupId(), parentPom.getArtifactId() );
 
+                    // create missing module pom and link back to parent
                     childPom = PomUtils.createPom( pomFile, groupId, module );
                     childPom.setParent( parentPom, null, true );
                     childPom.write();
                 }
                 catch( ExistingElementException e )
                 {
-                    // this shouldn't happen
+                    // this should never happen
+                    throw new RuntimeException( e );
                 }
             }
 
+            // descend to next pom
             parentPom = childPom;
         }
 
+        // final pom in target directory
         return childPom;
     }
 
+    /**
+     * Calculate the relative path (and common directory) to get from a base directory to a target directory
+     * 
+     * @param baseDir base directory
+     * @param targetDir target directory
+     * @return three strings: a dotted path, absolute location of the common directory, and a descent path
+     */
     public static String[] calculateRelativePath( File baseDir, File targetDir )
     {
-        baseDir = resolveFile( baseDir, true );
-        targetDir = resolveFile( targetDir, true );
+        // need canonical form for this to work
+        File from = resolveFile( baseDir, true );
+        File to = resolveFile( targetDir, true );
 
         StringBuffer dottedPath = new StringBuffer();
         StringBuffer descentPath = new StringBuffer();
 
-        while( !baseDir.equals( targetDir ) )
+        while( !from.equals( to ) )
         {
-            if( baseDir.getPath().length() < targetDir.getPath().length() )
+            // "from" is above "to", so need to descend...
+            if( from.getPath().length() < to.getPath().length() )
             {
-                descentPath.insert( 0, targetDir.getName() + '/' );
-                targetDir = targetDir.getParentFile();
+                descentPath.insert( 0, to.getName() + '/' );
+                to = to.getParentFile();
             }
+            // otherwise need to move up (ie "..")
             else
             {
                 dottedPath.append( "../" );
-                baseDir = baseDir.getParentFile();
+                from = from.getParentFile();
             }
 
-            if( null == baseDir || null == targetDir )
+            // reached top of file-system!
+            if( null == from || null == to )
             {
                 return null;
             }
@@ -198,10 +298,19 @@ public final class DirUtils
 
         return new String[]
         {
-            dottedPath.toString(), targetDir.getPath(), descentPath.toString()
+            // both "from" and "to" now hold the common directory
+            dottedPath.toString(), to.getPath(), descentPath.toString()
         };
     }
 
+    /**
+     * Refactor path string, adding base directory to all entries
+     * 
+     * @param path path to refactor
+     * @param baseDir base directory to add
+     * @param pathSeparator path separator
+     * @return the refactored path
+     */
     public static String rebasePaths( String path, String baseDir, char pathSeparator )
     {
         String[] entries = path.split( Character.toString( pathSeparator ) );
@@ -216,6 +325,7 @@ public final class DirUtils
 
             if( ".".equals( entries[i] ) )
             {
+                // dot entry is special case
                 rebasedPath.append( baseDir );
             }
             else
@@ -229,61 +339,143 @@ public final class DirUtils
         return rebasedPath.toString();
     }
 
+    /**
+     * Expand any bundle entries on the classpath to include their unpacked contents (useful when compiling)
+     * 
+     * @param classpath list of classpath elements
+     * @param archiverManager creates unarchiver objects
+     * @param tempDir temporary directory for unpacking
+     * @return expanded classpath
+     */
     public static List expandBundleClassPath( List classpath, ArchiverManager archiverManager, File tempDir )
     {
         List expandedElements = new ArrayList();
 
         for( Iterator i = classpath.iterator(); i.hasNext(); )
         {
+            // original should appear before expanded entries
             File element = new File( (String) i.next() );
             expandedElements.add( element.getPath() );
-            Manifest manifest;
 
-            try
+            File bundle = locateBundle( element );
+
+            if( bundle != null && bundle.getName().endsWith( ".jar" ) )
             {
-                Pom reactorPom = PomUtils.readPom( element.getParentFile().getParentFile() );
-                if( reactorPom.isBundleProject() )
+                String bundleClassPath = extractBundleClassPath( bundle );
+
+                if( null != bundleClassPath && !".".equals( bundleClassPath ) )
                 {
-                    element = reactorPom.getFinalBundle();
+                    File here = new File( tempDir, bundle.getName() );
+
+                    if( unpackBundle( archiverManager, bundle, here ) )
+                    {
+                        // refactor bundle classpath to point to the recently unpacked contents and append it
+                        String rebasedClassPath = DirUtils.rebasePaths( bundleClassPath, here.getPath(), ',' );
+                        expandedElements.addAll( Arrays.asList( rebasedClassPath.split( "," ) ) );
+                    }
                 }
-
-                JarFile jar = new JarFile( element );
-                manifest = jar.getManifest();
-            }
-            catch( Exception e )
-            {
-                continue;
-            }
-
-            Attributes mainAttributes = manifest.getMainAttributes();
-            String bundleClassPath = mainAttributes.getValue( "Bundle-ClassPath" );
-
-            if( null != bundleClassPath && bundleClassPath.length() > 1 )
-            {
-                File here = new File( tempDir, element.getName() );
-
-                try
-                {
-                    UnArchiver unArchiver = archiverManager.getUnArchiver( element );
-
-                    here.mkdirs();
-                    unArchiver.setDestDirectory( here );
-                    unArchiver.setSourceFile( element );
-                    unArchiver.extract();
-                }
-                catch( Exception e )
-                {
-                    continue;
-                }
-
-                String rebasedClassPath = DirUtils.rebasePaths( bundleClassPath, here.getPath(), ',' );
-                expandedElements.addAll( Arrays.asList( rebasedClassPath.split( "," ) ) );
             }
         }
 
         return expandedElements;
     }
 
+    /**
+     * Locate the actual bundle for the given classpath element
+     * 
+     * @param classpathElement classpath element, may be myProject/target/classes
+     * @return the final bundle, null if it hasn't been built yet
+     */
+    static File locateBundle( File classpathElement )
+    {
+        File bundle = classpathElement;
+
+        // for now just assume the output directory is target/classes
+        String outputDir = "target" + File.separator + "classes";
+        String path = bundle.getPath();
+
+        if( path.endsWith( outputDir ) )
+        {
+            // we need the final bundle, not the output directory, so load up the project POM
+            File projectDir = bundle.getParentFile().getParentFile();
+
+            try
+            {
+                Pom reactorPom = PomUtils.readPom( projectDir );
+                if( reactorPom.isBundleProject() )
+                {
+                    // assume standard artifact name
+                    return reactorPom.getFinalBundle();
+                }
+            }
+            catch( IOException e )
+            {
+                return null;
+            }
+        }
+
+        // otherwise just assume it's a bundle for now (will check for manifest later)
+        return bundle;
+    }
+
+    /**
+     * @param bundle jarfile
+     * @return Bundle-ClassPath
+     */
+    static String extractBundleClassPath( File bundle )
+    {
+        try
+        {
+            Manifest manifest = new JarFile( bundle ).getManifest();
+            Attributes mainAttributes = manifest.getMainAttributes();
+            return mainAttributes.getValue( "Bundle-ClassPath" );
+        }
+        catch( IOException e )
+        {
+            System.err.println( "WARNING: unable to read jarfile " + bundle );
+        }
+
+        return null;
+    }
+
+    /**
+     * @param archiverManager creates unarchiver objects
+     * @param bundle jarfile
+     * @param here unpack directory
+     * @return true if bundle was successfully unpacked
+     */
+    public static boolean unpackBundle( ArchiverManager archiverManager, File bundle, File here )
+    {
+        try
+        {
+            UnArchiver unArchiver = archiverManager.getUnArchiver( bundle );
+
+            here.mkdirs();
+            unArchiver.setDestDirectory( here );
+            unArchiver.setSourceFile( bundle );
+            unArchiver.extract();
+
+            return true;
+        }
+        catch( NoSuchArchiverException e )
+        {
+            return false;
+        }
+        catch( ArchiverException e )
+        {
+            return false;
+        }
+        catch( IOException e )
+        {
+            return false;
+        }
+    }
+
+    /**
+     * Recursively delete (prune) all empty directories underneath the base directory
+     * 
+     * @param baseDir base directory
+     */
     public static void pruneEmptyFolders( File baseDir )
     {
         List candidates = new ArrayList();
@@ -301,11 +493,14 @@ public final class DirUtils
             }
         }
 
+        // delete must go in reverse
         Collections.reverse( prunable );
 
         for( Iterator i = prunable.iterator(); i.hasNext(); )
         {
-            ((File) i.next()).delete();
+            // only deletes empty directories
+            File directory = (File) i.next();
+            directory.delete();
         }
     }
 }

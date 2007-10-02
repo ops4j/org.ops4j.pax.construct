@@ -45,7 +45,6 @@ import org.apache.maven.plugin.eclipse.writers.EclipseWriterConfig;
 import org.apache.maven.plugin.ide.IdeDependency;
 import org.apache.maven.project.MavenProject;
 import org.apache.maven.project.MavenProjectBuilder;
-import org.codehaus.plexus.archiver.UnArchiver;
 import org.codehaus.plexus.archiver.manager.ArchiverManager;
 import org.codehaus.plexus.util.FileUtils;
 import org.codehaus.plexus.util.IOUtil;
@@ -134,7 +133,7 @@ public class EclipseOSGiMojo extends EclipsePlugin
             new EclipseClasspathWriter().init( getLog(), config ).write();
             new EclipseProjectWriter().init( getLog(), config ).write();
 
-            String bundleDir = "target/bundle";
+            File bundleDir = new File( executedProject.getBasedir(), "target/bundle" );
             Artifact bundleArtifact = executedProject.getArtifact();
 
             if( bundleArtifact.getFile() == null || !bundleArtifact.getFile().exists() )
@@ -142,8 +141,9 @@ public class EclipseOSGiMojo extends EclipsePlugin
                 artifactResolver.resolve( bundleArtifact, remoteArtifactRepositories, localRepository );
             }
 
-            unpackBundle( bundleArtifact.getFile(), bundleDir );
-            refactorForEclipse( bundleDir );
+            DirUtils.unpackBundle( archiverManager, bundleArtifact.getFile(), bundleDir );
+
+            refactorForEclipse( "target/bundle" );
         }
         catch( Exception e )
         {
@@ -188,25 +188,6 @@ public class EclipseOSGiMojo extends EclipsePlugin
         }
 
         return projectName;
-    }
-
-    void unpackBundle( File bundle, String to )
-        throws MojoExecutionException
-    {
-        try
-        {
-            UnArchiver unArchiver = archiverManager.getUnArchiver( bundle );
-            File here = new File( executedProject.getBasedir(), to );
-
-            here.mkdirs();
-            unArchiver.setDestDirectory( here );
-            unArchiver.setSourceFile( bundle );
-            unArchiver.extract();
-        }
-        catch( Exception e )
-        {
-            getLog().error( "problem unpacking bundle", e );
-        }
     }
 
     void refactorForEclipse( String bundleLocation )
@@ -368,7 +349,8 @@ public class EclipseOSGiMojo extends EclipsePlugin
 
                     setProject( dependencyProject );
                     setExecutedProject( dependencyProject );
-                    unpackBundle( artifact.getFile(), "." );
+
+                    DirUtils.unpackBundle( archiverManager, artifact.getFile(), executedProject.getBasedir() );
 
                     execute();
                 }

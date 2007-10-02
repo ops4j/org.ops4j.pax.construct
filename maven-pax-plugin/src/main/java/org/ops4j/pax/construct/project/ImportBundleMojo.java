@@ -252,6 +252,7 @@ public class ImportBundleMojo extends AbstractMojo
         dependency.setArtifactId( project.getArtifactId() );
         dependency.setVersion( project.getVersion() );
         dependency.setScope( Artifact.SCOPE_PROVIDED );
+        dependency.setType( project.getPackaging() );
 
         if( deploy )
         {
