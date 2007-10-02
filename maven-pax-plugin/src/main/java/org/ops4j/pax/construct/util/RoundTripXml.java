@@ -27,6 +27,9 @@ import org.codehaus.plexus.util.xml.pull.XmlPullParser;
 import org.codehaus.plexus.util.xml.pull.XmlPullParserException;
 import org.codehaus.plexus.util.xml.pull.XmlSerializer;
 
+/**
+ * Provide XML parser and serializer that work in tandem to preserve comments (and some formatting)
+ */
 public final class RoundTripXml
 {
     /**
@@ -36,27 +39,51 @@ public final class RoundTripXml
     {
     }
 
+    /**
+     * @return round-trip XML parser
+     */
     public static XmlPullParser createParser()
     {
         return new RoundTripParser();
     }
 
+    /**
+     * @return round-trip XML serializer
+     */
     public static XmlSerializer createSerializer()
     {
         return new RoundTripSerializer();
     }
 
+    /**
+     * Customize parser to preserve comments as special tags
+     */
     static class RoundTripParser extends MXParser
     {
-        boolean handleComment = false;
+        /**
+         * Are we parsing a comment?
+         */
+        private boolean m_handleComment = false;
 
+        /**
+         * Use default config
+         */
+        RoundTripParser()
+        {
+            super();
+        }
+
+        /**
+         * {@inheritDoc}
+         */
         public int next()
             throws XmlPullParserException,
             IOException
         {
-            if( handleComment )
+            if( m_handleComment )
             {
-                handleComment = false;
+                // end pseudo-tag
+                m_handleComment = false;
                 return END_TAG;
             }
 
@@ -64,38 +91,51 @@ public final class RoundTripXml
 
             if( COMMENT == eventType )
             {
-                handleComment = true;
+                // start pseudo-tag
+                m_handleComment = true;
                 return START_TAG;
             }
 
             return type;
         }
 
+        /**
+         * {@inheritDoc}
+         */
         public String getName()
         {
-            if( handleComment )
+            if( m_handleComment )
             {
+                // use comment text as name
                 return "!--" + getText();
             }
 
             return super.getName();
         }
 
+        /**
+         * {@inheritDoc}
+         */
         public boolean isEmptyElementTag()
             throws XmlPullParserException
         {
-            if( handleComment )
+            if( m_handleComment )
             {
+                // comments don't have embedded tags
                 return true;
             }
 
             return super.isEmptyElementTag();
         }
 
+        /**
+         * {@inheritDoc}
+         */
         public int getAttributeCount()
         {
-            if( handleComment )
+            if( m_handleComment )
             {
+                // comments don't have attributes
                 return 0;
             }
 
@@ -103,32 +143,50 @@ public final class RoundTripXml
         }
     }
 
+    /**
+     * Customize serializer to output comments stored in special tags
+     */
     static class RoundTripSerializer extends MXSerializer
     {
-        boolean handleComment = false;
+        /**
+         * Are we serializing a comment?
+         */
+        private boolean m_handleComment = false;
 
-        public RoundTripSerializer()
+        /**
+         * Tweak config to use standard Maven layout
+         */
+        RoundTripSerializer()
         {
+            super();
+
             setProperty( PROPERTY_SERIALIZER_INDENTATION, "  " );
             setProperty( PROPERTY_SERIALIZER_LINE_SEPARATOR, System.getProperty( "line.separator" ) );
         }
 
+        /**
+         * {@inheritDoc}
+         */
         public XmlSerializer startTag( String namespace, String name )
             throws IOException
         {
+            // special comment tag
             if( name.startsWith( "!--" ) )
             {
-                if( !handleComment )
+                if( !m_handleComment )
                 {
+                    // flush previous tag
                     closeStartTag();
                     writeIndent();
                 }
 
-                handleComment = true;
+                m_handleComment = true;
 
+                // write out as normal comment
                 out.write( '<' + name + "-->" );
                 if( getDepth() == 1 )
                 {
+                    // padding heuristic
                     out.write( lineSeparator );
                 }
 
@@ -138,10 +196,11 @@ public final class RoundTripXml
             }
             else
             {
-                handleComment = false;
+                m_handleComment = false;
 
                 if( getDepth() == 0 )
                 {
+                    // padding heuristic
                     out.write( lineSeparator );
                 }
 
@@ -149,6 +208,9 @@ public final class RoundTripXml
             }
         }
 
+        /**
+         * {@inheritDoc}
+         */
         protected void closeStartTag()
             throws IOException
         {
@@ -156,14 +218,18 @@ public final class RoundTripXml
 
             if( getDepth() == 1 )
             {
+                // padding heuristic
                 out.write( lineSeparator );
             }
         }
 
+        /**
+         * {@inheritDoc}
+         */
         public XmlSerializer endTag( String namespace, String name )
             throws IOException
         {
-            if( !handleComment )
+            if( !m_handleComment )
             {
                 super.endTag( namespace, name );
 
@@ -174,6 +240,7 @@ public final class RoundTripXml
 
                 if( getDepth() <= 1 && !stickyTags.contains( name ) )
                 {
+                    // padding heuristic
                     out.write( lineSeparator );
                 }
             }
@@ -181,9 +248,13 @@ public final class RoundTripXml
             return this;
         }
 
+        /**
+         * {@inheritDoc}
+         */
         public XmlSerializer attribute( String namespace, String name, String value )
             throws IOException
         {
+            // don't output any internal attributes used when merging XML
             if( !Xpp3Dom.CHILDREN_COMBINATION_MODE_ATTRIBUTE.equals( name ) )
             {
                 return super.attribute( namespace, name, value );
