@@ -33,17 +33,35 @@ import java.util.Properties;
 import org.ops4j.pax.construct.util.BndFileUtils.BndFile;
 import org.ops4j.pax.construct.util.BndFileUtils.ExistingInstructionException;
 
+/**
+ * Support round-trip editing of BND files, preserving formatting as much as possible
+ */
 public class RoundTripBndFile
     implements BndFile
 {
-    final File m_file;
+    /**
+     * Underlying BND file
+     */
+    private final File m_file;
 
-    Properties m_newInstructions;
-    Properties m_oldInstructions;
+    /**
+     * Current instructions
+     */
+    private Properties m_newInstructions;
 
+    /**
+     * Last saved instructions
+     */
+    private Properties m_oldInstructions;
+
+    /**
+     * @param bndFile property file containing BND instructions
+     * @throws IOException
+     */
     public RoundTripBndFile( File bndFile )
         throws IOException
     {
+        // protect against changes in working directory
         m_file = bndFile.getAbsoluteFile();
 
         m_oldInstructions = new Properties();
@@ -56,39 +74,65 @@ public class RoundTripBndFile
         m_newInstructions.putAll( m_oldInstructions );
     }
 
-    public String getInstruction( String name )
+    /**
+     * {@inheritDoc}
+     */
+    public String getInstruction( String directive )
     {
-        return m_newInstructions.getProperty( name );
+        return m_newInstructions.getProperty( directive );
     }
 
-    public void setInstruction( String name, String value, boolean overwrite )
+    /**
+     * {@inheritDoc}
+     */
+    public void setInstruction( String directive, String instruction, boolean overwrite )
         throws ExistingInstructionException
     {
-        if( overwrite || !m_newInstructions.containsKey( name ) )
+        if( overwrite || !m_newInstructions.containsKey( directive ) )
         {
-            m_newInstructions.setProperty( name, null == value ? "" : value );
+            if( null == instruction )
+            {
+                // map null instructions to the empty string
+                m_newInstructions.setProperty( directive, "" );
+            }
+            else
+            {
+                m_newInstructions.setProperty( directive, instruction );
+            }
         }
         else
         {
-            throw new ExistingInstructionException( name );
+            throw new ExistingInstructionException( directive );
         }
     }
 
-    public boolean removeInstruction( String name )
+    /**
+     * {@inheritDoc}
+     */
+    public boolean removeInstruction( String directive )
     {
-        return null != m_newInstructions.remove( name );
+        return null != m_newInstructions.remove( directive );
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public File getFile()
     {
         return m_file;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public File getBasedir()
     {
         return m_file.getParentFile();
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public void write()
         throws IOException
     {
@@ -105,16 +149,15 @@ public class RoundTripBndFile
         m_oldInstructions.putAll( m_newInstructions );
     }
 
+    /**
+     * Write changes to disk, preserving formatting of unaffected lines
+     * 
+     * @throws IOException
+     */
     void writeUpdatedInstructions()
         throws IOException
     {
-        List lines = new ArrayList();
-        BufferedReader bndReader = new BufferedReader( new FileReader( m_file ) );
-        while( bndReader.ready() )
-        {
-            lines.add( bndReader.readLine() );
-        }
-        bndReader.close();
+        List lines = readLines();
 
         boolean skip = false;
         boolean echo = true;
@@ -133,46 +176,93 @@ public class RoundTripBndFile
             }
             else if( skip )
             {
+                // continue skipping to end of line
                 skip = isLineContinuation( line );
             }
             else
             {
-                String[] keyAndValue = line.split( "[=: \t\r\n\f]", 2 );
-                String key = keyAndValue[0].trim();
-
+                // check to see if we should update / remove / leave alone
+                echo = checkInstructionLine( instructions, bndWriter, line );
                 skip = true;
-                echo = false;
-
-                if( instructions.containsKey( key ) )
-                {
-                    String newValue = (String) instructions.remove( key );
-                    if( newValue.equals( m_oldInstructions.getProperty( key ) ) )
-                    {
-                        echo = true;
-                    }
-                    else
-                    {
-                        writeInstruction( bndWriter, key, newValue );
-                    }
-                }
             }
 
             if( echo )
             {
+                // preserve existing line
                 bndWriter.write( line );
                 bndWriter.newLine();
             }
         }
 
+        // append any new instructions...
         for( Enumeration e = instructions.keys(); e.hasMoreElements(); )
         {
             String key = (String) e.nextElement();
+
             writeInstruction( bndWriter, key, instructions.getProperty( key ) );
         }
 
         bndWriter.close();
     }
 
+    /**
+     * This assumes most BND files will be relatively small
+     * 
+     * @return list of all the lines in the BND file
+     * @throws IOException
+     */
+    List readLines()
+        throws IOException
+    {
+        List lines = new ArrayList();
+
+        BufferedReader bndReader = new BufferedReader( new FileReader( m_file ) );
+        while( bndReader.ready() )
+        {
+            lines.add( bndReader.readLine() );
+        }
+        bndReader.close();
+
+        return lines;
+    }
+
+    /**
+     * Check existing line against instructions and update if necessary
+     * 
+     * @param instructions the instructions to write to disk
+     * @param writer line writer
+     * @param line existing line
+     * @return true if existing line should be echoed unchanged, otherwise false
+     * @throws IOException
+     */
+    boolean checkInstructionLine( Properties instructions, BufferedWriter writer, String line )
+        throws IOException
+    {
+        String[] keyAndValue = line.split( "[=: \t\r\n\f]", 2 );
+        String key = keyAndValue[0].trim();
+
+        if( instructions.containsKey( key ) )
+        {
+            String newValue = (String) instructions.remove( key );
+            if( newValue.equals( m_oldInstructions.getProperty( key ) ) )
+            {
+                // no change
+                return true;
+            }
+            else
+            {
+                writeInstruction( writer, key, newValue );
+            }
+        }
+
+        // instruction has been updated or removed
+        return false;
+    }
+
+    /**
+     * @param line existing line
+     * @return true if line only contains whitespace or comments
+     */
     static boolean isWhitespaceOrComment( String line )
     {
         String comment = line.trim();
@@ -185,6 +275,10 @@ public class RoundTripBndFile
         return '#' == c || '!' == c;
     }
 
+    /**
+     * @param line existing line
+     * @return true if line ends in a continuation marker
+     */
     static boolean isLineContinuation( String line )
     {
         boolean continueLine = false;
@@ -195,6 +289,14 @@ public class RoundTripBndFile
         return continueLine;
     }
 
+    /**
+     * Write instruction as a standard property, with continuation markers at every comma
+     * 
+     * @param writer line writer
+     * @param key property key
+     * @param value property value
+     * @throws IOException
+     */
     static void writeInstruction( BufferedWriter writer, String key, String value )
         throws IOException
     {

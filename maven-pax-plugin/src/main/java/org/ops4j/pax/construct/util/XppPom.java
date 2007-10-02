@@ -44,6 +44,7 @@ public class XppPom
     public XppPom( File pomFile )
         throws IOException
     {
+        // protect against changes in working directory
         m_file = pomFile.getAbsoluteFile();
 
         try
