@@ -27,7 +27,8 @@ import org.ops4j.pax.construct.util.DirUtils;
 
 /**
  * Extends <a href="http://maven.apache.org/plugins/maven-compiler-plugin/compile-mojo.html">CompilerMojo</a> to
- * support compiling against OSGi bundles with embedded jars. All CompilerMojo parameters can be used with this mojo.
+ * support compiling against OSGi bundles with embedded jars.<br/>Inherited parameters can still be used, but
+ * unfortunately don't appear in the generated docs.
  * 
  * @extendsPlugin compiler
  * @goal compile

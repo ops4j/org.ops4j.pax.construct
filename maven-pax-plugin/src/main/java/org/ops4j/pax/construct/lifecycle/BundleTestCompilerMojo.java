@@ -26,9 +26,9 @@ import org.codehaus.plexus.archiver.manager.ArchiverManager;
 import org.ops4j.pax.construct.util.DirUtils;
 
 /**
- * Extends <a href="http://maven.apache.org/plugins/maven-compiler-plugin/test-compile-mojo.html">TestCompilerMojo</a>
- * to support compiling against OSGi bundles with embedded jars. All TestCompilerMojo parameters can be used with this
- * mojo.
+ * Extends <a href="http://maven.apache.org/plugins/maven-compiler-plugin/testCompile-mojo.html">TestCompilerMojo</a>
+ * to support compiling against OSGi bundles with embedded jars.<br/>Inherited parameters can still be used, but
+ * unfortunately don't appear in the generated docs.
  * 
  * @extendsPlugin compiler
  * @goal testCompile

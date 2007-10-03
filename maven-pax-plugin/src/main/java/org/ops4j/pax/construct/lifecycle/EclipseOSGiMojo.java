@@ -58,9 +58,15 @@ import org.ops4j.pax.construct.util.PomUtils;
 import org.ops4j.pax.construct.util.ReflectMojo;
 
 /**
+ * Extends <a href="http://maven.apache.org/plugins/maven-eclipse-plugin/eclipse-mojo.html">EclipsePlugin</a> to
+ * provide customized Eclipse project files for Pax-Construct projects.<br/>Inherited parameters can still be used, but
+ * unfortunately don't appear in the generated docs.
+ * 
  * @extendsPlugin eclipse
  * @goal eclipse
  * @phase package
+ * 
+ * @execute phase="package"
  */
 public class EclipseOSGiMojo extends EclipsePlugin
 {

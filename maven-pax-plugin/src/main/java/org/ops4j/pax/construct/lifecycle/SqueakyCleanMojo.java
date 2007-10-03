@@ -26,29 +26,37 @@ import org.apache.maven.shared.model.fileset.util.FileSetManager;
 import org.ops4j.pax.construct.util.CacheUtils;
 
 /**
+ * Remove generated IDE files, but support limted recovery during the same build session.<br/>So 'mvn clean install
+ * -Peclipse' won't wipe your Eclipse metadata on a compile error.
+ * 
  * @goal clean
  * @phase clean
  */
 public class SqueakyCleanMojo extends AbstractMojo
 {
     /**
+     * Project base directory <br/>
+     * 
      * @parameter default-value="${project.basedir}"
      */
-    File basedir;
+    private File m_basedir;
 
+    /**
+     * Remove generated IDE files, caching some in the current Maven session to support recovery if the build fails
+     */
     public void execute()
         throws MojoExecutionException
     {
         getLog().info( "[caching meta-data]" );
 
         // cache files that we might have problems re-generating during the current lifecycle
-        CacheUtils.pushFile( this, "MANIFEST.MF", new File( basedir, "META-INF/MANIFEST.MF" ) );
-        CacheUtils.pushFile( this, ".project", new File( basedir, ".project" ) );
-        CacheUtils.pushFile( this, ".classpath", new File( basedir, ".classpath" ) );
-        getPluginContext().put( "basedir", basedir.getPath() );
+        CacheUtils.pushFile( this, "MANIFEST.MF", new File( m_basedir, "META-INF/MANIFEST.MF" ) );
+        CacheUtils.pushFile( this, ".project", new File( m_basedir, ".project" ) );
+        CacheUtils.pushFile( this, ".classpath", new File( m_basedir, ".classpath" ) );
+        getPluginContext().put( "basedir", m_basedir.getPath() );
 
         FileSet generatedPaxFiles = new FileSet();
-        generatedPaxFiles.setDirectory( basedir.getPath() );
+        generatedPaxFiles.setDirectory( m_basedir.getPath() );
         generatedPaxFiles.setUseDefaultExcludes( true );
         generatedPaxFiles.setFollowSymlinks( false );
 
@@ -68,6 +76,11 @@ public class SqueakyCleanMojo extends AbstractMojo
         }
     }
 
+    /**
+     * Recover previously cached IDE files from the current Maven session
+     * 
+     * @param mojo currently executing mojo
+     */
     public static void recoverMetaData( AbstractMojo mojo )
     {
         mojo.getLog().info( "[recovering meta-data]" );

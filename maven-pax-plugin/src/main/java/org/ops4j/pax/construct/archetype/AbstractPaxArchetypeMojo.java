@@ -30,6 +30,10 @@ import org.ops4j.pax.construct.util.PomUtils.Pom;
 import org.ops4j.pax.construct.util.ReflectMojo;
 
 /**
+ * Extends <a href="http://maven.apache.org/plugins/maven-archetype-plugin/create-mojo.html">MavenArchetypeMojo</a> to
+ * provide flexible custom archetypes for Pax-Construct projects.<br/>Inherited parameters can still be used, but
+ * unfortunately don't appear in the generated docs.
+ * 
  * @aggregator true
  */
 public abstract class AbstractPaxArchetypeMojo extends MavenArchetypeMojo

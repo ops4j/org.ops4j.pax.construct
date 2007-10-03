@@ -45,15 +45,18 @@ public final class CacheUtils
      */
     public static void pushFile( AbstractMojo mojo, String key, File file )
     {
-        try
+        if( file.exists() )
         {
-            FileReader input = new FileReader( file );
-            mojo.getPluginContext().put( key, IOUtil.toString( input ) );
-            IOUtil.close( input );
-        }
-        catch( IOException e )
-        {
-            mojo.getLog().warn( "Unable to read file into cache: " + file );
+            try
+            {
+                FileReader input = new FileReader( file );
+                mojo.getPluginContext().put( key, IOUtil.toString( input ) );
+                IOUtil.close( input );
+            }
+            catch( IOException e )
+            {
+                mojo.getLog().warn( "Unable to read file into cache: " + file );
+            }
         }
     }
 

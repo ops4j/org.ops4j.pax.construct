@@ -58,7 +58,7 @@ public final class RoundTripXml
     /**
      * Customize parser to preserve comments as special tags
      */
-    static class RoundTripParser extends MXParser
+    static final class RoundTripParser extends MXParser
     {
         /**
          * Are we parsing a comment?
@@ -146,7 +146,7 @@ public final class RoundTripXml
     /**
      * Customize serializer to output comments stored in special tags
      */
-    static class RoundTripSerializer extends MXSerializer
+    static final class RoundTripSerializer extends MXSerializer
     {
         /**
          * Are we serializing a comment?
