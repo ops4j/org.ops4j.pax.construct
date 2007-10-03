@@ -346,7 +346,7 @@ public class XppPom
     /**
      * {@inheritDoc}
      */
-    public void addRepository( Repository repository, boolean overwrite )
+    public void addRepository( Repository repository, boolean snapshots, boolean releases, boolean overwrite )
         throws ExistingElementException
     {
         String id = repository.getId();
@@ -363,6 +363,20 @@ public class XppPom
         Xpp3DomMap repo = new Xpp3DomMap( "repository" );
         repo.putValue( "id", id );
         repo.putValue( "url", url );
+
+        if( !snapshots )
+        {
+            Xpp3DomMap snapshotFlag = new Xpp3DomMap( "snapshots" );
+            snapshotFlag.putValue( "enabled", "false" );
+            repo.addChild( snapshotFlag );
+        }
+
+        if( !releases )
+        {
+            Xpp3DomMap releaseFlag = new Xpp3DomMap( "releases" );
+            releaseFlag.putValue( "enabled", "false" );
+            repo.addChild( releaseFlag );
+        }
 
         Xpp3Dom list = new Xpp3DomList( "repositories" );
         list.addChild( repo );

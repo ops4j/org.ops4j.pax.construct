@@ -26,33 +26,60 @@ import org.ops4j.pax.construct.util.PomUtils;
 import org.ops4j.pax.construct.util.PomUtils.Pom;
 
 /**
+ * Add a repository element to a Maven POM (by default the one in the current working directory)
+ * 
  * @goal add-repository
  * @aggregator true
  */
 public class AddRepositoryMojo extends AbstractMojo
 {
     /**
+     * The repository identifier <br/>
+     * 
      * @parameter expression="${repositoryId}"
      * @required
      */
-    String repositoryId;
+    private String m_repositoryId;
 
     /**
+     * The repository URL <br/>
+     * 
      * @parameter expression="${repositoryURL}"
      * @required
      */
-    String repositoryURL;
+    private String m_repositoryURL;
 
     /**
+     * The directory containing the POM to be updated <br/>
+     * 
      * @parameter expression="${targetDirectory}" default-value="${project.basedir}"
      */
-    File targetDirectory;
+    private File m_targetDirectory;
 
     /**
+     * When true, overwrite matching entries in the POM <br/>
+     * 
      * @parameter expression="${overwrite}"
      */
-    boolean overwrite;
+    private boolean m_overwrite;
 
+    /**
+     * When true, enable snapshots from this repository <br/>
+     * 
+     * @parameter expression="${snapshots}"
+     */
+    private boolean m_snapshots;
+
+    /**
+     * When true, enable releases from this repository <br/>
+     * 
+     * @parameter expression="${releases}" default-value="true"
+     */
+    private boolean m_releases;
+
+    /**
+     * Standard Maven mojo entry-point
+     */
     public void execute()
         throws MojoExecutionException
     {
@@ -60,20 +87,20 @@ public class AddRepositoryMojo extends AbstractMojo
 
         try
         {
-            pom = PomUtils.readPom( targetDirectory );
+            pom = PomUtils.readPom( m_targetDirectory );
         }
         catch( IOException e )
         {
-            throw new MojoExecutionException( "Problem reading Maven POM: " + targetDirectory );
+            throw new MojoExecutionException( "Problem reading Maven POM: " + m_targetDirectory );
         }
 
         Repository repository = new Repository();
-        repository.setId( repositoryId );
-        repository.setUrl( repositoryURL );
+        repository.setId( m_repositoryId );
+        repository.setUrl( m_repositoryURL );
 
-        getLog().info( "Adding repository " + repositoryURL + " to " + pom.getId() );
+        getLog().info( "Adding repository " + m_repositoryURL + " to " + pom.getId() );
 
-        pom.addRepository( repository, overwrite );
+        pom.addRepository( repository, m_snapshots, m_releases, m_overwrite );
 
         try
         {

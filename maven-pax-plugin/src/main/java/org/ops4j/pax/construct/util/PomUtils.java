@@ -144,10 +144,12 @@ public final class PomUtils
 
         /**
          * @param repository a Maven repository
+         * @param snapshots enable snapshots for this repository
+         * @param releases enable releases for this repository
          * @param overwrite overwrite element if true, otherwise throw {@link ExistingElementException}
          * @throws ExistingElementException
          */
-        public void addRepository( Repository repository, boolean overwrite )
+        public void addRepository( Repository repository, boolean snapshots, boolean releases, boolean overwrite )
             throws ExistingElementException;
 
         /**
@@ -197,7 +199,7 @@ public final class PomUtils
          */
         public ExistingElementException( String element )
         {
-            super( element );
+            super( "Project already has a <" + element + "> which matches, use -Doverwrite to replace it" );
         }
     }
 

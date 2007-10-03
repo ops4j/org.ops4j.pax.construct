@@ -88,7 +88,7 @@ public final class BndFileUtils
          */
         public ExistingInstructionException( String directive )
         {
-            super( directive );
+            super( "BND file already has a " + directive + " directive, use -Doverwrite to replace it" );
         }
     }
 

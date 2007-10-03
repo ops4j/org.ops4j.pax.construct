@@ -42,7 +42,7 @@ public class SqueakyCleanMojo extends AbstractMojo
     private File m_basedir;
 
     /**
-     * Remove generated IDE files, caching some in the current Maven session to support recovery if the build fails
+     * Standard Maven mojo entry-point
      */
     public void execute()
         throws MojoExecutionException
