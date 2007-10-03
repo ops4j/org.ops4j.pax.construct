@@ -45,13 +45,14 @@ public class RemoveBundleMojo extends AbstractMojo
      * 
      * @parameter default-value="${project}"
      * @required
+     * @readonly
      */
     private MavenProject m_project;
 
     /**
      * The artifactId or symbolic-name of the bundle.
      * 
-     * @parameter expression="${bundleName}"
+     * @parameter alias="bundleName" expression="${bundleName}"
      * @required
      */
     private String m_bundleName;

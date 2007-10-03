@@ -39,7 +39,7 @@ public class EmbedJarMojo extends AbstractMojo
     /**
      * The groupId of the jar to be embedded.
      * 
-     * @parameter expression="${groupId}"
+     * @parameter alias="groupId" expression="${groupId}"
      * @required
      */
     private String m_groupId;
@@ -47,7 +47,7 @@ public class EmbedJarMojo extends AbstractMojo
     /**
      * The artifactId of the jar to be embedded.
      * 
-     * @parameter expression="${artifactId}"
+     * @parameter alias="artifactId" expression="${artifactId}"
      * @required
      */
     private String m_artifactId;
@@ -55,7 +55,7 @@ public class EmbedJarMojo extends AbstractMojo
     /**
      * The version of the jar to be embedded.
      * 
-     * @parameter expression="${version}"
+     * @parameter alias="version" expression="${version}"
      * @required
      */
     private String m_version;
@@ -63,28 +63,28 @@ public class EmbedJarMojo extends AbstractMojo
     /**
      * When true, unpack the jar inside the bundle.
      * 
-     * @parameter expression="${unpack}"
+     * @parameter alias="unpack" expression="${unpack}"
      */
     private boolean m_unpack;
 
     /**
      * The -exportcontents directive for this bundle, see <a href="http://aqute.biz/Code/Bnd#directives">Bnd docs</a>
      * 
-     * @parameter expression="${exportContents}"
+     * @parameter alias="exportContents" expression="${exportContents}"
      */
     private String m_exportContents;
 
     /**
      * The directory containing the POM to be updated.
      * 
-     * @parameter expression="${targetDirectory}" default-value="${project.basedir}"
+     * @parameter alias="targetDirectory" expression="${targetDirectory}" default-value="${project.basedir}"
      */
     private File m_targetDirectory;
 
     /**
      * When true, overwrite matching directives in the 'osgi.bnd' file.
      * 
-     * @parameter expression="${overwrite}"
+     * @parameter alias="overwrite" expression="${overwrite}"
      */
     private boolean m_overwrite;
 

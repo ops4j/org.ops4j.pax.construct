@@ -46,42 +46,43 @@ public abstract class AbstractPaxArchetypeMojo extends MavenArchetypeMojo
     /**
      * The archetype version to use, defaults to the plugin version.
      * 
-     * @parameter expression="${archetypeVersion}" default-value="${plugin.version}"
+     * @parameter alias="archetypeVersion" expression="${archetypeVersion}" default-value="${plugin.version}"
      */
     private String m_archetypeVersion;
 
     /**
      * Comma separated list of additional remote repository URLs.
      * 
-     * @parameter expression="${remoteRepositories}" default-value="http://repository.ops4j.org/maven2"
+     * @parameter alias="remoteRepositories" expression="${remoteRepositories}"
+     *            default-value="http://repository.ops4j.org/maven2"
      */
     private String m_remoteRepositories;
 
     /**
      * Target directory where the archetype should be created.
      * 
-     * @parameter expression="${targetDirectory}" default-value="${project.basedir}"
+     * @parameter alias="targetDirectory" expression="${targetDirectory}" default-value="${project.basedir}"
      */
     private File m_targetDirectory;
 
     /**
      * When true, avoid duplicate elements when combining group and artifact ids.
      * 
-     * @parameter expression="${compactNames}" default-value="true"
+     * @parameter alias="compactNames" expression="${compactNames}" default-value="true"
      */
     private boolean m_compactNames;
 
     /**
      * When true, add the new archetype as a module in the parent directory's POM.
      * 
-     * @parameter expression="${attachPom}" default-value="true"
+     * @parameter alias="attachPom" expression="${attachPom}" default-value="true"
      */
     private boolean m_attachPom;
 
     /**
      * When true, replace existing files with ones from the new archetype.
      * 
-     * @parameter expression="${overwrite}"
+     * @parameter alias="overwrite" expression="${overwrite}"
      */
     private boolean m_overwrite;
 

@@ -36,15 +36,14 @@ public class MoveBundleMojo extends AbstractMojo
     /**
      * A directory in the same project tree.
      * 
-     * @parameter expression="${baseDirectory}" default-value="${project.basedir}"
-     * @readonly
+     * @parameter alias="baseDirectory" expression="${baseDirectory}" default-value="${project.basedir}"
      */
     private File m_baseDirectory;
 
     /**
      * The new location for the bundle project.
      * 
-     * @parameter expression="${targetDirectory}"
+     * @parameter alias="targetDirectory" expression="${targetDirectory}"
      * @required
      */
     private File m_targetDirectory;
@@ -52,7 +51,7 @@ public class MoveBundleMojo extends AbstractMojo
     /**
      * The artifactId or symbolic-name of the bundle.
      * 
-     * @parameter expression="${bundleName}"
+     * @parameter alias="bundleName" expression="${bundleName}"
      * @required
      */
     private String m_bundleName;

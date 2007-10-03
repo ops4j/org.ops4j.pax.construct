@@ -36,7 +36,7 @@ public class AddRepositoryMojo extends AbstractMojo
     /**
      * The repository identifier.
      * 
-     * @parameter expression="${repositoryId}"
+     * @parameter alias="repositoryId" expression="${repositoryId}"
      * @required
      */
     private String m_repositoryId;
@@ -44,7 +44,7 @@ public class AddRepositoryMojo extends AbstractMojo
     /**
      * The repository URL.
      * 
-     * @parameter expression="${repositoryURL}"
+     * @parameter alias="repositoryURL" expression="${repositoryURL}"
      * @required
      */
     private String m_repositoryURL;
@@ -52,28 +52,28 @@ public class AddRepositoryMojo extends AbstractMojo
     /**
      * The directory containing the POM to be updated.
      * 
-     * @parameter expression="${targetDirectory}" default-value="${project.basedir}"
+     * @parameter alias="targetDirectory" expression="${targetDirectory}" default-value="${project.basedir}"
      */
     private File m_targetDirectory;
 
     /**
      * When true, overwrite matching entries in the POM.
      * 
-     * @parameter expression="${overwrite}"
+     * @parameter alias="overwrite" expression="${overwrite}"
      */
     private boolean m_overwrite;
 
     /**
      * When true, enable snapshots from this repository.
      * 
-     * @parameter expression="${snapshots}"
+     * @parameter alias="snapshots" expression="${snapshots}"
      */
     private boolean m_snapshots;
 
     /**
      * When true, enable releases from this repository.
      * 
-     * @parameter expression="${releases}" default-value="true"
+     * @parameter alias="releases" expression="${releases}" default-value="true"
      */
     private boolean m_releases;
 

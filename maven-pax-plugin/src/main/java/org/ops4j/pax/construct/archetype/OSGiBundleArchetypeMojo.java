@@ -33,46 +33,45 @@ import org.ops4j.pax.construct.util.PomUtils.Pom;
 public class OSGiBundleArchetypeMojo extends AbstractPaxArchetypeMojo
 {
     /**
-     * @parameter expression="${parentId}" default-value="compiled-bundle-settings"
+     * @parameter alias="parentId" expression="${parentId}" default-value="compiled-bundle-settings"
      */
     private String m_parentId;
 
     /**
-     * @parameter expression="${package}"
+     * @parameter alias="package" expression="${package}"
      * @required
      */
     private String m_packageName;
 
     /**
-     * @parameter expression="${bundleName}"
-     * @required
+     * @parameter alias="bundleName" expression="${bundleName}"
      */
     private String m_bundleName;
 
     /**
-     * @parameter expression="${version}" default-value="1.0-SNAPSHOT"
+     * @parameter alias="version" expression="${version}" default-value="1.0-SNAPSHOT"
      */
     private String m_version;
 
     /**
-     * @parameter expression="${interface}" default-value="true"
+     * @parameter alias="interface" expression="${interface}" default-value="true"
      */
     private boolean m_provideInterface;
 
     /**
-     * @parameter expression="${internals}" default-value="true"
+     * @parameter alias="internals" expression="${internals}" default-value="true"
      */
     private boolean m_provideInternals;
 
     /**
-     * @parameter expression="${activator}" default-value="true"
+     * @parameter alias="activator" expression="${activator}" default-value="true"
      */
     private boolean m_provideActivator;
 
     /**
-     * @parameter expression="${addOSGiDependencies}" default-value="true"
+     * @parameter alias="noDependencies" expression="${noDependencies}"
      */
-    private boolean m_addOSGiDependencies;
+    private boolean m_noDependencies;
 
     String getParentId()
     {
@@ -113,7 +112,7 @@ public class OSGiBundleArchetypeMojo extends AbstractPaxArchetypeMojo
 
         super.postProcess();
 
-        if( m_addOSGiDependencies )
+        if( !m_noDependencies )
         {
             try
             {

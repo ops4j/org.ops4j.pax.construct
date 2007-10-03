@@ -25,24 +25,24 @@ package org.ops4j.pax.construct.archetype;
 public class OSGiProjectArchetypeMojo extends AbstractPaxArchetypeMojo
 {
     /**
-     * @parameter expression="${parentId}"
+     * @parameter alias="parentId" expression="${parentId}"
      */
     private String m_parentId;
 
     /**
-     * @parameter expression="${groupId}"
+     * @parameter alias="groupId" expression="${groupId}"
      * @required
      */
     private String m_groupId;
 
     /**
-     * @parameter expression="${artifactId}"
+     * @parameter alias="artifactId" expression="${artifactId}"
      * @required
      */
     private String m_artifactId;
 
     /**
-     * @parameter expression="${version}" default-value="1.0-SNAPSHOT"
+     * @parameter alias="version" expression="${version}" default-value="1.0-SNAPSHOT"
      */
     private String m_version;
 

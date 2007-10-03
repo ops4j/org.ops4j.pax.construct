@@ -58,12 +58,13 @@ public class OSGiWrapperArchetypeMojo extends AbstractPaxArchetypeMojo
     private ArtifactResolver m_resolver;
 
     /**
-     * @parameter expression="${remoteRepositories}" default-value="${project.remoteArtifactRepositories}"
+     * @parameter alias="remoteRepositories" expression="${remoteRepositories}"
+     *            default-value="${project.remoteArtifactRepositories}"
      */
     private List m_remoteRepos;
 
     /**
-     * @parameter expression="${localRepository}"
+     * @parameter alias="localRepository" expression="${localRepository}"
      * @required
      */
     private ArtifactRepository m_localRepo;
@@ -74,75 +75,75 @@ public class OSGiWrapperArchetypeMojo extends AbstractPaxArchetypeMojo
     private MavenProjectBuilder m_projectBuilder;
 
     /**
-     * @parameter expression="${parentId}" default-value="wrapper-bundle-settings"
+     * @parameter alias="parentId" expression="${parentId}" default-value="wrapper-bundle-settings"
      */
     private String m_parentId;
 
     /**
-     * @parameter expression="${groupId}"
+     * @parameter alias="groupId" expression="${groupId}"
      * @required
      */
     private String m_groupId;
 
     /**
-     * @parameter expression="${artifactId}"
+     * @parameter alias="artifactId" expression="${artifactId}"
      * @required
      */
     private String m_artifactId;
 
     /**
-     * @parameter expression="${version}"
+     * @parameter alias="version" expression="${version}"
      * @required
      */
     private String m_version;
 
     /**
-     * @parameter expression="${wrapTransitive}"
+     * @parameter alias="wrapTransitive" expression="${wrapTransitive}"
      */
     private boolean m_wrapTransitive;
 
     /**
-     * @parameter expression="${wrapOptional}"
+     * @parameter alias="wrapOptional" expression="${wrapOptional}"
      */
     private boolean m_wrapOptional;
 
     /**
-     * @parameter expression="${embedTransitive}"
+     * @parameter alias="embedTransitive" expression="${embedTransitive}"
      */
     private boolean m_embedTransitive;
 
     /**
-     * @parameter expression="${includeResource}"
+     * @parameter alias="includeResource" expression="${includeResource}"
      */
     private String m_includeResource;
 
     /**
-     * @parameter expression="${importPackage}"
+     * @parameter alias="importPackage" expression="${importPackage}"
      */
     private String m_importPackage;
 
     /**
-     * @parameter expression="${exportContents}"
+     * @parameter alias="exportContents" expression="${exportContents}"
      */
     private String m_exportContents;
 
     /**
-     * @parameter expression="${requireBundle}"
+     * @parameter alias="requireBundle" expression="${requireBundle}"
      */
     private String m_requireBundle;
 
     /**
-     * @parameter expression="${dynamicImportPackage}"
+     * @parameter alias="dynamicImportPackage" expression="${dynamicImportPackage}"
      */
     private String m_dynamicImportPackage;
 
     /**
-     * @parameter expression="${testMetadata}" default-value="true"
+     * @parameter alias="testMetadata" expression="${testMetadata}" default-value="true"
      */
     private boolean m_testMetadata;
 
     /**
-     * @parameter expression="${addVersion}"
+     * @parameter alias="addVersion" expression="${addVersion}"
      */
     private boolean m_addVersion;
 
