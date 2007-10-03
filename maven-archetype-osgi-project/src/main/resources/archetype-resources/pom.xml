@@ -61,15 +61,11 @@
     <repository>
       <id>ops4j-repository</id>
       <url>http://repository.ops4j.org/maven2</url>
+      <snapshots>
+        <enabled>false</enabled>
+      </snapshots>
     </repository>
   </repositories>
-
-  <pluginRepositories>
-    <pluginRepository>
-      <id>ops4j-repository</id>
-      <url>http://repository.ops4j.org/maven2</url>
-    </pluginRepository>
-  </pluginRepositories>
 
 #end
 </project>
