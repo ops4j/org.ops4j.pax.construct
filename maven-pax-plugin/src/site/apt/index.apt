@@ -28,6 +28,11 @@ Maven Pax Plugin
 
   The Pax Plugin is ...need some text!...
 
+* Usage
+
+  Instructions on how to use the Pax Plugin can be found
+  {{{usage.html}here}}.
+
 * Scripts Overview
 
   Windows and Unix scripts are available for several of the Pax goals
@@ -80,9 +85,4 @@ Maven Pax Plugin
   * {{{remove-bundle-mojo.html}pax:remove-bundle}}
 
   * {{{eclipse-mojo.html}pax:eclipse}}
-
-* Usage
-
-  Instructions on how to use the Pax Plugin can be found
-  {{{usage.html}here}}.
 

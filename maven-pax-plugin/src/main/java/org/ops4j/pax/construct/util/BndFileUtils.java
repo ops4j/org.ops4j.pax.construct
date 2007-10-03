@@ -22,7 +22,7 @@ import java.io.IOException;
 import org.apache.maven.plugin.MojoExecutionException;
 
 /**
- * Provide API {@link BndFile} and factory for editing BND instruction files
+ * Provide API {@link BndFile} and factory for editing Bnd instruction files
  */
 public final class BndFileUtils
 {
@@ -34,19 +34,19 @@ public final class BndFileUtils
     }
 
     /**
-     * API for editing BND files
+     * API for editing Bnd files
      */
     public interface BndFile
     {
         /**
-         * @param directive a BND directive
-         * @return assigned BND instruction
+         * @param directive a Bnd directive
+         * @return assigned Bnd instruction
          */
         public String getInstruction( String directive );
 
         /**
-         * @param directive a BND directive
-         * @param instruction a BND instruction
+         * @param directive a Bnd directive
+         * @param instruction a Bnd instruction
          * @param overwrite overwrite existing instruction if true, otherwise throw {@link ExistingInstructionException}
          * @throws ExistingInstructionException
          */
@@ -54,18 +54,18 @@ public final class BndFileUtils
             throws ExistingInstructionException;
 
         /**
-         * @param directive a BND directive
+         * @param directive a Bnd directive
          * @return true if there was an existing instruction, otherwise false
          */
         public boolean removeInstruction( String directive );
 
         /**
-         * @return the underlying BND instruction file
+         * @return the underlying Bnd instruction file
          */
         public File getFile();
 
         /**
-         * @return the directory containing the BND file
+         * @return the directory containing the Bnd file
          */
         public File getBasedir();
 
@@ -77,7 +77,7 @@ public final class BndFileUtils
     }
 
     /**
-     * Thrown when a BND instruction already exists and can't be overwritten {@link BndFile}
+     * Thrown when a Bnd instruction already exists and can't be overwritten {@link BndFile}
      */
     public static class ExistingInstructionException extends MojoExecutionException
     {
@@ -88,15 +88,15 @@ public final class BndFileUtils
          */
         public ExistingInstructionException( String directive )
         {
-            super( "BND file already has a " + directive + " directive, use -Doverwrite to replace it" );
+            super( "Bnd file already has a " + directive + " directive, use -Doverwrite to replace it" );
         }
     }
 
     /**
-     * Factory method that provides an editor for an existing or new BND file
+     * Factory method that provides an editor for an existing or new Bnd file
      * 
-     * @param here a BND file, or a directory containing a file named 'osgi.bnd'
-     * @return simple BND file editor
+     * @param here a Bnd file, or a directory containing a file named 'osgi.bnd'
+     * @return simple Bnd file editor
      * @throws IOException
      */
     public static BndFile readBndFile( File here )

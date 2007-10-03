@@ -34,13 +34,13 @@ import org.ops4j.pax.construct.util.BndFileUtils.BndFile;
 import org.ops4j.pax.construct.util.BndFileUtils.ExistingInstructionException;
 
 /**
- * Support round-trip editing of BND files, preserving formatting as much as possible
+ * Support round-trip editing of Bnd files, preserving formatting as much as possible
  */
 public class RoundTripBndFile
     implements BndFile
 {
     /**
-     * Underlying BND file
+     * Underlying Bnd file
      */
     private final File m_file;
 
@@ -55,7 +55,7 @@ public class RoundTripBndFile
     private Properties m_oldInstructions;
 
     /**
-     * @param bndFile property file containing BND instructions
+     * @param bndFile property file containing Bnd instructions
      * @throws IOException
      */
     public RoundTripBndFile( File bndFile )
@@ -206,9 +206,9 @@ public class RoundTripBndFile
     }
 
     /**
-     * This assumes most BND files will be relatively small
+     * This assumes most Bnd files will be relatively small
      * 
-     * @return list of all the lines in the BND file
+     * @return list of all the lines in the Bnd file
      * @throws IOException
      */
     List readLines()

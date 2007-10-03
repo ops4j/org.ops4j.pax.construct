@@ -199,7 +199,7 @@ public class OSGiWrapperArchetypeMojo extends AbstractPaxArchetypeMojo
         }
         catch( IOException e )
         {
-            throw new MojoExecutionException( "Problem reading BND file: " + m_pomFile.getParentFile() + "/osgi.bnd" );
+            throw new MojoExecutionException( "Problem reading Bnd file: " + m_pomFile.getParentFile() + "/osgi.bnd" );
         }
 
         if( embedTransitive )
@@ -226,7 +226,7 @@ public class OSGiWrapperArchetypeMojo extends AbstractPaxArchetypeMojo
         }
         catch( IOException e )
         {
-            throw new MojoExecutionException( "Problem writing BND file: " + bndFile.getFile() );
+            throw new MojoExecutionException( "Problem writing Bnd file: " + bndFile.getFile() );
         }
     }
 

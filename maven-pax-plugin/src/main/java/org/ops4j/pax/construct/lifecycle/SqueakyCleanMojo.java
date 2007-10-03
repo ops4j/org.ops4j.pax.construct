@@ -35,7 +35,7 @@ import org.ops4j.pax.construct.util.CacheUtils;
 public class SqueakyCleanMojo extends AbstractMojo
 {
     /**
-     * Project base directory <br/>
+     * Project base directory.
      * 
      * @parameter default-value="${project.basedir}"
      */

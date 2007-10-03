@@ -26,7 +26,7 @@ import org.ops4j.pax.construct.util.PomUtils;
 import org.ops4j.pax.construct.util.PomUtils.Pom;
 
 /**
- * Add a repository element to a Maven POM (by default the one in the current working directory)
+ * Add a repository element to a Maven project (by default the POM in the current working directory)
  * 
  * @goal add-repository
  * @aggregator true
@@ -34,7 +34,7 @@ import org.ops4j.pax.construct.util.PomUtils.Pom;
 public class AddRepositoryMojo extends AbstractMojo
 {
     /**
-     * The repository identifier <br/>
+     * The repository identifier.
      * 
      * @parameter expression="${repositoryId}"
      * @required
@@ -42,7 +42,7 @@ public class AddRepositoryMojo extends AbstractMojo
     private String m_repositoryId;
 
     /**
-     * The repository URL <br/>
+     * The repository URL.
      * 
      * @parameter expression="${repositoryURL}"
      * @required
@@ -50,28 +50,28 @@ public class AddRepositoryMojo extends AbstractMojo
     private String m_repositoryURL;
 
     /**
-     * The directory containing the POM to be updated <br/>
+     * The directory containing the POM to be updated.
      * 
      * @parameter expression="${targetDirectory}" default-value="${project.basedir}"
      */
     private File m_targetDirectory;
 
     /**
-     * When true, overwrite matching entries in the POM <br/>
+     * When true, overwrite matching entries in the POM.
      * 
      * @parameter expression="${overwrite}"
      */
     private boolean m_overwrite;
 
     /**
-     * When true, enable snapshots from this repository <br/>
+     * When true, enable snapshots from this repository.
      * 
      * @parameter expression="${snapshots}"
      */
     private boolean m_snapshots;
 
     /**
-     * When true, enable releases from this repository <br/>
+     * When true, enable releases from this repository.
      * 
      * @parameter expression="${releases}" default-value="true"
      */

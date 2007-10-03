@@ -21,49 +21,125 @@ import java.io.IOException;
 
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
-import org.apache.maven.project.MavenProject;
 import org.ops4j.pax.construct.util.DirUtils;
 import org.ops4j.pax.construct.util.PomUtils;
 import org.ops4j.pax.construct.util.PomUtils.Pom;
 
 /**
+ * Move a bundle project to a new directory, updating and creating POMs as necessary
+ * 
  * @goal move-bundle
  * @aggregator true
  */
 public class MoveBundleMojo extends AbstractMojo
 {
     /**
-     * @parameter default-value="${project}"
+     * A directory in the same project tree.
+     * 
+     * @parameter expression="${baseDirectory}" default-value="${project.basedir}"
+     * @readonly
      */
-    MavenProject project;
+    private File m_baseDirectory;
 
     /**
-     * @parameter expression="${bundleName}"
-     * @required
-     */
-    String bundleName;
-
-    /**
+     * The new location for the bundle project.
+     * 
      * @parameter expression="${targetDirectory}"
      * @required
      */
-    File targetDirectory;
+    private File m_targetDirectory;
 
+    /**
+     * The artifactId or symbolic-name of the bundle.
+     * 
+     * @parameter expression="${bundleName}"
+     * @required
+     */
+    private String m_bundleName;
+
+    /**
+     * Standard Maven mojo entry-point
+     */
     public void execute()
         throws MojoExecutionException
     {
-        File bundlePath = new File( bundleName );
+        Pom bundlePom = locateBundlePom( m_baseDirectory, m_bundleName );
+
+        Pom newModulesPom;
+        try
+        {
+            // make sure we can reach the new location from the current project tree
+            newModulesPom = DirUtils.createModuleTree( m_baseDirectory, m_targetDirectory );
+        }
+        catch( IOException e )
+        {
+            newModulesPom = null;
+        }
+
+        // sanity check
+        if( null == newModulesPom )
+        {
+            throw new MojoExecutionException( "targetDirectory is outside of this project" );
+        }
+
+        File bundleDir = bundlePom.getBasedir();
+        File modulesDir = bundleDir.getParentFile();
+
+        final String moduleName = bundleDir.getName();
+
+        File newModulesDir = newModulesPom.getBasedir();
+        File newBundleDir = new File( newModulesDir, moduleName );
+
+        getLog().info( "Moving " + bundlePom.getId() + " to " + newBundleDir );
+
+        // MOVE BUNDLE!
+        if( !bundleDir.renameTo( newBundleDir ) )
+        {
+            throw new MojoExecutionException( "Unable to move bundle " + m_bundleName + " to " + m_targetDirectory );
+        }
+
+        updateRelativePath( newBundleDir, modulesDir, newModulesDir );
+
+        try
+        {
+            // TRANSFER MODULE OWNERSHIP!
+            Pom modulesPom = PomUtils.readPom( modulesDir );
+
+            modulesPom.removeModule( moduleName );
+            modulesPom.write();
+
+            newModulesPom.addModule( moduleName, true );
+            newModulesPom.write();
+        }
+        catch( IOException e )
+        {
+            throw new MojoExecutionException( "Problem moving module from " + modulesDir + " to " + newModulesDir );
+        }
+    }
+
+    /**
+     * Locate the bundle project - try name first as a directory path, then an artifactId or symbolic-name
+     * 
+     * @param baseDir base directory in the same project tree
+     * @param pathOrName either a path, or an artifactId or symbolic-name
+     * @return the matching POM
+     * @throws MojoExecutionException
+     */
+    public static Pom locateBundlePom( File baseDir, String pathOrName )
+        throws MojoExecutionException
+    {
+        File path = new File( pathOrName );
 
         Pom bundlePom;
         try
         {
-            bundlePom = PomUtils.readPom( bundlePath );
+            bundlePom = PomUtils.readPom( path );
         }
         catch( IOException e )
         {
             try
             {
-                bundlePom = DirUtils.findPom( project.getBasedir(), bundlePath.getName() );
+                bundlePom = DirUtils.findPom( baseDir, path.getName() );
             }
             catch( IOException e1 )
             {
@@ -73,46 +149,32 @@ public class MoveBundleMojo extends AbstractMojo
 
         if( null == bundlePom )
         {
-            throw new MojoExecutionException( "Cannot find bundle " + bundleName );
+            throw new MojoExecutionException( "Cannot find bundle " + pathOrName );
         }
 
-        Pom newModulesPom;
+        return bundlePom;
+    }
 
-        try
-        {
-            newModulesPom = DirUtils.createModuleTree( project.getBasedir(), targetDirectory );
-        }
-        catch( IOException e )
-        {
-            newModulesPom = null;
-        }
+    /**
+     * Update relative path to logical parent (assumes bundle hasn't moved above project root)
+     * 
+     * @param bundleDir bundle directory
+     * @param oldParentDir old physical parent directory
+     * @param newParentDir new physical parent directory
+     * @throws MojoExecutionException
+     */
+    static void updateRelativePath( File bundleDir, File oldParentDir, File newParentDir )
+        throws MojoExecutionException
+    {
+        String[] pivot = DirUtils.calculateRelativePath( newParentDir, oldParentDir );
 
-        if( null == newModulesPom )
-        {
-            throw new MojoExecutionException( "targetDirectory is outside of this project" );
-        }
-
-        File bundleFolder = bundlePom.getBasedir();
-        File modulesFolder = bundleFolder.getParentFile();
-
-        final String moduleName = bundleFolder.getName();
-
-        File newModulesFolder = newModulesPom.getBasedir();
-        File newBundleFolder = new File( newModulesFolder, moduleName );
-
-        getLog().info( "Moving " + bundlePom.getId() + " to " + newBundleFolder );
-
-        // MOVE BUNDLE!
-        if( !bundleFolder.renameTo( newBundleFolder ) )
-        {
-            throw new MojoExecutionException( "Unable to move bundle " + bundleName + " to " + targetDirectory );
-        }
-
-        String[] pivot = DirUtils.calculateRelativePath( newModulesFolder, modulesFolder );
         if( null != pivot )
         {
             int relativeOffset = 0;
 
+            /*
+             * Calculate the actual distance moved (up/down) in the project tree
+             */
             for( int i = pivot[0].indexOf( '/' ); i >= 0; i = pivot[0].indexOf( '/', i + 1 ) )
             {
                 relativeOffset--;
@@ -126,30 +188,16 @@ public class MoveBundleMojo extends AbstractMojo
             {
                 try
                 {
-                    Pom pom = PomUtils.readPom( newBundleFolder );
+                    // add or remove '..'s from relative path
+                    Pom pom = PomUtils.readPom( bundleDir );
                     pom.adjustRelativePath( relativeOffset );
                     pom.write();
                 }
                 catch( IOException e )
                 {
-                    throw new MojoExecutionException( "Problem applying relative path offset: " + pivot[0] + pivot[2] );
+                    throw new MojoExecutionException( "Problem applying relative path offset: " + relativeOffset );
                 }
             }
-        }
-
-        try
-        {
-            Pom modulesPom = PomUtils.readPom( modulesFolder );
-
-            modulesPom.removeModule( moduleName );
-            modulesPom.write();
-
-            newModulesPom.addModule( moduleName, true );
-            newModulesPom.write();
-        }
-        catch( IOException e )
-        {
-            throw new MojoExecutionException( "Problem refactoring: " + modulesFolder + " => " + newModulesFolder );
         }
     }
 }
