@@ -85,6 +85,7 @@ public class InheritMojo extends AbstractMojo
      * local plugin project
      * 
      * @parameter expression="${project}"
+     * @readonly
      */
     private MavenProject m_project;
 
@@ -92,13 +93,14 @@ public class InheritMojo extends AbstractMojo
      * output directory for the plugin project
      * 
      * @parameter expression="${project.build.outputDirectory}"
+     * @readonly
      */
     private File m_outputDirectory;
 
     /**
      * support for accessing archives
      * 
-     * @component role="org.codehaus.plexus.archiver.manager.ArchiverManager"
+     * @component
      */
     private ArchiverManager m_archiverManager;
 
