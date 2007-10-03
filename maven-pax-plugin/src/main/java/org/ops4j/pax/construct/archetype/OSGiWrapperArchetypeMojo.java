@@ -18,6 +18,7 @@ package org.ops4j.pax.construct.archetype;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
@@ -31,9 +32,12 @@ import org.apache.maven.model.Dependency;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.project.MavenProject;
 import org.apache.maven.project.MavenProjectBuilder;
+import org.apache.maven.project.ProjectBuildingException;
+import org.apache.maven.project.artifact.InvalidDependencyVersionException;
 import org.ops4j.pax.construct.util.BndFileUtils;
-import org.ops4j.pax.construct.util.PomUtils;
 import org.ops4j.pax.construct.util.BndFileUtils.BndFile;
+import org.ops4j.pax.construct.util.PomUtils;
+import org.ops4j.pax.construct.util.PomUtils.ExistingElementException;
 import org.ops4j.pax.construct.util.PomUtils.Pom;
 
 /**
@@ -46,138 +50,148 @@ public class OSGiWrapperArchetypeMojo extends AbstractPaxArchetypeMojo
     /**
      * @component
      */
-    ArtifactFactory artifactFactory;
+    private ArtifactFactory m_artifactFactory;
 
     /**
      * @component
      */
-    ArtifactResolver resolver;
+    private ArtifactResolver m_resolver;
 
     /**
      * @parameter expression="${remoteRepositories}" default-value="${project.remoteArtifactRepositories}"
      */
-    List remoteRepos;
+    private List m_remoteRepos;
 
     /**
      * @parameter expression="${localRepository}"
      * @required
      */
-    ArtifactRepository localRepo;
+    private ArtifactRepository m_localRepo;
 
     /**
      * @component
      */
-    MavenProjectBuilder projectBuilder;
+    private MavenProjectBuilder m_projectBuilder;
 
     /**
      * @parameter expression="${parentId}" default-value="wrapper-bundle-settings"
      */
-    String parentId;
+    private String m_parentId;
 
     /**
      * @parameter expression="${groupId}"
      * @required
      */
-    String groupId;
+    private String m_groupId;
 
     /**
      * @parameter expression="${artifactId}"
      * @required
      */
-    String artifactId;
+    private String m_artifactId;
 
     /**
      * @parameter expression="${version}"
      * @required
      */
-    String version;
+    private String m_version;
 
     /**
      * @parameter expression="${wrapTransitive}"
      */
-    boolean wrapTransitive;
+    private boolean m_wrapTransitive;
 
     /**
      * @parameter expression="${wrapOptional}"
      */
-    boolean wrapOptional;
+    private boolean m_wrapOptional;
 
     /**
      * @parameter expression="${embedTransitive}"
      */
-    boolean embedTransitive;
+    private boolean m_embedTransitive;
 
     /**
      * @parameter expression="${includeResource}"
      */
-    String includeResource;
+    private String m_includeResource;
 
     /**
      * @parameter expression="${importPackage}"
      */
-    String importPackage;
+    private String m_importPackage;
 
     /**
      * @parameter expression="${exportContents}"
      */
-    String exportContents;
+    private String m_exportContents;
 
     /**
      * @parameter expression="${requireBundle}"
      */
-    String requireBundle;
+    private String m_requireBundle;
 
     /**
      * @parameter expression="${dynamicImportPackage}"
      */
-    String dynamicImportPackage;
+    private String m_dynamicImportPackage;
 
     /**
      * @parameter expression="${testMetadata}" default-value="true"
      */
-    boolean testMetadata;
+    private boolean m_testMetadata;
 
     /**
      * @parameter expression="${addVersion}"
      */
-    boolean addVersion;
+    private boolean m_addVersion;
 
-    List m_candidateIds;
-    Set m_visitedIds;
+    private List m_wrappingIds;
+
+    private Set m_visitedIds;
+
+    String getParentId()
+    {
+        return m_parentId;
+    }
 
     void updateExtensionFields()
     {
-        if( null == m_candidateIds )
+        if( null == m_wrappingIds )
         {
-            String rootId = groupId + ':' + artifactId + ':' + version;
+            String rootId = m_groupId + ':' + m_artifactId + ':' + m_version;
 
-            m_candidateIds = new ArrayList();
+            m_wrappingIds = new ArrayList();
             m_visitedIds = new HashSet();
 
-            m_candidateIds.add( rootId );
+            m_wrappingIds.add( rootId );
             m_visitedIds.add( rootId );
         }
 
-        String id = (String) m_candidateIds.remove( 0 );
+        String id = (String) m_wrappingIds.remove( 0 );
         String[] fields = id.split( ":" );
 
-        groupId = fields[0];
-        artifactId = fields[1];
-        version = fields[2];
+        m_groupId = fields[0];
+        m_artifactId = fields[1];
+        m_version = fields[2];
 
-        m_mojo.setField( "archetypeArtifactId", "maven-archetype-osgi-wrapper" );
-        String compoundWrapperName = getCompactName( groupId, artifactId );
+        getArchetypeMojo().setField( "archetypeArtifactId", "maven-archetype-osgi-wrapper" );
 
-        if( addVersion )
+        String combinedName = getCompactName( m_groupId, m_artifactId );
+
+        getArchetypeMojo().setField( "groupId", getInternalGroupId() );
+        getArchetypeMojo().setField( "packageName", calculateGroupMarker( m_groupId, m_artifactId, combinedName ) );
+
+        if( m_addVersion )
         {
-            compoundWrapperName += '-' + version;
+            getArchetypeMojo().setField( "artifactId", combinedName + '-' + m_version );
+            getArchetypeMojo().setField( "version", '+' + m_version );
         }
-
-        m_mojo.setField( "groupId", getCompactName( project.getGroupId(), project.getArtifactId() ) );
-        m_mojo.setField( "artifactId", compoundWrapperName );
-        m_mojo.setField( "version", (addVersion ? '+' : ' ') + version );
-
-        m_mojo.setField( "packageName", calculateGroupMarker( groupId, artifactId ) );
+        else
+        {
+            getArchetypeMojo().setField( "artifactId", combinedName );
+            getArchetypeMojo().setField( "version", '=' + m_version );
+        }
     }
 
     void postProcess()
@@ -185,132 +199,141 @@ public class OSGiWrapperArchetypeMojo extends AbstractPaxArchetypeMojo
     {
         super.postProcess();
 
-        if( wrapTransitive )
+        if( m_wrapTransitive )
         {
-            scheduleTransitiveArtifacts();
-            embedTransitive = false;
+            try
+            {
+                wrapTransitiveArtifacts();
+                m_embedTransitive = false;
+            }
+            catch( IOException e )
+            {
+                throw new MojoExecutionException( "Problem creating wrapper POM: " + getPomFile() );
+            }
         }
-
-        BndFile bndFile;
 
         try
         {
-            bndFile = BndFileUtils.readBndFile( m_pomFile.getParentFile() );
+            updateBndInstructions();
         }
         catch( IOException e )
         {
-            throw new MojoExecutionException( "Problem reading Bnd file: " + m_pomFile.getParentFile() + "/osgi.bnd" );
-        }
-
-        if( embedTransitive )
-            bndFile.setInstruction( "Embed-Transitive", "true", overwrite );
-
-        if( includeResource != null )
-            bndFile.setInstruction( "Include-Resource", includeResource, overwrite );
-
-        if( importPackage != null )
-            bndFile.setInstruction( "Import-Package", importPackage, overwrite );
-
-        if( exportContents != null )
-            bndFile.setInstruction( "-exportcontents", exportContents, overwrite );
-
-        if( requireBundle != null )
-            bndFile.setInstruction( "Require-Bundle", requireBundle, overwrite );
-
-        if( dynamicImportPackage != null )
-            bndFile.setInstruction( "DynamicImport-Package", dynamicImportPackage, overwrite );
-
-        try
-        {
-            bndFile.write();
-        }
-        catch( IOException e )
-        {
-            throw new MojoExecutionException( "Problem writing Bnd file: " + bndFile.getFile() );
+            throw new MojoExecutionException( "Problem updating Bnd instructions" );
         }
     }
 
-    String getParentId()
+    private void updateBndInstructions()
+        throws IOException,
+        MojoExecutionException
     {
-        return parentId;
+        BndFile bndFile = BndFileUtils.readBndFile( getPomFile().getParentFile() );
+
+        if( m_embedTransitive )
+        {
+            bndFile.setInstruction( "Embed-Transitive", "true", canOverwrite() );
+        }
+        if( m_includeResource != null )
+        {
+            bndFile.setInstruction( "Include-Resource", m_includeResource, canOverwrite() );
+        }
+        if( m_importPackage != null )
+        {
+            bndFile.setInstruction( "Import-Package", m_importPackage, canOverwrite() );
+        }
+        if( m_exportContents != null )
+        {
+            bndFile.setInstruction( "-exportcontents", m_exportContents, canOverwrite() );
+        }
+        if( m_requireBundle != null )
+        {
+            bndFile.setInstruction( "Require-Bundle", m_requireBundle, canOverwrite() );
+        }
+        if( m_dynamicImportPackage != null )
+        {
+            bndFile.setInstruction( "DynamicImport-Package", m_dynamicImportPackage, canOverwrite() );
+        }
+
+        bndFile.write();
     }
 
     boolean createMoreArtifacts()
     {
-        return !m_candidateIds.isEmpty();
+        return !m_wrappingIds.isEmpty();
     }
 
-    void scheduleTransitiveArtifacts()
-        throws MojoExecutionException
+    void wrapTransitiveArtifacts()
+        throws IOException,
+        MojoExecutionException
     {
         Pom thisPom;
 
-        try
-        {
-            thisPom = PomUtils.readPom( m_pomFile );
-        }
-        catch( IOException e )
-        {
-            throw new MojoExecutionException( "Problem reading Maven POM: " + m_pomFile );
-        }
+        thisPom = PomUtils.readPom( getPomFile() );
 
         List dependencyPoms = new ArrayList();
-        dependencyPoms.add( artifactFactory.createProjectArtifact( groupId, artifactId, version ) );
+        dependencyPoms.add( m_artifactFactory.createProjectArtifact( m_groupId, m_artifactId, m_version ) );
 
         while( !dependencyPoms.isEmpty() )
         {
             Artifact pomArtifact = (Artifact) dependencyPoms.remove( 0 );
 
+            Set artifacts;
             try
             {
-                MavenProject pomProject = projectBuilder.buildFromRepository( pomArtifact, remoteRepos, localRepo );
-
-                Set artifacts = pomProject.createArtifacts( artifactFactory, null, null );
-                for( Iterator i = artifacts.iterator(); i.hasNext(); )
-                {
-                    Artifact artifact = (Artifact) i.next();
-                    String id = getCandidateId( artifact );
-                    String scope = artifact.getScope();
-
-                    boolean doWrap = wrapOptional || !artifact.isOptional();
-
-                    if( Artifact.SCOPE_SYSTEM.equals( scope ) || Artifact.SCOPE_TEST.equals( scope ) )
-                    {
-                        doWrap = false;
-                    }
-
-                    if( m_visitedIds.add( id ) && doWrap )
-                    {
-                        if( "pom".equals( artifact.getType() ) )
-                        {
-                            dependencyPoms.add( artifact );
-                        }
-                        else if( PomUtils.isBundleArtifact( artifact, resolver, remoteRepos, localRepo, testMetadata ) )
-                        {
-                            thisPom.addDependency( getBundleDependency( artifact ), true );
-                        }
-                        else
-                        {
-                            m_candidateIds.add( id );
-
-                            thisPom.addDependency( getWrappedDependency( artifact ), true );
-                        }
-                    }
-                }
+                MavenProject p = m_projectBuilder.buildFromRepository( pomArtifact, m_remoteRepos, m_localRepo );
+                artifacts = p.createArtifacts( m_artifactFactory, null, null );
             }
-            catch( Exception e )
+            catch( ProjectBuildingException e )
             {
-                getLog().warn( "Problem resolving " + pomArtifact.getId() );
+                artifacts = Collections.EMPTY_SET;
             }
+            catch( InvalidDependencyVersionException e )
+            {
+                artifacts = Collections.EMPTY_SET;
+            }
+
+            processDependencies( thisPom, dependencyPoms, artifacts );
         }
 
-        try
+        thisPom.write();
+    }
+
+    private void processDependencies( Pom thisPom, List dependencyPoms, Set artifacts )
+        throws ExistingElementException
+    {
+        for( Iterator i = artifacts.iterator(); i.hasNext(); )
         {
-            thisPom.write();
+            Artifact artifact = (Artifact) i.next();
+            String scope = artifact.getScope();
+
+            if( !Artifact.SCOPE_SYSTEM.equals( scope ) && !Artifact.SCOPE_TEST.equals( scope )
+                && ( m_wrapOptional || !artifact.isOptional() ) )
+            {
+                scheduleWrapping( thisPom, dependencyPoms, artifact );
+            }
         }
-        catch( IOException e )
+    }
+
+    private void scheduleWrapping( Pom thisPom, List dependencyPoms, Artifact artifact )
+        throws ExistingElementException
+    {
+        String id = getCandidateId( artifact );
+
+        if( m_visitedIds.add( id ) )
         {
-            throw new MojoExecutionException( "Problem writing Maven POM: " + thisPom.getFile() );
+            if( "pom".equals( artifact.getType() ) )
+            {
+                dependencyPoms.add( artifact );
+            }
+            else if( PomUtils.isBundleArtifact( artifact, m_resolver, m_remoteRepos, m_localRepo, m_testMetadata ) )
+            {
+                thisPom.addDependency( getBundleDependency( artifact ), true );
+            }
+            else
+            {
+                m_wrappingIds.add( id );
+
+                thisPom.addDependency( getWrappedDependency( artifact ), true );
+            }
         }
     }
 
@@ -335,14 +358,14 @@ public class OSGiWrapperArchetypeMojo extends AbstractPaxArchetypeMojo
     {
         Dependency dependency = new Dependency();
 
-        dependency.setGroupId( getCompactName( project.getGroupId(), project.getArtifactId() ) );
+        dependency.setGroupId( getInternalGroupId() );
         String wrappedArtifactId = getCompactName( artifact.getGroupId(), artifact.getArtifactId() );
         String metaVersion = PomUtils.getMetaVersion( artifact );
 
-        if( addVersion )
+        if( m_addVersion )
         {
             dependency.setArtifactId( wrappedArtifactId + '-' + metaVersion );
-            dependency.setVersion( project.getVersion() );
+            dependency.setVersion( getProjectVersion() );
         }
         else
         {

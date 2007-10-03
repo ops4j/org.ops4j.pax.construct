@@ -21,8 +21,8 @@ import java.io.IOException;
 import org.apache.maven.model.Dependency;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.ops4j.pax.construct.util.BndFileUtils;
-import org.ops4j.pax.construct.util.PomUtils;
 import org.ops4j.pax.construct.util.BndFileUtils.BndFile;
+import org.ops4j.pax.construct.util.PomUtils;
 import org.ops4j.pax.construct.util.PomUtils.Pom;
 
 /**
@@ -35,148 +35,144 @@ public class OSGiBundleArchetypeMojo extends AbstractPaxArchetypeMojo
     /**
      * @parameter expression="${parentId}" default-value="compiled-bundle-settings"
      */
-    String parentId;
-
-    /**
-     * @parameter expression="${provisionId}" default-value="provision"
-     */
-    String provisionId;
+    private String m_parentId;
 
     /**
      * @parameter expression="${package}"
      * @required
      */
-    String packageName;
+    private String m_packageName;
 
     /**
      * @parameter expression="${bundleName}"
      * @required
      */
-    String bundleName;
+    private String m_bundleName;
 
     /**
      * @parameter expression="${version}" default-value="1.0-SNAPSHOT"
      */
-    String version;
+    private String m_version;
 
     /**
      * @parameter expression="${interface}" default-value="true"
      */
-    boolean provideInterface;
+    private boolean m_provideInterface;
 
     /**
      * @parameter expression="${internals}" default-value="true"
      */
-    boolean provideInternals;
+    private boolean m_provideInternals;
 
     /**
      * @parameter expression="${activator}" default-value="true"
      */
-    boolean provideActivator;
+    private boolean m_provideActivator;
 
     /**
      * @parameter expression="${addOSGiDependencies}" default-value="true"
      */
-    boolean addOSGiDependencies;
+    private boolean m_addOSGiDependencies;
+
+    String getParentId()
+    {
+        return m_parentId;
+    }
 
     void updateExtensionFields()
     {
-        m_mojo.setField( "archetypeArtifactId", "maven-archetype-osgi-bundle" );
+        if( null == m_bundleName || m_bundleName.trim().length() == 0 )
+        {
+            m_bundleName = m_packageName;
+        }
 
-        m_mojo.setField( "groupId", getCompactName( project.getGroupId(), project.getArtifactId() ) );
-        m_mojo.setField( "artifactId", bundleName );
-        m_mojo.setField( "version", version );
+        getArchetypeMojo().setField( "archetypeArtifactId", "maven-archetype-osgi-bundle" );
 
-        m_mojo.setField( "packageName", packageName );
+        getArchetypeMojo().setField( "groupId", getInternalGroupId() );
+        getArchetypeMojo().setField( "artifactId", m_bundleName );
+        getArchetypeMojo().setField( "version", m_version );
+
+        getArchetypeMojo().setField( "packageName", m_packageName );
     }
 
     void postProcess()
         throws MojoExecutionException
     {
-        if( !provideInterface )
+        if( !m_provideInterface )
         {
-            m_tempFiles.addInclude( "src/main/java/**/ExampleService.java" );
+            addTempFiles( "src/main/java/**/ExampleService.java" );
         }
-        if( !provideInternals )
+        if( !m_provideInternals )
         {
-            m_tempFiles.addInclude( "src/main/java/**/internal" );
+            addTempFiles( "src/main/java/**/internal" );
         }
-        if( !provideActivator )
+        if( !m_provideActivator )
         {
-            m_tempFiles.addInclude( "src/main/java/**/Activator.java" );
+            addTempFiles( "src/main/java/**/Activator.java" );
         }
 
         super.postProcess();
 
-        if( addOSGiDependencies )
+        if( m_addOSGiDependencies )
         {
-            Pom thisPom;
-
             try
             {
-                thisPom = PomUtils.readPom( m_pomFile );
+                addOSGiDependenciesToPom();
             }
             catch( IOException e )
             {
-                throw new MojoExecutionException( "Problem reading Maven POM: " + m_pomFile );
-            }
-
-            Dependency osgiCore = new Dependency();
-            osgiCore.setGroupId( "org.osgi" );
-            osgiCore.setArtifactId( "osgi_R4_core" );
-            thisPom.addDependency( osgiCore, overwrite );
-
-            Dependency osgiCompendium = new Dependency();
-            osgiCompendium.setGroupId( "org.osgi" );
-            osgiCompendium.setArtifactId( "osgi_R4_compendium" );
-            thisPom.addDependency( osgiCompendium, overwrite );
-
-            try
-            {
-                thisPom.write();
-            }
-            catch( IOException e )
-            {
-                throw new MojoExecutionException( "Problem writing Maven POM: " + thisPom.getFile() );
+                throw new MojoExecutionException( "Problem updating Maven POM: " + getPomFile() );
             }
         }
-
-        BndFile bndFile;
 
         try
         {
-            bndFile = BndFileUtils.readBndFile( m_pomFile.getParentFile() );
+            updateBndInstructions();
         }
-        catch( IOException e1 )
+        catch( IOException e )
         {
-            throw new MojoExecutionException( "Problem reading Bnd file: " + m_pomFile.getParentFile() + "/osgi.bnd" );
+            throw new MojoExecutionException( "Problem updating Bnd instructions" );
         }
+    }
 
-        if( provideInternals && !provideInterface )
+    void addOSGiDependenciesToPom()
+        throws IOException,
+        MojoExecutionException
+    {
+        Pom thisPom = PomUtils.readPom( getPomFile() );
+
+        Dependency osgiCore = new Dependency();
+        osgiCore.setGroupId( "org.osgi" );
+        osgiCore.setArtifactId( "osgi_R4_core" );
+        thisPom.addDependency( osgiCore, canOverwrite() );
+
+        Dependency osgiCompendium = new Dependency();
+        osgiCompendium.setGroupId( "org.osgi" );
+        osgiCompendium.setArtifactId( "osgi_R4_compendium" );
+        thisPom.addDependency( osgiCompendium, canOverwrite() );
+
+        thisPom.write();
+    }
+
+    void updateBndInstructions()
+        throws IOException,
+        MojoExecutionException
+    {
+        BndFile bndFile = BndFileUtils.readBndFile( getPomFile().getParentFile() );
+
+        if( m_provideInternals && !m_provideInterface )
         {
-            bndFile.setInstruction( "Export-Package", null, overwrite );
+            bndFile.setInstruction( "Export-Package", null, canOverwrite() );
         }
-        if( !provideInternals && provideInterface )
+        if( !m_provideInternals && m_provideInterface )
         {
-            bndFile.setInstruction( "Private-Package", null, overwrite );
+            bndFile.setInstruction( "Private-Package", null, canOverwrite() );
         }
-        if( !provideActivator || !provideInternals )
+        if( !m_provideActivator || !m_provideInternals )
         {
             bndFile.removeInstruction( "Bundle-Activator" );
         }
 
-        try
-        {
-            bndFile.write();
-        }
-        catch( IOException e )
-        {
-            throw new MojoExecutionException( "Problem writing Bnd file: " + bndFile.getFile() );
-        }
-    }
-
-    String getParentId()
-    {
-        return parentId;
+        bndFile.write();
     }
 }

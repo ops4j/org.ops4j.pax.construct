@@ -38,42 +38,90 @@ import org.ops4j.pax.construct.util.ReflectMojo;
  */
 public abstract class AbstractPaxArchetypeMojo extends MavenArchetypeMojo
 {
-    static final String PAX_ARCHETYPE_GROUP_ID = "org.ops4j.pax.construct";
+    /**
+     * Our local archetype group
+     */
+    private static final String PAX_ARCHETYPE_GROUP_ID = "org.ops4j.pax.construct";
 
     /**
+     * The archetype version to use, defaults to the plugin version.
+     * 
      * @parameter expression="${archetypeVersion}" default-value="${plugin.version}"
      */
-    String archetypeVersion;
+    private String m_archetypeVersion;
 
     /**
+     * Comma separated list of additional remote repository URLs.
+     * 
      * @parameter expression="${remoteRepositories}" default-value="http://repository.ops4j.org/maven2"
      */
-    String remoteRepositories;
+    private String m_remoteRepositories;
 
     /**
+     * Target directory where the archetype should be created.
+     * 
      * @parameter expression="${targetDirectory}" default-value="${project.basedir}"
      */
-    File targetDirectory;
+    private File m_targetDirectory;
 
     /**
+     * When true, avoid duplicate elements when combining group and artifact ids.
+     * 
      * @parameter expression="${compactNames}" default-value="true"
      */
-    boolean compactNames;
+    private boolean m_compactNames;
 
     /**
+     * When true, add the new archetype as a module in the parent directory's POM.
+     * 
      * @parameter expression="${attachPom}" default-value="true"
      */
-    boolean attachPom;
+    private boolean m_attachPom;
 
     /**
+     * When true, replace existing files with ones from the new archetype.
+     * 
      * @parameter expression="${overwrite}"
      */
-    boolean overwrite;
+    private boolean m_overwrite;
 
-    MavenProject project;
-    ReflectMojo m_mojo;
-    FileSet m_tempFiles;
-    File m_pomFile;
+    private MavenProject m_project;
+
+    private ReflectMojo m_archetypeMojo;
+
+    private File m_pomFile;
+
+    private FileSet m_tempFiles;
+
+    boolean canOverwrite()
+    {
+        return m_overwrite;
+    }
+
+    String getInternalGroupId()
+    {
+        return getCompactName( m_project.getGroupId(), m_project.getArtifactId() );
+    }
+
+    String getProjectVersion()
+    {
+        return m_project.getVersion();
+    }
+
+    ReflectMojo getArchetypeMojo()
+    {
+        return m_archetypeMojo;
+    }
+
+    File getPomFile()
+    {
+        return m_pomFile;
+    }
+
+    void addTempFiles( String pathExpression )
+    {
+        m_tempFiles.addInclude( pathExpression );
+    }
 
     public final void execute()
         throws MojoExecutionException
@@ -98,16 +146,16 @@ public abstract class AbstractPaxArchetypeMojo extends MavenArchetypeMojo
 
     final void updateFields()
     {
-        m_mojo = new ReflectMojo( this, MavenArchetypeMojo.class );
+        m_archetypeMojo = new ReflectMojo( this, MavenArchetypeMojo.class );
 
-        m_mojo.setField( "archetypeGroupId", PAX_ARCHETYPE_GROUP_ID );
-        m_mojo.setField( "archetypeVersion", archetypeVersion );
-        m_mojo.setField( "remoteRepositories", remoteRepositories );
-        m_mojo.setField( "project", project );
+        m_archetypeMojo.setField( "archetypeGroupId", PAX_ARCHETYPE_GROUP_ID );
+        m_archetypeMojo.setField( "archetypeVersion", m_archetypeVersion );
+        m_archetypeMojo.setField( "remoteRepositories", m_remoteRepositories );
 
-        targetDirectory = DirUtils.resolveFile( targetDirectory, true );
+        m_project = (MavenProject) m_archetypeMojo.getField( "project" );
+        m_targetDirectory = DirUtils.resolveFile( m_targetDirectory, true );
 
-        m_mojo.setField( "basedir", targetDirectory.getPath() );
+        m_archetypeMojo.setField( "basedir", m_targetDirectory.getPath() );
 
         // these must be set by the various archetype sub-classes
         // setField( "archetypeArtifactId", archetypeArtifactId );
@@ -124,11 +172,11 @@ public abstract class AbstractPaxArchetypeMojo extends MavenArchetypeMojo
     void prepareTarget()
         throws MojoExecutionException
     {
-        String artifactId = (String) m_mojo.getField( "artifactId" );
-        File pomDirectory = new File( targetDirectory, artifactId );
+        String artifactId = (String) m_archetypeMojo.getField( "artifactId" );
+        File pomDirectory = new File( m_targetDirectory, artifactId );
 
         m_pomFile = new File( pomDirectory, "pom.xml" );
-        if( overwrite && m_pomFile.exists() )
+        if( m_overwrite && m_pomFile.exists() )
         {
             m_pomFile.delete();
         }
@@ -136,15 +184,15 @@ public abstract class AbstractPaxArchetypeMojo extends MavenArchetypeMojo
         m_tempFiles = new FileSet();
         m_tempFiles.setDirectory( pomDirectory.getAbsolutePath() );
 
-        if( attachPom )
+        if( m_attachPom )
         {
             try
             {
-                Pom modulesPom = DirUtils.createModuleTree( project.getBasedir(), targetDirectory );
+                Pom modulesPom = DirUtils.createModuleTree( m_project.getBasedir(), m_targetDirectory );
                 if( null != modulesPom )
                 {
                     pomDirectory.mkdirs();
-                    modulesPom.addModule( artifactId, overwrite );
+                    modulesPom.addModule( artifactId, m_overwrite );
                     modulesPom.write();
                 }
             }
@@ -173,7 +221,7 @@ public abstract class AbstractPaxArchetypeMojo extends MavenArchetypeMojo
 
         try
         {
-            Pom parentPom = DirUtils.findPom( targetDirectory, getParentId() );
+            Pom parentPom = DirUtils.findPom( m_targetDirectory, getParentId() );
             if( null != parentPom )
             {
                 Pom thisPom = PomUtils.readPom( m_pomFile );
@@ -185,7 +233,7 @@ public abstract class AbstractPaxArchetypeMojo extends MavenArchetypeMojo
                     relativePath = pivot[0] + pivot[2];
                 }
 
-                thisPom.setParent( parentPom, relativePath, overwrite );
+                thisPom.setParent( parentPom, relativePath, m_overwrite );
                 thisPom.write();
             }
         }
@@ -195,18 +243,15 @@ public abstract class AbstractPaxArchetypeMojo extends MavenArchetypeMojo
         }
     }
 
-    final String calculateGroupMarker( String groupId, String artifactId )
+    final String calculateGroupMarker( String groupId, String artifactId, String compoundName )
     {
-        if( compactNames )
+        if( artifactId.equals( compoundName ) )
         {
-            if( artifactId.startsWith( groupId + '.' ) || artifactId.equals( groupId ) )
-            {
-                return '=' + groupId;
-            }
-            else if( groupId.endsWith( '.' + artifactId ) )
-            {
-                return '~' + artifactId;
-            }
+            return '=' + groupId;
+        }
+        else if( groupId.equals( compoundName ) )
+        {
+            return '~' + artifactId;
         }
 
         return '+' + groupId;
@@ -214,7 +259,7 @@ public abstract class AbstractPaxArchetypeMojo extends MavenArchetypeMojo
 
     final String getCompactName( String groupId, String artifactId )
     {
-        if( compactNames )
+        if( m_compactNames )
         {
             return PomUtils.getCompoundName( groupId, artifactId );
         }
