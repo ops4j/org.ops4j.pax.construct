@@ -26,6 +26,10 @@ import org.codehaus.plexus.archiver.manager.ArchiverManager;
 import org.ops4j.pax.construct.util.DirUtils;
 
 /**
+ * Extends <a href="http://maven.apache.org/plugins/maven-compiler-plugin/test-compile-mojo.html">TestCompilerMojo</a>
+ * to support compiling against OSGi bundles with embedded jars. All TestCompilerMojo parameters can be used with this
+ * mojo.
+ * 
  * @extendsPlugin compiler
  * @goal testCompile
  * @phase test-compile
@@ -34,17 +38,27 @@ import org.ops4j.pax.construct.util.DirUtils;
 public class BundleTestCompilerMojo extends TestCompilerMojo
 {
     /**
+     * Component factory for archivers and unarchivers
+     * 
      * @component
      */
-    ArchiverManager archiverManager;
+    private ArchiverManager m_archiverManager;
 
+    /**
+     * {@inheritDoc}
+     */
     protected List getClasspathElements()
     {
-        File tempDir = new File( getOutputDirectory().getParent(), "dependencies" );
+        File outputDir = getOutputDirectory();
+        List classpath = super.getClasspathElements();
+        File tempDir = new File( outputDir.getParent(), "dependencies" );
 
-        return DirUtils.expandBundleClassPath( super.getClasspathElements(), archiverManager, tempDir );
+        return DirUtils.expandOSGiClassPath( outputDir, classpath, m_archiverManager, tempDir );
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public void execute()
         throws MojoExecutionException,
         CompilationFailureException
@@ -55,6 +69,7 @@ public class BundleTestCompilerMojo extends TestCompilerMojo
         }
         catch( CompilationFailureException e )
         {
+            // recover cleaned metadata on failure
             SqueakyCleanMojo.recoverMetaData( this );
 
             throw e;

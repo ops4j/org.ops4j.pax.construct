@@ -68,7 +68,7 @@ public final class RoundTripXml
         /**
          * Use default config
          */
-        RoundTripParser()
+        private RoundTripParser()
         {
             super();
         }
@@ -156,7 +156,7 @@ public final class RoundTripXml
         /**
          * Tweak config to use standard Maven layout
          */
-        RoundTripSerializer()
+        private RoundTripSerializer()
         {
             super();
 

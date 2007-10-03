@@ -97,7 +97,6 @@
     <module name="JUnitTestCase"/>
     <module name="DeclarationOrder"/>
     <module name="ParameterAssignment"/>
-    <module name="MissingCtor"/>
     <module name="MultipleVariableDeclarations"/>
     <module name="DesignForExtension">
       <property name="severity" value="ignore"/>

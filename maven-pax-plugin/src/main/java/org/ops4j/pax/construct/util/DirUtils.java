@@ -342,28 +342,34 @@ public final class DirUtils
     /**
      * Expand any bundle entries on the classpath to include their unpacked contents (useful when compiling)
      * 
-     * @param classpath list of classpath elements
+     * @param outputDir current output directory
+     * @param path list of classpath elements
      * @param archiverManager creates unarchiver objects
      * @param tempDir temporary directory for unpacking
      * @return expanded classpath
      */
-    public static List expandBundleClassPath( List classpath, ArchiverManager archiverManager, File tempDir )
+    public static List expandOSGiClassPath( File outputDir, List path, ArchiverManager archiverManager, File tempDir )
     {
-        List expandedElements = new ArrayList();
+        List expandedPath = new ArrayList();
 
-        for( Iterator i = classpath.iterator(); i.hasNext(); )
+        for( Iterator i = path.iterator(); i.hasNext(); )
         {
             // original should appear before expanded entries
             File element = new File( (String) i.next() );
-            expandedElements.add( element.getPath() );
+            expandedPath.add( element.getPath() );
+
+            // don't expand current project
+            if( element.equals( outputDir ) )
+            {
+                continue;
+            }
 
             File bundle = locateBundle( element );
 
             if( bundle != null && bundle.getName().endsWith( ".jar" ) )
             {
                 String bundleClassPath = extractBundleClassPath( bundle );
-
-                if( null != bundleClassPath && !".".equals( bundleClassPath ) )
+                if( !".".equals( bundleClassPath ) )
                 {
                     File here = new File( tempDir, bundle.getName() );
 
@@ -371,13 +377,13 @@ public final class DirUtils
                     {
                         // refactor bundle classpath to point to the recently unpacked contents and append it
                         String rebasedClassPath = DirUtils.rebasePaths( bundleClassPath, here.getPath(), ',' );
-                        expandedElements.addAll( Arrays.asList( rebasedClassPath.split( "," ) ) );
+                        expandedPath.addAll( Arrays.asList( rebasedClassPath.split( "," ) ) );
                     }
                 }
             }
         }
 
-        return expandedElements;
+        return expandedPath;
     }
 
     /**
@@ -424,18 +430,27 @@ public final class DirUtils
      */
     static String extractBundleClassPath( File bundle )
     {
+        String bundleClassPath = null;
+
         try
         {
             Manifest manifest = new JarFile( bundle ).getManifest();
             Attributes mainAttributes = manifest.getMainAttributes();
-            return mainAttributes.getValue( "Bundle-ClassPath" );
+            bundleClassPath = mainAttributes.getValue( "Bundle-ClassPath" );
         }
         catch( IOException e )
         {
             System.err.println( "WARNING: unable to read jarfile " + bundle );
         }
 
-        return null;
+        if( bundleClassPath != null )
+        {
+            return bundleClassPath;
+        }
+        else
+        {
+            return ".";
+        }
     }
 
     /**
