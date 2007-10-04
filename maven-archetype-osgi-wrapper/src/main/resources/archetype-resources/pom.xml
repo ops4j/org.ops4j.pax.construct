@@ -2,11 +2,25 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
   xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 
+##------------------------------------
+## args from OSGiWrapperArchetypeMojo
+##------------------------------------
+#set( $compoundId = $artifactId )
+#set( $compoundMarker = $package )
+##=====================
+## ADD VERSION SUPPORT
+##=====================
+#if( $version.startsWith("+") )
+  ##------------------------------
+  ## COMPOUND ID INCLUDES VERSION
+  ##------------------------------
+  #set( $len = $compoundId.length() - $version.length() )
+  #set( $compoundId = $compoundId.substring(0,$len) )
+#end
+#set( $wrappedVersion = $version.substring(1) )
 ##=====================
 ## COMPOUND ID SUPPORT
 ##=====================
-#set( $compoundId = $artifactId )
-#set( $compoundMarker = $package )
 #if( $compoundMarker.startsWith("+") )
   ##------------------------------------
   ## COMPOUND ID = GROUPID . ARTIFACTID
@@ -29,25 +43,8 @@
     #set( $wrappedGroupId = $compoundMarker.substring(1) )
   #end
 #end
-##=====================
-## ADD VERSION SUPPORT
-##=====================
-#if( $version.startsWith("+") )
-  ##------------------------------
-  ## COMPOUND ID INCLUDES VERSION
-  ##------------------------------
-  #set( $len = $compoundId.length() - $version.length() )
-  #set( $symbolicName = $compoundId.substring(0,$len) )
-  #set( $wrappedVersion = $version.substring(1) )
-#else
-  ##----------------------------
-  ## COMPOUND ID HAS NO VERSION
-  ##----------------------------
-  #set( $symbolicName = $compoundId )
-  #set( $wrappedVersion = $version.substring(1) )
-#end
   <properties>
-    <bundle.symbolicName>${symbolicName}</bundle.symbolicName>
+    <bundle.symbolicName>${compoundId}</bundle.symbolicName>
     <wrapped.groupId>${wrappedGroupId}</wrapped.groupId>
     <wrapped.artifactId>${wrappedArtifactId}</wrapped.artifactId>
     <wrapped.version>${wrappedVersion}</wrapped.version>

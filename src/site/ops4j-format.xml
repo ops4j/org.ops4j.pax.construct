@@ -94,7 +94,6 @@
                 value="java.lang.Exception, java.lang.Throwable, java.lang.RuntimeException, java.lang.Error"/>
     </module>
     <module name="PackageDeclaration"/>
-    <module name="JUnitTestCase"/>
     <module name="DeclarationOrder"/>
     <module name="ParameterAssignment"/>
     <module name="MultipleVariableDeclarations"/>

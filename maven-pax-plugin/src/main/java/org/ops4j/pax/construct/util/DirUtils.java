@@ -311,6 +311,11 @@ public final class DirUtils
      */
     public static String rebasePaths( String path, String baseDir, char pathSeparator )
     {
+        if( null == path )
+        {
+            return baseDir;
+        }
+
         String[] entries = path.split( Character.toString( pathSeparator ) );
 
         StringBuffer rebasedPath = new StringBuffer();

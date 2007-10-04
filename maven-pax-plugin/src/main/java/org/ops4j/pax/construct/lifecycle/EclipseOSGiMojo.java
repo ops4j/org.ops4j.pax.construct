@@ -18,7 +18,6 @@ package org.ops4j.pax.construct.lifecycle;
 
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.FileWriter;
@@ -37,6 +36,7 @@ import org.apache.maven.artifact.Artifact;
 import org.apache.maven.artifact.resolver.ArtifactNotFoundException;
 import org.apache.maven.artifact.resolver.ArtifactResolutionException;
 import org.apache.maven.plugin.MojoExecutionException;
+import org.apache.maven.plugin.MojoFailureException;
 import org.apache.maven.plugin.eclipse.EclipsePlugin;
 import org.apache.maven.plugin.eclipse.writers.EclipseClasspathWriter;
 import org.apache.maven.plugin.eclipse.writers.EclipseProjectWriter;
@@ -45,6 +45,9 @@ import org.apache.maven.plugin.eclipse.writers.EclipseWriterConfig;
 import org.apache.maven.plugin.ide.IdeDependency;
 import org.apache.maven.project.MavenProject;
 import org.apache.maven.project.MavenProjectBuilder;
+import org.apache.maven.project.ProjectBuildingException;
+import org.apache.maven.project.artifact.InvalidDependencyVersionException;
+import org.apache.maven.shared.osgi.Maven2OsgiConverter;
 import org.codehaus.plexus.archiver.manager.ArchiverManager;
 import org.codehaus.plexus.util.FileUtils;
 import org.codehaus.plexus.util.IOUtil;
@@ -71,33 +74,60 @@ import org.ops4j.pax.construct.util.ReflectMojo;
 public class EclipseOSGiMojo extends EclipsePlugin
 {
     /**
+     * Component factory for archivers and unarchivers
+     * 
      * @component
      */
-    ArchiverManager archiverManager;
+    private ArchiverManager m_archiverManager;
 
     /**
+     * Component factory for Maven projects
+     * 
      * @component
      */
-    MavenProjectBuilder mavenProjectBuilder;
+    private MavenProjectBuilder m_mavenProjectBuilder;
 
-    MavenProject pomProject;
-    List resolvedDependencies;
+    /**
+     * Component to convert between Maven and OSGi versions
+     * 
+     * @component
+     */
+    private Maven2OsgiConverter m_maven2OsgiConverter;
+
+    /**
+     * Provide access to the private fields of the Eclipse mojo
+     */
+    private ReflectMojo m_eclipseMojo;
+
+    /**
+     * 
+     */
+    private MavenProject m_provisionProject;
+
+    private List m_resolvedDependencies;
 
     public boolean setup()
         throws MojoExecutionException
     {
-        if( null == pomProject && "pom".equals( executedProject.getPackaging() ) )
+        if( null == m_eclipseMojo )
         {
-            setupImportedBundles();
-            return false;
+            m_eclipseMojo = new ReflectMojo( this, EclipsePlugin.class );
+            m_eclipseMojo.setField( "pde", Boolean.TRUE );
+            setWtpversion( "none" );
         }
 
-        new ReflectMojo( this, EclipsePlugin.class ).setField( "pde", Boolean.TRUE );
-        setWtpversion( "none" );
-
-        if( getBuildOutputDirectory() == null )
+        if( null == m_provisionProject && "pom".equals( executedProject.getPackaging() ) )
         {
-            setBuildOutputDirectory( new File( executedProject.getBuild().getOutputDirectory() ) );
+            try
+            {
+                setupImportedBundles();
+            }
+            catch( InvalidDependencyVersionException e )
+            {
+                getLog().warn( "Unable to generate Eclipse files for project " + executedProject.getId() );
+            }
+
+            return false;
         }
 
         return super.setup();
@@ -106,7 +136,7 @@ public class EclipseOSGiMojo extends EclipsePlugin
     public void writeConfiguration( IdeDependency[] deps )
         throws MojoExecutionException
     {
-        if( null == pomProject )
+        if( null == m_provisionProject )
         {
             writeBundleConfiguration( deps );
         }
@@ -116,187 +146,188 @@ public class EclipseOSGiMojo extends EclipsePlugin
         }
     }
 
-    public void writeBundleConfiguration( IdeDependency[] deps )
+    void writeBundleConfiguration( IdeDependency[] deps )
         throws MojoExecutionException
     {
-        try
+        m_resolvedDependencies = new ArrayList();
+        for( int i = 0; i < deps.length; i++ )
         {
-            resolvedDependencies = new ArrayList();
-            for( int i = 0; i < deps.length; i++ )
+            if( deps[i].isAddedToClasspath() && !deps[i].isTestDependency() && !deps[i].isProvided() )
             {
-                if( deps[i].isAddedToClasspath() && !deps[i].isTestDependency() && !deps[i].isProvided() )
-                {
-                    resolvedDependencies.add( deps[i] );
-                    deps[i].setAddedToClasspath( false );
-                }
+                m_resolvedDependencies.add( deps[i] );
+                deps[i].setAddedToClasspath( false );
             }
-
-            EclipseWriterConfig config = createEclipseWriterConfig( deps );
-
-            config.setEclipseProjectName( getEclipseProjectName( executedProject, true ) );
-
-            new EclipseSettingsWriter().init( getLog(), config ).write();
-            new EclipseClasspathWriter().init( getLog(), config ).write();
-            new EclipseProjectWriter().init( getLog(), config ).write();
-
-            File bundleDir = new File( executedProject.getBasedir(), "target/bundle" );
-            Artifact bundleArtifact = executedProject.getArtifact();
-
-            if( bundleArtifact.getFile() == null || !bundleArtifact.getFile().exists() )
-            {
-                artifactResolver.resolve( bundleArtifact, remoteArtifactRepositories, localRepository );
-            }
-
-            DirUtils.unpackBundle( archiverManager, bundleArtifact.getFile(), bundleDir );
-
-            refactorForEclipse( "target/bundle" );
         }
-        catch( Exception e )
+
+        EclipseWriterConfig config = createEclipseWriterConfig( deps );
+
+        config.setEclipseProjectName( getEclipseProjectName( executedProject, true ) );
+
+        new EclipseSettingsWriter().init( getLog(), config ).write();
+        new EclipseClasspathWriter().init( getLog(), config ).write();
+        new EclipseProjectWriter().init( getLog(), config ).write();
+
+        File bundleFile = executedProject.getArtifact().getFile();
+        if( bundleFile == null || !bundleFile.exists() )
         {
-            getLog().error( e );
-
-            throw new MojoExecutionException( "ERROR creating Eclipse files", e );
+            getLog().warn( "Bundle has not been built, reverting to basic behaviour" );
+            return;
         }
+
+        refactorForEclipse( bundleFile, "target/contents" );
     }
 
     static String getEclipseProjectName( MavenProject project, boolean addVersion )
     {
-        String groupId = project.getGroupId();
-        String artifactId = project.getArtifactId();
-
-        String symbolicName = project.getProperties().getProperty( "bundle.symbolicName" );
-        String projectName;
-
-        if( symbolicName != null )
+        String projectName = project.getProperties().getProperty( "bundle.symbolicName" );
+        if( null == projectName )
         {
-            projectName = symbolicName;
-        }
-        else
-        {
-            projectName = PomUtils.getCompoundId( groupId, artifactId );
+            projectName = PomUtils.getCompoundId( project.getGroupId(), project.getArtifactId() );
         }
 
         if( addVersion )
         {
-            String wrappedVersion = project.getProperties().getProperty( "wrapped.version" );
-            String projectVersion;
-
-            if( wrappedVersion != null )
-            {
-                projectVersion = wrappedVersion;
-            }
-            else
+            String projectVersion = project.getProperties().getProperty( "wrapped.version" );
+            if( null == projectVersion )
             {
                 projectVersion = project.getVersion();
             }
 
             return projectName + " [" + projectVersion + ']';
         }
-
-        return projectName;
+        else
+        {
+            return projectName;
+        }
     }
 
-    void refactorForEclipse( String bundleLocation )
-        throws IOException,
-        XmlPullParserException
+    void refactorForEclipse( File bundleFile, String bundleLocation )
     {
         File baseDir = executedProject.getBasedir();
-        File bundleDir = new File( baseDir, bundleLocation );
+        File unpackDir = new File( baseDir, bundleLocation );
 
-        File metaInfDir = new File( bundleDir, "META-INF" );
-        if( metaInfDir.exists() )
-        {
-            FileUtils.copyDirectoryStructure( metaInfDir, new File( baseDir, "META-INF" ) );
-        }
+        DirUtils.unpackBundle( m_archiverManager, bundleFile, unpackDir );
 
-        File osgiInfDir = new File( bundleDir, "OSGI-INF" );
-        if( osgiInfDir.exists() )
-        {
-            FileUtils.copyDirectoryStructure( osgiInfDir, new File( baseDir, "OSGI-INF" ) );
-        }
+        copyMetadata( unpackDir, "META-INF", baseDir );
+        copyMetadata( unpackDir, "OSGI-INF", baseDir );
 
         File manifestFile = new File( baseDir, "META-INF/MANIFEST.MF" );
+
+        Manifest manifest = getBundleManifest( manifestFile );
+        Attributes mainAttributes = manifest.getMainAttributes();
+
+        if( mainAttributes.getValue( "Bundle-SymbolicName" ) == null )
+        {
+            // Eclipse mis-behaves if the bundle has no symbolic name :(
+            String name = getEclipseProjectName( executedProject, false );
+            mainAttributes.putValue( "Bundle-SymbolicName", name.replace( '-', '_' ) );
+        }
+
+        String bundleClassPath = mainAttributes.getValue( "Bundle-ClassPath" );
+        bundleClassPath = ".," + DirUtils.rebasePaths( bundleClassPath, bundleLocation, ',' );
+
+        mainAttributes.putValue( "Bundle-ClassPath", bundleClassPath );
+        updateEclipseClassPath( bundleLocation, bundleClassPath );
+
+        try
+        {
+            manifestFile.getParentFile().mkdirs();
+            manifest.write( new FileOutputStream( manifestFile ) );
+        }
+        catch( IOException e )
+        {
+            getLog().warn( "Unable to update Eclipse manifest: " + manifestFile );
+        }
+    }
+
+    Manifest getBundleManifest( File manifestFile )
+    {
         Manifest manifest = new Manifest();
-        Attributes mainAttributes;
 
         try
         {
             manifest.read( new FileInputStream( manifestFile ) );
-            mainAttributes = manifest.getMainAttributes();
         }
-        catch( Exception e )
+        catch( IOException e )
         {
-            mainAttributes = manifest.getMainAttributes();
+            Attributes mainAttributes = manifest.getMainAttributes();
+
+            String osgiVersion = m_maven2OsgiConverter.getVersion( project.getVersion() );
+
+            // standard OSGi entries
             mainAttributes.putValue( "Manifest-Version", "1" );
             mainAttributes.putValue( "Bundle-ManifestVersion", "2" );
             mainAttributes.putValue( "Bundle-Name", project.getName() );
-            mainAttributes.putValue( "Bundle-Version", project.getVersion().replace( '-', '.' ) );
+            mainAttributes.putValue( "Bundle-Version", osgiVersion );
 
             // some basic OSGi dependencies, to help people get their code compiling...
             mainAttributes.putValue( "Import-Package", "org.osgi.framework,org.osgi.util.tracker" );
         }
 
-        if( mainAttributes.getValue( "Bundle-SymbolicName" ) == null )
-        {
-            // Eclipse mis-behaves if the bundle has no symbolic name :(
-            String symbolicName = getEclipseProjectName( executedProject, false ).replace( '-', '_' );
-            mainAttributes.putValue( "Bundle-SymbolicName", symbolicName );
-        }
+        return manifest;
+    }
 
-        String bundleClassPath = mainAttributes.getValue( "Bundle-ClassPath" );
-        if( null == bundleClassPath )
+    void copyMetadata( File fromDir, String metadata, File toDir )
+    {
+        File metadataDir = new File( fromDir, metadata );
+        if( metadataDir.exists() )
         {
-            mainAttributes.putValue( "Bundle-ClassPath", ".," + bundleLocation );
+            try
+            {
+                FileUtils.copyDirectoryStructure( metadataDir, new File( toDir, metadata ) );
+            }
+            catch( IOException e )
+            {
+                getLog().warn( "Unable to copy " + metadata + " contents to base directory" );
+            }
         }
-        else
-        {
-            String rebasedClassPath = DirUtils.rebasePaths( bundleClassPath, bundleLocation, ',' );
-            mainAttributes.putValue( "Bundle-ClassPath", ".," + rebasedClassPath );
-        }
-
-        updateEclipseClassPath( bundleLocation, mainAttributes.getValue( "Bundle-ClassPath" ) );
-
-        manifestFile.getParentFile().mkdirs();
-        manifest.write( new FileOutputStream( manifestFile ) );
     }
 
     void updateEclipseClassPath( String bundleLocation, String bundleClassPath )
-        throws FileNotFoundException,
-        XmlPullParserException,
-        IOException
     {
         String[] classPath = bundleClassPath.split( "," );
 
-        File classPathFile = new File( executedProject.getBasedir(), ".classpath" );
-        Xpp3Dom classPathXML = Xpp3DomBuilder.build( new FileReader( classPathFile ) );
-
-        for( int i = 0; i < classPath.length; i++ )
+        try
         {
-            if( ".".equals( classPath[i] ) == false )
+            File classPathFile = new File( executedProject.getBasedir(), ".classpath" );
+            Xpp3Dom classPathXML = Xpp3DomBuilder.build( new FileReader( classPathFile ) );
+
+            for( int i = 0; i < classPath.length; i++ )
             {
-                Xpp3Dom classPathEntry = new Xpp3Dom( "classpathentry" );
-                classPathEntry.setAttribute( "exported", "true" );
-                classPathEntry.setAttribute( "kind", "lib" );
-                classPathEntry.setAttribute( "path", classPath[i] );
-
-                File sourcePath = findAttachedSource( bundleLocation, classPath[i] );
-                if( sourcePath != null )
+                if( ".".equals( classPath[i] ) == false )
                 {
-                    classPathEntry.setAttribute( "sourcepath", sourcePath.getPath() );
+                    Xpp3Dom classPathEntry = new Xpp3Dom( "classpathentry" );
+                    classPathEntry.setAttribute( "exported", "true" );
+                    classPathEntry.setAttribute( "kind", "lib" );
+                    classPathEntry.setAttribute( "path", classPath[i] );
+
+                    File sourcePath = findAttachedSource( bundleLocation, classPath[i] );
+                    if( sourcePath != null )
+                    {
+                        classPathEntry.setAttribute( "sourcepath", sourcePath.getPath() );
+                    }
+
+                    classPathXML.addChild( classPathEntry );
                 }
-
-                classPathXML.addChild( classPathEntry );
             }
-        }
 
-        FileWriter writer = new FileWriter( classPathFile );
-        Xpp3DomWriter.write( new PrettyPrintXMLWriter( writer ), classPathXML );
-        IOUtil.close( writer );
+            FileWriter writer = new FileWriter( classPathFile );
+            Xpp3DomWriter.write( new PrettyPrintXMLWriter( writer ), classPathXML );
+            IOUtil.close( writer );
+        }
+        catch( IOException e )
+        {
+            getLog().warn( "Unable to find Eclipse .classpath file" );
+        }
+        catch( XmlPullParserException e )
+        {
+            getLog().warn( "Unable to parse Eclipse .classpath file" );
+        }
     }
 
     File findAttachedSource( String bundleLocation, String classPathEntry )
     {
-        for( Iterator i = resolvedDependencies.iterator(); i.hasNext(); )
+        for( Iterator i = m_resolvedDependencies.iterator(); i.hasNext(); )
         {
             IdeDependency dependency = (IdeDependency) i.next();
 
@@ -314,88 +345,115 @@ public class EclipseOSGiMojo extends EclipsePlugin
     }
 
     public void setupImportedBundles()
-        throws MojoExecutionException
+        throws MojoExecutionException,
+        InvalidDependencyVersionException
     {
-        pomProject = getExecutedProject();
+        m_provisionProject = getExecutedProject();
         setResolveDependencies( false );
 
-        try
+        Set artifacts = m_provisionProject.createArtifacts( artifactFactory, null, null );
+        for( Iterator i = artifacts.iterator(); i.hasNext(); )
         {
-            Set artifacts = pomProject.createArtifacts( artifactFactory, null, null );
-            for( Iterator i = artifacts.iterator(); i.hasNext(); )
+            Artifact artifact = (Artifact) i.next();
+
+            if( Artifact.SCOPE_PROVIDED.equals( artifact.getScope() ) )
             {
-                Artifact artifact = (Artifact) i.next();
-
-                if( Artifact.SCOPE_PROVIDED.equals( artifact.getScope() ) )
+                MavenProject dependencyProject = writeProjectPom( artifact );
+                if( null == dependencyProject )
                 {
-                    String groupId = artifact.getGroupId();
-                    String artifactId = artifact.getArtifactId();
-                    String version = artifact.getVersion();
+                    continue;
+                }
 
-                    Artifact pomArtifact = artifactFactory.createProjectArtifact( groupId, artifactId, version );
+                setExecutedProject( dependencyProject );
+                setProject( dependencyProject );
 
-                    MavenProject dependencyProject = mavenProjectBuilder.buildFromRepository( pomArtifact,
-                        remoteArtifactRepositories, localRepository );
+                File baseDir = dependencyProject.getBasedir();
+                setBuildOutputDirectory( new File( baseDir, ".ignore" ) );
+                setEclipseProjectDir( baseDir );
 
-                    File projectDir = new File( pomProject.getBasedir(), "target/" + groupId );
-                    File localDir = new File( projectDir, artifactId + '/' + version );
-                    localDir.mkdirs();
-
-                    File pomFile = new File( localDir, "pom.xml" );
-
-                    Writer writer = new FileWriter( pomFile );
-                    dependencyProject.writeModel( writer );
-                    dependencyProject.setFile( pomFile );
-                    writer.close();
-
-                    setBuildOutputDirectory( new File( localDir, ".ignore" ) );
-                    setEclipseProjectDir( localDir );
-
+                try
+                {
                     artifactResolver.resolve( artifact, remoteArtifactRepositories, localRepository );
-
-                    setProject( dependencyProject );
-                    setExecutedProject( dependencyProject );
-
-                    DirUtils.unpackBundle( archiverManager, artifact.getFile(), executedProject.getBasedir() );
+                    DirUtils.unpackBundle( m_archiverManager, artifact.getFile(), executedProject.getBasedir() );
 
                     execute();
                 }
+                catch( ArtifactNotFoundException e )
+                {
+                    getLog().warn( "Unable to find bundle artifact " + artifact );
+                }
+                catch( ArtifactResolutionException e )
+                {
+                    getLog().warn( "Unable to resolve bundle artifact " + artifact );
+                }
+                catch( MojoFailureException e )
+                {
+                    getLog().warn( "Problem generating Eclipse files for artifact " + artifact );
+                }
             }
-        }
-        catch( Exception e )
-        {
-            getLog().error( e );
-
-            throw new MojoExecutionException( "ERROR creating Eclipse files", e );
         }
     }
 
-    public void writeImportedConfiguration( IdeDependency[] deps )
-        throws MojoExecutionException
+    MavenProject writeProjectPom( Artifact artifact )
     {
+        MavenProject pom = null;
+
+        String groupId = artifact.getGroupId();
+        String artifactId = artifact.getArtifactId();
+        String version = artifact.getVersion();
+
+        Artifact pomArtifact = artifactFactory.createProjectArtifact( groupId, artifactId, version );
+
         try
         {
-            EclipseWriterConfig config = createEclipseWriterConfig( new IdeDependency[0] );
+            pom = m_mavenProjectBuilder.buildFromRepository( pomArtifact, remoteArtifactRepositories, localRepository );
 
-            config.setEclipseProjectName( getEclipseProjectName( executedProject, true ) );
+            File projectDir = new File( m_provisionProject.getBasedir(), "target/" + groupId );
+            File localDir = new File( projectDir, artifactId + '/' + version );
+            localDir.mkdirs();
 
-            new EclipseClasspathWriter().init( getLog(), config ).write();
-            new EclipseProjectWriter().init( getLog(), config ).write();
+            File pomFile = new File( localDir, "pom.xml" );
+
+            Writer writer = new FileWriter( pomFile );
+            pom.writeModel( writer );
+            pom.setFile( pomFile );
+            writer.close();
         }
-        catch( Exception e )
+        catch( ProjectBuildingException e )
         {
-            getLog().error( e );
-
-            throw new MojoExecutionException( "ERROR creating Eclipse files", e );
+            getLog().warn( "Unable to build POM for artifact " + pomArtifact );
         }
+        catch( IOException e )
+        {
+            getLog().warn( "Unable to write POM for artifact " + pomArtifact );
+        }
+
+        return pom;
+    }
+
+    void writeImportedConfiguration( IdeDependency[] deps )
+        throws MojoExecutionException
+    {
+        EclipseWriterConfig config = createEclipseWriterConfig( new IdeDependency[0] );
+        config.setEclipseProjectName( getEclipseProjectName( executedProject, true ) );
+
+        new EclipseClasspathWriter().init( getLog(), config ).write();
+        new EclipseProjectWriter().init( getLog(), config ).write();
 
         Artifact artifact = artifactFactory.createArtifactWithClassifier( executedProject.getGroupId(), executedProject
             .getArtifactId(), executedProject.getVersion(), "java-source", "sources" );
 
         try
         {
-            List remoteRepos = downloadSources ? remoteArtifactRepositories : Collections.EMPTY_LIST;
-            artifactResolver.resolve( artifact, remoteRepos, localRepository );
+            if( downloadSources )
+            {
+                artifactResolver.resolve( artifact, remoteArtifactRepositories, localRepository );
+            }
+            else
+            {
+                artifactResolver.resolve( artifact, Collections.EMPTY_LIST, localRepository );
+            }
+
             attachImportedSource( artifact.getFile().getPath() );
         }
         catch( ArtifactNotFoundException e )

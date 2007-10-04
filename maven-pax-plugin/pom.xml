@@ -76,6 +76,11 @@
     </dependency>
     <dependency>
       <groupId>org.apache.maven.shared</groupId>
+      <artifactId>maven-osgi</artifactId>
+      <version>0.1.0</version>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.maven.shared</groupId>
       <artifactId>file-management</artifactId>
       <version>1.1</version>
     </dependency>
