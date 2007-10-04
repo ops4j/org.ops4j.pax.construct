@@ -2,26 +2,50 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
   xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 
-#set( $dollar = '$' )
-#if( $package.startsWith("+") )
-  #set( $head = $package.length() )
+##=====================
+## COMPOUND ID SUPPORT
+##=====================
+#set( $compoundId = $artifactId )
+#set( $compoundMarker = $package )
+#if( $compoundMarker.startsWith("+") )
+  ##------------------------------------
+  ## COMPOUND ID = GROUPID . ARTIFACTID
+  ##------------------------------------
+  #set( $len = $compoundMarker.length() )
+  #set( $wrappedArtifactId = $compoundId.substring($len) )
+  #set( $wrappedGroupId = $compoundMarker.substring(1) )
 #else
-  #set( $head = 0 )
+  #if( $compoundMarker.startsWith(">") )
+    ##-----------------------
+    ## COMPOUND ID = GROUPID
+    ##-----------------------
+    #set( $wrappedArtifactId = $compoundMarker.substring(1) )
+    #set( $wrappedGroupId = $compoundId )
+  #else
+    ##--------------------------
+    ## COMPOUND ID = ARTIFACTID
+    ##--------------------------
+    #set( $wrappedArtifactId = $compoundId )
+    #set( $wrappedGroupId = $compoundMarker.substring(1) )
+  #end
 #end
-#if( $package.startsWith("~") )
-  #set( $swap = $package )
-  #set( $package = $artifactId )
-  #set( $artifactId = $swap )
-#end
+##=====================
+## ADD VERSION SUPPORT
+##=====================
 #if( $version.startsWith("+") )
-  #set( $tail = $artifactId.length() - $version.length() )
+  ##------------------------------
+  ## COMPOUND ID INCLUDES VERSION
+  ##------------------------------
+  #set( $len = $compoundId.length() - $version.length() )
+  #set( $symbolicName = $compoundId.substring(0,$len) )
+  #set( $wrappedVersion = $version.substring(1) )
 #else
-  #set( $tail = $artifactId.length() )
+  ##----------------------------
+  ## COMPOUND ID HAS NO VERSION
+  ##----------------------------
+  #set( $symbolicName = $compoundId )
+  #set( $wrappedVersion = $version.substring(1) )
 #end
-#set( $symbolicName = $artifactId.substring(0,$tail) )
-#set( $wrappedGroupId = $package.substring(1) )
-#set( $wrappedArtifactId = $artifactId.substring($head,$tail) )
-#set( $wrappedVersion = $version.substring(1) )
   <properties>
     <bundle.symbolicName>${symbolicName}</bundle.symbolicName>
     <wrapped.groupId>${wrappedGroupId}</wrapped.groupId>
@@ -32,21 +56,27 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>${groupId}</groupId>
   <artifactId>${artifactId}</artifactId>
-#if( $tail == $artifactId.length() )
+##===============================
+## ADD LOCAL VERSION IF REQUIRED
+##===============================
+#if( not $version.startsWith("+") )
+  #set( $dollar = '$' )
   <version>${dollar}{wrapped.version}-001</version>
 #end
+#literal()
 
-  <name>${dollar}{bundle.symbolicName} ${dollar}{wrapped.version} [osgi]</name>
+  <name>${bundle.symbolicName} ${wrapped.version} [osgi]</name>
 
   <packaging>bundle</packaging>
 
   <dependencies>
     <dependency>
-      <groupId>${dollar}{wrapped.groupId}</groupId>
-      <artifactId>${dollar}{wrapped.artifactId}</artifactId>
-      <version>${dollar}{wrapped.version}</version>
+      <groupId>${wrapped.groupId}</groupId>
+      <artifactId>${wrapped.artifactId}</artifactId>
+      <version>${wrapped.version}</version>
       <optional>true</optional>
     </dependency>
   </dependencies>
 
+#end
 </project>

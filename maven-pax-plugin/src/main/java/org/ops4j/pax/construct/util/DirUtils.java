@@ -151,12 +151,10 @@ public final class DirUtils
      */
     static boolean sameProject( Pom pom, String groupId, String artifactId )
     {
-        if( artifactId.equals( pom.getArtifactId() ) || artifactId.equals( pom.getBundleSymbolicName() ) )
+        if( ( artifactId.equals( pom.getArtifactId() ) || artifactId.equals( pom.getBundleSymbolicName() ) )
+            && ( null == groupId || groupId.equals( pom.getGroupId() ) ) )
         {
-            if( null == groupId || groupId.equals( pom.getGroupId() ) )
-            {
-                return true;
-            }
+            return true;
         }
 
         return false;
@@ -236,7 +234,7 @@ public final class DirUtils
                     parentPom.addModule( module, true );
                     parentPom.write();
 
-                    String groupId = PomUtils.getCompoundName( parentPom.getGroupId(), parentPom.getArtifactId() );
+                    String groupId = PomUtils.getCompoundId( parentPom.getGroupId(), parentPom.getArtifactId() );
 
                     // create missing module pom and link back to parent
                     childPom = PomUtils.createPom( pomFile, groupId, module );

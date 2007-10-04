@@ -116,4 +116,11 @@ limitations under the License.
     </repository>
   </repositories>
 
+  <distributionManagement>
+    <site>
+      <id>website</id>
+      <url>scpexe://www.ops4j.org/var/http/www.ops4j.org/projects/pax/construct</url>
+    </site>
+  </distributionManagement>
+
 </project>

@@ -26,6 +26,8 @@ import org.ops4j.pax.construct.util.PomUtils;
 import org.ops4j.pax.construct.util.PomUtils.Pom;
 
 /**
+ * Create a new bundle project inside an existing Pax-Construct OSGi project
+ * 
  * @extendsPlugin archetype
  * @extendsGoal create
  * @goal create-bundle
@@ -33,53 +35,76 @@ import org.ops4j.pax.construct.util.PomUtils.Pom;
 public class OSGiBundleArchetypeMojo extends AbstractPaxArchetypeMojo
 {
     /**
+     * The logical parent of the new project (use artifactId or groupId:artifactId).
+     * 
      * @parameter alias="parentId" expression="${parentId}" default-value="compiled-bundle-settings"
      */
     private String m_parentId;
 
     /**
+     * The key Java package contained inside the bundle.
+     * 
      * @parameter alias="package" expression="${package}"
      * @required
      */
     private String m_packageName;
 
     /**
+     * The symbolic-name for the bundle (defaults to packageName if empty).
+     * 
      * @parameter alias="bundleName" expression="${bundleName}"
      */
     private String m_bundleName;
 
     /**
+     * The version of the bundle.
+     * 
      * @parameter alias="version" expression="${version}" default-value="1.0-SNAPSHOT"
      */
     private String m_version;
 
     /**
+     * When true, provide an example service API.
+     * 
      * @parameter alias="interface" expression="${interface}" default-value="true"
      */
     private boolean m_provideInterface;
 
     /**
+     * When false, don't provide any implementation code.
+     * 
      * @parameter alias="internals" expression="${internals}" default-value="true"
      */
     private boolean m_provideInternals;
 
     /**
+     * When true, provide an example Bundle-Activator class.
+     * 
      * @parameter alias="activator" expression="${activator}" default-value="true"
      */
     private boolean m_provideActivator;
 
     /**
+     * When true, do not add any basic OSGi dependencies to the project.
+     * 
      * @parameter alias="noDependencies" expression="${noDependencies}"
      */
     private boolean m_noDependencies;
 
+    /**
+     * {@inheritDoc}
+     */
     String getParentId()
     {
         return m_parentId;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     void updateExtensionFields()
     {
+        // use the Java package as the symbolic name if no name given
         if( null == m_bundleName || m_bundleName.trim().length() == 0 )
         {
             m_bundleName = m_packageName;
@@ -94,9 +119,15 @@ public class OSGiBundleArchetypeMojo extends AbstractPaxArchetypeMojo
         getArchetypeMojo().setField( "packageName", m_packageName );
     }
 
+    /**
+     * {@inheritDoc}
+     */
     void postProcess()
         throws MojoExecutionException
     {
+        /*
+         * Unwanted files
+         */
         if( !m_provideInterface )
         {
             addTempFiles( "src/main/java/**/ExampleService.java" );
@@ -110,12 +141,14 @@ public class OSGiBundleArchetypeMojo extends AbstractPaxArchetypeMojo
             addTempFiles( "src/main/java/**/Activator.java" );
         }
 
+        // remove files, etc.
         super.postProcess();
 
         if( !m_noDependencies )
         {
             try
             {
+                // standard R4 OSGi API
                 addOSGiDependenciesToPom();
             }
             catch( IOException e )
@@ -126,6 +159,7 @@ public class OSGiBundleArchetypeMojo extends AbstractPaxArchetypeMojo
 
         try
         {
+            // match with contents
             updateBndInstructions();
         }
         catch( IOException e )
@@ -134,6 +168,12 @@ public class OSGiBundleArchetypeMojo extends AbstractPaxArchetypeMojo
         }
     }
 
+    /**
+     * Adds the standard R4 OSGi API to the compilation path
+     * 
+     * @throws IOException
+     * @throws MojoExecutionException
+     */
     void addOSGiDependenciesToPom()
         throws IOException,
         MojoExecutionException
@@ -153,6 +193,12 @@ public class OSGiBundleArchetypeMojo extends AbstractPaxArchetypeMojo
         thisPom.write();
     }
 
+    /**
+     * Updates the default BND instructions to match the remaining contents
+     * 
+     * @throws IOException
+     * @throws MojoExecutionException
+     */
     void updateBndInstructions()
         throws IOException,
         MojoExecutionException
@@ -161,10 +207,12 @@ public class OSGiBundleArchetypeMojo extends AbstractPaxArchetypeMojo
 
         if( m_provideInternals && !m_provideInterface )
         {
+            // internals, but nothing to export
             bndFile.setInstruction( "Export-Package", null, canOverwrite() );
         }
         if( !m_provideInternals && m_provideInterface )
         {
+            // public api, but no internals left
             bndFile.setInstruction( "Private-Package", null, canOverwrite() );
         }
         if( !m_provideActivator || !m_provideInternals )

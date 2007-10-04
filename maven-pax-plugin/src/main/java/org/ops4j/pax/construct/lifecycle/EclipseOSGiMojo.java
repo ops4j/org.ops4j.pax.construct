@@ -173,7 +173,7 @@ public class EclipseOSGiMojo extends EclipsePlugin
         }
         else
         {
-            projectName = PomUtils.getCompoundName( groupId, artifactId );
+            projectName = PomUtils.getCompoundId( groupId, artifactId );
         }
 
         if( addVersion )

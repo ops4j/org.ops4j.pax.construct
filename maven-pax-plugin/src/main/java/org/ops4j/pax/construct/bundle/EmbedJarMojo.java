@@ -29,7 +29,7 @@ import org.ops4j.pax.construct.util.PomUtils;
 import org.ops4j.pax.construct.util.PomUtils.Pom;
 
 /**
- * Embed a jarfile inside a bundle project (by default the POM in the current working directory)
+ * Embed a jarfile inside a bundle project
  * 
  * @goal embed-jar
  * @aggregator true
@@ -68,7 +68,7 @@ public class EmbedJarMojo extends AbstractMojo
     private boolean m_unpack;
 
     /**
-     * The -exportcontents directive for this bundle, see <a href="http://aqute.biz/Code/Bnd#directives">Bnd docs</a>
+     * The -exportcontents directive for this bundle, see <a href="http://aqute.biz/Code/Bnd#directives">Bnd docs</a>.
      * 
      * @parameter alias="exportContents" expression="${exportContents}"
      */

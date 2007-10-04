@@ -26,7 +26,7 @@ import org.ops4j.pax.construct.util.PomUtils;
 import org.ops4j.pax.construct.util.PomUtils.Pom;
 
 /**
- * Add a repository element to a Maven project (by default the POM in the current working directory)
+ * Add a Maven repository element to a project
  * 
  * @goal add-repository
  * @aggregator true

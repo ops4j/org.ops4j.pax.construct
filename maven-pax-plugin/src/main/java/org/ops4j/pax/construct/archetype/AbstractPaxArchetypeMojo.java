@@ -59,7 +59,7 @@ public abstract class AbstractPaxArchetypeMojo extends MavenArchetypeMojo
     private String m_remoteRepositories;
 
     /**
-     * Target directory where the archetype should be created.
+     * Target directory where the project should be created.
      * 
      * @parameter alias="targetDirectory" expression="${targetDirectory}" default-value="${project.basedir}"
      */
@@ -68,67 +68,103 @@ public abstract class AbstractPaxArchetypeMojo extends MavenArchetypeMojo
     /**
      * When true, avoid duplicate elements when combining group and artifact ids.
      * 
-     * @parameter alias="compactNames" expression="${compactNames}" default-value="true"
+     * @parameter alias="compactIds" expression="${compactIds}" default-value="true"
      */
-    private boolean m_compactNames;
+    private boolean m_compactIds;
 
     /**
-     * When true, add the new archetype as a module in the parent directory's POM.
+     * When true, add the new project as a module in the parent directory's POM.
      * 
      * @parameter alias="attachPom" expression="${attachPom}" default-value="true"
      */
     private boolean m_attachPom;
 
     /**
-     * When true, replace existing files with ones from the new archetype.
+     * When true, replace existing files with ones from the new project.
      * 
      * @parameter alias="overwrite" expression="${overwrite}"
      */
     private boolean m_overwrite;
 
+    /**
+     * The current Maven project (may be null)
+     */
     private MavenProject m_project;
 
+    /**
+     * Provide access to the private fields of the archetype mojo
+     */
     private ReflectMojo m_archetypeMojo;
 
+    /**
+     * The new project's POM file
+     */
     private File m_pomFile;
 
+    /**
+     * Temporary files that should be removed at the end
+     */
     private FileSet m_tempFiles;
 
+    /**
+     * @return true if existing files can be overwritten, otherwise false
+     */
     boolean canOverwrite()
     {
         return m_overwrite;
     }
 
+    /**
+     * @return the internal groupId for support artifacts belonging to the new project
+     */
     String getInternalGroupId()
     {
-        return getCompactName( m_project.getGroupId(), m_project.getArtifactId() );
+        return getCompoundId( m_project.getGroupId(), m_project.getArtifactId() );
     }
 
+    /**
+     * @return the version of the new project
+     */
     String getProjectVersion()
     {
         return m_project.getVersion();
     }
 
+    /**
+     * @return Access to the archetype mojo
+     */
     ReflectMojo getArchetypeMojo()
     {
         return m_archetypeMojo;
     }
 
+    /**
+     * @return The new project's POM file
+     */
     File getPomFile()
     {
         return m_pomFile;
     }
 
+    /**
+     * @param pathExpression Ant-style path expression, can include wildcards
+     */
     void addTempFiles( String pathExpression )
     {
         m_tempFiles.addInclude( pathExpression );
     }
 
+    /**
+     * Standard Maven mojo entry-point
+     */
     public final void execute()
         throws MojoExecutionException
     {
         updateFields();
 
+        /*
+         * support repeated creation of projects
+         */
         do
         {
             updateExtensionFields();
@@ -140,14 +176,24 @@ public abstract class AbstractPaxArchetypeMojo extends MavenArchetypeMojo
         } while( createMoreArtifacts() );
     }
 
+    /**
+     * @return true to continue creating more projects, otherwise false
+     */
     boolean createMoreArtifacts()
     {
         return false;
     }
 
+    /**
+     * Set common fields in the archetype mojo
+     */
     final void updateFields()
     {
         m_archetypeMojo = new ReflectMojo( this, MavenArchetypeMojo.class );
+
+        /*
+         * common shared settings
+         */
 
         m_archetypeMojo.setField( "archetypeGroupId", PAX_ARCHETYPE_GROUP_ID );
         m_archetypeMojo.setField( "archetypeVersion", m_archetypeVersion );
@@ -158,7 +204,10 @@ public abstract class AbstractPaxArchetypeMojo extends MavenArchetypeMojo
 
         m_archetypeMojo.setField( "basedir", m_targetDirectory.getPath() );
 
-        // these must be set by the various archetype sub-classes
+        /*
+         * these must be set by the various archetype sub-classes
+         */
+
         // setField( "archetypeArtifactId", archetypeArtifactId );
         // setField( "groupId", groupId );
         // setField( "artifactId", artifactId );
@@ -166,16 +215,28 @@ public abstract class AbstractPaxArchetypeMojo extends MavenArchetypeMojo
         // setField( "packageName", packageName );
     }
 
+    /**
+     * Set the remaining fields in the archetype mojo
+     */
     abstract void updateExtensionFields();
 
+    /**
+     * @return The logical parent of the new project (use artifactId or groupId:artifactId)
+     */
     abstract String getParentId();
 
+    /**
+     * Lay the foundations for the new project
+     * 
+     * @throws MojoExecutionException
+     */
     void prepareTarget()
         throws MojoExecutionException
     {
         String artifactId = (String) m_archetypeMojo.getField( "artifactId" );
         File pomDirectory = new File( m_targetDirectory, artifactId );
 
+        // support overwriting of existing projects
         m_pomFile = new File( pomDirectory, "pom.xml" );
         if( m_overwrite && m_pomFile.exists() )
         {
@@ -189,9 +250,11 @@ public abstract class AbstractPaxArchetypeMojo extends MavenArchetypeMojo
         {
             try
             {
+                // make sure we can reach the location of the new project from the current project
                 Pom modulesPom = DirUtils.createModuleTree( m_project.getBasedir(), m_targetDirectory );
                 if( null != modulesPom )
                 {
+                    // attach new project to its physical parent
                     pomDirectory.mkdirs();
                     modulesPom.addModule( artifactId, m_overwrite );
                     modulesPom.write();
@@ -204,6 +267,11 @@ public abstract class AbstractPaxArchetypeMojo extends MavenArchetypeMojo
         }
     }
 
+    /**
+     * Make any necessary adjustments to the generated files and clean-up temporary files
+     * 
+     * @throws MojoExecutionException
+     */
     void postProcess()
         throws MojoExecutionException
     {
@@ -213,6 +281,8 @@ public abstract class AbstractPaxArchetypeMojo extends MavenArchetypeMojo
             {
                 new FileSetManager( getLog(), false ).delete( m_tempFiles );
             }
+
+            // remove any left-over empty directories after the cleanup
             DirUtils.pruneEmptyFolders( new File( m_tempFiles.getDirectory() ) );
         }
         catch( IOException e )
@@ -222,6 +292,7 @@ public abstract class AbstractPaxArchetypeMojo extends MavenArchetypeMojo
 
         try
         {
+            // attempt to find the logical parent of the new project (may be null)
             Pom parentPom = DirUtils.findPom( m_targetDirectory, getParentId() );
             if( null != parentPom )
             {
@@ -234,6 +305,7 @@ public abstract class AbstractPaxArchetypeMojo extends MavenArchetypeMojo
                     relativePath = pivot[0] + pivot[2];
                 }
 
+                // attach the new project to its logical parent
                 thisPom.setParent( parentPom, relativePath, m_overwrite );
                 thisPom.write();
             }
@@ -244,27 +316,45 @@ public abstract class AbstractPaxArchetypeMojo extends MavenArchetypeMojo
         }
     }
 
-    final String calculateGroupMarker( String groupId, String artifactId, String compoundName )
+    /**
+     * Combine the groupId and artifactId, eliminating duplicate elements if compactNames is true
+     * 
+     * @param groupId project group id
+     * @param artifactId project artifact id
+     * @return the combined group and artifact sequence
+     */
+    final String getCompoundId( String groupId, String artifactId )
     {
-        if( artifactId.equals( compoundName ) )
+        if( m_compactIds )
         {
-            return '=' + groupId;
-        }
-        else if( groupId.equals( compoundName ) )
-        {
-            return '~' + artifactId;
-        }
-
-        return '+' + groupId;
-    }
-
-    final String getCompactName( String groupId, String artifactId )
-    {
-        if( m_compactNames )
-        {
-            return PomUtils.getCompoundName( groupId, artifactId );
+            return PomUtils.getCompoundId( groupId, artifactId );
         }
 
         return groupId + '.' + artifactId;
+    }
+
+    /**
+     * Provide a marker that can be used with the compoundId to get back the group and artifact
+     * 
+     * @param groupId project group id
+     * @param artifactId project artifact id
+     * @param compoundId compound id created from the group and artifact
+     * @return marker string for the compoundId
+     */
+    final String getCompoundMarker( String groupId, String artifactId, String compoundId )
+    {
+        if( artifactId.equals( compoundId ) )
+        {
+            // groupId prefix
+            return '<' + groupId;
+        }
+        else if( groupId.equals( compoundId ) )
+        {
+            // artifactId suffix
+            return '>' + artifactId;
+        }
+
+        // simple append
+        return '+' + groupId;
     }
 }

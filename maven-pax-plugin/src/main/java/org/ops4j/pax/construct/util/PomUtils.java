@@ -344,13 +344,13 @@ public final class PomUtils
     }
 
     /**
-     * Try to combine overlapping group and artifact identifiers to remove duplicate segments
+     * Try to combine overlapping group and artifact identifiers to remove duplicate elements
      * 
      * @param groupId project group id
      * @param artifactId project artifact id
      * @return the combined group and artifact sequence
      */
-    public static String getCompoundName( String groupId, String artifactId )
+    public static String getCompoundId( String groupId, String artifactId )
     {
         if( artifactId.startsWith( groupId + '.' ) || artifactId.equals( groupId ) )
         {
