@@ -58,7 +58,7 @@ public class XppPathQuery
     private static final String PREDICATE = TEST + "(?:\\s+" + BIN_OP + "\\s+" + TEST + ")*";
 
     /**
-     * XPATH is a parent followed by a node and a predicate
+     * XPATH is a parent followed by a pivot node and a predicate
      */
     private static final String XPATH = "/?(" + PARENT + ")/(" + NODE + ")\\[\\s*(" + PREDICATE + ")\\s*\\]";
 

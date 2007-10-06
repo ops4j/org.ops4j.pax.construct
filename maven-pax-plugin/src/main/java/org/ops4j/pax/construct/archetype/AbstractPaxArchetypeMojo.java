@@ -293,22 +293,7 @@ public abstract class AbstractPaxArchetypeMojo extends MavenArchetypeMojo
         try
         {
             // attempt to find the logical parent of the new project (may be null)
-            Pom parentPom = DirUtils.findPom( m_targetDirectory, getParentId() );
-            if( null != parentPom )
-            {
-                Pom thisPom = PomUtils.readPom( m_pomFile );
-
-                String relativePath = null;
-                String[] pivot = DirUtils.calculateRelativePath( thisPom.getBasedir(), parentPom.getBasedir() );
-                if( null != pivot )
-                {
-                    relativePath = pivot[0] + pivot[2];
-                }
-
-                // attach the new project to its logical parent
-                thisPom.setParent( parentPom, relativePath, m_overwrite );
-                thisPom.write();
-            }
+            DirUtils.updateLogicalParent( m_pomFile, getParentId() );
         }
         catch( IOException e )
         {

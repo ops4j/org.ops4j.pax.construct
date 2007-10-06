@@ -112,6 +112,25 @@ public class XppPom
     /**
      * {@inheritDoc}
      */
+    public String getParentId()
+    {
+        Xpp3Dom parent = m_pom.getChild( "parent" );
+        if( null == parent )
+        {
+            return null;
+        }
+
+        Xpp3Dom groupId = parent.getChild( "groupId" );
+        Xpp3Dom artifactId = parent.getChild( "artifactId" );
+        Xpp3Dom version = parent.getChild( "version" );
+
+        // assume that the parent has pom packaging (seems reasonable assumption)
+        return groupId.getValue() + ':' + artifactId.getValue() + ":pom:" + version.getValue();
+    }
+
+    /**
+     * {@inheritDoc}
+     */
     public String getGroupId()
     {
         Xpp3Dom groupId = m_pom.getChild( "groupId" );
@@ -310,37 +329,6 @@ public class XppPom
         newPom.addChild( parent );
 
         m_pom = Xpp3Dom.mergeXpp3Dom( newPom, m_pom );
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public void adjustRelativePath( int offset )
-    {
-        Xpp3Dom node = m_pom.getChild( "parent" ).getChild( "relativePath" );
-
-        String relativeText = node.getValue();
-
-        // project has moved down from parent
-        for( int i = 0; i < offset; i++ )
-        {
-            relativeText = "../" + relativeText;
-        }
-
-        // project has moved up towards parent
-        for( int i = 0; i > offset; i-- )
-        {
-            if( relativeText.startsWith( "../" ) )
-            {
-                relativeText = relativeText.substring( 3 );
-            }
-            else
-            {
-                break; // refactored too far away!
-            }
-        }
-
-        node.setValue( relativeText );
     }
 
     /**

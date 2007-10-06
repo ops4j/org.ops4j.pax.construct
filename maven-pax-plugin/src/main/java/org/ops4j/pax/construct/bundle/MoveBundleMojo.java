@@ -57,6 +57,44 @@ public class MoveBundleMojo extends AbstractMojo
     private String m_bundleName;
 
     /**
+     * Locate the bundle project - try name first as a directory path, then an artifactId or symbolic-name
+     * 
+     * @param baseDir base directory in the same project tree
+     * @param pathOrName either a path, or an artifactId or symbolic-name
+     * @return the matching POM
+     * @throws MojoExecutionException
+     */
+    public static Pom locateBundlePom( File baseDir, String pathOrName )
+        throws MojoExecutionException
+    {
+        File path = new File( pathOrName );
+
+        Pom bundlePom;
+        try
+        {
+            bundlePom = PomUtils.readPom( path );
+        }
+        catch( IOException e )
+        {
+            try
+            {
+                bundlePom = DirUtils.findPom( baseDir, path.getName() );
+            }
+            catch( IOException e1 )
+            {
+                bundlePom = null;
+            }
+        }
+
+        if( null == bundlePom )
+        {
+            throw new MojoExecutionException( "Cannot find bundle " + pathOrName );
+        }
+
+        return bundlePom;
+    }
+
+    /**
      * Standard Maven mojo entry-point
      */
     public void execute()
@@ -97,106 +135,20 @@ public class MoveBundleMojo extends AbstractMojo
             throw new MojoExecutionException( "Unable to move bundle " + m_bundleName + " to " + m_targetDirectory );
         }
 
-        updateRelativePath( newBundleDir, modulesDir, newModulesDir );
-
         try
         {
-            // TRANSFER MODULE OWNERSHIP!
-            Pom modulesPom = PomUtils.readPom( modulesDir );
-
-            modulesPom.removeModule( moduleName );
-            modulesPom.write();
+            DirUtils.updateLogicalParent( newBundleDir, bundlePom.getParentId() );
 
             newModulesPom.addModule( moduleName, true );
             newModulesPom.write();
+
+            Pom modulesPom = PomUtils.readPom( modulesDir );
+            modulesPom.removeModule( moduleName );
+            modulesPom.write();
         }
         catch( IOException e )
         {
             throw new MojoExecutionException( "Problem moving module from " + modulesDir + " to " + newModulesDir );
-        }
-    }
-
-    /**
-     * Locate the bundle project - try name first as a directory path, then an artifactId or symbolic-name
-     * 
-     * @param baseDir base directory in the same project tree
-     * @param pathOrName either a path, or an artifactId or symbolic-name
-     * @return the matching POM
-     * @throws MojoExecutionException
-     */
-    public static Pom locateBundlePom( File baseDir, String pathOrName )
-        throws MojoExecutionException
-    {
-        File path = new File( pathOrName );
-
-        Pom bundlePom;
-        try
-        {
-            bundlePom = PomUtils.readPom( path );
-        }
-        catch( IOException e )
-        {
-            try
-            {
-                bundlePom = DirUtils.findPom( baseDir, path.getName() );
-            }
-            catch( IOException e1 )
-            {
-                bundlePom = null;
-            }
-        }
-
-        if( null == bundlePom )
-        {
-            throw new MojoExecutionException( "Cannot find bundle " + pathOrName );
-        }
-
-        return bundlePom;
-    }
-
-    /**
-     * Update relative path to logical parent (assumes bundle hasn't moved above project root)
-     * 
-     * @param bundleDir bundle directory
-     * @param oldParentDir old physical parent directory
-     * @param newParentDir new physical parent directory
-     * @throws MojoExecutionException
-     */
-    static void updateRelativePath( File bundleDir, File oldParentDir, File newParentDir )
-        throws MojoExecutionException
-    {
-        String[] pivot = DirUtils.calculateRelativePath( newParentDir, oldParentDir );
-
-        if( null != pivot )
-        {
-            int relativeOffset = 0;
-
-            /*
-             * Calculate the actual distance moved (up/down) in the project tree
-             */
-            for( int i = pivot[0].indexOf( '/' ); i >= 0; i = pivot[0].indexOf( '/', i + 1 ) )
-            {
-                relativeOffset--;
-            }
-            for( int i = pivot[2].indexOf( '/' ); i >= 0; i = pivot[2].indexOf( '/', i + 1 ) )
-            {
-                relativeOffset++;
-            }
-
-            if( relativeOffset != 0 )
-            {
-                try
-                {
-                    // add or remove '..'s from relative path
-                    Pom pom = PomUtils.readPom( bundleDir );
-                    pom.adjustRelativePath( relativeOffset );
-                    pom.write();
-                }
-                catch( IOException e )
-                {
-                    throw new MojoExecutionException( "Problem applying relative path offset: " + relativeOffset );
-                }
-            }
         }
     }
 }

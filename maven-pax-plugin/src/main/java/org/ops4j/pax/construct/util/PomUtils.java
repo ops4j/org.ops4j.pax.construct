@@ -57,6 +57,11 @@ public final class PomUtils
         public String getId();
 
         /**
+         * @return parents' unique project identifier
+         */
+        public String getParentId();
+
+        /**
          * @return project group id
          */
         public String getGroupId();
@@ -134,13 +139,6 @@ public final class PomUtils
          */
         public void setParent( MavenProject project, String relativePath, boolean overwrite )
             throws ExistingElementException;
-
-        /**
-         * Allow limited refactoring of the relative path element
-         * 
-         * @param offset positive if this POM was moved down, negative if it was moved up
-         */
-        public void adjustRelativePath( int offset );
 
         /**
          * @param repository a Maven repository

@@ -95,16 +95,16 @@ public final class DirUtils
             return null;
         }
 
-        // check id for groupId:artifactId
-        int groupMarker = pomId.indexOf( ':' );
+        // handle groupId:artifactId:other:stuff
+        String[] segments = pomId.split( ":" );
 
         String groupId;
         String artifactId;
 
-        if( groupMarker > 0 )
+        if( segments.length > 1 )
         {
-            groupId = pomId.substring( 0, groupMarker );
-            artifactId = pomId.substring( groupMarker + 1 );
+            groupId = segments[0];
+            artifactId = segments[1];
         }
         else
         {
@@ -299,6 +299,49 @@ public final class DirUtils
             // both "from" and "to" now hold the common directory
             dottedPath.toString(), to.getPath(), descentPath.toString()
         };
+    }
+
+    /**
+     * Set the logical parent for a given POM
+     * 
+     * @param pomFile directory or file containing the pom to update
+     * @param parentId either artifactId or groupId:artifactId
+     * @return the relative path to the parent, null if it wasn't found
+     * @throws IOException
+     */
+    public static String updateLogicalParent( File pomFile, String parentId )
+        throws IOException
+    {
+        try
+        {
+            Pom pom = PomUtils.readPom( pomFile );
+            File baseDir = pom.getBasedir();
+
+            Pom parentPom = DirUtils.findPom( baseDir, parentId );
+            if( null == parentPom )
+            {
+                return null;
+            }
+
+            String[] pivot = DirUtils.calculateRelativePath( baseDir, parentPom.getBasedir() );
+            if( null == pivot )
+            {
+                return null;
+            }
+
+            String relativePath = pivot[0] + pivot[2];
+
+            // (re-)attach project to its logical parent
+            pom.setParent( parentPom, relativePath, true );
+            pom.write();
+
+            return relativePath;
+        }
+        catch( ExistingElementException e )
+        {
+            // this should never happen
+            throw new RuntimeException( e );
+        }
     }
 
     /**
