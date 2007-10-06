@@ -23,7 +23,7 @@ import org.apache.maven.artifact.resolver.filter.ExcludesArtifactFilter;
 /**
  * Special artifact filter that excludes known OSGi system bundles
  */
-public class ExcludesOSGiSystemBundleFilter extends ExcludesArtifactFilter
+public class ExcludeSystemBundlesFilter extends ExcludesArtifactFilter
 {
     /**
      * List of OSGi system bundles found in Maven repositories
@@ -37,7 +37,7 @@ public class ExcludesOSGiSystemBundleFilter extends ExcludesArtifactFilter
     /**
      * By default exclude all OSGi system bundles
      */
-    public ExcludesOSGiSystemBundleFilter()
+    public ExcludeSystemBundlesFilter()
     {
         super( Arrays.asList( SYSTEM_BUNDLE_ARTIFACTS ) );
     }

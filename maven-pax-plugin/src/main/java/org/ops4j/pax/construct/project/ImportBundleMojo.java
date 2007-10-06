@@ -37,7 +37,7 @@ import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.project.MavenProject;
 import org.apache.maven.project.MavenProjectBuilder;
 import org.ops4j.pax.construct.util.DirUtils;
-import org.ops4j.pax.construct.util.ExcludesOSGiSystemBundleFilter;
+import org.ops4j.pax.construct.util.ExcludeSystemBundlesFilter;
 import org.ops4j.pax.construct.util.PomUtils;
 import org.ops4j.pax.construct.util.PomUtils.ExistingElementException;
 import org.ops4j.pax.construct.util.PomUtils.Pom;
@@ -211,7 +211,7 @@ public class ImportBundleMojo extends AbstractMojo
                     }
                 }
 
-                ArtifactFilter frameworkFilter = new ExcludesOSGiSystemBundleFilter();
+                ArtifactFilter frameworkFilter = new ExcludeSystemBundlesFilter();
                 Set artifacts = project.createArtifacts( artifactFactory, null, frameworkFilter );
                 for( Iterator i = artifacts.iterator(); i.hasNext(); )
                 {
