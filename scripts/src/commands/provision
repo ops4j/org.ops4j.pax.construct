@@ -1,7 +1,0 @@
-f {
-  name = 'framework'
-  optional = true
-  example = 'choose'
-}
-
-order = [ 'f' ]

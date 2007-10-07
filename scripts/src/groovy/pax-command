@@ -76,7 +76,7 @@ ${pad}fi
 <%  }
   }
 %>
-mvn \${PAX_PLUGIN}:${mojo} \\<%
+mvn -N \${PAX_PLUGIN}:${mojo} \\<%
   options.order.each {
 %>
   -D${options[it].name}=\${${options[it].name.toUpperCase()}:=${options[it].example}} \\<% } %>

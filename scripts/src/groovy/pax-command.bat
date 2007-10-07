@@ -82,7 +82,7 @@ if ""=="%_${options[it].name.toUpperCase()}_%" set /p _${options[it].name.toUppe
 if ""=="%_${options[it].name.toUpperCase()}_%" set _${options[it].name.toUpperCase()}_=${options[it].example}<% } %>
 
 @echo on
-mvn %PAX_PLUGIN%:${mojo}<%
+mvn -N %PAX_PLUGIN%:${mojo}<%
   options.order.each {
 %> -D${options[it].name}=%_${options[it].name.toUpperCase()}_%<% } %> %_EXTRA_%
 :done
