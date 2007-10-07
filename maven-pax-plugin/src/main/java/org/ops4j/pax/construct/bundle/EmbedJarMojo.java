@@ -133,7 +133,7 @@ public class EmbedJarMojo extends AbstractMojo
         dependency.setOptional( true );
 
         String id = m_groupId + ':' + m_artifactId + ':' + m_version;
-        getLog().info( "Embedding " + id + " in " + pom.getId() );
+        getLog().info( "Embedding " + id + " in " + pom );
 
         pom.addDependency( dependency, m_overwrite );
 

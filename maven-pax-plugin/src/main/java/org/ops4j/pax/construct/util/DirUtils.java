@@ -21,10 +21,8 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Set;
 import java.util.jar.Attributes;
 import java.util.jar.JarFile;
 import java.util.jar.Manifest;
@@ -87,7 +85,6 @@ public final class DirUtils
      * @throws IOException
      */
     public static Pom findPom( File baseDir, String pomId )
-        throws IOException
     {
         // no searching required
         if( null == pomId || pomId.length() == 0 )
@@ -112,34 +109,15 @@ public final class DirUtils
             artifactId = pomId;
         }
 
-        Pom pom = PomUtils.readPom( baseDir );
-
-        // keep track of search
-        Set visited = new HashSet();
-        visited.add( pom.getId() );
-
-        while( null != pom )
+        for( Iterator i = new PomIterator( baseDir ); i.hasNext(); )
         {
+            Pom pom = (Pom) i.next();
             if( sameProject( pom, groupId, artifactId ) )
             {
                 return pom;
             }
-
-            // use depth-first search pattern
-            Pom subPom = nextModule( pom, visited );
-
-            if( null == subPom )
-            {
-                // no more modules, backtrack
-                pom = pom.getContainingPom();
-            }
-            else
-            {
-                pom = subPom;
-            }
         }
 
-        // exhausted project tree
         return null;
     }
 
@@ -158,27 +136,6 @@ public final class DirUtils
         }
 
         return false;
-    }
-
-    /**
-     * @param pom current Maven project
-     * @param visited already visited projects
-     * @return next project to visit, null if local search is complete
-     */
-    static Pom nextModule( Pom pom, Set visited )
-    {
-        for( Iterator i = pom.getModuleNames().iterator(); i.hasNext(); )
-        {
-            Pom subPom = pom.getModulePom( (String) i.next() );
-
-            // avoid re-visiting modules
-            if( visited.add( subPom.getId() ) )
-            {
-                return subPom;
-            }
-        }
-
-        return null;
     }
 
     /**

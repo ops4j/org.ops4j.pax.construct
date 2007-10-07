@@ -18,36 +18,30 @@ package org.ops4j.pax.construct.bundle;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.Iterator;
 
 import org.apache.maven.model.Dependency;
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
-import org.apache.maven.project.MavenProject;
 import org.apache.maven.shared.model.fileset.FileSet;
 import org.apache.maven.shared.model.fileset.util.FileSetManager;
-import org.ops4j.pax.construct.util.PomUtils;
+import org.ops4j.pax.construct.util.PomIterator;
 import org.ops4j.pax.construct.util.PomUtils.Pom;
 
 /**
  * Remove a bundle project and any references to it in the project tree, updating POMs as necessary
  * 
  * @goal remove-bundle
+ * @aggregator true
  */
 public class RemoveBundleMojo extends AbstractMojo
 {
     /**
-     * The POM to be removed.
-     */
-    private static Pom m_bundlePom;
-
-    /**
-     * The current Maven project.
+     * A directory in the same project tree.
      * 
-     * @parameter default-value="${project}"
-     * @required
-     * @readonly
+     * @parameter alias="baseDirectory" expression="${baseDirectory}" default-value="${project.basedir}"
      */
-    private MavenProject m_project;
+    private File m_baseDirectory;
 
     /**
      * The artifactId or symbolic-name of the bundle.
@@ -63,41 +57,42 @@ public class RemoveBundleMojo extends AbstractMojo
     public void execute()
         throws MojoExecutionException
     {
-        // only need to search once
-        if( null == m_bundlePom )
-        {
-            m_bundlePom = MoveBundleMojo.locateBundlePom( m_project.getBasedir(), m_bundleName );
+        Pom bundlePom = MoveBundleMojo.locateBundlePom( m_baseDirectory, m_bundleName );
 
-            // protect against removing the wrong directory
-            if( "pom".equals( m_bundlePom.getPackaging() ) )
+        // protect against removing the wrong directory
+        if( "pom".equals( bundlePom.getPackaging() ) )
+        {
+            throw new MojoExecutionException( "Ignoring multi-module project " + m_bundleName );
+        }
+
+        // go round entire project removing references / bundle files
+        for( Iterator i = new PomIterator( m_baseDirectory ); i.hasNext(); )
+        {
+            Pom pom = (Pom) i.next();
+
+            if( pom.equals( bundlePom ) )
             {
-                throw new MojoExecutionException( "Ignoring multi-module project " + m_bundleName );
+                removeBundleFiles( pom );
             }
-        }
-
-        // have we reached the actual bundle project yet?
-        if( m_project.getId().equals( m_bundlePom.getId() ) )
-        {
-            removeBundleFiles();
-        }
-        else
-        {
-            removeBundleReferences();
+            else
+            {
+                removeBundleReferences( pom, bundlePom );
+            }
         }
     }
 
     /**
      * Remove the entire bundle directory
      */
-    void removeBundleFiles()
+    void removeBundleFiles( Pom pom )
     {
-        getLog().info( "Removing " + m_bundlePom.getId() );
+        getLog().info( "Removing " + pom );
+        File bundleFolder = pom.getBasedir();
 
         try
         {
             FileSet bundleFiles = new FileSet();
 
-            File bundleFolder = m_bundlePom.getBasedir();
             bundleFiles.setDirectory( bundleFolder.getParent() );
             bundleFiles.addInclude( bundleFolder.getName() );
 
@@ -105,7 +100,7 @@ public class RemoveBundleMojo extends AbstractMojo
         }
         catch( IOException e )
         {
-            getLog().warn( "Unable to remove the requested bundle", e );
+            getLog().warn( "Unable to remove directory " + bundleFolder, e );
         }
     }
 
@@ -114,32 +109,23 @@ public class RemoveBundleMojo extends AbstractMojo
      * 
      * @throws MojoExecutionException
      */
-    void removeBundleReferences()
+    void removeBundleReferences( Pom pom, Pom bundlePom )
         throws MojoExecutionException
     {
         boolean needsUpdate = false;
 
-        Pom pom;
-        try
-        {
-            pom = PomUtils.readPom( m_project.getFile() );
-        }
-        catch( IOException e )
-        {
-            getLog().warn( "Problem reading Maven POM: " + m_project.getFile(), e );
-            return; // carry on
-        }
-
         Dependency dependency = new Dependency();
-        dependency.setGroupId( m_bundlePom.getGroupId() );
-        dependency.setArtifactId( m_bundlePom.getArtifactId() );
+        dependency.setGroupId( bundlePom.getGroupId() );
+        dependency.setArtifactId( bundlePom.getArtifactId() );
+
+        File bundleFolder = pom.getBasedir();
 
         needsUpdate = needsUpdate || pom.removeDependency( dependency );
-        needsUpdate = needsUpdate || pom.removeModule( m_bundlePom.getBasedir().getName() );
+        needsUpdate = needsUpdate || pom.removeModule( bundleFolder.getName() );
 
         if( needsUpdate )
         {
-            getLog().info( "Removing " + m_bundlePom.getId() + " from " + pom.getId() );
+            getLog().info( "Removing " + bundlePom + " from " + pom );
 
             try
             {

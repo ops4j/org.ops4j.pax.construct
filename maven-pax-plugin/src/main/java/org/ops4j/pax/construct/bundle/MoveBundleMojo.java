@@ -76,14 +76,7 @@ public class MoveBundleMojo extends AbstractMojo
         }
         catch( IOException e )
         {
-            try
-            {
-                bundlePom = DirUtils.findPom( baseDir, path.getName() );
-            }
-            catch( IOException e1 )
-            {
-                bundlePom = null;
-            }
+            bundlePom = DirUtils.findPom( baseDir, path.getName() );
         }
 
         if( null == bundlePom )
@@ -127,7 +120,7 @@ public class MoveBundleMojo extends AbstractMojo
         File newModulesDir = newModulesPom.getBasedir();
         File newBundleDir = new File( newModulesDir, moduleName );
 
-        getLog().info( "Moving " + bundlePom.getId() + " to " + newBundleDir );
+        getLog().info( "Moving " + bundlePom + " to " + newBundleDir );
 
         // MOVE BUNDLE!
         if( !bundleDir.renameTo( newBundleDir ) )

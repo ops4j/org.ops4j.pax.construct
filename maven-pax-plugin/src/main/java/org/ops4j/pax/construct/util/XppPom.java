@@ -209,7 +209,15 @@ public class XppPom
     {
         try
         {
-            return PomUtils.readPom( m_file.getParentFile().getParentFile() );
+            File baseDir = getBasedir();
+
+            // check it really does contain our current project
+            Pom pom = PomUtils.readPom( baseDir.getParentFile() );
+            if( pom.getModuleNames().contains( baseDir.getName() ) )
+            {
+                return pom;
+            }
+            return null;
         }
         catch( IOException e )
         {
@@ -574,5 +582,33 @@ public class XppPom
         }
 
         return children.length > 0;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public boolean equals( Object obj )
+    {
+        if( obj instanceof XppPom )
+        {
+            return getId().equals( ( (XppPom) obj ).getId() );
+        }
+        return false;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public int hashCode()
+    {
+        return getId().hashCode();
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public String toString()
+    {
+        return getId();
     }
 }

@@ -136,13 +136,7 @@ public class ImportBundleMojo extends AbstractMojo
     public void execute()
         throws MojoExecutionException
     {
-        try
-        {
-            m_provisionPom = DirUtils.findPom( targetDirectory, provisionId );
-        }
-        catch( IOException e )
-        {
-        }
+        m_provisionPom = DirUtils.findPom( targetDirectory, provisionId );
 
         try
         {
@@ -267,7 +261,7 @@ public class ImportBundleMojo extends AbstractMojo
 
         if( m_provisionPom != null && !isLocalPom )
         {
-            getLog().info( "Importing " + project.getName() + " to " + m_provisionPom.getId() );
+            getLog().info( "Importing " + project.getName() + " to " + m_provisionPom );
 
             m_provisionPom.addDependency( dependency, overwrite );
             m_provisionPom.write();
@@ -275,7 +269,7 @@ public class ImportBundleMojo extends AbstractMojo
 
         if( m_targetPom != null && m_targetPom.isBundleProject() )
         {
-            getLog().info( "Adding " + project.getName() + " as a dependency to " + m_targetPom.getId() );
+            getLog().info( "Adding " + project.getName() + " as a dependency to " + m_targetPom );
 
             m_targetPom.addDependency( dependency, overwrite );
             m_targetPom.write();

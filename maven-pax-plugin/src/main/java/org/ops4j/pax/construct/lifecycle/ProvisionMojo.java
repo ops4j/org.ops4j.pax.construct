@@ -1,4 +1,4 @@
-package org.ops4j.pax.construct.project;
+package org.ops4j.pax.construct.lifecycle;
 
 /*
  * Copyright 2007 Stuart McCulloch
