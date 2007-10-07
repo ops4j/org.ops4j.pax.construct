@@ -262,7 +262,7 @@ public abstract class AbstractPaxArchetypeMojo extends MavenArchetypeMojo
             }
             catch( IOException e )
             {
-                getLog().warn( "Unable to attach POM to project" );
+                getLog().info( "Unable to attach POM to existing project" );
             }
         }
     }

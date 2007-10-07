@@ -141,6 +141,11 @@ public final class PomUtils
             throws ExistingElementException;
 
         /**
+         * @param newGroupId the new project group id
+         */
+        public void setGroupId( String newGroupId );
+
+        /**
          * @param repository a Maven repository
          * @param snapshots enable snapshots for this repository
          * @param releases enable releases for this repository
@@ -171,6 +176,13 @@ public final class PomUtils
          */
         public void addDependency( Dependency dependency, boolean overwrite )
             throws ExistingElementException;
+
+        /**
+         * @param dependency project dependency
+         * @param newGroupId updated dependency group id
+         * @return true if dependency was updated
+         */
+        public boolean updateDependencyGroup( Dependency dependency, String newGroupId );
 
         /**
          * @param dependency project dependency

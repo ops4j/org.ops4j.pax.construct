@@ -232,7 +232,12 @@ public class XppPom
     {
         try
         {
-            return PomUtils.readPom( new File( m_file.getParentFile(), name ) );
+            // check it really is a valid module
+            if( getModuleNames().contains( name ) )
+            {
+                return PomUtils.readPom( new File( m_file.getParentFile(), name ) );
+            }
+            return null;
         }
         catch( IOException e )
         {
@@ -337,6 +342,20 @@ public class XppPom
         newPom.addChild( parent );
 
         m_pom = Xpp3Dom.mergeXpp3Dom( newPom, m_pom );
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public void setGroupId( String newGroupId )
+    {
+        Xpp3Dom groupId = m_pom.getChild( "groupId" );
+        if( null == groupId )
+        {
+            groupId = new Xpp3Dom( "groupId" );
+            m_pom.addChild( groupId );
+        }
+        groupId.setValue( newGroupId );
     }
 
     /**
@@ -461,6 +480,35 @@ public class XppPom
         newPom.addChild( list );
 
         Xpp3Dom.mergeXpp3Dom( m_pom, newPom );
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public boolean updateDependencyGroup( Dependency dependency, String newGroupId )
+    {
+        String groupId = dependency.getGroupId();
+        String artifactId = dependency.getArtifactId();
+
+        String xpath = "dependencies/dependency[groupId='" + groupId + "' and artifactId='" + artifactId + "']";
+
+        XppPathQuery pathQuery = new XppPathQuery( xpath );
+        Xpp3Dom parent = pathQuery.queryParent( m_pom );
+        if( null == parent )
+        {
+            return false;
+        }
+
+        int[] children = pathQuery.queryChildren( parent );
+        for( int i = 0; i < children.length; i++ )
+        {
+            Xpp3Dom group = parent.getChild( children[i] ).getChild( "groupId" );
+            if( null != group )
+            {
+                group.setValue( newGroupId );
+            }
+        }
+        return children.length > 0;
     }
 
     /**
