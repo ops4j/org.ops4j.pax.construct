@@ -126,11 +126,18 @@ public class ImportBundleMojo extends AbstractMojo
     private File m_targetDirectory;
 
     /**
-     * When true, also try to import any provided dependencies belonging to this bundle.
+     * When true, also try to import any provided dependencies of imported bundles.
      * 
      * @parameter alias="importTransitive" expression="${importTransitive}"
      */
     private boolean m_importTransitive;
+
+    /**
+     * When true, also try to import optional dependencies of imported bundles.
+     * 
+     * @parameter alias="importOptional" expression="${importOptional}"
+     */
+    private boolean m_importOptional;
 
     /**
      * When true, also consider compile and runtime dependencies as potential bundles.
@@ -356,10 +363,17 @@ public class ImportBundleMojo extends AbstractMojo
 
                 scope = adjustDependencyScope( scope );
 
-                // assume non-optional, provided dependencies are bundles meant to be imported and provisioned
-                if( m_visitedIds.add( id ) && !artifact.isOptional() && Artifact.SCOPE_PROVIDED.equals( scope ) )
+                if( !m_importOptional && artifact.isOptional() )
                 {
-                    m_candidateIds.add( id );
+                    getLog().info( "Skipping optional dependency " + artifact );
+                }
+                else if( Artifact.SCOPE_PROVIDED.equals( scope ) )
+                {
+                    // is this a new import?
+                    if( m_visitedIds.add( id ) )
+                    {
+                        m_candidateIds.add( id );
+                    }
                 }
                 else
                 {
