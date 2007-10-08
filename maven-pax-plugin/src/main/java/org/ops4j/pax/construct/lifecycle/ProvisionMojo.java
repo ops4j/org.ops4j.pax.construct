@@ -143,7 +143,7 @@ public class ProvisionMojo extends AbstractMojo
     /**
      * The version of Pax-Runner to use for provisioning.
      * 
-     * @parameter alias="runner" expression="${runner}" default-value="0.3.4"
+     * @parameter alias="runner" expression="${runner}" default-value="0.5.0"
      */
     private String m_runner;
 
@@ -391,6 +391,7 @@ public class ProvisionMojo extends AbstractMojo
         try
         {
             ClassLoader loader = new URLClassLoader( urls );
+            Thread.currentThread().setContextClassLoader( loader );
             return Class.forName( mainClass, true, loader );
         }
         catch( ClassNotFoundException e )
@@ -448,7 +449,11 @@ public class ProvisionMojo extends AbstractMojo
     void deployRunnerNG( Class mainClass, MavenProject project )
         throws MojoExecutionException
     {
-        String[] deployAppCmds = {/* TODO: map commands */};
+        String[] deployAppCmds =
+        {
+            // TODO: add more options and customization!
+            "--overwrite", "--platform=" + m_framework, project.getFile().getAbsolutePath()
+        };
 
         invokePaxRunner( mainClass, deployAppCmds );
     }
