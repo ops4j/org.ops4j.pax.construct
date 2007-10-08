@@ -54,8 +54,6 @@ Maven Pax Plugin
 
   * {{{scripts/import-bundle.html}pax-import-bundle}}
 
-  * {{{scripts/provision.html}pax-provision}}
-
   * {{{scripts/move-bundle.html}pax-move-bundle}}
 
   * {{{scripts/remove-bundle.html}pax-remove-bundle}}
@@ -78,11 +76,11 @@ Maven Pax Plugin
 
   * {{{import-bundle-mojo.html}pax:import-bundle}}
 
-  * {{{provision-mojo.html}pax:provision}}
-
   * {{{move-bundle-mojo.html}pax:move-bundle}}
 
   * {{{remove-bundle-mojo.html}pax:remove-bundle}}
+
+  * {{{provision-mojo.html}pax:provision}}
 
   * {{{eclipse-mojo.html}pax:eclipse}}
 
