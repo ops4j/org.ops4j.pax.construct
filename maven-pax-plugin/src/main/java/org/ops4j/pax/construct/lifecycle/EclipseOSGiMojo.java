@@ -100,26 +100,36 @@ public class EclipseOSGiMojo extends EclipsePlugin
     private ReflectMojo m_eclipseMojo;
 
     /**
-     * 
+     * The main project when generating Eclipse project files for imported bundles
      */
     private MavenProject m_provisionProject;
 
+    /**
+     * Resolved IDE dependencies for compile/runtime scope dependencies
+     */
     private List m_resolvedDependencies;
 
+    /**
+     * {@inheritDoc}
+     */
     public boolean setup()
         throws MojoExecutionException
     {
         if( null == m_eclipseMojo )
         {
+            // by default enable creation of PDE project files for OSGi
             m_eclipseMojo = new ReflectMojo( this, EclipsePlugin.class );
             m_eclipseMojo.setField( "pde", Boolean.TRUE );
             setWtpversion( "none" );
         }
 
-        if( null == m_provisionProject && "pom".equals( executedProject.getPackaging() ) )
+        if( null == m_provisionProject && isProvisioningPom() )
         {
             try
             {
+                /*
+                 * unpack imported bundles and generate Eclipse files one-by-one
+                 */
                 setupImportedBundles();
             }
             catch( InvalidDependencyVersionException e )
@@ -127,33 +137,81 @@ public class EclipseOSGiMojo extends EclipsePlugin
                 getLog().warn( "Unable to generate Eclipse files for project " + executedProject.getId() );
             }
 
+            /*
+             * don't create Eclipse files for the provisioning POM itself!
+             */
             return false;
         }
 
+        // default to normal behaviour
         return super.setup();
     }
 
+    /**
+     * Does this look like a provisioning POM? ie. artifactId of 'provision', packaging type 'pom', with dependencies
+     * 
+     * @return true if this looks like a provisioning POM, otherwise false
+     */
+    boolean isProvisioningPom()
+    {
+        // ignore POMs which don't have provision as their artifactId
+        if( !"provision".equals( executedProject.getArtifactId() ) )
+        {
+            return false;
+        }
+
+        // ignore POMs that produce actual artifacts
+        if( !"pom".equals( executedProject.getPackaging() ) )
+        {
+            return false;
+        }
+
+        // ignore POMs with no dependencies at all
+        List dependencies = executedProject.getDependencies();
+        if( dependencies == null || dependencies.size() == 0 )
+        {
+            return false;
+        }
+
+        return true;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
     public void writeConfiguration( IdeDependency[] deps )
         throws MojoExecutionException
     {
         if( null == m_provisionProject )
         {
+            // compiled OSGi bundle / wrapper
             writeBundleConfiguration( deps );
         }
         else
         {
+            // imported (external) OSGi bundle
             writeImportedConfiguration( deps );
         }
     }
 
+    /**
+     * Customize Eclipse project files for Pax-Construct generated bundles
+     * 
+     * @param deps resolved project dependencies, potentially with sources and javadocs
+     * @throws MojoExecutionException
+     */
     void writeBundleConfiguration( IdeDependency[] deps )
         throws MojoExecutionException
     {
         m_resolvedDependencies = new ArrayList();
         for( int i = 0; i < deps.length; i++ )
         {
+            /*
+             * remove compile/runtime scope dependencies as they will be embedded and need custom classpath entries
+             */
             if( deps[i].isAddedToClasspath() && !deps[i].isTestDependency() && !deps[i].isProvided() )
             {
+                // cache them so we can still access the sources/javadocs later on
                 m_resolvedDependencies.add( deps[i] );
                 deps[i].setAddedToClasspath( false );
             }
@@ -174,19 +232,31 @@ public class EclipseOSGiMojo extends EclipsePlugin
             return;
         }
 
-        refactorForEclipse( bundleFile, "target/contents" );
+        /*
+         * copy bundle manifest to where PDE expects it, but tweak it to fix embedded paths
+         */
+        refactorForEclipse( bundleFile );
     }
 
+    /**
+     * Provide better naming for Pax-Construct generated OSGi bundles
+     * 
+     * @param project current Maven project
+     * @param addVersion when true, add the project version to the name
+     * @return an Eclipse friendly name for the bundle
+     */
     static String getEclipseProjectName( MavenProject project, boolean addVersion )
     {
         String projectName = project.getProperties().getProperty( "bundle.symbolicName" );
         if( null == projectName )
         {
+            // fall back to standard "groupId.artifactId" but try to eliminate duplicate segments
             projectName = PomUtils.getCompoundId( project.getGroupId(), project.getArtifactId() );
         }
 
         if( addVersion )
         {
+            // check for wrapper version, which reflects the version of the wrapped contents
             String projectVersion = project.getProperties().getProperty( "wrapped.version" );
             if( null == projectVersion )
             {
@@ -201,10 +271,20 @@ public class EclipseOSGiMojo extends EclipsePlugin
         }
     }
 
-    void refactorForEclipse( File bundleFile, String bundleLocation )
+    /**
+     * Copy OSGi metadata to where Eclipse PDE expects it, but adjust the Bundle-ClassPath so Eclipse can find any
+     * embedded jars or directories in the unpacked bundle contents under the temporary directory
+     * 
+     * @param bundleFile the packaged bundle
+     */
+    void refactorForEclipse( File bundleFile )
     {
+        // temporary location in the output folder
+        String tempPath = "target/contents";
+
+        // make relative to the provisioning POM
         File baseDir = executedProject.getBasedir();
-        File unpackDir = new File( baseDir, bundleLocation );
+        File unpackDir = new File( baseDir, tempPath );
 
         DirUtils.unpackBundle( m_archiverManager, bundleFile, unpackDir );
 
@@ -223,11 +303,16 @@ public class EclipseOSGiMojo extends EclipsePlugin
             mainAttributes.putValue( "Bundle-SymbolicName", name.replace( '-', '_' ) );
         }
 
+        /*
+         * refactor Bundle-ClassPath to help Eclipse find the unpacked contents
+         */
         String bundleClassPath = mainAttributes.getValue( "Bundle-ClassPath" );
-        bundleClassPath = ".," + DirUtils.rebasePaths( bundleClassPath, bundleLocation, ',' );
+        bundleClassPath = ".," + DirUtils.rebasePaths( bundleClassPath, tempPath, ',' );
 
         mainAttributes.putValue( "Bundle-ClassPath", bundleClassPath );
-        updateEclipseClassPath( bundleLocation, bundleClassPath );
+
+        // add the embedded entries back to the Eclipse classpath
+        addEmbeddedEntriesToEclipseClassPath( tempPath, bundleClassPath );
 
         try
         {
@@ -240,6 +325,10 @@ public class EclipseOSGiMojo extends EclipsePlugin
         }
     }
 
+    /**
+     * @param manifestFile path to the local bundle manifest
+     * @return the bundle manifest, or sane defaults if the manifest couldn't be opened
+     */
     Manifest getBundleManifest( File manifestFile )
     {
         Manifest manifest = new Manifest();
@@ -267,6 +356,11 @@ public class EclipseOSGiMojo extends EclipsePlugin
         return manifest;
     }
 
+    /**
+     * @param fromDir source directory
+     * @param metadata metadata folder
+     * @param toDir target directory
+     */
     void copyMetadata( File fromDir, String metadata, File toDir )
     {
         File metadataDir = new File( fromDir, metadata );
@@ -283,7 +377,13 @@ public class EclipseOSGiMojo extends EclipsePlugin
         }
     }
 
-    void updateEclipseClassPath( String bundleLocation, String bundleClassPath )
+    /**
+     * Add any embedded Bundle-ClassPath entries to the Eclipse classpath and re-attach sources/javadocs
+     * 
+     * @param bundleLocation relative path to the unpacked bundle
+     * @param bundleClassPath the refactored Bundle-ClassPath
+     */
+    void addEmbeddedEntriesToEclipseClassPath( String bundleLocation, String bundleClassPath )
     {
         String[] classPath = bundleClassPath.split( "," );
 
@@ -296,11 +396,13 @@ public class EclipseOSGiMojo extends EclipsePlugin
             {
                 if( ".".equals( classPath[i] ) == false )
                 {
+                    // embedded jar/directory needs to be a 'lib' entry
                     Xpp3Dom classPathEntry = new Xpp3Dom( "classpathentry" );
                     classPathEntry.setAttribute( "exported", "true" );
                     classPathEntry.setAttribute( "kind", "lib" );
                     classPathEntry.setAttribute( "path", classPath[i] );
 
+                    // find attached sources using the previously cached IDE dependencies
                     File sourcePath = findAttachedSource( bundleLocation, classPath[i] );
                     if( sourcePath != null )
                     {
@@ -325,17 +427,25 @@ public class EclipseOSGiMojo extends EclipsePlugin
         }
     }
 
+    /**
+     * Search cached IDE dependencies for an entry matching the given classpath element
+     * 
+     * @param bundleLocation relative path to the unpacked bundle
+     * @param classPathEntry classpath element
+     * @return path to the attached sources
+     */
     File findAttachedSource( String bundleLocation, String classPathEntry )
     {
         for( Iterator i = m_resolvedDependencies.iterator(); i.hasNext(); )
         {
             IdeDependency dependency = (IdeDependency) i.next();
 
+            // equivalent to '.' - source is first in list
             if( bundleLocation.equals( classPathEntry ) )
             {
                 return dependency.getSourceAttachment();
             }
-            else if( Pattern.matches( "^.*[\\/]" + dependency.getArtifactId() + "[-.][^\\/]*$", classPathEntry ) )
+            else if( Pattern.matches( "^.*[/\\\\]" + dependency.getArtifactId() + "[-.][^/\\\\]*$", classPathEntry ) )
             {
                 return dependency.getSourceAttachment();
             }
@@ -344,10 +454,17 @@ public class EclipseOSGiMojo extends EclipsePlugin
         return null;
     }
 
+    /**
+     * Unpack each imported bundle in turn and generate the relevant Eclipse project files
+     * 
+     * @throws InvalidDependencyVersionException
+     * @throws MojoExecutionException
+     */
     public void setupImportedBundles()
-        throws MojoExecutionException,
-        InvalidDependencyVersionException
+        throws InvalidDependencyVersionException,
+        MojoExecutionException
     {
+        // don't process dependencies of imported bundles
         m_provisionProject = getExecutedProject();
         setResolveDependencies( false );
 
@@ -356,8 +473,10 @@ public class EclipseOSGiMojo extends EclipsePlugin
         {
             Artifact artifact = (Artifact) i.next();
 
+            // assume provided dependencies are OSGi bundles
             if( Artifact.SCOPE_PROVIDED.equals( artifact.getScope() ) )
             {
+                // download the bundle POM and store locally
                 MavenProject dependencyProject = writeProjectPom( artifact );
                 if( null == dependencyProject )
                 {
@@ -367,15 +486,18 @@ public class EclipseOSGiMojo extends EclipsePlugin
                 setExecutedProject( dependencyProject );
                 setProject( dependencyProject );
 
+                // trick Eclipse plugin to do the right thing
                 File baseDir = dependencyProject.getBasedir();
                 setBuildOutputDirectory( new File( baseDir, ".ignore" ) );
                 setEclipseProjectDir( baseDir );
 
                 try
                 {
+                    // download and unpack the bundle
                     artifactResolver.resolve( artifact, remoteArtifactRepositories, localRepository );
                     DirUtils.unpackBundle( m_archiverManager, artifact.getFile(), executedProject.getBasedir() );
 
+                    // call the Eclipse plugin
                     execute();
                 }
                 catch( ArtifactNotFoundException e )
@@ -394,6 +516,12 @@ public class EclipseOSGiMojo extends EclipsePlugin
         }
     }
 
+    /**
+     * Download and save the Maven POM for the given artifact
+     * 
+     * @param artifact Maven artifact
+     * @return the downloaded project
+     */
     MavenProject writeProjectPom( Artifact artifact )
     {
         MavenProject pom = null;
@@ -408,6 +536,7 @@ public class EclipseOSGiMojo extends EclipsePlugin
         {
             pom = m_mavenProjectBuilder.buildFromRepository( pomArtifact, remoteArtifactRepositories, localRepository );
 
+            // store project locally underneath the provisioning POM's directory
             File projectDir = new File( m_provisionProject.getBasedir(), "target/" + groupId );
             File localDir = new File( projectDir, artifactId + '/' + version );
             localDir.mkdirs();
@@ -431,41 +560,55 @@ public class EclipseOSGiMojo extends EclipsePlugin
         return pom;
     }
 
+    /**
+     * Customize Eclipse project files for imported (unpacked) bundles
+     * 
+     * @param deps resolved project dependencies, potentially with sources and javadocs
+     * @throws MojoExecutionException
+     */
     void writeImportedConfiguration( IdeDependency[] deps )
         throws MojoExecutionException
     {
         EclipseWriterConfig config = createEclipseWriterConfig( new IdeDependency[0] );
         config.setEclipseProjectName( getEclipseProjectName( executedProject, true ) );
 
+        // not compiling, so just need project and classpath files
         new EclipseClasspathWriter().init( getLog(), config ).write();
         new EclipseProjectWriter().init( getLog(), config ).write();
 
-        Artifact artifact = artifactFactory.createArtifactWithClassifier( executedProject.getGroupId(), executedProject
-            .getArtifactId(), executedProject.getVersion(), "java-source", "sources" );
+        Artifact sourceArtifact = artifactFactory.createArtifactWithClassifier( executedProject.getGroupId(),
+            executedProject.getArtifactId(), executedProject.getVersion(), "java-source", "sources" );
 
         try
         {
             if( downloadSources )
             {
-                artifactResolver.resolve( artifact, remoteArtifactRepositories, localRepository );
+                artifactResolver.resolve( sourceArtifact, remoteArtifactRepositories, localRepository );
             }
             else
             {
-                artifactResolver.resolve( artifact, Collections.EMPTY_LIST, localRepository );
+                // check to see if we already have the source downloaded...
+                artifactResolver.resolve( sourceArtifact, Collections.EMPTY_LIST, localRepository );
             }
 
-            attachImportedSource( artifact.getFile().getPath() );
+            // attach source to the main classpath of the unpacked bundle
+            attachImportedSource( sourceArtifact.getFile().getPath() );
         }
         catch( ArtifactNotFoundException e )
         {
-            getLog().debug( "Unable to find source artifact " + artifact );
+            getLog().debug( "Unable to find source artifact " + sourceArtifact );
         }
         catch( ArtifactResolutionException e )
         {
-            getLog().debug( "Unable to resolve source artifact " + artifact );
+            getLog().debug( "Unable to resolve source artifact " + sourceArtifact );
         }
     }
 
+    /**
+     * Add a classpath entry to attach the given source to the unpacked bundle
+     * 
+     * @param sourcePath path to the attached bundle source
+     */
     void attachImportedSource( String sourcePath )
     {
         try
