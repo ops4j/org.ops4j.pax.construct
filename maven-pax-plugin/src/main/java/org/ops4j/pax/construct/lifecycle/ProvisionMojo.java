@@ -18,6 +18,7 @@ package org.ops4j.pax.construct.lifecycle;
 
 import java.io.File;
 import java.io.FileWriter;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -25,8 +26,11 @@ import java.util.List;
 import java.util.Properties;
 import java.util.Set;
 
+import javax.xml.parsers.ParserConfigurationException;
+
 import org.apache.maven.artifact.Artifact;
 import org.apache.maven.artifact.factory.ArtifactFactory;
+import org.apache.maven.artifact.installer.ArtifactInstallationException;
 import org.apache.maven.artifact.installer.ArtifactInstaller;
 import org.apache.maven.artifact.repository.ArtifactRepository;
 import org.apache.maven.model.Dependency;
@@ -35,69 +39,103 @@ import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.project.MavenProject;
 import org.apache.maven.project.MavenProjectBuilder;
+import org.apache.maven.project.ProjectBuildingException;
+import org.apache.maven.project.artifact.InvalidDependencyVersionException;
 import org.ops4j.pax.construct.util.PomUtils;
+import org.xml.sax.SAXException;
 
 /**
+ * Provision all local and imported bundles onto the selected OSGi framework
+ * 
  * @goal provision
  */
 public class ProvisionMojo extends AbstractMojo
 {
-    /**
-     * @parameter default-value="${project}"
-     */
-    MavenProject project;
+    private static MavenProject m_runnerPom;
+
+    private static Properties m_properties;
+
+    private static Set m_bundleArtifacts;
+
+    private static int m_projectCount;
 
     /**
-     * @parameter default-value="${reactorProjects}"
+     * Component factory for Maven artifacts
+     * 
+     * @component
      */
-    List reactorProjects;
+    private ArtifactFactory m_artifactFactory;
 
     /**
-     * @parameter expression="${remoteRepositories}" default-value="${project.remoteArtifactRepositories}"
+     * Component for installing Maven artifacts
+     * 
+     * @component
      */
-    List remoteRepos;
+    private ArtifactInstaller m_installer;
 
     /**
-     * @parameter expression="${localRepository}"
+     * Component factory for Maven projects
+     * 
+     * @component
+     */
+    private MavenProjectBuilder m_projectBuilder;
+
+    /**
+     * List of remote Maven repositories for the containing project.
+     * 
+     * @parameter alias="remoteRepositories" expression="${remoteRepositories}"
+     *            default-value="${project.remoteArtifactRepositories}"
+     */
+    private List m_remoteRepos;
+
+    /**
+     * The local Maven repository for the containing project.
+     * 
+     * @parameter alias="localRepository" expression="${localRepository}"
      * @required
      */
-    ArtifactRepository localRepo;
+    private ArtifactRepository m_localRepo;
 
     /**
-     * @component
+     * The current Maven project.
+     * 
+     * @parameter default-value="${project}"
+     * @readonly
      */
-    ArtifactFactory artifactFactory;
+    private MavenProject m_project;
 
     /**
-     * @component
+     * The current Maven reactor.
+     * 
+     * @parameter default-value="${reactorProjects}"
+     * @readonly
      */
-    ArtifactInstaller artifactInstaller;
+    private List m_reactorProjects;
 
     /**
-     * @component
+     * Name of the OSGi framework to deploy onto.
+     * 
+     * @parameter alias="framework" expression="${framework}" default-value="felix"
      */
-    MavenProjectBuilder mavenProjectBuilder;
+    private String m_framework;
 
     /**
-     * @parameter expression="${framework}" default-value="felix"
+     * When true, start the OSGi framework and deploy the provisioned bundles.
+     * 
+     * @parameter alias="deploy" expression="${deploy}" default-value="true"
      */
-    String framework;
+    private boolean m_deploy;
 
     /**
-     * @parameter expression="${deploy}" default-value="true"
+     * Comma separated list of additional POMs with bundles as provided dependencies.
+     * 
+     * @parameter alias="deployPoms" expression="${deployPoms}"
      */
-    boolean deploy;
+    private String m_deployPoms;
 
     /**
-     * @parameter expression="${deployPoms}"
+     * Standard Maven mojo entry-point
      */
-    String additionalPoms;
-
-    static MavenProject m_runnerPom;
-    static Properties m_properties;
-    static Set m_bundleArtifacts;
-    static int m_projectCount;
-
     public void execute()
         throws MojoExecutionException
     {
@@ -111,9 +149,9 @@ public class ProvisionMojo extends AbstractMojo
             initializeRunnerPom();
         }
 
-        addBundleDependencies( project );
+        addBundleDependencies( m_project );
 
-        if( ++m_projectCount == reactorProjects.size() )
+        if( ++m_projectCount == m_reactorProjects.size() )
         {
             installRunnerPom();
         }
@@ -121,24 +159,24 @@ public class ProvisionMojo extends AbstractMojo
 
     void initializeRunnerPom()
     {
-        m_runnerPom.setGroupId( project.getGroupId() );
-        m_runnerPom.setArtifactId( project.getArtifactId() + "-deployment" );
-        m_runnerPom.setVersion( project.getVersion() );
+        m_runnerPom.setGroupId( m_project.getGroupId() );
+        m_runnerPom.setArtifactId( m_project.getArtifactId() + "-deployment" );
+        m_runnerPom.setVersion( m_project.getVersion() );
 
-        m_runnerPom.setName( project.getName() );
-        m_runnerPom.setDescription( project.getDescription() );
+        m_runnerPom.setName( m_project.getName() );
+        m_runnerPom.setDescription( m_project.getDescription() );
         m_runnerPom.setModelVersion( "4.0.0" );
         m_runnerPom.setPackaging( "pom" );
 
-        m_properties.putAll( project.getProperties() );
+        m_properties.putAll( m_project.getProperties() );
 
-        String runnerPath = project.getBasedir() + "/target/deployed/pom.xml";
+        String runnerPath = m_project.getBasedir() + "/target/deployed/pom.xml";
 
         File runnerPomFile = new File( runnerPath );
         runnerPomFile.getParentFile().mkdirs();
         m_runnerPom.setFile( runnerPomFile );
 
-        if( additionalPoms != null )
+        if( m_deployPoms != null )
         {
             addAdditionalPoms();
         }
@@ -153,7 +191,7 @@ public class ProvisionMojo extends AbstractMojo
 
         try
         {
-            Set artifacts = deployableProject.createArtifacts( artifactFactory, null, null );
+            Set artifacts = deployableProject.createArtifacts( m_artifactFactory, null, null );
             for( Iterator i = artifacts.iterator(); i.hasNext(); )
             {
                 Artifact artifact = (Artifact) i.next();
@@ -163,7 +201,7 @@ public class ProvisionMojo extends AbstractMojo
                 }
             }
         }
-        catch( Exception e )
+        catch( InvalidDependencyVersionException e )
         {
             getLog().error( e );
         }
@@ -171,7 +209,7 @@ public class ProvisionMojo extends AbstractMojo
 
     void addAdditionalPoms()
     {
-        String[] pomPaths = additionalPoms.split( "," );
+        String[] pomPaths = m_deployPoms.split( "," );
         for( int i = 0; i < pomPaths.length; i++ )
         {
             File pomFile = new File( pomPaths[i] );
@@ -179,9 +217,9 @@ public class ProvisionMojo extends AbstractMojo
             {
                 try
                 {
-                    addBundleDependencies( mavenProjectBuilder.build( pomFile, localRepo, null ) );
+                    addBundleDependencies( m_projectBuilder.build( pomFile, m_localRepo, null ) );
                 }
-                catch( Exception e )
+                catch( ProjectBuildingException e )
                 {
                     getLog().error( e );
                 }
@@ -224,10 +262,10 @@ public class ProvisionMojo extends AbstractMojo
             String artifactId = m_runnerPom.getArtifactId();
             String version = m_runnerPom.getVersion();
 
-            Artifact artifact = artifactFactory.createProjectArtifact( groupId, artifactId, version );
-            artifactInstaller.install( pomFile, artifact, localRepo );
+            Artifact artifact = m_artifactFactory.createProjectArtifact( groupId, artifactId, version );
+            m_installer.install( pomFile, artifact, m_localRepo );
 
-            if( deploy )
+            if( m_deploy )
             {
                 String workDir = pomFile.getParent() + "/work";
                 File cachedPomFile = new File( workDir + "/lib/" + artifactId + '_' + version + ".pom" );
@@ -236,7 +274,7 @@ public class ProvisionMojo extends AbstractMojo
                 cachedPomFile.delete();
 
                 StringBuffer repoListBuilder = new StringBuffer();
-                for( Iterator i = remoteRepos.iterator(); i.hasNext(); )
+                for( Iterator i = m_remoteRepos.iterator(); i.hasNext(); )
                 {
                     ArtifactRepository repo = (ArtifactRepository) i.next();
                     if( repoListBuilder.length() > 0 )
@@ -248,17 +286,29 @@ public class ProvisionMojo extends AbstractMojo
 
                 String[] deployAppCmds =
                 {
-                    "--dir=" + workDir, "--no-md5", "--platform=" + framework, "--profile=default",
-                    "--repository=" + repoListBuilder.toString(), "--localRepository=" + localRepo.getBasedir(),
+                    "--dir=" + workDir, "--no-md5", "--platform=" + m_framework, "--profile=default",
+                    "--repository=" + repoListBuilder.toString(), "--localRepository=" + m_localRepo.getBasedir(),
                     m_runnerPom.getGroupId(), m_runnerPom.getArtifactId(), m_runnerPom.getVersion()
                 };
 
                 org.ops4j.pax.runner.Run.main( deployAppCmds );
             }
         }
-        catch( Exception ex )
+        catch( ArtifactInstallationException e )
         {
-            throw new MojoExecutionException( "Installation error", ex );
+            throw new MojoExecutionException( "Installation error", e );
+        }
+        catch( IOException e )
+        {
+            throw new MojoExecutionException( "Read/Write error", e );
+        }
+        catch( ParserConfigurationException e )
+        {
+            throw new MojoExecutionException( "Parsing error", e );
+        }
+        catch( SAXException e )
+        {
+            throw new MojoExecutionException( "Parsing error", e );
         }
     }
 }
