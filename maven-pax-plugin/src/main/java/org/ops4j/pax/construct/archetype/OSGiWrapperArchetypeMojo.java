@@ -417,13 +417,9 @@ public class OSGiWrapperArchetypeMojo extends AbstractPaxArchetypeMojo
                     newDependencyPoms.add( artifact );
                 }
                 // copy dependency to current wrapper pom (not all require wrapping)
-                else if( addWrapperDependency( thisPom, artifact ) )
+                else if( addWrapperDependency( thisPom, artifact ) && m_visitedIds.add( candidateId ) )
                 {
-                    // is this a new wrapper?
-                    if( m_visitedIds.add( candidateId ) )
-                    {
-                        m_wrappingIds.add( candidateId );
-                    }
+                    m_wrappingIds.add( candidateId );
                 }
             }
         }
