@@ -358,7 +358,7 @@ public class ImportBundleMojo extends AbstractMojo
             for( Iterator i = artifacts.iterator(); i.hasNext(); )
             {
                 Artifact artifact = (Artifact) i.next();
-                String id = getCandidateId( artifact );
+                String candidateId = getCandidateId( artifact );
                 String scope = artifact.getScope();
 
                 scope = adjustDependencyScope( scope );
@@ -370,9 +370,9 @@ public class ImportBundleMojo extends AbstractMojo
                 else if( Artifact.SCOPE_PROVIDED.equals( scope ) )
                 {
                     // is this a new import?
-                    if( m_visitedIds.add( id ) )
+                    if( m_visitedIds.add( candidateId ) )
                     {
-                        m_candidateIds.add( id );
+                        m_candidateIds.add( candidateId );
                     }
                 }
                 else

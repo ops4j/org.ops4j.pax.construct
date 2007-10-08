@@ -409,7 +409,7 @@ public class OSGiWrapperArchetypeMojo extends AbstractPaxArchetypeMojo
             Artifact artifact = (Artifact) i.next();
             String candidateId = getCandidateId( artifact );
 
-            if( isValidWrapperDependency( artifact ) && m_visitedIds.add( candidateId ) )
+            if( isValidWrapperDependency( artifact ) )
             {
                 // process POM artifacts in parent loop...
                 if( "pom".equals( artifact.getType() ) )
@@ -419,7 +419,11 @@ public class OSGiWrapperArchetypeMojo extends AbstractPaxArchetypeMojo
                 // copy dependency to current wrapper pom (not all require wrapping)
                 else if( addWrapperDependency( thisPom, artifact ) )
                 {
-                    m_wrappingIds.add( candidateId );
+                    // is this a new wrapper?
+                    if( m_visitedIds.add( candidateId ) )
+                    {
+                        m_wrappingIds.add( candidateId );
+                    }
                 }
             }
         }
@@ -448,10 +452,12 @@ public class OSGiWrapperArchetypeMojo extends AbstractPaxArchetypeMojo
 
         if( Artifact.SCOPE_SYSTEM.equals( scope ) || Artifact.SCOPE_TEST.equals( scope ) )
         {
+            getLog().info( "Skipping dependency " + artifact );
             return false;
         }
         else if( !m_wrapOptional && artifact.isOptional() )
         {
+            getLog().info( "Skipping optional dependency " + artifact );
             return false;
         }
 
