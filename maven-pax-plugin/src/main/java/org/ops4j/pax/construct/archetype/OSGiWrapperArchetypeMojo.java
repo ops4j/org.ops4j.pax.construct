@@ -63,6 +63,13 @@ public class OSGiWrapperArchetypeMojo extends AbstractPaxArchetypeMojo
     private ArtifactResolver m_resolver;
 
     /**
+     * Component factory for Maven projects
+     * 
+     * @component
+     */
+    private MavenProjectBuilder m_projectBuilder;
+
+    /**
      * List of remote Maven repositories for the containing project.
      * 
      * @parameter alias="remoteRepositories" expression="${remoteRepositories}"
@@ -77,13 +84,6 @@ public class OSGiWrapperArchetypeMojo extends AbstractPaxArchetypeMojo
      * @required
      */
     private ArtifactRepository m_localRepo;
-
-    /**
-     * Component factory for Maven projects
-     * 
-     * @component
-     */
-    private MavenProjectBuilder m_projectBuilder;
 
     /**
      * The logical parent of the new project (use artifactId or groupId:artifactId).
@@ -192,7 +192,7 @@ public class OSGiWrapperArchetypeMojo extends AbstractPaxArchetypeMojo
     private List m_wrappingIds;
 
     /**
-     * A list of artifacts (groupId:artifactId:version) that have already been handled.
+     * A list of artifacts (groupId:artifactId:version) that have already been processed.
      */
     private Set m_visitedIds;
 
