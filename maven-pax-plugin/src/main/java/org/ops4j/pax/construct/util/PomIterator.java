@@ -25,13 +25,30 @@ import java.util.Set;
 
 import org.ops4j.pax.construct.util.PomUtils.Pom;
 
+/**
+ * Iterate over all POMs in a Maven project tree using depth-first and backtracking search (non-recursive)
+ */
 public class PomIterator
     implements Iterator
 {
-    Pom m_pom;
-    Pom m_nextPom;
-    Set m_visited;
+    /**
+     * Current POM
+     */
+    private Pom m_pom;
 
+    /**
+     * Next POM - either a module of the current POM, or the POM above it
+     */
+    private Pom m_nextPom;
+
+    /**
+     * All the POMs seen so far
+     */
+    private Set m_visited;
+
+    /**
+     * @param here a directory somewhere in the project tree
+     */
     public PomIterator( File here )
     {
         m_visited = new HashSet();
@@ -46,8 +63,12 @@ public class PomIterator
         }
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public Object next()
     {
+        // check hasNext, in case it's not been called
         if( null == m_nextPom && !hasNext() )
         {
             throw new NoSuchElementException();
@@ -59,12 +80,17 @@ public class PomIterator
         return m_pom;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public boolean hasNext()
     {
+        // iterative search for next POM...
         while( null == m_nextPom && null != m_pom )
         {
             if( m_visited.add( m_pom ) )
             {
+                // cache result
                 m_nextPom = m_pom;
                 m_pom = null;
             }
@@ -76,6 +102,9 @@ public class PomIterator
         return null != m_nextPom;
     }
 
+    /**
+     * @return next POM in the search space - may have already been visited or may be null
+     */
     private Pom nextModule()
     {
         for( Iterator i = m_pom.getModuleNames().iterator(); i.hasNext(); )
@@ -83,12 +112,18 @@ public class PomIterator
             Pom subPom = m_pom.getModulePom( (String) i.next() );
             if( !m_visited.contains( subPom ) )
             {
+                // visit module
                 return subPom;
             }
         }
+
+        // backtrack to search siblings
         return m_pom.getContainingPom();
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public void remove()
     {
         throw new UnsupportedOperationException();

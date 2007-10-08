@@ -84,12 +84,17 @@ public class RemoveBundleMojo extends AbstractMojo
             }
         }
 
+        // now do the actual removal work
         dropBundleOwnership( bundlePom );
         removeBundleFiles( bundlePom );
     }
 
+    /**
+     * Remove the bundle's module from the POM directly above it
+     * 
+     * @param bundlePom the Maven POM for the bundle
+     */
     void dropBundleOwnership( Pom bundlePom )
-        throws MojoExecutionException
     {
         String moduleName = bundlePom.getBasedir().getName();
 
@@ -105,6 +110,11 @@ public class RemoveBundleMojo extends AbstractMojo
         }
     }
 
+    /**
+     * Remove all files belonging to the bundle
+     * 
+     * @param bundlePom the Maven POM for the bundle
+     */
     void removeBundleFiles( Pom bundlePom )
     {
         getLog().info( "Removing " + bundlePom );
@@ -125,8 +135,13 @@ public class RemoveBundleMojo extends AbstractMojo
         }
     }
 
+    /**
+     * Remove any references (ie. dependencies, dependencyManagement) to the bundle artifact
+     * 
+     * @param pom a Maven POM in the project tree
+     * @param bundlePom the Maven POM for the bundle
+     */
     void removeBundleReferences( Pom pom, Pom bundlePom )
-        throws MojoExecutionException
     {
         Dependency dependency = new Dependency();
         dependency.setGroupId( bundlePom.getGroupId() );

@@ -104,16 +104,19 @@ public class MoveBundleMojo extends AbstractMojo
     {
         Pom oldBundlePom = locateBundlePom( m_baseDirectory, m_bundleName );
 
-        File oldBaseDir = oldBundlePom.getBasedir();
+        File oldBundleDir = oldBundlePom.getBasedir();
 
+        // the main work - move files and update modules
         Pom newModulesPom = moveBundleFiles( oldBundlePom );
-        transferBundleOwnership( oldBaseDir, newModulesPom );
+        transferBundleOwnership( oldBundleDir, newModulesPom );
 
         if( m_repair )
         {
+            // construct a groupId from the new containing POM, eliminating duplicate segments where possible
             String newGroupId = PomUtils.getCompoundId( newModulesPom.getGroupId(), newModulesPom.getArtifactId() );
 
-            Pom newBundlePom = newModulesPom.getModulePom( oldBaseDir.getName() );
+            // need to open the recently moved POM, can't use the old one!
+            Pom newBundlePom = newModulesPom.getModulePom( oldBundleDir.getName() );
             if( null != newBundlePom )
             {
                 changeBundleGroup( newBundlePom, newGroupId );
@@ -121,6 +124,13 @@ public class MoveBundleMojo extends AbstractMojo
         }
     }
 
+    /**
+     * Move a bundle directory to a new directory, creating Maven POMs as necessary to keep it connected to the project
+     * 
+     * @param bundlePom current Maven POM for the bundle
+     * @return modules POM directly above the new bundle directory
+     * @throws MojoExecutionException
+     */
     Pom moveBundleFiles( Pom bundlePom )
         throws MojoExecutionException
     {
@@ -156,6 +166,7 @@ public class MoveBundleMojo extends AbstractMojo
 
         try
         {
+            // update the relative path, as it's probably changed
             DirUtils.updateLogicalParent( newBundleDir, bundlePom.getParentId() );
         }
         catch( IOException e )
@@ -166,17 +177,26 @@ public class MoveBundleMojo extends AbstractMojo
         return newModulesPom;
     }
 
-    void transferBundleOwnership( File oldBaseDir, Pom newModulesPom )
+    /**
+     * Transfer the bundle's module from the old modules POM to the new one
+     * 
+     * @param oldBundleDir previous location of the bundle
+     * @param newModulesPom modules POM directly above the new bundle directory
+     * @throws MojoExecutionException
+     */
+    void transferBundleOwnership( File oldBundleDir, Pom newModulesPom )
         throws MojoExecutionException
     {
-        String moduleName = oldBaseDir.getName();
+        String moduleName = oldBundleDir.getName();
 
         try
         {
+            // add first, in case of problems later
             newModulesPom.addModule( moduleName, true );
             newModulesPom.write();
 
-            Pom oldModulesPom = PomUtils.readPom( oldBaseDir.getParentFile() );
+            // open POM above the old directory, and remove the bundle module
+            Pom oldModulesPom = PomUtils.readPom( oldBundleDir.getParentFile() );
             oldModulesPom.removeModule( moduleName );
             oldModulesPom.write();
         }
@@ -186,21 +206,27 @@ public class MoveBundleMojo extends AbstractMojo
         }
     }
 
-    void changeBundleGroup( Pom newBundlePom, String newGroupId )
-        throws MojoExecutionException
+    /**
+     * Update the bundle POM and any references to the bundle in the complete Maven project tree
+     * 
+     * @param bundlePom bundle POM from the new directory
+     * @param newGroupId groupId based on the new location
+     */
+    void changeBundleGroup( Pom bundlePom, String newGroupId )
     {
         try
         {
-            String oldGroupId = newBundlePom.getGroupId();
-            newBundlePom.setGroupId( newGroupId );
-            newBundlePom.write();
+            // update bundle first, in case of failure
+            String oldGroupId = bundlePom.getGroupId();
+            bundlePom.setGroupId( newGroupId );
+            bundlePom.write();
 
-            for( Iterator i = new PomIterator( newBundlePom.getBasedir() ); i.hasNext(); )
+            for( Iterator i = new PomIterator( bundlePom.getBasedir() ); i.hasNext(); )
             {
                 Pom pom = (Pom) i.next();
-                if( !pom.equals( newBundlePom ) )
+                if( !pom.equals( bundlePom ) )
                 {
-                    updateBundleReferences( pom, newBundlePom, oldGroupId );
+                    updateBundleReferences( pom, oldGroupId, bundlePom.getGroupId(), bundlePom.getArtifactId() );
                 }
             }
         }
@@ -210,16 +236,23 @@ public class MoveBundleMojo extends AbstractMojo
         }
     }
 
-    void updateBundleReferences( Pom pom, Pom newBundlePom, String oldGroupId )
-        throws MojoExecutionException
+    /**
+     * Update any references (ie. dependencies, dependencyManagement) to use the new bundle group id
+     * 
+     * @param pom a Maven POM in the project tree
+     * @param oldGroupId old bundle group id
+     * @param newGroupId new bundle group id
+     * @param artifactId bundle artifact id
+     */
+    void updateBundleReferences( Pom pom, String oldGroupId, String newGroupId, String artifactId )
     {
         Dependency dependency = new Dependency();
         dependency.setGroupId( oldGroupId );
-        dependency.setArtifactId( newBundlePom.getArtifactId() );
+        dependency.setArtifactId( artifactId );
 
-        if( pom.updateDependencyGroup( dependency, newBundlePom.getGroupId() ) )
+        if( pom.updateDependencyGroup( dependency, newGroupId ) )
         {
-            getLog().info( "Updating " + newBundlePom + " in " + pom );
+            getLog().info( "Updating " + newGroupId + ':' + artifactId + " in " + pom );
 
             try
             {

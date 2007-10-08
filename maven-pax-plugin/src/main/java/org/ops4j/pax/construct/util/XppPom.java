@@ -490,8 +490,24 @@ public class XppPom
         String groupId = dependency.getGroupId();
         String artifactId = dependency.getArtifactId();
 
-        String xpath = "dependencies/dependency[groupId='" + groupId + "' and artifactId='" + artifactId + "']";
+        boolean updated = false;
 
+        String xpath1 = "dependencies/dependency[groupId='" + groupId + "' and artifactId='" + artifactId + "']";
+        updated = updateGroupId( xpath1, newGroupId ) || updated;
+
+        String xpath2 = "dependencyManagement/" + xpath1;
+        updated = updateGroupId( xpath2, newGroupId ) || updated;
+
+        return updated;
+    }
+
+    /**
+     * @param xpath simple XPATH query
+     * @param newGroupId new group id
+     * @return true if any elements were updated, otherwise false
+     */
+    boolean updateGroupId( String xpath, String newGroupId )
+    {
         XppPathQuery pathQuery = new XppPathQuery( xpath );
         Xpp3Dom parent = pathQuery.queryParent( m_pom );
         if( null == parent )
@@ -519,9 +535,15 @@ public class XppPom
         String groupId = dependency.getGroupId();
         String artifactId = dependency.getArtifactId();
 
-        String xpath = "dependencies/dependency[groupId='" + groupId + "' and artifactId='" + artifactId + "']";
+        boolean updated = false;
 
-        return findChildren( xpath, true );
+        String xpath1 = "dependencies/dependency[groupId='" + groupId + "' and artifactId='" + artifactId + "']";
+        updated = findChildren( xpath1, true ) || updated;
+
+        String xpath2 = "dependencyManagement/" + xpath1;
+        updated = findChildren( xpath2, true ) || updated;
+
+        return updated;
     }
 
     /**
