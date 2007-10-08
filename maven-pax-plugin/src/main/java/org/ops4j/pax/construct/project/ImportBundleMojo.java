@@ -219,7 +219,7 @@ public class ImportBundleMojo extends AbstractMojo
                     // stop at first bundle
                     if( !m_importTransitive )
                     {
-                        return;
+                        break;
                     }
 
                     processDependencies( project );
@@ -228,6 +228,28 @@ public class ImportBundleMojo extends AbstractMojo
                 {
                     getLog().info( "Ignoring non-bundle dependency " + project.getId() );
                 }
+            }
+        }
+
+        // save any dependency updates
+        writeUpdatedPom( m_localBundlePom );
+        writeUpdatedPom( m_provisionPom );
+    }
+
+    /**
+     * @param pom the Maven POM to write
+     */
+    void writeUpdatedPom( Pom pom )
+    {
+        if( pom != null )
+        {
+            try
+            {
+                pom.write();
+            }
+            catch( IOException e )
+            {
+                getLog().warn( "Unable to update " + pom );
             }
         }
     }
