@@ -39,24 +39,24 @@ public class RemoveBundleMojo extends AbstractMojo
     /**
      * A directory in the same project tree.
      * 
-     * @parameter alias="baseDirectory" expression="${baseDirectory}" default-value="${project.basedir}"
+     * @parameter expression="${baseDirectory}" default-value="${project.basedir}"
      */
-    private File m_baseDirectory;
+    private File baseDirectory;
 
     /**
      * The artifactId or symbolic-name of the bundle.
      * 
-     * @parameter alias="bundleName" expression="${bundleName}"
+     * @parameter expression="${bundleName}"
      * @required
      */
-    private String m_bundleName;
+    private String bundleName;
 
     /**
      * When true, repair any references to the removed bundle.
      * 
-     * @parameter alias="repair" expression="${repair}" default-value="true"
+     * @parameter expression="${repair}" default-value="true"
      */
-    private boolean m_repair;
+    private boolean repair;
 
     /**
      * Standard Maven mojo entry-point
@@ -64,17 +64,17 @@ public class RemoveBundleMojo extends AbstractMojo
     public void execute()
         throws MojoExecutionException
     {
-        Pom bundlePom = MoveBundleMojo.locateBundlePom( m_baseDirectory, m_bundleName );
+        Pom bundlePom = MoveBundleMojo.locateBundlePom( baseDirectory, bundleName );
 
         // protect against removing the wrong directory
         if( "pom".equals( bundlePom.getPackaging() ) )
         {
-            throw new MojoExecutionException( "Ignoring multi-module project " + m_bundleName );
+            throw new MojoExecutionException( "Ignoring multi-module project " + bundleName );
         }
 
-        if( m_repair )
+        if( repair )
         {
-            for( Iterator i = new PomIterator( m_baseDirectory ); i.hasNext(); )
+            for( Iterator i = new PomIterator( baseDirectory ); i.hasNext(); )
             {
                 Pom pom = (Pom) i.next();
                 if( !pom.equals( bundlePom ) )

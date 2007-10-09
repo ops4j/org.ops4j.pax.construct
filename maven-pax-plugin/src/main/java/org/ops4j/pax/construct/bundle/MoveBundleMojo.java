@@ -40,32 +40,32 @@ public class MoveBundleMojo extends AbstractMojo
     /**
      * A directory in the same project tree.
      * 
-     * @parameter alias="baseDirectory" expression="${baseDirectory}" default-value="${project.basedir}"
+     * @parameter expression="${baseDirectory}" default-value="${project.basedir}"
      */
-    private File m_baseDirectory;
+    private File baseDirectory;
 
     /**
      * The new location for the bundle project.
      * 
-     * @parameter alias="targetDirectory" expression="${targetDirectory}"
+     * @parameter expression="${targetDirectory}"
      * @required
      */
-    private File m_targetDirectory;
+    private File targetDirectory;
 
     /**
      * The artifactId or symbolic-name of the bundle.
      * 
-     * @parameter alias="bundleName" expression="${bundleName}"
+     * @parameter expression="${bundleName}"
      * @required
      */
-    private String m_bundleName;
+    private String bundleName;
 
     /**
      * When true, repair the groupId and any references to the moved bundle.
      * 
-     * @parameter alias="repair" expression="${repair}" default-value="true"
+     * @parameter expression="${repair}" default-value="true"
      */
-    private boolean m_repair;
+    private boolean repair;
 
     /**
      * Locate the bundle project - try name first as a directory path, then an artifactId or symbolic-name
@@ -103,7 +103,7 @@ public class MoveBundleMojo extends AbstractMojo
     public void execute()
         throws MojoExecutionException
     {
-        Pom oldBundlePom = locateBundlePom( m_baseDirectory, m_bundleName );
+        Pom oldBundlePom = locateBundlePom( baseDirectory, bundleName );
 
         File oldBundleDir = oldBundlePom.getBasedir();
 
@@ -111,7 +111,7 @@ public class MoveBundleMojo extends AbstractMojo
         Pom newModulesPom = moveBundleFiles( oldBundlePom );
         transferBundleOwnership( oldBundleDir, newModulesPom );
 
-        if( m_repair )
+        if( repair )
         {
             // construct a groupId from the new containing POM, eliminating duplicate segments where possible
             String newGroupId = PomUtils.getCompoundId( newModulesPom.getGroupId(), newModulesPom.getArtifactId() );
@@ -139,7 +139,7 @@ public class MoveBundleMojo extends AbstractMojo
         try
         {
             // make sure we can reach the new location from the current project tree
-            newModulesPom = DirUtils.createModuleTree( m_baseDirectory, m_targetDirectory );
+            newModulesPom = DirUtils.createModuleTree( baseDirectory, targetDirectory );
         }
         catch( IOException e )
         {
@@ -170,7 +170,7 @@ public class MoveBundleMojo extends AbstractMojo
             }
             catch( IOException e )
             {
-                throw new MojoExecutionException( "Cannot move bundle " + m_bundleName + " to " + m_targetDirectory );
+                throw new MojoExecutionException( "Cannot move bundle " + bundleName + " to " + targetDirectory );
             }
         }
 

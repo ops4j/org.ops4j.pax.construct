@@ -74,98 +74,97 @@ public class ImportBundleMojo extends AbstractMojo
     /**
      * List of remote Maven repositories for the containing project.
      * 
-     * @parameter alias="remoteRepositories" expression="${remoteRepositories}"
-     *            default-value="${project.remoteArtifactRepositories}"
+     * @parameter expression="${remoteRepositories}" default-value="${project.remoteArtifactRepositories}"
      */
-    private List m_remoteRepos;
+    private List remoteRepositories;
 
     /**
      * The local Maven repository for the containing project.
      * 
-     * @parameter alias="localRepository" expression="${localRepository}"
+     * @parameter expression="${localRepository}"
      * @required
      */
-    private ArtifactRepository m_localRepo;
+    private ArtifactRepository localRepository;
 
     /**
      * The groupId of the bundle to be imported.
      * 
-     * @parameter alias="groupId" expression="${groupId}"
+     * @parameter expression="${groupId}"
      * @required
      */
-    private String m_groupId;
+    private String groupId;
 
     /**
      * The artifactId of the bundle to be imported.
      * 
-     * @parameter alias="artifactId" expression="${artifactId}"
+     * @parameter expression="${artifactId}"
      * @required
      */
-    private String m_artifactId;
+    private String artifactId;
 
     /**
      * The version of the bundle to be imported.
      * 
-     * @parameter alias="version" expression="${version}"
+     * @parameter expression="${version}"
      * @required
      */
-    private String m_version;
+    private String version;
 
     /**
      * Reference to the project's provision POM (use artifactId or groupId:artifactId).
      * 
-     * @parameter alias="provisionId" expression="${provisionId}" default-value="provision"
+     * @parameter expression="${provisionId}" default-value="provision"
      */
-    private String m_provisionId;
+    private String provisionId;
 
     /**
      * Target directory where the bundle should be imported.
      * 
-     * @parameter alias="targetDirectory" expression="${targetDirectory}" default-value="${project.basedir}"
+     * @parameter expression="${targetDirectory}" default-value="${project.basedir}"
      */
-    private File m_targetDirectory;
+    private File targetDirectory;
 
     /**
      * When true, also try to import any provided dependencies of imported bundles.
      * 
-     * @parameter alias="importTransitive" expression="${importTransitive}"
+     * @parameter expression="${importTransitive}"
      */
-    private boolean m_importTransitive;
+    private boolean importTransitive;
 
     /**
      * When true, also try to import optional dependencies of imported bundles.
      * 
-     * @parameter alias="importOptional" expression="${importOptional}"
+     * @parameter expression="${importOptional}"
      */
-    private boolean m_importOptional;
+    private boolean importOptional;
 
     /**
      * When true, also consider compile and runtime dependencies as potential bundles.
      * 
-     * @parameter alias="widenScope" expression="${widenScope}"
+     * @parameter expression="${widenScope}"
      */
-    private boolean m_widenScope;
+    private boolean widenScope;
 
     /**
      * When true, check dependency artifacts for OSGi metadata before wrapping them.
      * 
-     * @parameter alias="testMetadata" expression="${testMetadata}" default-value="true"
+     * @parameter expression="${testMetadata}" default-value="true"
      */
-    private boolean m_testMetadata;
+    private boolean testMetadata;
 
     /**
      * When false, mark the imported bundle as optional so it won't be provisioned.
      * 
-     * @parameter alias="deploy" expression="${deploy}" default-value="true"
+     * @parameter expression="${deploy}" default-value="true"
      */
-    private boolean m_deploy;
+    private boolean deploy;
 
     /**
      * When true, overwrite existing entries with the new imports.
      * 
-     * @parameter alias="overwrite" expression="${overwrite}" default-value="true"
+     * @parameter expression="${overwrite}" default-value="true"
      */
-    private boolean m_overwrite;
+    private boolean overwrite;
 
     /**
      * The local provisioning POM, where imported non-local bundles are recorded.
@@ -194,10 +193,10 @@ public class ImportBundleMojo extends AbstractMojo
         throws MojoExecutionException
     {
         // Find host POMs which will receive the imported dependencies
-        m_provisionPom = DirUtils.findPom( m_targetDirectory, m_provisionId );
-        m_localBundlePom = readBundlePom( m_targetDirectory );
+        m_provisionPom = DirUtils.findPom( targetDirectory, provisionId );
+        m_localBundlePom = readBundlePom( targetDirectory );
 
-        String rootId = m_groupId + ':' + m_artifactId + ':' + m_version;
+        String rootId = groupId + ':' + artifactId + ':' + version;
 
         m_candidateIds = new ArrayList();
         m_visitedIds = new HashSet();
@@ -219,12 +218,13 @@ public class ImportBundleMojo extends AbstractMojo
                     // support 'dependency' POMs
                     processDependencies( project );
                 }
-                else if( PomUtils.isBundleProject( project, m_resolver, m_remoteRepos, m_localRepo, m_testMetadata ) )
+                else if( PomUtils
+                    .isBundleProject( project, m_resolver, remoteRepositories, localRepository, testMetadata ) )
                 {
                     importBundle( project );
 
                     // stop at first bundle
-                    if( !m_importTransitive )
+                    if( !importTransitive )
                     {
                         break;
                     }
@@ -299,7 +299,7 @@ public class ImportBundleMojo extends AbstractMojo
         MavenProject project;
         try
         {
-            project = m_projectBuilder.buildFromRepository( pomArtifact, m_remoteRepos, m_localRepo );
+            project = m_projectBuilder.buildFromRepository( pomArtifact, remoteRepositories, localRepository );
         }
         catch( ProjectBuildingException e )
         {
@@ -310,7 +310,7 @@ public class ImportBundleMojo extends AbstractMojo
         /*
          * look to see if this is a local project (if so then set the POM location)
          */
-        Pom localPom = DirUtils.findPom( m_targetDirectory, groupId + ':' + artifactId );
+        Pom localPom = DirUtils.findPom( targetDirectory, groupId + ':' + artifactId );
         if( localPom != null )
         {
             project.setFile( localPom.getFile() );
@@ -363,7 +363,7 @@ public class ImportBundleMojo extends AbstractMojo
 
                 scope = adjustDependencyScope( scope );
 
-                if( !m_importOptional && artifact.isOptional() )
+                if( !importOptional && artifact.isOptional() )
                 {
                     getLog().info( "Skipping optional dependency " + artifact );
                 }
@@ -395,7 +395,7 @@ public class ImportBundleMojo extends AbstractMojo
      */
     String adjustDependencyScope( String scope )
     {
-        if( m_widenScope && !Artifact.SCOPE_SYSTEM.equals( scope ) && !Artifact.SCOPE_TEST.equals( scope ) )
+        if( widenScope && !Artifact.SCOPE_SYSTEM.equals( scope ) && !Artifact.SCOPE_TEST.equals( scope ) )
         {
             return Artifact.SCOPE_PROVIDED;
         }
@@ -429,19 +429,19 @@ public class ImportBundleMojo extends AbstractMojo
         dependency.setVersion( project.getVersion() );
         dependency.setScope( Artifact.SCOPE_PROVIDED );
         dependency.setType( project.getPackaging() );
-        dependency.setOptional( !m_deploy );
+        dependency.setOptional( !deploy );
 
         // only add non-local bundles to the provisioning POM
         if( m_provisionPom != null && project.getFile() == null )
         {
             getLog().info( "Importing " + project.getName() + " to " + m_provisionPom );
-            m_provisionPom.addDependency( dependency, m_overwrite );
+            m_provisionPom.addDependency( dependency, overwrite );
         }
 
         if( m_localBundlePom != null )
         {
             getLog().info( "Adding " + project.getName() + " as dependency to " + m_localBundlePom );
-            m_localBundlePom.addDependency( dependency, m_overwrite );
+            m_localBundlePom.addDependency( dependency, overwrite );
         }
     }
 }

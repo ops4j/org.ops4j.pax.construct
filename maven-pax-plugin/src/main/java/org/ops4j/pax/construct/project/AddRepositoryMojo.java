@@ -36,46 +36,46 @@ public class AddRepositoryMojo extends AbstractMojo
     /**
      * The repository identifier.
      * 
-     * @parameter alias="repositoryId" expression="${repositoryId}"
+     * @parameter expression="${repositoryId}"
      * @required
      */
-    private String m_repositoryId;
+    private String repositoryId;
 
     /**
      * The repository URL.
      * 
-     * @parameter alias="repositoryURL" expression="${repositoryURL}"
+     * @parameter expression="${repositoryURL}"
      * @required
      */
-    private String m_repositoryURL;
+    private String repositoryURL;
 
     /**
      * The directory containing the POM to be updated.
      * 
-     * @parameter alias="targetDirectory" expression="${targetDirectory}" default-value="${project.basedir}"
+     * @parameter expression="${targetDirectory}" default-value="${project.basedir}"
      */
-    private File m_targetDirectory;
+    private File targetDirectory;
 
     /**
      * When true, overwrite matching entries in the POM.
      * 
-     * @parameter alias="overwrite" expression="${overwrite}"
+     * @parameter expression="${overwrite}"
      */
-    private boolean m_overwrite;
+    private boolean overwrite;
 
     /**
      * When true, enable snapshots from this repository.
      * 
-     * @parameter alias="snapshots" expression="${snapshots}"
+     * @parameter expression="${snapshots}"
      */
-    private boolean m_snapshots;
+    private boolean snapshots;
 
     /**
      * When true, enable releases from this repository.
      * 
-     * @parameter alias="releases" expression="${releases}" default-value="true"
+     * @parameter expression="${releases}" default-value="true"
      */
-    private boolean m_releases;
+    private boolean releases;
 
     /**
      * Standard Maven mojo entry-point
@@ -87,20 +87,20 @@ public class AddRepositoryMojo extends AbstractMojo
 
         try
         {
-            pom = PomUtils.readPom( m_targetDirectory );
+            pom = PomUtils.readPom( targetDirectory );
         }
         catch( IOException e )
         {
-            throw new MojoExecutionException( "Problem reading Maven POM: " + m_targetDirectory );
+            throw new MojoExecutionException( "Problem reading Maven POM: " + targetDirectory );
         }
 
         Repository repository = new Repository();
-        repository.setId( m_repositoryId );
-        repository.setUrl( m_repositoryURL );
+        repository.setId( repositoryId );
+        repository.setUrl( repositoryURL );
 
-        getLog().info( "Adding repository " + m_repositoryURL + " to " + pom );
+        getLog().info( "Adding repository " + repositoryURL + " to " + pom );
 
-        pom.addRepository( repository, m_snapshots, m_releases, m_overwrite );
+        pom.addRepository( repository, snapshots, releases, overwrite );
 
         try
         {

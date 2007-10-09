@@ -39,54 +39,54 @@ public class EmbedJarMojo extends AbstractMojo
     /**
      * The groupId of the jar to be embedded.
      * 
-     * @parameter alias="groupId" expression="${groupId}"
+     * @parameter expression="${groupId}"
      * @required
      */
-    private String m_groupId;
+    private String groupId;
 
     /**
      * The artifactId of the jar to be embedded.
      * 
-     * @parameter alias="artifactId" expression="${artifactId}"
+     * @parameter expression="${artifactId}"
      * @required
      */
-    private String m_artifactId;
+    private String artifactId;
 
     /**
      * The version of the jar to be embedded.
      * 
-     * @parameter alias="version" expression="${version}"
+     * @parameter expression="${version}"
      * @required
      */
-    private String m_version;
+    private String version;
 
     /**
      * When true, unpack the jar inside the bundle.
      * 
-     * @parameter alias="unpack" expression="${unpack}"
+     * @parameter expression="${unpack}"
      */
-    private boolean m_unpack;
+    private boolean unpack;
 
     /**
      * The -exportcontents directive for this bundle, see <a href="http://aqute.biz/Code/Bnd#directives">Bnd docs</a>.
      * 
-     * @parameter alias="exportContents" expression="${exportContents}"
+     * @parameter expression="${exportContents}"
      */
-    private String m_exportContents;
+    private String exportContents;
 
     /**
      * The directory containing the POM to be updated.
      * 
-     * @parameter alias="targetDirectory" expression="${targetDirectory}" default-value="${project.basedir}"
+     * @parameter expression="${targetDirectory}" default-value="${project.basedir}"
      */
-    private File m_targetDirectory;
+    private File targetDirectory;
 
     /**
      * When true, overwrite matching directives in the 'osgi.bnd' file.
      * 
-     * @parameter alias="overwrite" expression="${overwrite}"
+     * @parameter expression="${overwrite}"
      */
-    private boolean m_overwrite;
+    private boolean overwrite;
 
     /**
      * Standard Maven mojo entry-point
@@ -110,11 +110,11 @@ public class EmbedJarMojo extends AbstractMojo
         Pom pom;
         try
         {
-            pom = PomUtils.readPom( m_targetDirectory );
+            pom = PomUtils.readPom( targetDirectory );
         }
         catch( IOException e )
         {
-            throw new MojoExecutionException( "Problem reading Maven POM: " + m_targetDirectory );
+            throw new MojoExecutionException( "Problem reading Maven POM: " + targetDirectory );
         }
 
         if( !pom.isBundleProject() )
@@ -124,18 +124,18 @@ public class EmbedJarMojo extends AbstractMojo
 
         // new dependency to fetch the jarfile
         Dependency dependency = new Dependency();
-        dependency.setGroupId( m_groupId );
-        dependency.setArtifactId( m_artifactId );
-        dependency.setVersion( m_version );
+        dependency.setGroupId( groupId );
+        dependency.setArtifactId( artifactId );
+        dependency.setVersion( version );
         dependency.setScope( Artifact.SCOPE_COMPILE );
 
         // limit transitive nature
         dependency.setOptional( true );
 
-        String id = m_groupId + ':' + m_artifactId + ':' + m_version;
+        String id = groupId + ':' + artifactId + ':' + version;
         getLog().info( "Embedding " + id + " in " + pom );
 
-        pom.addDependency( dependency, m_overwrite );
+        pom.addDependency( dependency, overwrite );
 
         try
         {
@@ -159,24 +159,24 @@ public class EmbedJarMojo extends AbstractMojo
 
         try
         {
-            bndFile = BndFileUtils.readBndFile( m_targetDirectory );
+            bndFile = BndFileUtils.readBndFile( targetDirectory );
         }
         catch( IOException e )
         {
-            throw new MojoExecutionException( "Problem reading Bnd file: " + m_targetDirectory + "/osgi.bnd" );
+            throw new MojoExecutionException( "Problem reading Bnd file: " + targetDirectory + "/osgi.bnd" );
         }
 
-        final String embedKey = m_artifactId + ";groupId=" + m_groupId;
-        final String embedClause = embedKey + ";inline=" + m_unpack;
+        final String embedKey = artifactId + ";groupId=" + groupId;
+        final String embedClause = embedKey + ";inline=" + unpack;
 
         String embedDependency = bndFile.getInstruction( "Embed-Dependency" );
         embedDependency = addEmbedClause( embedClause, embedDependency );
 
         bndFile.setInstruction( "Embed-Dependency", embedDependency, true );
 
-        if( m_exportContents != null )
+        if( exportContents != null )
         {
-            bndFile.setInstruction( "-exportcontents", m_exportContents, m_overwrite );
+            bndFile.setInstruction( "-exportcontents", exportContents, overwrite );
         }
 
         try
