@@ -192,6 +192,10 @@ public final class DirUtils
                     parentPom.write();
 
                     String groupId = PomUtils.getCompoundId( parentPom.getGroupId(), parentPom.getArtifactId() );
+                    if (groupId.equals( parentPom.getGroupId() ))
+                    {
+                        groupId += '.'+ module;
+                    }
 
                     // create missing module pom and link back to parent
                     childPom = PomUtils.createPom( pomFile, groupId, module );
