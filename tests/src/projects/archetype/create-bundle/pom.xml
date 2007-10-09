@@ -56,6 +56,10 @@
                   <name>package</name>
                   <value>org.example.simple</value>
                 </property>
+                <property>
+                  <name>overwrite</name>
+                  <value>true</value>
+                </property>
               </testProperties>
             </configuration>
           </execution>
@@ -84,6 +88,10 @@
                   <name>activator</name>
                   <value>false</value>
                 </property>
+                <property>
+                  <name>overwrite</name>
+                  <value>true</value>
+                </property>
               </testProperties>
             </configuration>
           </execution>
@@ -111,6 +119,10 @@
                 <property>
                   <name>interface</name>
                   <value>false</value>
+                </property>
+                <property>
+                  <name>overwrite</name>
+                  <value>true</value>
                 </property>
               </testProperties>
             </configuration>
