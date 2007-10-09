@@ -3,7 +3,7 @@
   <parent>
     <groupId>org.ops4j.pax</groupId>
     <artifactId>construct</artifactId>
-    <version>0.2.0-SNAPSHOT</version>
+    <version>0.2.0-beta2</version>
   </parent>
 
   <modelVersion>4.0.0</modelVersion>
@@ -26,7 +26,7 @@
       <plugin>
         <groupId>org.ops4j</groupId>
         <artifactId>maven-inherit-plugin</artifactId>
-        <version>0.2.0-SNAPSHOT</version>
+        <version>0.2.0-beta2</version>
         <executions>
           <execution>
             <goals>
