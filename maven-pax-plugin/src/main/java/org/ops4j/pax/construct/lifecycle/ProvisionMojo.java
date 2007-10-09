@@ -90,18 +90,17 @@ public class ProvisionMojo extends AbstractMojo
     /**
      * List of remote Maven repositories for the containing project.
      * 
-     * @parameter alias="remoteRepositories" expression="${remoteRepositories}"
-     *            default-value="${project.remoteArtifactRepositories}"
+     * @parameter expression="${remoteRepositories}" default-value="${project.remoteArtifactRepositories}"
      */
-    private List m_remoteRepos;
+    private List remoteRepositories;
 
     /**
      * The local Maven repository for the containing project.
      * 
-     * @parameter alias="localRepository" expression="${localRepository}"
+     * @parameter expression="${localRepository}"
      * @required
      */
-    private ArtifactRepository m_localRepo;
+    private ArtifactRepository localRepository;
 
     /**
      * The current Maven project.
@@ -122,30 +121,30 @@ public class ProvisionMojo extends AbstractMojo
     /**
      * Name of the OSGi framework to deploy onto.
      * 
-     * @parameter alias="framework" expression="${framework}" default-value="felix"
+     * @parameter expression="${framework}" default-value="felix"
      */
-    private String m_framework;
+    private String framework;
 
     /**
      * When true, start the OSGi framework and deploy the provisioned bundles.
      * 
-     * @parameter alias="deploy" expression="${deploy}" default-value="true"
+     * @parameter expression="${deploy}" default-value="true"
      */
-    private boolean m_deploy;
+    private boolean deploy;
 
     /**
      * Comma separated list of additional POMs with bundles as provided dependencies.
      * 
-     * @parameter alias="deployPoms" expression="${deployPoms}"
+     * @parameter expression="${deployPoms}"
      */
-    private String m_deployPoms;
+    private String deployPoms;
 
     /**
      * The version of Pax-Runner to use for provisioning.
      * 
-     * @parameter alias="runner" expression="${runner}" default-value="0.5.0"
+     * @parameter expression="${runner}" default-value="0.5.0"
      */
-    private String m_runner;
+    private String runner;
 
     /**
      * A set of provision commands for Pax-Runner.
@@ -164,7 +163,7 @@ public class ProvisionMojo extends AbstractMojo
         {
             m_bundleArtifacts = new HashSet();
 
-            if( m_deployPoms != null )
+            if( deployPoms != null )
             {
                 addAdditionalPoms();
             }
@@ -213,7 +212,7 @@ public class ProvisionMojo extends AbstractMojo
      */
     void addAdditionalPoms()
     {
-        String[] pomPaths = m_deployPoms.split( "," );
+        String[] pomPaths = deployPoms.split( "," );
         for( int i = 0; i < pomPaths.length; i++ )
         {
             File pomFile = new File( pomPaths[i] );
@@ -221,7 +220,7 @@ public class ProvisionMojo extends AbstractMojo
             {
                 try
                 {
-                    addBundleDependencies( m_projectBuilder.build( pomFile, m_localRepo, null ) );
+                    addBundleDependencies( m_projectBuilder.build( pomFile, localRepository, null ) );
                 }
                 catch( ProjectBuildingException e )
                 {
@@ -262,14 +261,14 @@ public class ProvisionMojo extends AbstractMojo
         MavenProject deployProject = createDeploymentProject( dependencies );
         installDeploymentPom( deployProject );
 
-        if( !m_deploy )
+        if( !deploy )
         {
             getLog().info( "Deployment complete" );
             return;
         }
 
         StringBuffer repoListBuilder = new StringBuffer();
-        for( Iterator i = m_remoteRepos.iterator(); i.hasNext(); )
+        for( Iterator i = remoteRepositories.iterator(); i.hasNext(); )
         {
             ArtifactRepository repo = (ArtifactRepository) i.next();
             if( repoListBuilder.length() > 0 )
@@ -282,7 +281,7 @@ public class ProvisionMojo extends AbstractMojo
         /*
          * Dynamically load the correct Pax-Runner code
          */
-        if( m_runner.compareTo( "0.5.0" ) < 0 )
+        if( runner.compareTo( "0.5.0" ) < 0 )
         {
             Class clazz = loadRunnerClass( "org.ops4j.pax", "runner", "org.ops4j.pax.runner.Run", false );
             deployRunnerClassic( clazz, deployProject, repoListBuilder.toString() );
@@ -353,7 +352,7 @@ public class ProvisionMojo extends AbstractMojo
 
         try
         {
-            m_installer.install( project.getFile(), pomArtifact, m_localRepo );
+            m_installer.install( project.getFile(), pomArtifact, localRepository );
         }
         catch( ArtifactInstallationException e )
         {
@@ -380,11 +379,11 @@ public class ProvisionMojo extends AbstractMojo
             jdk = "jdk14";
         }
 
-        Artifact jar = m_artifactFactory.createArtifactWithClassifier( groupId, artifactId, m_runner, "jar", jdk );
+        Artifact jar = m_artifactFactory.createArtifactWithClassifier( groupId, artifactId, runner, "jar", jdk );
 
         try
         {
-            m_resolver.resolve( jar, m_remoteRepos, m_localRepo );
+            m_resolver.resolve( jar, remoteRepositories, localRepository );
         }
         catch( ArtifactNotFoundException e )
         {
@@ -439,8 +438,8 @@ public class ProvisionMojo extends AbstractMojo
 
         String[] deployAppCmds =
         {
-            "--dir=" + workDir, "--no-md5", "--platform=" + m_framework, "--profile=default",
-            "--repository=" + repositories, "--localRepository=" + m_localRepo.getBasedir(), project.getGroupId(),
+            "--dir=" + workDir, "--no-md5", "--platform=" + framework, "--profile=default",
+            "--repository=" + repositories, "--localRepository=" + localRepository.getBasedir(), project.getGroupId(),
             project.getArtifactId(), project.getVersion()
         };
 
@@ -464,8 +463,8 @@ public class ProvisionMojo extends AbstractMojo
         {
             String[] defaultCmds = new String[]
             {
-                "--repositories=" + repositories, "--localRepository=" + m_localRepo.getBasedir(),
-                "--platform=" + m_framework, project.getFile().getAbsolutePath(), "--overwrite"
+                "--repositories=" + repositories, "--localRepository=" + localRepository.getBasedir(),
+                "--platform=" + framework, project.getFile().getAbsolutePath(), "--overwrite"
             };
 
             deployAppCmds = new String[provision.length + defaultCmds.length];
