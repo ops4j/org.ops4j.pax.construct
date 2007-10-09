@@ -3,7 +3,7 @@ call pax-create-project -g examples -a spring-osgi-example
 
 cd spring-osgi-example
 
-call pax-add-repository -i spring-osgi -u http://static.springframework.org/maven2-snapshots -- -Dsnapshots -Dreleases=false
+call pax-add-repository -i spring-osgi -u http://static.springframework.org/maven2-snapshots -- -Dsnapshots "-Dreleases=false"
 call pax-add-repository -i spring -u http://s3.amazonaws.com/maven.springframework.org/milestone
 
 set OLD_CONSTRUCT_OPTIONS=%PAX_CONSTRUCT_OPTIONS%
