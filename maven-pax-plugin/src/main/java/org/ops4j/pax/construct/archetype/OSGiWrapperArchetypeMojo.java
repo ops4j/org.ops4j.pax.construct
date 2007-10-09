@@ -367,13 +367,12 @@ public class OSGiWrapperArchetypeMojo extends AbstractPaxArchetypeMojo
 
         while( !dependencyPoms.isEmpty() )
         {
-            Artifact pomArtifact = (Artifact) dependencyPoms.remove( 0 );
+            Artifact a = (Artifact) dependencyPoms.remove( 0 );
 
             try
             {
                 // Standard Maven code to get direct dependencies for a given POM
-                MavenProject p = m_projectBuilder
-                    .buildFromRepository( pomArtifact, remoteRepositories, localRepository );
+                MavenProject p = m_projectBuilder.buildFromRepository( a, remoteRepositories, localRepository );
                 Set artifacts = p.createArtifacts( m_artifactFactory, null, null );
 
                 // look for new artifacts to wrap

@@ -210,31 +210,32 @@ public class ImportBundleMojo extends AbstractMojo
             String id = (String) m_candidateIds.remove( 0 );
             String[] fields = id.split( ":" );
 
-            MavenProject project = buildMavenProject( fields[0], fields[1], fields[2] );
-            if( null != project )
+            MavenProject p = buildMavenProject( fields[0], fields[1], fields[2] );
+            if( null == p )
             {
-                if( "pom".equals( project.getPackaging() ) )
-                {
-                    // support 'dependency' POMs
-                    processDependencies( project );
-                }
-                else if( PomUtils
-                    .isBundleProject( project, m_resolver, remoteRepositories, localRepository, testMetadata ) )
-                {
-                    importBundle( project );
+                continue;
+            }
 
-                    // stop at first bundle
-                    if( !importTransitive )
-                    {
-                        break;
-                    }
+            if( "pom".equals( p.getPackaging() ) )
+            {
+                // support 'dependency' POMs
+                processDependencies( p );
+            }
+            else if( PomUtils.isBundleProject( p, m_resolver, remoteRepositories, localRepository, testMetadata ) )
+            {
+                importBundle( p );
 
-                    processDependencies( project );
-                }
-                else
+                // stop at first bundle
+                if( !importTransitive )
                 {
-                    getLog().info( "Ignoring non-bundle dependency " + project.getId() );
+                    break;
                 }
+
+                processDependencies( p );
+            }
+            else
+            {
+                getLog().info( "Ignoring non-bundle dependency " + p.getId() );
             }
         }
 
@@ -288,14 +289,14 @@ public class ImportBundleMojo extends AbstractMojo
     /**
      * Resolve the Maven project for the given artifact, handling when a POM cannot be found in the repository
      * 
-     * @param groupId project group id
-     * @param artifactId project artifact id
-     * @param version project version
+     * @param pomGroupId project group id
+     * @param pomArtifactId project artifact id
+     * @param pomVersion project version
      * @return resolved Maven project
      */
-    MavenProject buildMavenProject( String groupId, String artifactId, String version )
+    MavenProject buildMavenProject( String pomGroupId, String pomArtifactId, String pomVersion )
     {
-        Artifact pomArtifact = m_artifactFactory.createProjectArtifact( groupId, artifactId, version );
+        Artifact pomArtifact = m_artifactFactory.createProjectArtifact( pomGroupId, pomArtifactId, pomVersion );
         MavenProject project;
         try
         {
@@ -310,7 +311,7 @@ public class ImportBundleMojo extends AbstractMojo
         /*
          * look to see if this is a local project (if so then set the POM location)
          */
-        Pom localPom = DirUtils.findPom( targetDirectory, groupId + ':' + artifactId );
+        Pom localPom = DirUtils.findPom( targetDirectory, pomGroupId + ':' + pomArtifactId );
         if( localPom != null )
         {
             project.setFile( localPom.getFile() );
@@ -331,7 +332,7 @@ public class ImportBundleMojo extends AbstractMojo
             else
             {
                 // remote project - assume it creates a jarfile (so we can test later for OSGi metadata)
-                Artifact jar = m_artifactFactory.createBuildArtifact( groupId, artifactId, version, "jar" );
+                Artifact jar = m_artifactFactory.createBuildArtifact( pomGroupId, pomArtifactId, pomVersion, "jar" );
                 project.setArtifact( jar );
 
                 project.setPackaging( "jar" );
