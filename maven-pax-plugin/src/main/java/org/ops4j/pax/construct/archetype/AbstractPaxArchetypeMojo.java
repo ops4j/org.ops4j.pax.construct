@@ -191,10 +191,15 @@ public abstract class AbstractPaxArchetypeMojo extends MavenArchetypeMojo
     {
         m_archetypeMojo = new ReflectMojo( this, MavenArchetypeMojo.class );
 
+        // different repository for snapshots
+        if( m_archetypeVersion.indexOf( "SNAPSHOT" ) >= 0 )
+        {
+            m_remoteRepositories = "http://repository.ops4j.org/mvn-snapshots";
+        }
+
         /*
          * common shared settings
          */
-
         m_archetypeMojo.setField( "archetypeGroupId", PAX_ARCHETYPE_GROUP_ID );
         m_archetypeMojo.setField( "archetypeVersion", m_archetypeVersion );
         m_archetypeMojo.setField( "remoteRepositories", m_remoteRepositories );
@@ -207,7 +212,6 @@ public abstract class AbstractPaxArchetypeMojo extends MavenArchetypeMojo
         /*
          * these must be set by the various archetype sub-classes
          */
-
         // setField( "archetypeArtifactId", archetypeArtifactId );
         // setField( "groupId", groupId );
         // setField( "artifactId", artifactId );

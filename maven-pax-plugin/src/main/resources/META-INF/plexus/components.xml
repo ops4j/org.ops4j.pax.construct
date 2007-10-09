@@ -34,7 +34,10 @@
               <test-compile>org.ops4j:maven-pax-plugin:testCompile</test-compile>
               <test>org.apache.maven.plugins:maven-surefire-plugin:test</test>
               <package>org.apache.felix:maven-bundle-plugin:bundle</package>
-              <install>org.apache.maven.plugins:maven-install-plugin:install</install>
+              <install>
+                org.apache.maven.plugins:maven-install-plugin:install,
+                org.apache.felix:maven-bundle-plugin:install
+              </install>
               <deploy>org.apache.maven.plugins:maven-deploy-plugin:deploy</deploy>
             </phases>
             <!-- END SNIPPET: bundle-lifecycle -->
