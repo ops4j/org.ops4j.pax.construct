@@ -454,8 +454,8 @@ public class ProvisionMojo extends AbstractMojo
         String[] deployAppCmds =
         {
             // TODO: add more options and customization!
-            "--overwrite", "--repositories=" + repositories, "--platform=" + m_framework,
-            project.getFile().getAbsolutePath()
+            "--repositories=" + repositories, "--localRepository=" + m_localRepo.getBasedir(),
+            "--platform=" + m_framework, project.getFile().getAbsolutePath(), "--overwrite"
         };
 
         invokePaxRunner( mainClass, deployAppCmds );
