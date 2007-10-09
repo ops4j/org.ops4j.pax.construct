@@ -21,12 +21,26 @@
 
   <pluginRepositories>
     <pluginRepository>
-      <id>ops4j-repository</id>
-      <name>The OPS4J Repository</name>
+      <id>standard</id>
+      <name>The OPS4J Standard Repository</name>
       <url>http://repository.ops4j.org/maven2/</url>
       <releases>
         <updatePolicy>always</updatePolicy>
       </releases>
+      <snapshots>
+        <enabled>false</enabled>
+      </snapshots>
+    </pluginRepository>
+    <pluginRepository>
+      <id>snapshots</id>
+      <name>The OPS4J Snapshot Repository</name>
+      <url>http://repository.ops4j.org/mvn-snapshots/</url>
+      <releases>
+        <enabled>false</enabled>
+      </releases>
+      <snapshots>
+        <updatePolicy>always</updatePolicy>
+      </snapshots>
     </pluginRepository>
   </pluginRepositories>
 
