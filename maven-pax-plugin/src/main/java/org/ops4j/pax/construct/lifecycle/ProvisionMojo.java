@@ -261,18 +261,29 @@ public class ProvisionMojo extends AbstractMojo
             return;
         }
 
+        StringBuffer repoListBuilder = new StringBuffer();
+        for( Iterator i = m_remoteRepos.iterator(); i.hasNext(); )
+        {
+            ArtifactRepository repo = (ArtifactRepository) i.next();
+            if( repoListBuilder.length() > 0 )
+            {
+                repoListBuilder.append( ',' );
+            }
+            repoListBuilder.append( repo.getUrl() );
+        }
+
         /*
          * Dynamically load the correct Pax-Runner code
          */
         if( m_runner.compareTo( "0.5.0" ) < 0 )
         {
             Class clazz = loadRunnerClass( "org.ops4j.pax", "runner", "org.ops4j.pax.runner.Run", false );
-            deployRunnerClassic( clazz, deployProject );
+            deployRunnerClassic( clazz, deployProject, repoListBuilder.toString() );
         }
         else
         {
             Class clazz = loadRunnerClass( "org.ops4j.pax.runner", "pax-runner", "org.ops4j.pax.runner.Run", true );
-            deployRunnerNG( clazz, deployProject );
+            deployRunnerNG( clazz, deployProject, repoListBuilder.toString() );
         }
     }
 
@@ -405,9 +416,10 @@ public class ProvisionMojo extends AbstractMojo
      * 
      * @param mainClass main Pax-Runner class
      * @param project deployment project
+     * @param repositories comma separated list of Maven repositories
      * @throws MojoExecutionException
      */
-    void deployRunnerClassic( Class mainClass, MavenProject project )
+    void deployRunnerClassic( Class mainClass, MavenProject project, String repositories )
         throws MojoExecutionException
     {
         String workDir = project.getBasedir() + "/work";
@@ -418,22 +430,11 @@ public class ProvisionMojo extends AbstractMojo
         // Force reload of pom
         cachedPomFile.delete();
 
-        StringBuffer repoListBuilder = new StringBuffer();
-        for( Iterator i = m_remoteRepos.iterator(); i.hasNext(); )
-        {
-            ArtifactRepository repo = (ArtifactRepository) i.next();
-            if( repoListBuilder.length() > 0 )
-            {
-                repoListBuilder.append( ',' );
-            }
-            repoListBuilder.append( repo.getUrl() );
-        }
-
         String[] deployAppCmds =
         {
             "--dir=" + workDir, "--no-md5", "--platform=" + m_framework, "--profile=default",
-            "--repository=" + repoListBuilder.toString(), "--localRepository=" + m_localRepo.getBasedir(),
-            project.getGroupId(), project.getArtifactId(), project.getVersion()
+            "--repository=" + repositories, "--localRepository=" + m_localRepo.getBasedir(), project.getGroupId(),
+            project.getArtifactId(), project.getVersion()
         };
 
         invokePaxRunner( mainClass, deployAppCmds );
@@ -444,15 +445,17 @@ public class ProvisionMojo extends AbstractMojo
      * 
      * @param mainClass main Pax-Runner class
      * @param project deployment project
+     * @param repositories comma separated list of Maven repositories
      * @throws MojoExecutionException
      */
-    void deployRunnerNG( Class mainClass, MavenProject project )
+    void deployRunnerNG( Class mainClass, MavenProject project, String repositories )
         throws MojoExecutionException
     {
         String[] deployAppCmds =
         {
             // TODO: add more options and customization!
-            "--overwrite", "--platform=" + m_framework, project.getFile().getAbsolutePath()
+            "--overwrite", "--repositories=" + repositories, "--platform=" + m_framework,
+            project.getFile().getAbsolutePath()
         };
 
         invokePaxRunner( mainClass, deployAppCmds );
