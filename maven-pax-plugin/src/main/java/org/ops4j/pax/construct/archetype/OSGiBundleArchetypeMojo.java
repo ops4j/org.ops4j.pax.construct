@@ -37,66 +37,66 @@ public class OSGiBundleArchetypeMojo extends AbstractPaxArchetypeMojo
     /**
      * The logical parent of the new project (use artifactId or groupId:artifactId).
      * 
-     * @parameter alias="parentId" expression="${parentId}" default-value="compiled-bundle-settings"
+     * @parameter expression="${parentId}" default-value="compiled-bundle-settings"
      */
-    private String m_parentId;
+    private String parentId;
 
     /**
      * The key Java package contained inside the bundle.
      * 
-     * @parameter alias="package" expression="${package}"
+     * @parameter expression="${package}"
      * @required
      */
-    private String m_packageName;
+    private String packageName;
 
     /**
      * The symbolic-name for the bundle (defaults to packageName if empty).
      * 
-     * @parameter alias="bundleName" expression="${bundleName}"
+     * @parameter expression="${bundleName}"
      */
-    private String m_bundleName;
+    private String bundleName;
 
     /**
      * The version of the bundle.
      * 
-     * @parameter alias="version" expression="${version}" default-value="1.0-SNAPSHOT"
+     * @parameter expression="${version}" default-value="1.0-SNAPSHOT"
      */
-    private String m_version;
+    private String version;
 
     /**
      * When true, provide an example service API.
      * 
-     * @parameter alias="interface" expression="${interface}" default-value="true"
+     * @parameter expression="${interface}" default-value="true"
      */
-    private boolean m_provideInterface;
+    private boolean provideInterface;
 
     /**
      * When false, don't provide any implementation code.
      * 
-     * @parameter alias="internals" expression="${internals}" default-value="true"
+     * @parameter expression="${internals}" default-value="true"
      */
-    private boolean m_provideInternals;
+    private boolean provideInternals;
 
     /**
      * When true, provide an example Bundle-Activator class.
      * 
-     * @parameter alias="activator" expression="${activator}" default-value="true"
+     * @parameter expression="${activator}" default-value="true"
      */
-    private boolean m_provideActivator;
+    private boolean provideActivator;
 
     /**
      * When true, do not add any basic OSGi dependencies to the project.
      * 
-     * @parameter alias="noDependencies" expression="${noDependencies}"
+     * @parameter expression="${noDependencies}"
      */
-    private boolean m_noDependencies;
+    private boolean noDependencies;
 
     /**
      * {@inheritDoc}
      */
     String getParentId()
     {
-        return m_parentId;
+        return parentId;
     }
 
     /**
@@ -105,18 +105,18 @@ public class OSGiBundleArchetypeMojo extends AbstractPaxArchetypeMojo
     void updateExtensionFields()
     {
         // use the Java package as the symbolic name if no name given
-        if( null == m_bundleName || m_bundleName.trim().length() == 0 )
+        if( null == bundleName || bundleName.trim().length() == 0 )
         {
-            m_bundleName = m_packageName;
+            bundleName = packageName;
         }
 
         getArchetypeMojo().setField( "archetypeArtifactId", "maven-archetype-osgi-bundle" );
 
         getArchetypeMojo().setField( "groupId", getInternalGroupId() );
-        getArchetypeMojo().setField( "artifactId", m_bundleName );
-        getArchetypeMojo().setField( "version", m_version );
+        getArchetypeMojo().setField( "artifactId", bundleName );
+        getArchetypeMojo().setField( "version", version );
 
-        getArchetypeMojo().setField( "packageName", m_packageName );
+        getArchetypeMojo().setField( "packageName", packageName );
     }
 
     /**
@@ -128,15 +128,15 @@ public class OSGiBundleArchetypeMojo extends AbstractPaxArchetypeMojo
         /*
          * Unwanted files
          */
-        if( !m_provideInterface )
+        if( !provideInterface )
         {
             addTempFiles( "src/main/java/**/ExampleService.java" );
         }
-        if( !m_provideInternals )
+        if( !provideInternals )
         {
             addTempFiles( "src/main/java/**/internal" );
         }
-        if( !m_provideActivator )
+        if( !provideActivator )
         {
             addTempFiles( "src/main/java/**/Activator.java" );
         }
@@ -144,7 +144,7 @@ public class OSGiBundleArchetypeMojo extends AbstractPaxArchetypeMojo
         // remove files, etc.
         super.postProcess();
 
-        if( !m_noDependencies )
+        if( !noDependencies )
         {
             try
             {
@@ -205,17 +205,17 @@ public class OSGiBundleArchetypeMojo extends AbstractPaxArchetypeMojo
     {
         BndFile bndFile = BndFileUtils.readBndFile( getPomFile().getParentFile() );
 
-        if( m_provideInternals && !m_provideInterface )
+        if( provideInternals && !provideInterface )
         {
             // internals, but nothing to export
             bndFile.setInstruction( "Export-Package", null, canOverwrite() );
         }
-        if( !m_provideInternals && m_provideInterface )
+        if( !provideInternals && provideInterface )
         {
             // public api, but no internals left
             bndFile.setInstruction( "Private-Package", null, canOverwrite() );
         }
-        if( !m_provideActivator || !m_provideInternals )
+        if( !provideActivator || !provideInternals )
         {
             bndFile.removeInstruction( "Bundle-Activator" );
         }

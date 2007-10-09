@@ -29,32 +29,32 @@ public class OSGiProjectArchetypeMojo extends AbstractPaxArchetypeMojo
     /**
      * The logical parent of the new project (use artifactId or groupId:artifactId). Default is no parent.
      * 
-     * @parameter alias="parentId" expression="${parentId}"
+     * @parameter expression="${parentId}"
      */
-    private String m_parentId;
+    private String parentId;
 
     /**
      * The groupId for the new project.
      * 
-     * @parameter alias="groupId" expression="${groupId}"
+     * @parameter expression="${groupId}"
      * @required
      */
-    private String m_groupId;
+    private String groupId;
 
     /**
      * The artifactId for the new project.
      * 
-     * @parameter alias="artifactId" expression="${artifactId}"
+     * @parameter expression="${artifactId}"
      * @required
      */
-    private String m_artifactId;
+    private String artifactId;
 
     /**
      * The version for the new project.
      * 
-     * @parameter alias="version" expression="${version}" default-value="1.0-SNAPSHOT"
+     * @parameter expression="${version}" default-value="1.0-SNAPSHOT"
      */
-    private String m_version;
+    private String version;
 
     /**
      * {@inheritDoc}
@@ -63,11 +63,11 @@ public class OSGiProjectArchetypeMojo extends AbstractPaxArchetypeMojo
     {
         getArchetypeMojo().setField( "archetypeArtifactId", "maven-archetype-osgi-project" );
 
-        getArchetypeMojo().setField( "groupId", m_groupId );
-        getArchetypeMojo().setField( "artifactId", m_artifactId );
-        getArchetypeMojo().setField( "version", m_version );
+        getArchetypeMojo().setField( "groupId", groupId );
+        getArchetypeMojo().setField( "artifactId", artifactId );
+        getArchetypeMojo().setField( "version", version );
 
-        getArchetypeMojo().setField( "packageName", getCompoundId( m_groupId, m_artifactId ) );
+        getArchetypeMojo().setField( "packageName", getCompoundId( groupId, artifactId ) );
     }
 
     /**
@@ -75,6 +75,6 @@ public class OSGiProjectArchetypeMojo extends AbstractPaxArchetypeMojo
      */
     String getParentId()
     {
-        return m_parentId;
+        return parentId;
     }
 }

@@ -46,45 +46,44 @@ public abstract class AbstractPaxArchetypeMojo extends MavenArchetypeMojo
     /**
      * The archetype version to use, defaults to the plugin version.
      * 
-     * @parameter alias="archetypeVersion" expression="${archetypeVersion}" default-value="${plugin.version}"
+     * @parameter expression="${archetypeVersion}" default-value="${plugin.version}"
      */
-    private String m_archetypeVersion;
+    private String archetypeVersion;
 
     /**
      * Comma separated list of additional remote repository URLs.
      * 
-     * @parameter alias="remoteRepositories" expression="${remoteRepositories}"
-     *            default-value="http://repository.ops4j.org/maven2"
+     * @parameter expression="${remoteArchetypeRepositories}" default-value="http://repository.ops4j.org/maven2"
      */
-    private String m_remoteRepositories;
+    private String remoteArchetypeRepositories;
 
     /**
      * Target directory where the project should be created.
      * 
-     * @parameter alias="targetDirectory" expression="${targetDirectory}" default-value="${project.basedir}"
+     * @parameter expression="${targetDirectory}" default-value="${project.basedir}"
      */
-    private File m_targetDirectory;
+    private File targetDirectory;
 
     /**
      * When true, avoid duplicate elements when combining group and artifact ids.
      * 
-     * @parameter alias="compactIds" expression="${compactIds}" default-value="true"
+     * @parameter expression="${compactIds}" default-value="true"
      */
-    private boolean m_compactIds;
+    private boolean compactIds;
 
     /**
      * When true, add the new project as a module in the parent directory's POM.
      * 
-     * @parameter alias="attachPom" expression="${attachPom}" default-value="true"
+     * @parameter expression="${attachPom}" default-value="true"
      */
-    private boolean m_attachPom;
+    private boolean attachPom;
 
     /**
      * When true, replace existing files with ones from the new project.
      * 
-     * @parameter alias="overwrite" expression="${overwrite}"
+     * @parameter expression="${overwrite}"
      */
-    private boolean m_overwrite;
+    private boolean overwrite;
 
     /**
      * The current Maven project (may be null)
@@ -111,7 +110,7 @@ public abstract class AbstractPaxArchetypeMojo extends MavenArchetypeMojo
      */
     boolean canOverwrite()
     {
-        return m_overwrite;
+        return overwrite;
     }
 
     /**
@@ -192,22 +191,22 @@ public abstract class AbstractPaxArchetypeMojo extends MavenArchetypeMojo
         m_archetypeMojo = new ReflectMojo( this, MavenArchetypeMojo.class );
 
         // different repository for snapshots
-        if( m_archetypeVersion.indexOf( "SNAPSHOT" ) >= 0 )
+        if( archetypeVersion.indexOf( "SNAPSHOT" ) >= 0 )
         {
-            m_remoteRepositories = "http://repository.ops4j.org/mvn-snapshots";
+            remoteArchetypeRepositories = "http://repository.ops4j.org/mvn-snapshots";
         }
 
         /*
          * common shared settings
          */
         m_archetypeMojo.setField( "archetypeGroupId", PAX_ARCHETYPE_GROUP_ID );
-        m_archetypeMojo.setField( "archetypeVersion", m_archetypeVersion );
-        m_archetypeMojo.setField( "remoteRepositories", m_remoteRepositories );
+        m_archetypeMojo.setField( "archetypeVersion", archetypeVersion );
+        m_archetypeMojo.setField( "remoteRepositories", remoteArchetypeRepositories );
 
         m_project = (MavenProject) m_archetypeMojo.getField( "project" );
-        m_targetDirectory = DirUtils.resolveFile( m_targetDirectory, true );
+        targetDirectory = DirUtils.resolveFile( targetDirectory, true );
 
-        m_archetypeMojo.setField( "basedir", m_targetDirectory.getPath() );
+        m_archetypeMojo.setField( "basedir", targetDirectory.getPath() );
 
         /*
          * these must be set by the various archetype sub-classes
@@ -238,11 +237,11 @@ public abstract class AbstractPaxArchetypeMojo extends MavenArchetypeMojo
         throws MojoExecutionException
     {
         String artifactId = (String) m_archetypeMojo.getField( "artifactId" );
-        File pomDirectory = new File( m_targetDirectory, artifactId );
+        File pomDirectory = new File( targetDirectory, artifactId );
 
         // support overwriting of existing projects
         m_pomFile = new File( pomDirectory, "pom.xml" );
-        if( m_overwrite && m_pomFile.exists() )
+        if( overwrite && m_pomFile.exists() )
         {
             m_pomFile.delete();
         }
@@ -250,17 +249,17 @@ public abstract class AbstractPaxArchetypeMojo extends MavenArchetypeMojo
         m_tempFiles = new FileSet();
         m_tempFiles.setDirectory( pomDirectory.getAbsolutePath() );
 
-        if( m_attachPom )
+        if( attachPom )
         {
             try
             {
                 // make sure we can reach the location of the new project from the current project
-                Pom modulesPom = DirUtils.createModuleTree( m_project.getBasedir(), m_targetDirectory );
+                Pom modulesPom = DirUtils.createModuleTree( m_project.getBasedir(), targetDirectory );
                 if( null != modulesPom )
                 {
                     // attach new project to its physical parent
                     pomDirectory.mkdirs();
-                    modulesPom.addModule( artifactId, m_overwrite );
+                    modulesPom.addModule( artifactId, overwrite );
                     modulesPom.write();
                 }
             }
@@ -314,7 +313,7 @@ public abstract class AbstractPaxArchetypeMojo extends MavenArchetypeMojo
      */
     final String getCompoundId( String groupId, String artifactId )
     {
-        if( m_compactIds )
+        if( compactIds )
         {
             return PomUtils.getCompoundId( groupId, artifactId );
         }

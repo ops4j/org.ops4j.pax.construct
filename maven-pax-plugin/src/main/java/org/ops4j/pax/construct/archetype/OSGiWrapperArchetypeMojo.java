@@ -72,119 +72,118 @@ public class OSGiWrapperArchetypeMojo extends AbstractPaxArchetypeMojo
     /**
      * List of remote Maven repositories for the containing project.
      * 
-     * @parameter alias="remoteRepositories" expression="${remoteRepositories}"
-     *            default-value="${project.remoteArtifactRepositories}"
+     * @parameter expression="${remoteRepositories}" default-value="${project.remoteArtifactRepositories}"
      */
-    private List m_remoteRepos;
+    private List remoteRepositories;
 
     /**
      * The local Maven repository for the containing project.
      * 
-     * @parameter alias="localRepository" expression="${localRepository}"
+     * @parameter expression="${localRepository}"
      * @required
      */
-    private ArtifactRepository m_localRepo;
+    private ArtifactRepository localRepository;
 
     /**
      * The logical parent of the new project (use artifactId or groupId:artifactId).
      * 
-     * @parameter alias="parentId" expression="${parentId}" default-value="wrapper-bundle-settings"
+     * @parameter expression="${parentId}" default-value="wrapper-bundle-settings"
      */
-    private String m_parentId;
+    private String parentId;
 
     /**
      * The groupId of the artifact to be wrapped.
      * 
-     * @parameter alias="groupId" expression="${groupId}"
+     * @parameter expression="${groupId}"
      * @required
      */
-    private String m_groupId;
+    private String groupId;
 
     /**
      * The artifactId of the artifact to be wrapped.
      * 
-     * @parameter alias="artifactId" expression="${artifactId}"
+     * @parameter expression="${artifactId}"
      * @required
      */
-    private String m_artifactId;
+    private String artifactId;
 
     /**
      * The version of the artifact to be wrapped.
      * 
-     * @parameter alias="version" expression="${version}"
+     * @parameter expression="${version}"
      * @required
      */
-    private String m_version;
+    private String version;
 
     /**
      * When true, create new wrapper projects for any dependencies.
      * 
-     * @parameter alias="wrapTransitive" expression="${wrapTransitive}"
+     * @parameter expression="${wrapTransitive}"
      */
-    private boolean m_wrapTransitive;
+    private boolean wrapTransitive;
 
     /**
      * When true, create new wrapper projects for optional dependencies.
      * 
-     * @parameter alias="wrapOptional" expression="${wrapOptional}"
+     * @parameter expression="${wrapOptional}"
      */
-    private boolean m_wrapOptional;
+    private boolean wrapOptional;
 
     /**
      * When true, embed any dependencies inside the wrapper bundle.
      * 
-     * @parameter alias="embedTransitive" expression="${embedTransitive}"
+     * @parameter expression="${embedTransitive}"
      */
-    private boolean m_embedTransitive;
+    private boolean embedTransitive;
 
     /**
      * The Include-Resource directive for this bundle, see <a href="http://aqute.biz/Code/Bnd#directives">Bnd docs</a>.
      * 
-     * @parameter alias="includeResource" expression="${includeResource}"
+     * @parameter expression="${includeResource}"
      */
-    private String m_includeResource;
+    private String includeResource;
 
     /**
      * The Import-Package directive for this bundle, see <a href="http://aqute.biz/Code/Bnd#directives">Bnd docs</a>.
      * 
-     * @parameter alias="importPackage" expression="${importPackage}"
+     * @parameter expression="${importPackage}"
      */
-    private String m_importPackage;
+    private String importPackage;
 
     /**
      * The -exportcontents directive for this bundle, see <a href="http://aqute.biz/Code/Bnd#directives">Bnd docs</a>.
      * 
-     * @parameter alias="exportContents" expression="${exportContents}"
+     * @parameter expression="${exportContents}"
      */
-    private String m_exportContents;
+    private String exportContents;
 
     /**
      * The RequireBundle directive for this bundle, see <a href="http://aqute.biz/Code/Bnd#directives">Bnd docs</a>.
      * 
-     * @parameter alias="requireBundle" expression="${requireBundle}"
+     * @parameter expression="${requireBundle}"
      */
-    private String m_requireBundle;
+    private String requireBundle;
 
     /**
      * The DynamicImport-Package directive, see <a href="http://aqute.biz/Code/Bnd#directives">Bnd docs</a>.
      * 
-     * @parameter alias="dynamicImportPackage" expression="${dynamicImportPackage}"
+     * @parameter expression="${dynamicImportPackage}"
      */
-    private String m_dynamicImportPackage;
+    private String dynamicImportPackage;
 
     /**
      * When true, check dependency artifacts for OSGi metadata before wrapping them.
      * 
-     * @parameter alias="testMetadata" expression="${testMetadata}" default-value="true"
+     * @parameter expression="${testMetadata}" default-value="true"
      */
-    private boolean m_testMetadata;
+    private boolean testMetadata;
 
     /**
      * When true, add the wrapped artifact version to the project name.
      * 
-     * @parameter alias="addVersion" expression="${addVersion}"
+     * @parameter expression="${addVersion}"
      */
-    private boolean m_addVersion;
+    private boolean addVersion;
 
     /**
      * A list of artifacts (groupId:artifactId:version) to be wrapped
@@ -201,7 +200,7 @@ public class OSGiWrapperArchetypeMojo extends AbstractPaxArchetypeMojo
      */
     String getParentId()
     {
-        return m_parentId;
+        return parentId;
     }
 
     /**
@@ -216,7 +215,7 @@ public class OSGiWrapperArchetypeMojo extends AbstractPaxArchetypeMojo
             getArchetypeMojo().setField( "groupId", getInternalGroupId() );
 
             // bootstrap with the initial wrapper artifact
-            String rootId = m_groupId + ':' + m_artifactId + ':' + m_version;
+            String rootId = groupId + ':' + artifactId + ':' + version;
 
             m_wrappingIds = new ArrayList();
             m_visitedIds = new HashSet();
@@ -228,9 +227,9 @@ public class OSGiWrapperArchetypeMojo extends AbstractPaxArchetypeMojo
         String id = (String) m_wrappingIds.remove( 0 );
         String[] fields = id.split( ":" );
 
-        m_groupId = fields[0];
-        m_artifactId = fields[1];
-        m_version = fields[2];
+        groupId = fields[0];
+        artifactId = fields[1];
+        version = fields[2];
 
         /*
          * This is a little trick to get the archetype mojo to create the wrapper project with a compound name - based
@@ -238,8 +237,8 @@ public class OSGiWrapperArchetypeMojo extends AbstractPaxArchetypeMojo
          * 
          * See the velocity macros in: maven-archetype-osgi-wrapper/src/main/resources/archetype-resources/pom.xml
          */
-        String compoundWrapperId = getCompoundId( m_groupId, m_artifactId );
-        String compoundMarker = getCompoundMarker( m_groupId, m_artifactId, compoundWrapperId );
+        String compoundWrapperId = getCompoundId( groupId, artifactId );
+        String compoundMarker = getCompoundMarker( groupId, artifactId, compoundWrapperId );
 
         /*
          * Provide support for wrapping different versions of an artifact: the versioning can either be done in the POM
@@ -251,15 +250,15 @@ public class OSGiWrapperArchetypeMojo extends AbstractPaxArchetypeMojo
          * example 2, addVersion is true : asm-3.0/pom.xml <-- POM version 1.0-SNAPSHOT
          * 
          */
-        if( m_addVersion )
+        if( addVersion )
         {
-            getArchetypeMojo().setField( "artifactId", compoundWrapperId + '-' + m_version );
-            getArchetypeMojo().setField( "version", '+' + m_version );
+            getArchetypeMojo().setField( "artifactId", compoundWrapperId + '-' + version );
+            getArchetypeMojo().setField( "version", '+' + version );
         }
         else
         {
             getArchetypeMojo().setField( "artifactId", compoundWrapperId );
-            getArchetypeMojo().setField( "version", '!' + m_version );
+            getArchetypeMojo().setField( "version", '!' + version );
         }
 
         getArchetypeMojo().setField( "packageName", compoundMarker );
@@ -274,7 +273,7 @@ public class OSGiWrapperArchetypeMojo extends AbstractPaxArchetypeMojo
         // remove files, etc.
         super.postProcess();
 
-        if( m_wrapTransitive )
+        if( wrapTransitive )
         {
             try
             {
@@ -287,7 +286,7 @@ public class OSGiWrapperArchetypeMojo extends AbstractPaxArchetypeMojo
             }
 
             // no need to embed now
-            m_embedTransitive = false;
+            embedTransitive = false;
         }
 
         try
@@ -313,29 +312,29 @@ public class OSGiWrapperArchetypeMojo extends AbstractPaxArchetypeMojo
     {
         BndFile bndFile = BndFileUtils.readBndFile( getPomFile().getParentFile() );
 
-        if( m_embedTransitive )
+        if( embedTransitive )
         {
             bndFile.setInstruction( "Embed-Transitive", "true", canOverwrite() );
         }
-        if( m_includeResource != null )
+        if( includeResource != null )
         {
-            bndFile.setInstruction( "Include-Resource", m_includeResource, canOverwrite() );
+            bndFile.setInstruction( "Include-Resource", includeResource, canOverwrite() );
         }
-        if( m_importPackage != null )
+        if( importPackage != null )
         {
-            bndFile.setInstruction( "Import-Package", m_importPackage, canOverwrite() );
+            bndFile.setInstruction( "Import-Package", importPackage, canOverwrite() );
         }
-        if( m_exportContents != null )
+        if( exportContents != null )
         {
-            bndFile.setInstruction( "-exportcontents", m_exportContents, canOverwrite() );
+            bndFile.setInstruction( "-exportcontents", exportContents, canOverwrite() );
         }
-        if( m_requireBundle != null )
+        if( requireBundle != null )
         {
-            bndFile.setInstruction( "Require-Bundle", m_requireBundle, canOverwrite() );
+            bndFile.setInstruction( "Require-Bundle", requireBundle, canOverwrite() );
         }
-        if( m_dynamicImportPackage != null )
+        if( dynamicImportPackage != null )
         {
-            bndFile.setInstruction( "DynamicImport-Package", m_dynamicImportPackage, canOverwrite() );
+            bndFile.setInstruction( "DynamicImport-Package", dynamicImportPackage, canOverwrite() );
         }
 
         bndFile.write();
@@ -364,7 +363,7 @@ public class OSGiWrapperArchetypeMojo extends AbstractPaxArchetypeMojo
         List dependencyPoms = new ArrayList();
 
         // use the wrapped artifact's POM to kick things off
-        dependencyPoms.add( m_artifactFactory.createProjectArtifact( m_groupId, m_artifactId, m_version ) );
+        dependencyPoms.add( m_artifactFactory.createProjectArtifact( groupId, artifactId, version ) );
 
         while( !dependencyPoms.isEmpty() )
         {
@@ -373,7 +372,8 @@ public class OSGiWrapperArchetypeMojo extends AbstractPaxArchetypeMojo
             try
             {
                 // Standard Maven code to get direct dependencies for a given POM
-                MavenProject p = m_projectBuilder.buildFromRepository( pomArtifact, m_remoteRepos, m_localRepo );
+                MavenProject p = m_projectBuilder
+                    .buildFromRepository( pomArtifact, remoteRepositories, localRepository );
                 Set artifacts = p.createArtifacts( m_artifactFactory, null, null );
 
                 // look for new artifacts to wrap
@@ -451,7 +451,7 @@ public class OSGiWrapperArchetypeMojo extends AbstractPaxArchetypeMojo
             getLog().info( "Skipping dependency " + artifact );
             return false;
         }
-        else if( !m_wrapOptional && artifact.isOptional() )
+        else if( !wrapOptional && artifact.isOptional() )
         {
             getLog().info( "Skipping optional dependency " + artifact );
             return false;
@@ -471,7 +471,7 @@ public class OSGiWrapperArchetypeMojo extends AbstractPaxArchetypeMojo
     {
         try
         {
-            if( PomUtils.isBundleArtifact( artifact, m_resolver, m_remoteRepos, m_localRepo, m_testMetadata ) )
+            if( PomUtils.isBundleArtifact( artifact, m_resolver, remoteRepositories, localRepository, testMetadata ) )
             {
                 pom.addDependency( getBundleDependency( artifact ), true );
                 return false;
@@ -517,7 +517,7 @@ public class OSGiWrapperArchetypeMojo extends AbstractPaxArchetypeMojo
         String compoundWrapperId = getCompoundId( artifact.getGroupId(), artifact.getArtifactId() );
         String metaVersion = PomUtils.getMetaVersion( artifact );
 
-        if( m_addVersion )
+        if( addVersion )
         {
             dependency.setArtifactId( compoundWrapperId + '-' + metaVersion );
             dependency.setVersion( getProjectVersion() );
