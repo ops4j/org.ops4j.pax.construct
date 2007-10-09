@@ -67,5 +67,21 @@
     </repository>
   </repositories>
 
+  <!--
+    for latest bundle plugin...
+  -->
+  <pluginRepositories>
+    <pluginRepository>
+      <id>snapshots</id>
+      <url>http://repository.ops4j.org/mvn-snapshots</url>
+      <releases>
+        <enabled>false</enabled>
+      </releases>
+      <snapshots>
+        <updatePolicy>never</updatePolicy>
+      </snapshots>
+    </pluginRepository>
+  </pluginRepositories>
+
 #end
 </project>
