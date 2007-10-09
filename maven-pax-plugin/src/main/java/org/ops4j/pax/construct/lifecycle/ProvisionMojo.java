@@ -90,22 +90,26 @@ public class ProvisionMojo extends AbstractMojo
     /**
      * List of remote Maven repositories for the containing project.
      * 
-     * @parameter expression="${remoteRepositories}" default-value="${project.remoteArtifactRepositories}"
+     * @parameter expression="${project.remoteArtifactRepositories}"
+     * @required
+     * @readonly
      */
-    private List remoteRepositories;
+    private List m_remoteRepos;
 
     /**
      * The local Maven repository for the containing project.
      * 
      * @parameter expression="${localRepository}"
      * @required
+     * @readonly
      */
-    private ArtifactRepository localRepository;
+    private ArtifactRepository m_localRepo;
 
     /**
      * The current Maven project.
      * 
-     * @parameter default-value="${project}"
+     * @parameter expression="${project}"
+     * @required
      * @readonly
      */
     private MavenProject m_project;
@@ -113,7 +117,8 @@ public class ProvisionMojo extends AbstractMojo
     /**
      * The current Maven reactor.
      * 
-     * @parameter default-value="${reactorProjects}"
+     * @parameter expression="${reactorProjects}"
+     * @required
      * @readonly
      */
     private List m_reactorProjects;
@@ -220,7 +225,7 @@ public class ProvisionMojo extends AbstractMojo
             {
                 try
                 {
-                    addBundleDependencies( m_projectBuilder.build( pomFile, localRepository, null ) );
+                    addBundleDependencies( m_projectBuilder.build( pomFile, m_localRepo, null ) );
                 }
                 catch( ProjectBuildingException e )
                 {
@@ -268,7 +273,7 @@ public class ProvisionMojo extends AbstractMojo
         }
 
         StringBuffer repoListBuilder = new StringBuffer();
-        for( Iterator i = remoteRepositories.iterator(); i.hasNext(); )
+        for( Iterator i = m_remoteRepos.iterator(); i.hasNext(); )
         {
             ArtifactRepository repo = (ArtifactRepository) i.next();
             if( repoListBuilder.length() > 0 )
@@ -352,7 +357,7 @@ public class ProvisionMojo extends AbstractMojo
 
         try
         {
-            m_installer.install( project.getFile(), pomArtifact, localRepository );
+            m_installer.install( project.getFile(), pomArtifact, m_localRepo );
         }
         catch( ArtifactInstallationException e )
         {
@@ -383,7 +388,7 @@ public class ProvisionMojo extends AbstractMojo
 
         try
         {
-            m_resolver.resolve( jar, remoteRepositories, localRepository );
+            m_resolver.resolve( jar, m_remoteRepos, m_localRepo );
         }
         catch( ArtifactNotFoundException e )
         {
@@ -439,7 +444,7 @@ public class ProvisionMojo extends AbstractMojo
         String[] deployAppCmds =
         {
             "--dir=" + workDir, "--no-md5", "--platform=" + framework, "--profile=default",
-            "--repository=" + repositories, "--localRepository=" + localRepository.getBasedir(), project.getGroupId(),
+            "--repository=" + repositories, "--localRepository=" + m_localRepo.getBasedir(), project.getGroupId(),
             project.getArtifactId(), project.getVersion()
         };
 
@@ -463,7 +468,7 @@ public class ProvisionMojo extends AbstractMojo
         {
             String[] defaultCmds = new String[]
             {
-                "--repositories=" + repositories, "--localRepository=" + localRepository.getBasedir(),
+                "--repositories=" + repositories, "--localRepository=" + m_localRepo.getBasedir(),
                 "--platform=" + framework, project.getFile().getAbsolutePath(), "--overwrite"
             };
 

@@ -37,7 +37,7 @@ public class SqueakyCleanMojo extends AbstractMojo
     /**
      * Project base directory.
      * 
-     * @parameter default-value="${project.basedir}"
+     * @parameter expression="${project.basedir}"
      * @required
      * @readonly
      */

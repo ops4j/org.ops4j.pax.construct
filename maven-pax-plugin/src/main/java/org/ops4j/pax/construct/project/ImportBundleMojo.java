@@ -74,17 +74,20 @@ public class ImportBundleMojo extends AbstractMojo
     /**
      * List of remote Maven repositories for the containing project.
      * 
-     * @parameter expression="${remoteRepositories}" default-value="${project.remoteArtifactRepositories}"
+     * @parameter expression="${project.remoteArtifactRepositories}"
+     * @required
+     * @readonly
      */
-    private List remoteRepositories;
+    private List m_remoteRepos;
 
     /**
      * The local Maven repository for the containing project.
      * 
      * @parameter expression="${localRepository}"
      * @required
+     * @readonly
      */
-    private ArtifactRepository localRepository;
+    private ArtifactRepository m_localRepo;
 
     /**
      * The groupId of the bundle to be imported.
@@ -221,7 +224,7 @@ public class ImportBundleMojo extends AbstractMojo
                 // support 'dependency' POMs
                 processDependencies( p );
             }
-            else if( PomUtils.isBundleProject( p, m_resolver, remoteRepositories, localRepository, testMetadata ) )
+            else if( PomUtils.isBundleProject( p, m_resolver, m_remoteRepos, m_localRepo, testMetadata ) )
             {
                 importBundle( p );
 
@@ -300,7 +303,7 @@ public class ImportBundleMojo extends AbstractMojo
         MavenProject project;
         try
         {
-            project = m_projectBuilder.buildFromRepository( pomArtifact, remoteRepositories, localRepository );
+            project = m_projectBuilder.buildFromRepository( pomArtifact, m_remoteRepos, m_localRepo );
         }
         catch( ProjectBuildingException e )
         {

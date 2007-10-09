@@ -72,17 +72,20 @@ public class OSGiWrapperArchetypeMojo extends AbstractPaxArchetypeMojo
     /**
      * List of remote Maven repositories for the containing project.
      * 
-     * @parameter expression="${remoteRepositories}" default-value="${project.remoteArtifactRepositories}"
+     * @parameter expression="${project.remoteArtifactRepositories}"
+     * @required
+     * @readonly
      */
-    private List remoteRepositories;
+    private List m_remoteRepos;
 
     /**
      * The local Maven repository for the containing project.
      * 
      * @parameter expression="${localRepository}"
      * @required
+     * @readonly
      */
-    private ArtifactRepository localRepository;
+    private ArtifactRepository m_localRepo;
 
     /**
      * The logical parent of the new project (use artifactId or groupId:artifactId).
@@ -367,12 +370,12 @@ public class OSGiWrapperArchetypeMojo extends AbstractPaxArchetypeMojo
 
         while( !dependencyPoms.isEmpty() )
         {
-            Artifact a = (Artifact) dependencyPoms.remove( 0 );
+            Artifact pomArtifact = (Artifact) dependencyPoms.remove( 0 );
 
             try
             {
                 // Standard Maven code to get direct dependencies for a given POM
-                MavenProject p = m_projectBuilder.buildFromRepository( a, remoteRepositories, localRepository );
+                MavenProject p = m_projectBuilder.buildFromRepository( pomArtifact, m_remoteRepos, m_localRepo );
                 Set artifacts = p.createArtifacts( m_artifactFactory, null, null );
 
                 // look for new artifacts to wrap
@@ -470,7 +473,7 @@ public class OSGiWrapperArchetypeMojo extends AbstractPaxArchetypeMojo
     {
         try
         {
-            if( PomUtils.isBundleArtifact( artifact, m_resolver, remoteRepositories, localRepository, testMetadata ) )
+            if( PomUtils.isBundleArtifact( artifact, m_resolver, m_remoteRepos, m_localRepo, testMetadata ) )
             {
                 pom.addDependency( getBundleDependency( artifact ), true );
                 return false;
