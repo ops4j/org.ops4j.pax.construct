@@ -23,6 +23,7 @@ import java.util.Iterator;
 import org.apache.maven.model.Dependency;
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
+import org.codehaus.plexus.util.FileUtils;
 import org.ops4j.pax.construct.util.DirUtils;
 import org.ops4j.pax.construct.util.PomIterator;
 import org.ops4j.pax.construct.util.PomUtils;
@@ -161,7 +162,16 @@ public class MoveBundleMojo extends AbstractMojo
          */
         if( !oldBundleDir.renameTo( newBundleDir ) )
         {
-            throw new MojoExecutionException( "Unable to move bundle " + m_bundleName + " to " + m_targetDirectory );
+            try
+            {
+                // fallback to copy and delete on Windows...
+                FileUtils.copyDirectoryStructure( oldBundleDir, newBundleDir );
+                FileUtils.deleteDirectory( oldBundleDir );
+            }
+            catch( IOException e )
+            {
+                throw new MojoExecutionException( "Cannot move bundle " + m_bundleName + " to " + m_targetDirectory );
+            }
         }
 
         try

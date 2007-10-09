@@ -148,6 +148,13 @@ public class ProvisionMojo extends AbstractMojo
     private String m_runner;
 
     /**
+     * A set of provision commands for Pax-Runner.
+     * 
+     * @parameter expression="${provision}"
+     */
+    private String[] provision;
+
+    /**
      * Standard Maven mojo entry-point
      */
     public void execute()
@@ -451,12 +458,22 @@ public class ProvisionMojo extends AbstractMojo
     void deployRunnerNG( Class mainClass, MavenProject project, String repositories )
         throws MojoExecutionException
     {
-        String[] deployAppCmds =
+        String[] deployAppCmds = provision;
+
+        if( m_bundleArtifacts.size() > 0 )
         {
-            // TODO: add more options and customization!
-            "--repositories=" + repositories, "--localRepository=" + m_localRepo.getBasedir(),
-            "--platform=" + m_framework, project.getFile().getAbsolutePath(), "--overwrite"
-        };
+            String[] defaultCmds = new String[]
+            {
+                "--repositories=" + repositories, "--localRepository=" + m_localRepo.getBasedir(),
+                "--platform=" + m_framework, project.getFile().getAbsolutePath(), "--overwrite"
+            };
+
+            deployAppCmds = new String[provision.length + defaultCmds.length];
+
+            // combine both sets of Pax-Runner settings (put defaults last)
+            System.arraycopy( provision, 0, deployAppCmds, 0, provision.length );
+            System.arraycopy( defaultCmds, 0, deployAppCmds, provision.length, defaultCmds.length );
+        }
 
         invokePaxRunner( mainClass, deployAppCmds );
     }
