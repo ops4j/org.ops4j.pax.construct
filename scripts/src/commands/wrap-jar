@@ -1,16 +1,18 @@
 g {
   name = 'groupId'
-  example = 'org.ops4j.example'
+  example = ''
+  optional = true
 }
 
 a {
   name = 'artifactId'
-  example = 'myJarFile'
+  example = 'junit'
 }
 
 v {
   name = 'version'
-  example = '1.0-SNAPSHOT'
+  example = ''
+  optional = true
 }
 
 order = [ 'g', 'a', 'v' ]

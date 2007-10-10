@@ -98,7 +98,6 @@ public class OSGiWrapperArchetypeMojo extends AbstractPaxArchetypeMojo
      * The groupId of the artifact to be wrapped.
      * 
      * @parameter expression="${groupId}"
-     * @required
      */
     private String groupId;
 
@@ -114,7 +113,6 @@ public class OSGiWrapperArchetypeMojo extends AbstractPaxArchetypeMojo
      * The version of the artifact to be wrapped.
      * 
      * @parameter expression="${version}"
-     * @required
      */
     private String version;
 
@@ -210,7 +208,10 @@ public class OSGiWrapperArchetypeMojo extends AbstractPaxArchetypeMojo
      * {@inheritDoc}
      */
     void updateExtensionFields()
+        throws MojoExecutionException
     {
+        populateMissingFields();
+
         if( null == m_wrappingIds )
         {
             // only need to set these fields once
@@ -265,6 +266,27 @@ public class OSGiWrapperArchetypeMojo extends AbstractPaxArchetypeMojo
         }
 
         getArchetypeMojo().setField( "packageName", compoundMarker );
+    }
+
+    /**
+     * Populate missing fields with information from the Maven repository
+     * 
+     * @throws MojoExecutionException
+     */
+    void populateMissingFields()
+        throws MojoExecutionException
+    {
+        if( null == groupId || groupId.length() == 0 )
+        {
+            // this is a common assumption
+            groupId = artifactId;
+        }
+
+        if( PomUtils.needReleaseVersion( version ) )
+        {
+            version = PomUtils.getReleaseVersion( m_artifactFactory, m_resolver, m_remoteRepos, m_localRepo, groupId,
+                artifactId );
+        }
     }
 
     /**
@@ -435,7 +457,7 @@ public class OSGiWrapperArchetypeMojo extends AbstractPaxArchetypeMojo
      * @param artifact wrapper dependency
      * @return groupId:artifactId:metaVersion
      */
-    String getCandidateId( Artifact artifact )
+    static String getCandidateId( Artifact artifact )
     {
         return artifact.getGroupId() + ':' + artifact.getArtifactId() + ':' + PomUtils.getMetaVersion( artifact );
     }

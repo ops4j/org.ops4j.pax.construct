@@ -24,6 +24,7 @@ import java.util.jar.JarFile;
 import java.util.jar.Manifest;
 
 import org.apache.maven.artifact.Artifact;
+import org.apache.maven.artifact.factory.ArtifactFactory;
 import org.apache.maven.artifact.repository.ArtifactRepository;
 import org.apache.maven.artifact.resolver.ArtifactNotFoundException;
 import org.apache.maven.artifact.resolver.ArtifactResolutionException;
@@ -393,6 +394,46 @@ public final class PomUtils
         catch( NullPointerException e )
         {
             return artifact.getVersion();
+        }
+    }
+
+    /**
+     * @param version project version
+     * @return true if we need to resolve this version
+     */
+    public static boolean needReleaseVersion( String version )
+    {
+        return null == version || version.length() == 0 || "RELEASE".equals( version ) || "LATEST".equals( version );
+    }
+
+    /**
+     * @param factory artifact factory
+     * @param resolver artifact resolver
+     * @param remoteRepos sequence of remote repositories
+     * @param localRepo local Maven repository
+     * @param groupId project group id
+     * @param artifactId project artifact id
+     * @return the release version if available, otherwise throws {@link MojoExecutionException}
+     * @throws MojoExecutionException
+     */
+    public static String getReleaseVersion( ArtifactFactory factory, ArtifactResolver resolver, List remoteRepos,
+        ArtifactRepository localRepo, String groupId, String artifactId )
+        throws MojoExecutionException
+    {
+        Artifact artifact = factory.createBuildArtifact( groupId, artifactId, "RELEASE", "jar" );
+
+        try
+        {
+            resolver.resolve( artifact, remoteRepos, localRepo );
+            return artifact.getVersion();
+        }
+        catch( ArtifactNotFoundException e )
+        {
+            throw new MojoExecutionException( "Unable to find artifact " + artifact );
+        }
+        catch( ArtifactResolutionException e )
+        {
+            throw new MojoExecutionException( "Unable to resolve artifact " + artifact );
         }
     }
 }

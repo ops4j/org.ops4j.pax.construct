@@ -93,7 +93,6 @@ public class ImportBundleMojo extends AbstractMojo
      * The groupId of the bundle to be imported.
      * 
      * @parameter expression="${groupId}"
-     * @required
      */
     private String groupId;
 
@@ -109,7 +108,6 @@ public class ImportBundleMojo extends AbstractMojo
      * The version of the bundle to be imported.
      * 
      * @parameter expression="${version}"
-     * @required
      */
     private String version;
 
@@ -195,6 +193,8 @@ public class ImportBundleMojo extends AbstractMojo
     public void execute()
         throws MojoExecutionException
     {
+        populateMissingFields();
+
         // Find host POMs which will receive the imported dependencies
         m_provisionPom = DirUtils.findPom( targetDirectory, provisionId );
         m_localBundlePom = readBundlePom( targetDirectory );
@@ -245,6 +245,42 @@ public class ImportBundleMojo extends AbstractMojo
         // save any dependency updates
         writeUpdatedPom( m_localBundlePom );
         writeUpdatedPom( m_provisionPom );
+    }
+
+    /**
+     * Populate missing fields with information from the local project and Maven repository
+     * 
+     * @throws MojoExecutionException
+     */
+    void populateMissingFields()
+        throws MojoExecutionException
+    {
+        if( null == groupId || groupId.length() == 0 )
+        {
+            Pom localPom = DirUtils.findPom( targetDirectory, artifactId );
+            if( localPom != null )
+            {
+                // use the groupId from the POM
+                groupId = localPom.getGroupId();
+
+                if( null == version || version.length() == 0 )
+                {
+                    // also grab version if missing
+                    version = localPom.getVersion();
+                }
+            }
+            else
+            {
+                // this is a common assumption
+                groupId = artifactId;
+            }
+        }
+
+        if( PomUtils.needReleaseVersion( version ) )
+        {
+            version = PomUtils.getReleaseVersion( m_artifactFactory, m_resolver, m_remoteRepos, m_localRepo, groupId,
+                artifactId );
+        }
     }
 
     /**

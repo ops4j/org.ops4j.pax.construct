@@ -220,8 +220,11 @@ public abstract class AbstractPaxArchetypeMojo extends MavenArchetypeMojo
 
     /**
      * Set the remaining fields in the archetype mojo
+     * 
+     * @throws MojoExecutionException
      */
-    abstract void updateExtensionFields();
+    abstract void updateExtensionFields()
+        throws MojoExecutionException;
 
     /**
      * @return The logical parent of the new project (use artifactId or groupId:artifactId)

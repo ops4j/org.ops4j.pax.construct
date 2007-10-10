@@ -18,8 +18,12 @@ package org.ops4j.pax.construct.bundle;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.List;
 
 import org.apache.maven.artifact.Artifact;
+import org.apache.maven.artifact.factory.ArtifactFactory;
+import org.apache.maven.artifact.repository.ArtifactRepository;
+import org.apache.maven.artifact.resolver.ArtifactResolver;
 import org.apache.maven.model.Dependency;
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
@@ -37,10 +41,41 @@ import org.ops4j.pax.construct.util.PomUtils.Pom;
 public class EmbedJarMojo extends AbstractMojo
 {
     /**
+     * Component factory for Maven artifacts
+     * 
+     * @component
+     */
+    private ArtifactFactory m_artifactFactory;
+
+    /**
+     * Component for resolving Maven artifacts
+     * 
+     * @component
+     */
+    private ArtifactResolver m_resolver;
+
+    /**
+     * List of remote Maven repositories for the containing project.
+     * 
+     * @parameter expression="${project.remoteArtifactRepositories}"
+     * @required
+     * @readonly
+     */
+    private List m_remoteRepos;
+
+    /**
+     * The local Maven repository for the containing project.
+     * 
+     * @parameter expression="${localRepository}"
+     * @required
+     * @readonly
+     */
+    private ArtifactRepository m_localRepo;
+
+    /**
      * The groupId of the jar to be embedded.
      * 
      * @parameter expression="${groupId}"
-     * @required
      */
     private String groupId;
 
@@ -56,7 +91,6 @@ public class EmbedJarMojo extends AbstractMojo
      * The version of the jar to be embedded.
      * 
      * @parameter expression="${version}"
-     * @required
      */
     private String version;
 
@@ -94,9 +128,32 @@ public class EmbedJarMojo extends AbstractMojo
     public void execute()
         throws MojoExecutionException
     {
+        populateMissingFields();
+
         addDependencyToPom();
 
         addInstructionsToBndFile();
+    }
+
+    /**
+     * Populate missing fields with information from the Maven repository
+     * 
+     * @throws MojoExecutionException
+     */
+    void populateMissingFields()
+        throws MojoExecutionException
+    {
+        if( null == groupId || groupId.length() == 0 )
+        {
+            // this is a common assumption
+            groupId = artifactId;
+        }
+
+        if( PomUtils.needReleaseVersion( version ) )
+        {
+            version = PomUtils.getReleaseVersion( m_artifactFactory, m_resolver, m_remoteRepos, m_localRepo, groupId,
+                artifactId );
+        }
     }
 
     /**

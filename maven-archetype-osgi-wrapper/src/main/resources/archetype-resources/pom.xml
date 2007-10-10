@@ -57,8 +57,7 @@
 ## ADD LOCAL VERSION IF REQUIRED
 ##===============================
 #if( ! $version.startsWith("+") )
-  #set( $dollar = '$' )
-  <version>${dollar}{wrapped.version}-001</version>
+  <version>${wrappedVersion}-001</version>
 #end
 #literal()
 
