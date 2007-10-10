@@ -22,7 +22,6 @@ import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.io.Writer;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Iterator;
@@ -317,7 +316,9 @@ public class EclipseOSGiMojo extends EclipsePlugin
         try
         {
             manifestFile.getParentFile().mkdirs();
-            manifest.write( new FileOutputStream( manifestFile ) );
+            FileOutputStream out = new FileOutputStream( manifestFile );
+            manifest.write( out );
+            IOUtil.close( out );
         }
         catch( IOException e )
         {
@@ -335,7 +336,9 @@ public class EclipseOSGiMojo extends EclipsePlugin
 
         try
         {
-            manifest.read( new FileInputStream( manifestFile ) );
+            FileInputStream in = new FileInputStream( manifestFile );
+            manifest.read( in );
+            IOUtil.close( in );
         }
         catch( IOException e )
         {
@@ -390,7 +393,9 @@ public class EclipseOSGiMojo extends EclipsePlugin
         try
         {
             File classPathFile = new File( executedProject.getBasedir(), ".classpath" );
-            Xpp3Dom classPathXML = Xpp3DomBuilder.build( new FileReader( classPathFile ) );
+            FileReader reader = new FileReader( classPathFile );
+            Xpp3Dom classPathXML = Xpp3DomBuilder.build( reader );
+            IOUtil.close( reader );
 
             for( int i = 0; i < classPath.length; i++ )
             {
@@ -543,10 +548,10 @@ public class EclipseOSGiMojo extends EclipsePlugin
 
             File pomFile = new File( localDir, "pom.xml" );
 
-            Writer writer = new FileWriter( pomFile );
+            FileWriter writer = new FileWriter( pomFile );
             pom.writeModel( writer );
             pom.setFile( pomFile );
-            writer.close();
+            IOUtil.close( writer );
         }
         catch( ProjectBuildingException e )
         {
@@ -614,7 +619,9 @@ public class EclipseOSGiMojo extends EclipsePlugin
         try
         {
             File classPathFile = new File( executedProject.getBasedir(), ".classpath" );
-            Xpp3Dom classPathXML = Xpp3DomBuilder.build( new FileReader( classPathFile ) );
+            FileReader reader = new FileReader( classPathFile );
+            Xpp3Dom classPathXML = Xpp3DomBuilder.build( reader );
+            IOUtil.close( reader );
 
             Xpp3Dom classPathEntry = new Xpp3Dom( "classpathentry" );
             classPathEntry.setAttribute( "exported", "true" );

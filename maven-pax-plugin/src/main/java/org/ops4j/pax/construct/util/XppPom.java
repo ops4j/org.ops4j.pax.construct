@@ -27,6 +27,7 @@ import org.apache.maven.model.Dependency;
 import org.apache.maven.model.Model;
 import org.apache.maven.model.Repository;
 import org.apache.maven.project.MavenProject;
+import org.codehaus.plexus.util.IOUtil;
 import org.codehaus.plexus.util.xml.Xpp3Dom;
 import org.codehaus.plexus.util.xml.Xpp3DomBuilder;
 import org.codehaus.plexus.util.xml.pull.XmlPullParser;
@@ -64,8 +65,10 @@ public class XppPom
         try
         {
             XmlPullParser parser = RoundTripXml.createParser();
-            parser.setInput( new FileReader( m_file ) );
+            FileReader reader = new FileReader( m_file );
+            parser.setInput( reader );
             m_pom = Xpp3DomBuilder.build( parser, false );
+            IOUtil.close( reader );
         }
         catch( XmlPullParserException e )
         {
@@ -560,6 +563,8 @@ public class XppPom
         serializer.startDocument( writer.getEncoding(), null );
         m_pom.writeToSerializer( null, serializer );
         serializer.endDocument();
+
+        IOUtil.close( writer );
     }
 
     /**

@@ -23,13 +23,13 @@ import java.io.FileInputStream;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Properties;
 
+import org.codehaus.plexus.util.IOUtil;
 import org.ops4j.pax.construct.util.BndFileUtils.BndFile;
 import org.ops4j.pax.construct.util.BndFileUtils.ExistingInstructionException;
 
@@ -67,9 +67,9 @@ public class RoundTripBndFile
         m_oldInstructions = new Properties();
         m_newInstructions = new Properties();
 
-        InputStream bndStream = new FileInputStream( m_file );
+        FileInputStream bndStream = new FileInputStream( m_file );
         m_oldInstructions.load( bndStream );
-        bndStream.close();
+        IOUtil.close( bndStream );
 
         m_newInstructions.putAll( m_oldInstructions );
     }
@@ -202,7 +202,7 @@ public class RoundTripBndFile
             writeInstruction( bndWriter, key, instructions.getProperty( key ) );
         }
 
-        bndWriter.close();
+        IOUtil.close( bndWriter );
     }
 
     /**
@@ -221,7 +221,7 @@ public class RoundTripBndFile
         {
             lines.add( bndReader.readLine() );
         }
-        bndReader.close();
+        IOUtil.close( bndReader );
 
         return lines;
     }

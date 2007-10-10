@@ -45,6 +45,7 @@ import org.apache.maven.project.MavenProject;
 import org.apache.maven.project.MavenProjectBuilder;
 import org.apache.maven.project.ProjectBuildingException;
 import org.apache.maven.project.artifact.InvalidDependencyVersionException;
+import org.codehaus.plexus.util.IOUtil;
 import org.ops4j.pax.construct.util.PomUtils;
 
 /**
@@ -330,7 +331,9 @@ public class ProvisionMojo extends AbstractMojo
 
         try
         {
-            deployProject.writeModel( new FileWriter( deployFile ) );
+            FileWriter writer = new FileWriter( deployFile );
+            deployProject.writeModel( writer );
+            IOUtil.close( writer );
         }
         catch( IOException e )
         {
