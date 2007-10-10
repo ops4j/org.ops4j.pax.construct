@@ -12,9 +12,10 @@ PAX_PLUGIN=org.ops4j:maven-pax-plugin:\${PAX_CONSTRUCT_VERSION}
   options.order.each {
 %>
 unset ${options[it].name.toUpperCase()}<% } %>
+unset OVERWRITE
 
 while
-  getopts <% options.order.each { %>${it}:<% } %>h- SETTING
+  getopts <% options.order.each { %>${it}:<% } %>oh- SETTING
 do
   case \${SETTING} in
     h|\\?) echo "pax-${mojo}<%
@@ -27,11 +28,12 @@ do
     if( options[it].optional ) {
       %>]<%
     }
-  } %> [-- mvnOpts ...]" ; exit ;;
+  } %> [-o] [-- mvnOpts ...]" ; exit ;;
 <%
   options.order.each {
 %>
     ${it}) ${options[it].name.toUpperCase()}=\${OPTARG} ;;<% } %>
+    o) OVERWRITE=-Doverwrite ;;
 
     -) break ;;
   esac
@@ -80,5 +82,5 @@ mvn -N \${PAX_PLUGIN}:${mojo} \\<%
   options.order.each {
 %>
   -D${options[it].name}=\${${options[it].name.toUpperCase()}:=${options[it].example}} \\<% } %>
-  \${PAX_CONSTRUCT_OPTIONS} "\$@"
+  \${PAX_CONSTRUCT_OPTIONS} \${OVERWRITE} "\$@"
 

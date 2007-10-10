@@ -10,6 +10,7 @@ set _BATFILE_=%0<%
   options.order.each {
 %>
 set _${options[it].name.toUpperCase()}_=<% } %>
+set _OVERWRITE_=
 
 goto getopts
 :shift_2
@@ -22,6 +23,8 @@ shift
 %>
 if "%1"=="-${it}" set _${options[it].name.toUpperCase()}_=%2
 if "%1"=="-${it}" goto shift_2<% } %>
+if "%1"=="-o" set _OVERWRITE_=-Doverwrite
+if "%1"=="-o" goto shift_1
 if "%1"=="-h" goto help
 if "%1"=="--" goto endopts
 if "%1"=="" goto endopts
@@ -38,14 +41,14 @@ echo pax-${mojo}<%
     if( options[it].optional ) {
       %>]<%
     }
-  } %> [-- mvnOpts ...]
+  } %> [-o] [-- mvnOpts ...]
 goto done
 :endopts
 
 shift
 shift
 
-set _EXTRA_=%PAX_CONSTRUCT_OPTIONS% %0 %1 %2 %3 %4 %5 %6 %7 %8 %9
+set _EXTRA_=%PAX_CONSTRUCT_OPTIONS% %_OVERWRITE_% %0 %1 %2 %3 %4 %5 %6 %7 %8 %9
 <%
   allRequired = true
   allOptional = true
