@@ -51,6 +51,10 @@ import org.ops4j.pax.construct.util.PomUtils;
 /**
  * Provision all local and imported bundles onto the selected OSGi framework
  * 
+ * <code><pre>
+ *   mvn pax:provision -Dframework=... [-Drunner=...]
+ * </pre></code>
+ * 
  * @goal provision
  */
 public class ProvisionMojo extends AbstractMojo

@@ -45,6 +45,10 @@ import org.ops4j.pax.construct.util.PomUtils.Pom;
 /**
  * Import an OSGi bundle as a project dependency and mark it for deployment
  * 
+ * <code><pre>
+ *   mvn pax:import-bundle [-DgroupId=...] -DartifactId=... [-Dversion=...]
+ * </pre></code>
+ * 
  * @goal import-bundle
  * @aggregator true
  */

@@ -28,6 +28,10 @@ import org.ops4j.pax.construct.util.PomUtils.Pom;
 /**
  * Create a new bundle project inside an existing Pax-Construct OSGi project
  * 
+ * <code><pre>
+ *   mvn pax:create-bundle -Dpackage=... [-DbundleName=...] [-Dversion=...]
+ * </pre></code>
+ * 
  * @extendsPlugin archetype
  * @extendsGoal create
  * @goal create-bundle

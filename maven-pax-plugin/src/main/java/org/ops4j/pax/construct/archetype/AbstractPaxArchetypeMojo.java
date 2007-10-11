@@ -72,7 +72,7 @@ public abstract class AbstractPaxArchetypeMojo extends MavenArchetypeMojo
     private boolean compactIds;
 
     /**
-     * When true, add the new project as a module in the parent directory's POM.
+     * When true, create the necessary POMs to attach it to the current project.
      * 
      * @parameter expression="${attachPom}" default-value="true"
      */

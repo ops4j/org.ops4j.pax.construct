@@ -31,6 +31,10 @@ import org.ops4j.pax.construct.util.PomUtils.Pom;
 /**
  * Remove a bundle project and any references to it in the project tree, updating POMs as necessary
  * 
+ * <code><pre>
+ *   mvn pax:remove-bundle -DbundleName=...
+ * </pre></code>
+ * 
  * @goal remove-bundle
  * @aggregator true
  */

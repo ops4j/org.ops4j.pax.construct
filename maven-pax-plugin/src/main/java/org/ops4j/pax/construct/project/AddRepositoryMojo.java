@@ -28,6 +28,10 @@ import org.ops4j.pax.construct.util.PomUtils.Pom;
 /**
  * Add a Maven repository element to a project
  * 
+ * <code><pre>
+ *   mvn pax:add-repository -DrepositoryId=... -DrepositoryURL=...
+ * </pre></code>
+ * 
  * @goal add-repository
  * @aggregator true
  */

@@ -32,7 +32,7 @@
       <item name="Importing bundles" href="examples/import.html"/>
       <item name="Deploying bundles" href="examples/deploy.html"/>
       <item name="Embedding jars" href="examples/embed.html"/>
-      <item name="Wrapping jar" href="examples/wrap.html"/>
+      <item name="Wrapping jars" href="examples/wrap.html"/>
       <item name="Refactoring" href="examples/refactor.html"/>
       <item name="Using Eclipse" href="examples/eclipse.html"/>
       <item name="Spring-OSGi" href="examples/spring-osgi.html"/>
@@ -42,9 +42,9 @@
       <item name="pax-create-project" href="scripts/create-project.html"/>
       <item name="pax-add-repository" href="scripts/add-repository.html"/>
       <item name="pax-create-bundle" href="scripts/create-bundle.html"/>
+      <item name="pax-import-bundle" href="scripts/import-bundle.html"/>
       <item name="pax-embed-jar" href="scripts/embed-jar.html"/>
       <item name="pax-wrap-jar" href="scripts/wrap-jar.html"/>
-      <item name="pax-import-bundle" href="scripts/import-bundle.html"/>
       <item name="pax-move-bundle" href="scripts/move-bundle.html"/>
       <item name="pax-remove-bundle" href="scripts/remove-bundle.html"/>
     </menu>

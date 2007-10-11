@@ -32,6 +32,10 @@ import org.ops4j.pax.construct.util.PomUtils.Pom;
 /**
  * Move a bundle project to a new directory, updating and creating POMs as necessary
  * 
+ * <code><pre>
+ *   mvn pax:move-bundle -DbundleName=... -DtargetDirectory=...
+ * </pre></code>
+ * 
  * @goal move-bundle
  * @aggregator true
  */

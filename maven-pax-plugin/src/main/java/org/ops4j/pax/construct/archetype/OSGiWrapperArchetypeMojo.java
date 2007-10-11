@@ -42,6 +42,10 @@ import org.ops4j.pax.construct.util.PomUtils.Pom;
 /**
  * Create a new wrapper project inside an existing Pax-Construct OSGi project
  * 
+ * <code><pre>
+ *   mvn pax:wrap-jar [-DgroupId=...] -DartifactId=... [-Dversion=...]
+ * </pre></code>
+ * 
  * @extendsPlugin archetype
  * @extendsGoal create
  * @goal wrap-jar

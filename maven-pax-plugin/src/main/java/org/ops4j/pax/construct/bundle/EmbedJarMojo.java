@@ -35,6 +35,10 @@ import org.ops4j.pax.construct.util.PomUtils.Pom;
 /**
  * Embed a jarfile inside a bundle project
  * 
+ * <code><pre>
+ *   mvn pax:embed-jar [-DgroupId=...] -DartifactId=... [-Dversion=...]
+ * </pre></code>
+ * 
  * @goal embed-jar
  * @aggregator true
  */

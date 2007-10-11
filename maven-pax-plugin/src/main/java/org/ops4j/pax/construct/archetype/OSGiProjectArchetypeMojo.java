@@ -19,6 +19,10 @@ package org.ops4j.pax.construct.archetype;
 /**
  * Create a new OSGi project tree that supports wrapping, compiling and provisioning of bundles
  * 
+ * <code><pre>
+ *   mvn org.ops4j:maven-pax-plugin:create-project -DgroupId=... -DartifactId=... [-Dversion=...]
+ * </pre></code>
+ * 
  * @extendsPlugin archetype
  * @extendsGoal create
  * @goal create-project

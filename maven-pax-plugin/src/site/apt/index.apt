@@ -26,11 +26,38 @@
 
 Maven Pax Plugin
 
-  The Pax Plugin is ...
+  The Pax Plugin is a "Swiss Army\xAE knife" for OSGi that provides goals to create, build, manage and deploy many types of OSGi bundles.
+  While the easiest way to install and use this plugin is by using the Pax-Construct scripts, its goals can also be used directly on the
+  Maven command line, or inside other Maven POMs.
 
 * Goals Overview
 
-  The Pax Plugin has several goals.
+  The first thing you probably want to do is create a new OSGi project, which you can do with the following archetype goal:
+
+ * {{{create-project-mojo.html}org.ops4j:maven-pax-plugin:create-project}}
+
+ []
+
+  Once you have your new project, you can use the following goals to manage your project and develop new OSGi bundles:
+
+ * {{{add-repository-mojo.html}pax:add-repository}}
+ / {{{create-bundle-mojo.html}pax:create-bundle}}
+ / {{{import-bundle-mojo.html}pax:import-bundle}}
+ / {{{embed-jar-mojo.html}pax:embed-jar}}
+ / {{{wrap-jar-mojo.html}pax:wrap-jar}}
+ / {{{move-bundle-mojo.html}pax:move-bundle}}
+ / {{{remove-bundle-mojo.html}pax:remove-bundle}}
+
+ []
+
+  These lifecycle goals help build and deploy OSGi projects - they can also be used with non Pax-Construct projects:
+
+ * {{{clean-mojo.html}pax:clean}}
+ / {{{compile-mojo.html}pax:compile}}
+ / {{{provision-mojo.html}pax:provision}}
+ / {{{eclipse-mojo.html}pax:eclipse}}
+
+ []
 
 * Usage
 
