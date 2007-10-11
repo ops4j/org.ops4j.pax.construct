@@ -181,7 +181,7 @@ public final class PomUtils
         /**
          * @param dependency project dependency
          * @param newGroupId updated dependency group id
-         * @return true if dependency was updated
+         * @return true if the dependency was updated
          */
         public boolean updateDependencyGroup( Dependency dependency, String newGroupId );
 
@@ -190,6 +190,23 @@ public final class PomUtils
          * @return true if dependency was removed from the project, otherwise false
          */
         public boolean removeDependency( Dependency dependency );
+
+        /**
+         * @param groupId plugin group id
+         * @param artifactId plugin artifact id
+         * @param newVersion new plugin version
+         * @return true if the plugin was updated
+         */
+        public boolean updatePluginVersion( String groupId, String artifactId, String newVersion );
+
+        /**
+         * Merge a section of XML from another Maven project POM
+         * 
+         * @param pom another Maven project
+         * @param fromSection path to XML section to merge from
+         * @param toSection path to XML section to merge into
+         */
+        public void merge( Pom pom, String fromSection, String toSection );
 
         /**
          * @throws IOException

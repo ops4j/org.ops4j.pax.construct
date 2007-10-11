@@ -531,6 +531,32 @@ public class XppPom
     }
 
     /**
+     * @param xpath simple XPATH query
+     * @param newVersion new version
+     * @return true if any elements were updated, otherwise false
+     */
+    boolean updateVersion( String xpath, String newVersion )
+    {
+        XppPathQuery pathQuery = new XppPathQuery( xpath );
+        Xpp3Dom parent = pathQuery.queryParent( m_pom );
+        if( null == parent )
+        {
+            return false;
+        }
+
+        int[] children = pathQuery.queryChildren( parent );
+        for( int i = 0; i < children.length; i++ )
+        {
+            Xpp3Dom version = parent.getChild( children[i] ).getChild( "version" );
+            if( null != version )
+            {
+                version.setValue( newVersion );
+            }
+        }
+        return children.length > 0;
+    }
+
+    /**
      * {@inheritDoc}
      */
     public boolean removeDependency( Dependency dependency )
@@ -547,6 +573,63 @@ public class XppPom
         updated = findChildren( xpath2, true ) || updated;
 
         return updated;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public boolean updatePluginVersion( String groupId, String artifactId, String newVersion )
+    {
+        boolean updated = false;
+
+        String plugins = "plugins/plugin[groupId='" + groupId + "' and artifactId='" + artifactId + "']";
+
+        String xpath1 = "build/" + plugins;
+        updated = updateVersion( xpath1, newVersion ) || updated;
+
+        String xpath2 = "build/pluginManagement/" + plugins;
+        updated = updateVersion( xpath2, newVersion ) || updated;
+
+        return updated;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public void merge( Pom pom, String fromSection, String toSection )
+    {
+        if( pom instanceof XppPom )
+        {
+            Xpp3Dom source = ( (XppPom) pom ).m_pom;
+            Xpp3Dom project = new Xpp3Dom( "project" );
+
+            String[] fromPath = fromSection.split( "/" );
+            for( int i = 0; i < fromPath.length; i++ )
+            {
+                source = source.getChild( fromPath[i] );
+            }
+
+            Xpp3Dom destination = project;
+
+            if( toSection != null )
+            {
+                String[] toPath = toSection.split( "/" );
+                for( int i = 0; i < toPath.length; i++ )
+                {
+                    Xpp3Dom temp = new Xpp3Dom( toPath[i] );
+                    destination.addChild( temp );
+                    destination = temp;
+                }
+            }
+
+            destination.addChild( source );
+
+            m_pom = Xpp3Dom.mergeXpp3Dom( m_pom, project );
+        }
+        else
+        {
+            throw new IllegalArgumentException( "Unable to merge POM type " + pom.getClass() );
+        }
     }
 
     /**
