@@ -3,5 +3,7 @@
   <allowPartial>true</allowPartial>
   <resources>
     <resource>osgi.bnd</resource>
+    <resource>poms/wrappers/pom.xml</resource>
+    <resource>poms/pom.xml</resource>
   </resources>
 </archetype>

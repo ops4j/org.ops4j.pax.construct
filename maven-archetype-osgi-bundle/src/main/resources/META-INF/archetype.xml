@@ -8,5 +8,7 @@
   </sources>
   <resources>
     <resource>osgi.bnd</resource>
+    <resource>poms/compiled/pom.xml</resource>
+    <resource>poms/pom.xml</resource>
   </resources>
 </archetype>

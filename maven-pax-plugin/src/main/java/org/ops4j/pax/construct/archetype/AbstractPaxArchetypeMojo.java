@@ -106,6 +106,19 @@ public abstract class AbstractPaxArchetypeMojo extends MavenArchetypeMojo
     private FileSet m_tempFiles;
 
     /**
+     * Does the new project have a logical parent?
+     */
+    private boolean m_hasParent;
+
+    /**
+     * @return true if the new project has a logical parent, otherwise false
+     */
+    boolean hasParent()
+    {
+        return m_hasParent;
+    }
+
+    /**
      * @return true if existing files can be overwritten, otherwise false
      */
     boolean canOverwrite()
@@ -119,6 +132,14 @@ public abstract class AbstractPaxArchetypeMojo extends MavenArchetypeMojo
     String getInternalGroupId()
     {
         return getCompoundId( m_project.getGroupId(), m_project.getArtifactId() );
+    }
+
+    /**
+     * @return the version of the archetype
+     */
+    String getArchetypeVersion()
+    {
+        return archetypeVersion;
     }
 
     /**
@@ -171,6 +192,7 @@ public abstract class AbstractPaxArchetypeMojo extends MavenArchetypeMojo
             prepareTarget();
             super.execute();
             postProcess();
+            cleanUp();
 
         } while( createMoreArtifacts() );
     }
@@ -274,12 +296,9 @@ public abstract class AbstractPaxArchetypeMojo extends MavenArchetypeMojo
     }
 
     /**
-     * Make any necessary adjustments to the generated files and clean-up temporary files
-     * 
-     * @throws MojoExecutionException
+     * Clean up any temporary or unnecessary files, including empty directories
      */
-    void postProcess()
-        throws MojoExecutionException
+    final void cleanUp()
     {
         try
         {
@@ -295,11 +314,23 @@ public abstract class AbstractPaxArchetypeMojo extends MavenArchetypeMojo
         {
             getLog().warn( "I/O error while cleaning temporary files", e );
         }
+    }
 
+    /**
+     * Make any necessary adjustments to the generated files
+     * 
+     * @throws MojoExecutionException
+     */
+    void postProcess()
+        throws MojoExecutionException
+    {
         try
         {
             // attempt to find the logical parent of the new project (may be null)
-            DirUtils.updateLogicalParent( m_pomFile, getParentId() );
+            if( DirUtils.updateLogicalParent( m_pomFile, getParentId() ) != null )
+            {
+                m_hasParent = true;
+            }
         }
         catch( IOException e )
         {
@@ -337,12 +368,12 @@ public abstract class AbstractPaxArchetypeMojo extends MavenArchetypeMojo
         if( artifactId.equals( compoundId ) )
         {
             // groupId prefix
-            return '<' + groupId;
+            return '[' + groupId;
         }
         else if( groupId.equals( compoundId ) )
         {
             // artifactId suffix
-            return '>' + artifactId;
+            return ']' + artifactId;
         }
 
         // simple append

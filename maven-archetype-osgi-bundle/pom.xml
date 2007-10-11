@@ -12,4 +12,19 @@
 
   <name>OPS4J - Archetype: OSGi bundle compiled from source</name>
 
+  <build>
+    <resources>
+      <resource>
+        <directory>src/main/resources</directory>
+      </resource>
+      <resource>
+        <directory>../maven-archetype-osgi-project/src/main/resources</directory>
+        <includes>
+          <include>archetype-resources/poms/compiled/pom.xml</include>
+          <include>archetype-resources/poms/pom.xml</include>
+        </includes>
+      </resource>
+    </resources>
+  </build>
+
 </project>

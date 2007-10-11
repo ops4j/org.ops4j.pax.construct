@@ -12,4 +12,19 @@
 
   <name>OPS4J - Archetype: OSGi wrapper for third-party jar(s)</name>
 
+  <build>
+    <resources>
+      <resource>
+        <directory>src/main/resources</directory>
+      </resource>
+      <resource>
+        <directory>../maven-archetype-osgi-project/src/main/resources</directory>
+        <includes>
+          <include>archetype-resources/poms/wrappers/pom.xml</include>
+          <include>archetype-resources/poms/pom.xml</include>
+        </includes>
+      </resource>
+    </resources>
+  </build>
+
 </project>
