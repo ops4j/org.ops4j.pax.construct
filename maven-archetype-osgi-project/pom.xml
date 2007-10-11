@@ -12,40 +12,4 @@
 
   <name>OPS4J - Archetype: Skeleton OSGi project</name>
 
-  <build>
-    <plugins>
-      <plugin>
-        <groupId>org.codehaus.mojo.groovy</groupId>
-        <artifactId>groovy-maven-plugin</artifactId>
-        <executions>
-          <execution>
-            <id>set-plugin-version</id>
-            <phase>process-resources</phase>
-            <goals>
-              <goal>execute</goal>
-            </goals>
-            <configuration>
-              <source>
-                engine = new groovy.text.SimpleTemplateEngine()
-                filter = ['paxPluginVersion':"${version}"]
-
-                pomPath = 'archetype-resources/pom.xml'
-
-                pomFile = new File( pom.basedir, "src/main/resources/${pomPath}" )
-                template = engine.createTemplate( pomFile ).make( filter )
-                new File( pom.build.outputDirectory, pomPath ).write( template.toString() )
-
-                pomPath = 'archetype-resources/poms/pom.xml'
-
-                pomFile = new File( pom.basedir, "src/main/resources/${pomPath}" )
-                template = engine.createTemplate( pomFile ).make( filter )
-                new File( pom.build.outputDirectory, pomPath ).write( template.toString() )
-              </source>
-            </configuration>
-          </execution>
-        </executions>
-      </plugin>
-    </plugins>
-  </build>
-
 </project>

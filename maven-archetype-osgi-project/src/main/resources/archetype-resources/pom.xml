@@ -21,11 +21,11 @@
   -->
 
   <modelVersion>4.0.0</modelVersion>
-  <groupId>\${groupId}</groupId>
-  <artifactId>\${artifactId}</artifactId>
-  <version>\${version}</version>
+  <groupId>${groupId}</groupId>
+  <artifactId>${artifactId}</artifactId>
+  <version>${version}</version>
 
-  <name>\${groupId}.\${artifactId} (OSGi project)</name>
+  <name>${groupId}.${artifactId} (OSGi project)</name>
 #literal()
 
   <description>
@@ -52,7 +52,7 @@
       <plugin>
         <groupId>org.ops4j</groupId>
         <artifactId>maven-pax-plugin</artifactId>
-        <version>${paxPluginVersion}</version>
+        <version>RELEASE</version>
       </plugin>
     </plugins>
   </build>
@@ -67,10 +67,10 @@
     </repository>
   </repositories>
 
-  <!--
-    for latest bundle plugin...
-  -->
   <pluginRepositories>
+    <!--
+      for latest bundle plugin...
+    -->
     <pluginRepository>
       <id>snapshots</id>
       <url>http://repository.ops4j.org/mvn-snapshots</url>
