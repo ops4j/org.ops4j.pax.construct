@@ -148,7 +148,7 @@ public class ProvisionMojo extends AbstractMojo
     /**
      * The version of Pax-Runner to use for provisioning.
      * 
-     * @parameter expression="${runner}" default-value="0.5.0"
+     * @parameter expression="${runner}" default-value="0.5.1"
      */
     private String runner;
 
@@ -472,7 +472,7 @@ public class ProvisionMojo extends AbstractMojo
             String[] defaultCmds = new String[]
             {
                 "--repositories=" + repositories, "--localRepository=" + m_localRepo.getBasedir(),
-                "--platform=" + framework, project.getFile().getAbsolutePath(), "--overwrite"
+                "--platform=" + framework, project.getFile().getAbsolutePath(), "--overwriteUserBundles"
             };
 
             deployAppCmds = new String[provision.length + defaultCmds.length];
