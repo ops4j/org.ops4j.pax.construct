@@ -61,7 +61,7 @@ Maven Pax Plugin
 
 * Usage
 
-  Instructions on how to use the Pax Plugin can be found
+  Instructions on how to use the Pax Plugin outside of a Pax-Construct generated project can be found
   {{{usage.html}here}}.
 
 * OPS4J repositories

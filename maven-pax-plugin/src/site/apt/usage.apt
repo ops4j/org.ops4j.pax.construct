@@ -27,7 +27,7 @@ Maven 2 Pax Plugin: Usage
 
 * Adding the Pax Plugin to your build
 
-  To use the current release in your plugin project, all you need to add is:
+  To use the current release in an existing project, you need to add the following to your POM:
 
 +---+
   <build>
