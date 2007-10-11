@@ -53,6 +53,61 @@ Maven 2 Pax Plugin: Usage
 
 * Using the Pax Plugin from the command line
 
+  The following example demonstrates various ways to build and deploy an OSGi project.
+  We start by creating a project to contain the various bundles and move on to wrap the
+  commons-logging jar, as well as its dependencies. The javax.* and com.sun.jdmk.comm
+  packages are marked optional, as they are not available in some execution environments.
+
+  Next we create a simple API bundle, with an example service API, but no internals.
+  The example implementation goes in another bundle, which doesn't contain an API,
+  so we need to import the API before it can build. We also embed the junit library
+  inside the bundle, just to demonstrate how easy this can be.
+
+  Finally we build and provision the project onto an OSGi framework.
+
+  (NOTE: the extra quotes are in case you want to try this in the Windows command shell, which requires quotes around arguments containing '=')
+
++---+
+mvn org.ops4j:maven-pax-plugin:create-project "-DgroupId=my.example" "-DartifactId=project"
+
+cd project
+
+mvn pax:wrap-jar "-DartifactId=commons-logging" "-Dversion=1.1" -DwrapTransitive \
+                 "-DimportPackage=javax.*|com.sun.jdmk.comm;resolution:=optional,*"
+
+mvn pax:create-bundle "-DbundleName=simple-api" "-Dpackage=org.example.simple" "-Dinternals=false"
+mvn pax:create-bundle "-DbundleName=simple-impl" "-Dpackage=org.example.simple" "-Dinterface=false"
+
+cd simple-impl
+mvn pax:embed-jar "-DartifactId=junit" "-Dversion=3.8.1"
+mvn pax:import-bundle "-DartifactId=simple-api"
+cd ..
+
+mvn clean install pax:provision
++---+
+
+* Save your keyboard and fingers - use the scripts!
+
+  You can save a lot of typing by using the Pax-Construct scripts, which also provide basic help text (-h):
+
++---+
+pax-create-project -g my.example -a project
+
+cd project
+
+pax-wrap-jar -a commons-logging -v 1.1 -- -DwrapTransitive "-DimportPackage=javax.*|com.sun.jdmk.comm;resolution:=optional,*"
+
+pax-create-bundle -n simple-api -p org.example.simple -- "-Dinternals=false"
+pax-create-bundle -n simple-impl -p org.example.simple -- "-Dinterface=false"
+
+cd simple-impl
+pax-embed-jar -a junit -v 3.8.1
+pax-import-bundle -a simple-api
+cd ..
+
+mvn clean install pax:provision
++---+
+
 * Using the Pax Plugin inside a POM
 
   Here's the same example, but this time using the Maven2 Invoker Plugin with the Pax Plugin to build and deploy an OSGi project:
@@ -91,6 +146,9 @@ Maven 2 Pax Plugin: Usage
               <goal>create-project</goal>
             </goals>
             <configuration>
+              <!--
+                don't create intermediate poms
+              -->
               <attachPom>false</attachPom>
               <groupId>my.example</groupId>
               <artifactId>project</artifactId>
@@ -164,12 +222,8 @@ Maven 2 Pax Plugin: Usage
                   <value>org.example.simple</value>
                 </property>
                 <property>
-                  <name>activator</name>
+                  <name>internals</name>
                   <value>false</value>
-                </property>
-                <property>
-                  <name>overwrite</name>
-                  <value>true</value>
                 </property>
               </testProperties>
             </configuration>
@@ -202,10 +256,6 @@ Maven 2 Pax Plugin: Usage
                   <name>interface</name>
                   <value>false</value>
                 </property>
-                <property>
-                  <name>overwrite</name>
-                  <value>true</value>
-                </property>
               </testProperties>
             </configuration>
           </execution>
@@ -229,6 +279,10 @@ Maven 2 Pax Plugin: Usage
                   <name>artifactId</name>
                   <value>junit</value>
                 </property>
+                <property>
+                  <name>version</name>
+                  <value>3.8.1</value>
+                </property>
               </testProperties>
             </configuration>
           </execution>
@@ -249,16 +303,8 @@ Maven 2 Pax Plugin: Usage
               </goals>
               <testProperties>
                 <property>
-                  <name>groupId</name>
-                  <value>my.example.project</value>
-                </property>
-                <property>
                   <name>artifactId</name>
                   <value>simple-api</value>
-                </property>
-                <property>
-                  <name>version</name>
-                  <value>1.0-SNAPSHOT</value>
                 </property>
               </testProperties>
             </configuration>
