@@ -251,35 +251,8 @@ public class ProvisionMojo extends AbstractMojo
             getLog().info( "~~~~~~~~~~~~~~~~~~~" );
         }
 
-        List dependencies = new ArrayList();
-        for( Iterator i = m_bundleArtifacts.iterator(); i.hasNext(); )
-        {
-            Artifact artifact = (Artifact) i.next();
-
-            try
-            {
-                m_resolver.resolve( artifact, m_remoteRepos, m_localRepo );
-            }
-            catch( ArtifactNotFoundException e )
-            {
-                getLog().warn( "Skipping missing bundle " + artifact );
-                continue;
-            }
-            catch( ArtifactResolutionException e )
-            {
-                getLog().warn( "Skipping missing bundle " + artifact );
-                continue;
-            }
-
-            Dependency dep = new Dependency();
-            dep.setGroupId( artifact.getGroupId() );
-            dep.setArtifactId( artifact.getArtifactId() );
-            dep.setVersion( PomUtils.getMetaVersion( artifact ) );
-
-            dependencies.add( dep );
-        }
-
-        MavenProject deployProject = createDeploymentProject( dependencies );
+        List bundles = resolveProvisionedBundles();
+        MavenProject deployProject = createDeploymentProject( bundles );
         installDeploymentPom( deployProject );
 
         if( !deploy )
@@ -315,13 +288,50 @@ public class ProvisionMojo extends AbstractMojo
     }
 
     /**
+     * Attempt to resolve each provisioned bundle, and warn about any we can't find
+     * 
+     * @return list of bundles to be deployed (as Maven dependencies)
+     */
+    List resolveProvisionedBundles()
+    {
+        List dependencies = new ArrayList();
+        for( Iterator i = m_bundleArtifacts.iterator(); i.hasNext(); )
+        {
+            Artifact artifact = (Artifact) i.next();
+
+            try
+            {
+                m_resolver.resolve( artifact, m_remoteRepos, m_localRepo );
+            }
+            catch( ArtifactNotFoundException e )
+            {
+                getLog().warn( "Skipping missing bundle " + artifact );
+                continue;
+            }
+            catch( ArtifactResolutionException e )
+            {
+                getLog().warn( "Skipping missing bundle " + artifact );
+                continue;
+            }
+
+            Dependency dep = new Dependency();
+            dep.setGroupId( artifact.getGroupId() );
+            dep.setArtifactId( artifact.getArtifactId() );
+            dep.setVersion( PomUtils.getMetaVersion( artifact ) );
+
+            dependencies.add( dep );
+        }
+        return dependencies;
+    }
+
+    /**
      * Create new POM (based on the root POM) which lists the deployed bundles as dependencies
      * 
-     * @param dependencies list of bundles to be deployed
+     * @param bundles list of bundles to be deployed
      * @return deployment project
      * @throws MojoExecutionException
      */
-    MavenProject createDeploymentProject( List dependencies )
+    MavenProject createDeploymentProject( List bundles )
         throws MojoExecutionException
     {
         MavenProject rootProject = (MavenProject) m_reactorProjects.get( 0 );
@@ -334,7 +344,7 @@ public class ProvisionMojo extends AbstractMojo
         // remove unnecessary cruft
         deployProject.setPackaging( "pom" );
         deployProject.getModel().setModules( null );
-        deployProject.getModel().setDependencies( dependencies );
+        deployProject.getModel().setDependencies( bundles );
         deployProject.getModel().setPluginRepositories( null );
         deployProject.getModel().setReporting( null );
         deployProject.setBuild( null );
