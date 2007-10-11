@@ -1,5 +1,12 @@
 package org.ops4j.pax.construct.archetype;
 
+import java.io.File;
+import java.io.IOException;
+
+import org.apache.maven.plugin.MojoExecutionException;
+import org.ops4j.pax.construct.util.PomUtils;
+import org.ops4j.pax.construct.util.PomUtils.Pom;
+
 /*
  * Copyright 2007 Stuart McCulloch
  *
@@ -80,5 +87,32 @@ public class OSGiProjectArchetypeMojo extends AbstractPaxArchetypeMojo
     String getParentId()
     {
         return parentId;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    void postProcess()
+        throws MojoExecutionException
+    {
+        // locate parent
+        super.postProcess();
+
+        String pluginVersion = getArchetypeVersion();
+
+        try
+        {
+            Pom rootPom = PomUtils.readPom( getPomFile() );
+            rootPom.updatePluginVersion( "org.ops4j", "maven-pax-plugin", pluginVersion );
+            rootPom.write();
+
+            Pom pomsPom = PomUtils.readPom( new File( rootPom.getBasedir(), "poms" ) );
+            pomsPom.updatePluginVersion( "org.ops4j", "maven-pax-plugin", pluginVersion );
+            pomsPom.write();
+        }
+        catch( IOException e )
+        {
+            getLog().warn( "Unable to patch correct plugin version " + pluginVersion );
+        }
     }
 }
