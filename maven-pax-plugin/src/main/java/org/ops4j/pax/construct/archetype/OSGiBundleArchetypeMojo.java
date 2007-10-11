@@ -16,6 +16,7 @@ package org.ops4j.pax.construct.archetype;
  * limitations under the License.
  */
 
+import java.io.File;
 import java.io.IOException;
 
 import org.apache.maven.model.Dependency;
@@ -35,6 +36,7 @@ import org.ops4j.pax.construct.util.PomUtils.Pom;
  * @extendsPlugin archetype
  * @extendsGoal create
  * @goal create-bundle
+ * @requiresProject false
  */
 public class OSGiBundleArchetypeMojo extends AbstractPaxArchetypeMojo
 {
@@ -129,24 +131,12 @@ public class OSGiBundleArchetypeMojo extends AbstractPaxArchetypeMojo
     void postProcess()
         throws MojoExecutionException
     {
-        /*
-         * Unwanted files
-         */
-        if( !provideInterface )
-        {
-            addTempFiles( "src/main/java/**/ExampleService.java" );
-        }
-        if( !provideInternals )
-        {
-            addTempFiles( "src/main/java/**/internal" );
-        }
-        if( !provideActivator )
-        {
-            addTempFiles( "src/main/java/**/Activator.java" );
-        }
-
-        // remove files, etc.
+        // locate parent
         super.postProcess();
+        if( !hasParent() )
+        {
+            makeStandalone();
+        }
 
         if( !noDependencies )
         {
@@ -170,6 +160,28 @@ public class OSGiBundleArchetypeMojo extends AbstractPaxArchetypeMojo
         {
             throw new MojoExecutionException( "Problem updating Bnd instructions" );
         }
+
+        discardFiles();
+    }
+
+    /**
+     * Mark any temporary or unnecessary files
+     */
+    void discardFiles()
+    {
+        if( !provideInterface )
+        {
+            addTempFiles( "src/main/java/**/ExampleService.java" );
+        }
+        if( !provideInternals )
+        {
+            addTempFiles( "src/main/java/**/internal" );
+        }
+        if( !provideActivator )
+        {
+            addTempFiles( "src/main/java/**/Activator.java" );
+        }
+        addTempFiles( "poms" );
     }
 
     /**
@@ -187,11 +199,21 @@ public class OSGiBundleArchetypeMojo extends AbstractPaxArchetypeMojo
         Dependency osgiCore = new Dependency();
         osgiCore.setGroupId( "org.osgi" );
         osgiCore.setArtifactId( "osgi_R4_core" );
+        if( !hasParent() )
+        {
+            osgiCore.setVersion( "1.0" );
+            osgiCore.setOptional( true );
+        }
         thisPom.addDependency( osgiCore, canOverwrite() );
 
         Dependency osgiCompendium = new Dependency();
         osgiCompendium.setGroupId( "org.osgi" );
         osgiCompendium.setArtifactId( "osgi_R4_compendium" );
+        if( !hasParent() )
+        {
+            osgiCompendium.setVersion( "1.0" );
+            osgiCompendium.setOptional( true );
+        }
         thisPom.addDependency( osgiCompendium, canOverwrite() );
 
         thisPom.write();
@@ -225,5 +247,34 @@ public class OSGiBundleArchetypeMojo extends AbstractPaxArchetypeMojo
         }
 
         bndFile.write();
+    }
+
+    /**
+     * Add additional POM elements to make it work standalone
+     */
+    void makeStandalone()
+    {
+        try
+        {
+            File baseDir = getPomFile().getParentFile();
+
+            Pom pluginSettings = PomUtils.readPom( new File( baseDir, "poms" ) );
+            Pom compiledSettings = PomUtils.readPom( new File( baseDir, "poms/compiled" ) );
+
+            Pom thisPom = PomUtils.readPom( baseDir );
+
+            // Must merge plugin fragment first, so child elements combine properly!
+            thisPom.merge( pluginSettings, "build/pluginManagement/plugins", "build" );
+            thisPom.merge( compiledSettings, "build/plugins", "build" );
+
+            thisPom.updatePluginVersion( "org.ops4j", "maven-pax-plugin", getArchetypeVersion() );
+            thisPom.setGroupId( "org.ops4j.example" );
+
+            thisPom.write();
+        }
+        catch( IOException e )
+        {
+            getLog().warn( "Unable to convert POM to work standalone" );
+        }
     }
 }

@@ -16,6 +16,7 @@ package org.ops4j.pax.construct.archetype;
  * limitations under the License.
  */
 
+import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -49,6 +50,7 @@ import org.ops4j.pax.construct.util.PomUtils.Pom;
  * @extendsPlugin archetype
  * @extendsGoal create
  * @goal wrap-jar
+ * @requiresProject false
  */
 public class OSGiWrapperArchetypeMojo extends AbstractPaxArchetypeMojo
 {
@@ -299,8 +301,12 @@ public class OSGiWrapperArchetypeMojo extends AbstractPaxArchetypeMojo
     void postProcess()
         throws MojoExecutionException
     {
-        // remove files, etc.
+        // locate parent
         super.postProcess();
+        if( !hasParent() )
+        {
+            makeStandalone();
+        }
 
         if( wrapTransitive )
         {
@@ -327,6 +333,9 @@ public class OSGiWrapperArchetypeMojo extends AbstractPaxArchetypeMojo
         {
             throw new MojoExecutionException( "Problem updating Bnd instructions" );
         }
+
+        // no longer needed
+        addTempFiles( "poms" );
     }
 
     /**
@@ -559,5 +568,34 @@ public class OSGiWrapperArchetypeMojo extends AbstractPaxArchetypeMojo
         dependency.setScope( Artifact.SCOPE_PROVIDED );
 
         return dependency;
+    }
+
+    /**
+     * Add additional POM elements to make it work standalone
+     */
+    void makeStandalone()
+    {
+        try
+        {
+            File baseDir = getPomFile().getParentFile();
+
+            Pom pluginSettings = PomUtils.readPom( new File( baseDir, "poms" ) );
+            Pom wrapperSettings = PomUtils.readPom( new File( baseDir, "poms/wrappers" ) );
+
+            Pom thisPom = PomUtils.readPom( baseDir );
+
+            // Must merge plugin fragment first, so child elements combine properly!
+            thisPom.merge( pluginSettings, "build/pluginManagement/plugins", "build" );
+            thisPom.merge( wrapperSettings, "build/plugins", "build" );
+
+            thisPom.updatePluginVersion( "org.ops4j", "maven-pax-plugin", getArchetypeVersion() );
+            thisPom.setGroupId( "org.ops4j.example" );
+
+            thisPom.write();
+        }
+        catch( IOException e )
+        {
+            getLog().warn( "Unable to convert POM to work standalone" );
+        }
     }
 }

@@ -58,6 +58,8 @@
 ##===============================
 #if( ! $version.startsWith("+") )
   <version>${wrappedVersion}-001</version>
+#else
+  <version>001</version>
 #end
 #literal()
 
