@@ -42,7 +42,7 @@ Maven Inherit Plugin
   Instructions on how to use the Inherit Plugin can be found
   {{{usage.html}here}}.
 
-* OPS4J snapshot repository
+* OPS4J repositories
 
   Snapshots of the Inherit Plugin are regularly deployed to the OPS4J snapshot repository:
 
@@ -54,6 +54,20 @@ Maven Inherit Plugin
       <releases>
         <enabled>false</enabled>
       </releases>
+    </pluginRepository>
+  </pluginRepositories>
++---+
+
+  Releases are deployed to the main OPS4J repository and announced on the {{{http://wiki.ops4j.org}OPS4J wiki}}:
+
++---+
+  <pluginRepositories>
+    <pluginRepository>
+      <id>ops4j-standard</id>
+      <url>http://repository.ops4j.org/maven2</url>
+      <snapshots>
+        <enabled>false</enabled>
+      </snapshots>
     </pluginRepository>
   </pluginRepositories>
 +---+

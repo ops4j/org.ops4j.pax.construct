@@ -1,17 +1,10 @@
 <?xml version="1.0" encoding="ISO-8859-1"?>
 <project name="maven-inherit-plugin">
-
-  <bannerLeft>
-    <name>OPS4J</name>
-    <src>http://www.ops4j.org/images/logo.png</src>
-    <href>http://www.ops4j.org/</href>
-  </bannerLeft>
-
   <body>
-    <links>
-      <item name="Pax" href="http://wiki.ops4j.org/confluence/display/ops4j/Pax"/>
-      <item name="Maven 2" href="http://maven.apache.org/"/>
-    </links>
+
+    <menu name="Pax-Construct">
+      <item name="Quickstart" href="../index.html"/>
+    </menu>
 
     <menu name="Overview">
       <item name="Introduction" href="index.html"/>

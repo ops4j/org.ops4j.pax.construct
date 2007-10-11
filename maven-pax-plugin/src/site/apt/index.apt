@@ -26,61 +26,44 @@
 
 Maven Pax Plugin
 
-  The Pax Plugin is ...need some text!...
+  The Pax Plugin is ...
+
+* Goals Overview
+
+  The Pax Plugin has several goals.
 
 * Usage
 
   Instructions on how to use the Pax Plugin can be found
   {{{usage.html}here}}.
 
-* Scripts Overview
+* OPS4J repositories
 
-  Windows and Unix scripts are available for several of the Pax goals
-  and include bootstrap code to download the correct plugin version
-  from the OPS4J repository, if it is not already installed.
+  Snapshots of the Pax Plugin are regularly deployed to the OPS4J snapshot repository:
 
-  Each script provides basic help (-h) and will prompt for any missing
-  required arguments. Scripts are the simplest way to use Pax-Construct.
++---+
+  <pluginRepositories>
+    <pluginRepository>
+      <id>ops4j-snapshots</id>
+      <url>http://repository.ops4j.org/mvn-snapshots</url>
+      <releases>
+        <enabled>false</enabled>
+      </releases>
+    </pluginRepository>
+  </pluginRepositories>
++---+
 
-  * {{{scripts/create-project.html}pax-create-project}} 
+  Releases are deployed to the main OPS4J repository and announced on the {{{http://wiki.ops4j.org}OPS4J wiki}}:
 
-  * {{{scripts/add-repository.html}pax-add-repository}}
-
-  * {{{scripts/create-bundle.html}pax-create-bundle}}
-
-  * {{{scripts/embed-jar.html}pax-embed-jar}}
-
-  * {{{scripts/wrap-jar.html}pax-wrap-jar}}
-
-  * {{{scripts/import-bundle.html}pax-import-bundle}}
-
-  * {{{scripts/move-bundle.html}pax-move-bundle}}
-
-  * {{{scripts/remove-bundle.html}pax-remove-bundle}}
-
-* Goals Overview
-
-  The Pax Plugin has several goals to help you manage OSGi projects:
-
-  * {{{create-project-mojo.html}org.ops4j:maven-pax-plugin:create-project}}
-
-  []
-
-  * {{{add-repository-mojo.html}pax:add-repository}}
-
-  * {{{create-bundle-mojo.html}pax:create-bundle}}
-
-  * {{{embed-jar-mojo.html}pax:embed-jar}}
-
-  * {{{wrap-jar-mojo.html}pax:wrap-jar}}
-
-  * {{{import-bundle-mojo.html}pax:import-bundle}}
-
-  * {{{move-bundle-mojo.html}pax:move-bundle}}
-
-  * {{{remove-bundle-mojo.html}pax:remove-bundle}}
-
-  * {{{provision-mojo.html}pax:provision}}
-
-  * {{{eclipse-mojo.html}pax:eclipse}}
++---+
+  <pluginRepositories>
+    <pluginRepository>
+      <id>ops4j-standard</id>
+      <url>http://repository.ops4j.org/maven2</url>
+      <snapshots>
+        <enabled>false</enabled>
+      </snapshots>
+    </pluginRepository>
+  </pluginRepositories>
++---+
 

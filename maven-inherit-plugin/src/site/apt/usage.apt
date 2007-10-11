@@ -27,7 +27,7 @@ Maven 2 Inherit Plugin: Usage
 
 * Adding the Inherit Plugin to your build
 
-  To use the current snapshot in your plugin project, all you need to add is:
+  To use the current release in your plugin project, all you need to add is:
 
 +---+
   <build>
@@ -35,7 +35,7 @@ Maven 2 Inherit Plugin: Usage
       <plugin>
         <groupId>org.ops4j</groupId>
         <artifactId>maven-inherit-plugin</artifactId>
-        <version>0.2.0-SNAPSHOT</version>
+        <version>0.2.0</version>
         <executions>
           <execution>
             <goals>
@@ -49,11 +49,11 @@ Maven 2 Inherit Plugin: Usage
 
   <pluginRepositories>
     <pluginRepository>
-      <id>ops4j-snapshots</id>
-      <url>http://repository.ops4j.org/mvn-snapshots</url>
-      <releases>
+      <id>ops4j-standard</id>
+      <url>http://repository.ops4j.org/maven2</url>
+      <snapshots>
         <enabled>false</enabled>
-      </releases>
+      </snapshots>
     </pluginRepository>
   </pluginRepositories>
 +---+

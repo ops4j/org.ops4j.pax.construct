@@ -1,36 +1,15 @@
 <?xml version="1.0" encoding="ISO-8859-1"?>
 <project name="maven-pax-plugin">
-
-  <bannerLeft>
-    <name>OPS4J</name>
-    <src>http://www.ops4j.org/images/logo.png</src>
-    <href>http://www.ops4j.org/</href>
-  </bannerLeft>
-
   <body>
-    <links>
-      <item name="Pax" href="http://wiki.ops4j.org/confluence/display/ops4j/Pax"/>
-      <item name="OSGi" href="http://www.osgi.org/"/>
-      <item name="Maven 2" href="http://maven.apache.org/"/>
-    </links>
+
+    <menu name="Pax-Construct">
+      <item name="Quickstart" href="../index.html"/>
+    </menu>
 
     <menu name="Overview">
       <item name="Introduction" href="index.html"/>
       <item name="Goals" href="plugin-info.html"/>
       <item name="Usage" href="usage.html"/>
-    </menu>
-
-    <menu name="Examples">
-      <item name="Create new OSGi project" href="examples/create-project.html"/>
-      <item name="Add maven repository" href="examples/add-repository.html"/>
-      <item name="Create OSGi bundle" href="examples/create-bundle.html"/>
-      <item name="Embed jar inside bundle" href="examples/embed-jar.html"/>
-      <item name="Wrap existing jar" href="examples/wrap-jar.html"/>
-      <item name="Import existing bundle" href="examples/import-bundle.html"/>
-      <item name="Deploy to OSGi framework" href="examples/provision.html"/>
-      <item name="Move bundle to new folder" href="examples/move-bundle.html"/>
-      <item name="Remove bundle from project" href="examples/remove-bundle.html"/>
-      <item name="Generate Eclipse files" href="examples/eclipse.html"/>
     </menu>
 
     <menu ref="reports"/>

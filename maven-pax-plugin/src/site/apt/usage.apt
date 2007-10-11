@@ -25,9 +25,29 @@
 
 Maven 2 Pax Plugin: Usage
 
-* Creating a new OSGi project
+* Adding the Pax Plugin to your build
+
+  To use the current release in your plugin project, all you need to add is:
 
 +---+
-pax-create-project -g groupId -a artifactId -v version
+  <build>
+    <plugins>
+      <plugin>
+        <groupId>org.ops4j</groupId>
+        <artifactId>maven-pax-plugin</artifactId>
+        <version>0.2.0</version>
+      </plugin>
+    </plugins>
+  </build>
+
+  <pluginRepositories>
+    <pluginRepository>
+      <id>ops4j-standard</id>
+      <url>http://repository.ops4j.org/maven2</url>
+      <snapshots>
+        <enabled>false</enabled>
+      </snapshots>
+    </pluginRepository>
+  </pluginRepositories>
 +---+
 

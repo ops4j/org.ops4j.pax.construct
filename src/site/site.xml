@@ -3,23 +3,53 @@
 
   <bannerLeft>
     <name>OPS4J</name>
-    <src>http://www.ops4j.org/images/logo.png</src>
+    <src>images/logos/ops4j.png</src>
     <href>http://www.ops4j.org/</href>
   </bannerLeft>
 
+  <bannerRight>
+    <name>Pax-Construct</name>
+    <href>index.html</href>
+  </bannerRight>
+
   <body>
+
     <links>
       <item name="Pax" href="http://wiki.ops4j.org/confluence/display/ops4j/Pax"/>
       <item name="OSGi" href="http://www.osgi.org/"/>
       <item name="Maven 2" href="http://maven.apache.org/"/>
     </links>
 
-    <menu name="Overview">
-      <item name="Introduction" href="index.html"/>
+    <menu name="Pax-Construct">
+      <item name="Quickstart" href="index.html"/>
+      <item name="Installing" href="install.html"/>
+      <item name="Settings" href="settings.html"/>
       <item name="FAQ" href="faq.html"/>
     </menu>
 
-    <menu name="Tools">
+    <menu name="Examples">
+      <item name="Creating bundles" href="examples/start.html"/>
+      <item name="Importing bundles" href="examples/import.html"/>
+      <item name="Deploying bundles" href="examples/deploy.html"/>
+      <item name="Embedding jars" href="examples/embed.html"/>
+      <item name="Wrapping jar" href="examples/wrap.html"/>
+      <item name="Refactoring" href="examples/refactor.html"/>
+      <item name="Using Eclipse" href="examples/eclipse.html"/>
+      <item name="Spring-OSGi" href="examples/spring-osgi.html"/>
+    </menu>
+
+    <menu name="Scripts">
+      <item name="pax-create-project" href="scripts/create-project.html"/>
+      <item name="pax-add-repository" href="scripts/add-repository.html"/>
+      <item name="pax-create-bundle" href="scripts/create-bundle.html"/>
+      <item name="pax-embed-jar" href="scripts/embed-jar.html"/>
+      <item name="pax-wrap-jar" href="scripts/wrap-jar.html"/>
+      <item name="pax-import-bundle" href="scripts/import-bundle.html"/>
+      <item name="pax-move-bundle" href="scripts/move-bundle.html"/>
+      <item name="pax-remove-bundle" href="scripts/remove-bundle.html"/>
+    </menu>
+
+    <menu name="Plugins">
       <item name="maven-pax-plugin" href="maven-pax-plugin/index.html"/>
       <item name="maven-inherit-plugin" href="maven-inherit-plugin/index.html"/>
     </menu>
