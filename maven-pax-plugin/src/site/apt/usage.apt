@@ -51,3 +51,258 @@ Maven 2 Pax Plugin: Usage
   </pluginRepositories>
 +---+
 
+* Using the Pax Plugin from the command line
+
+* Using the Pax Plugin inside a POM
+
+  Here's the same example, but this time using the Maven2 Invoker Plugin with the Pax Plugin to build and deploy an OSGi project:
+
++---+
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+
+  <modelVersion>4.0.0</modelVersion>
+  <groupId>org.ops4j.example</groupId>
+  <artifactId>sample-project</artifactId>
+  <version>0.2.0</version>
+
+  <name>TEST ${artifactId}</name>
+
+  <packaging>pom</packaging>
+
+  <properties>
+    <sandpit>target/example</sandpit>
+  </properties>
+
+  <build>
+    <plugins>
+      <plugin>
+        <groupId>org.ops4j</groupId>
+        <artifactId>maven-pax-plugin</artifactId>
+        <version>0.2.0</version>
+        <executions>
+          <execution>
+            <phase>package</phase>
+<!-- ======================================================================    
+            CREATE NEW OSGi PROJECT
+     ====================================================================== -->
+            <goals>
+              <goal>create-project</goal>
+            </goals>
+            <configuration>
+              <attachPom>false</attachPom>
+              <groupId>my.example</groupId>
+              <artifactId>project</artifactId>
+              <targetDirectory>
+                ${sandpit}/${artifactId}
+              </targetDirectory>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
+      <plugin>
+        <artifactId>maven-invoker-plugin</artifactId>
+        <executions>
+          <execution>
+            <id>wrap-logging</id>
+            <phase>package</phase>
+            <goals>
+              <goal>run</goal>
+            </goals>
+            <configuration>
+              <pom>${sandpit}/${artifactId}/project/pom.xml</pom>
+              <noLog>true</noLog>
+<!-- ======================================================================    
+              WRAP COMMONS LOGGING AS WELL AS ITS DEPENDENCIES
+     ====================================================================== -->
+              <goals>
+                <goal>pax:wrap-jar</goal>
+              </goals>
+              <testProperties>
+                <property>
+                  <name>artifactId</name>
+                  <value>commons-logging</value>
+                </property>
+                <property>
+                  <name>version</name>
+                  <value>1.1</value>
+                </property>
+                <property>
+                  <name>wrapTransitive</name>
+                  <value>true</value>
+                </property>
+                <property>
+                  <name>importPackage</name>
+                  <value>javax.*|com.sun.jdmk.comm;resolution:=optional,*</value>
+                </property>
+              </testProperties>
+            </configuration>
+          </execution>
+          <execution>
+            <id>api-bundle</id>
+            <phase>package</phase>
+            <goals>
+              <goal>run</goal>
+            </goals>
+            <configuration>
+              <pom>${sandpit}/${artifactId}/project/pom.xml</pom>
+              <noLog>true</noLog>
+<!-- ======================================================================    
+              CREATE SIMPLE API OSGi BUNDLE
+     ====================================================================== -->
+              <goals>
+                <goal>pax:create-bundle</goal>
+              </goals>
+              <testProperties>
+                <property>
+                  <name>bundleName</name>
+                  <value>simple-api</value>
+                </property>
+                <property>
+                  <name>package</name>
+                  <value>org.example.simple</value>
+                </property>
+                <property>
+                  <name>activator</name>
+                  <value>false</value>
+                </property>
+                <property>
+                  <name>overwrite</name>
+                  <value>true</value>
+                </property>
+              </testProperties>
+            </configuration>
+          </execution>
+          <execution>
+            <id>impl-bundle</id>
+            <phase>package</phase>
+            <goals>
+              <goal>run</goal>
+            </goals>
+            <configuration>
+              <pom>${sandpit}/${artifactId}/project/pom.xml</pom>
+              <noLog>true</noLog>
+<!-- ======================================================================    
+              CREATE SIMPLE IMPLEMENTATION OSGi BUNDLE
+     ====================================================================== -->
+              <goals>
+                <goal>pax:create-bundle</goal>
+              </goals>
+              <testProperties>
+                <property>
+                  <name>bundleName</name>
+                  <value>simple-impl</value>
+                </property>
+                <property>
+                  <name>package</name>
+                  <value>org.example.simple</value>
+                </property>
+                <property>
+                  <name>interface</name>
+                  <value>false</value>
+                </property>
+                <property>
+                  <name>overwrite</name>
+                  <value>true</value>
+                </property>
+              </testProperties>
+            </configuration>
+          </execution>
+          <execution>
+            <id>embed-jar</id>
+            <phase>package</phase>
+            <goals>
+              <goal>run</goal>
+            </goals>
+            <configuration>
+              <pom>${sandpit}/${artifactId}/project/simple-impl/pom.xml</pom>
+              <noLog>true</noLog>
+<!-- ======================================================================    
+              EMBED JUNIT INSIDE THE IMPLEMENTATION BUNDLE
+     ====================================================================== -->
+              <goals>
+                <goal>pax:embed-jar</goal>
+              </goals>
+              <testProperties>
+                <property>
+                  <name>artifactId</name>
+                  <value>junit</value>
+                </property>
+              </testProperties>
+            </configuration>
+          </execution>
+          <execution>
+            <id>import-api</id>
+            <phase>package</phase>
+            <goals>
+              <goal>run</goal>
+            </goals>
+            <configuration>
+              <pom>${sandpit}/${artifactId}/project/simple-impl/pom.xml</pom>
+              <noLog>true</noLog>
+<!-- ======================================================================    
+              IMPORT API INTO THE IMPLEMENTATION BUNDLE
+     ====================================================================== -->
+              <goals>
+                <goal>pax:import-bundle</goal>
+              </goals>
+              <testProperties>
+                <property>
+                  <name>groupId</name>
+                  <value>my.example.project</value>
+                </property>
+                <property>
+                  <name>artifactId</name>
+                  <value>simple-api</value>
+                </property>
+                <property>
+                  <name>version</name>
+                  <value>1.0-SNAPSHOT</value>
+                </property>
+              </testProperties>
+            </configuration>
+          </execution>
+          <execution>
+            <id>build</id>
+            <phase>package</phase>
+            <goals>
+              <goal>run</goal>
+            </goals>
+            <configuration>
+              <pom>${sandpit}/${artifactId}/project/pom.xml</pom>
+              <noLog>true</noLog>
+<!-- ======================================================================    
+              BUILD OSGi PROJECT
+     ====================================================================== -->
+              <goals>
+                <goal>install</goal>
+              </goals>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
+    </plugins>
+  </build>
+
+  <pluginRepositories>
+    <pluginRepository>
+      <id>ops4j-standard</id>
+      <url>http://repository.ops4j.org/maven2</url>
+      <snapshots>
+        <enabled>false</enabled>
+      </snapshots>
+    </pluginRepository>
+  </pluginRepositories>
+
+</project>
++---+
+
+  Copy and paste the above XML to a new pom.xml file, then run the following commands to deploy the example on the Felix framework:
+
++---+
+mvn clean install
+
+mvn pax:provision -f target/example/sample-project/project/pom.xml
++---+
+

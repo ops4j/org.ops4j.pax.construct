@@ -210,15 +210,6 @@ public final class RoundTripXml
         /**
          * {@inheritDoc}
          */
-        protected void closeStartTag()
-            throws IOException
-        {
-            super.closeStartTag();
-        }
-
-        /**
-         * {@inheritDoc}
-         */
         public XmlSerializer endTag( String namespace, String name )
             throws IOException
         {

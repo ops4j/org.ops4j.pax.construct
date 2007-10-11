@@ -26,7 +26,7 @@
 
 Maven Pax Plugin
 
-  The Pax Plugin is a "Swiss Army\xAE knife" for OSGi that provides goals to create, build, manage and deploy many types of OSGi bundles.
+  The Pax Plugin is a "Swiss Army\u00ae knife" for OSGi that provides goals to create, build, manage and deploy many types of OSGi bundles.
   While the easiest way to install and use this plugin is by using the Pax-Construct scripts, its goals can also be used directly on the
   Maven command line, or inside other Maven POMs.
 
@@ -47,6 +47,13 @@ Maven Pax Plugin
  / {{{wrap-jar-mojo.html}pax:wrap-jar}}
  / {{{move-bundle-mojo.html}pax:move-bundle}}
  / {{{remove-bundle-mojo.html}pax:remove-bundle}}
+
+ []
+
+  You can also create standalone individual bundle (or individual wrapper) OSGi projects with these two goals:
+
+ * {{{create-bundle-mojo.html}org.ops4j:maven-pax-plugin:create-bundle}}
+ / {{{wrap-jar-mojo.html}org.ops4j:maven-pax-plugin:wrap-jar}}
 
  []
 
