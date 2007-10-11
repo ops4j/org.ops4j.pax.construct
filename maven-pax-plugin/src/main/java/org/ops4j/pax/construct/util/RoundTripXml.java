@@ -173,37 +173,36 @@ public final class RoundTripXml
             // special comment tag
             if( name.startsWith( "!--" ) )
             {
-                if( !m_handleComment )
-                {
-                    // flush previous tag
-                    closeStartTag();
-                    writeIndent();
-                }
-
                 m_handleComment = true;
 
-                // write out as normal comment
-                out.write( '<' + name + "-->" );
-                if( getDepth() == 1 )
+                closeStartTag();
+                if( getDepth() <= 1 )
                 {
-                    // padding heuristic
+                    // newline before top-level comments
                     out.write( lineSeparator );
                 }
-
                 writeIndent();
 
+                comment( name.substring( 3 ) );
                 return this;
             }
             else
             {
-                m_handleComment = false;
-
-                if( getDepth() == 0 )
+                List stickyTags = Arrays.asList( new String[]
                 {
-                    // padding heuristic
+                    "groupId", "artifactId", "version"
+                } );
+                if( getDepth() <= 1 && !stickyTags.contains( name ) )
+                {
+                    // newline before top-level groups
+                    closeStartTag();
                     out.write( lineSeparator );
                 }
-
+                if( m_handleComment )
+                {
+                    m_handleComment = false;
+                    writeIndent();
+                }
                 return super.startTag( namespace, name );
             }
         }
@@ -215,12 +214,6 @@ public final class RoundTripXml
             throws IOException
         {
             super.closeStartTag();
-
-            if( getDepth() == 1 )
-            {
-                // padding heuristic
-                out.write( lineSeparator );
-            }
         }
 
         /**
@@ -229,20 +222,22 @@ public final class RoundTripXml
         public XmlSerializer endTag( String namespace, String name )
             throws IOException
         {
-            if( !m_handleComment )
+            if( !name.startsWith( "!--" ) )
             {
-                super.endTag( namespace, name );
-
-                List stickyTags = Arrays.asList( new String[]
+                if( getDepth() == 1 )
                 {
-                    "modelVersion", "groupId", "artifactId"
-                } );
-
-                if( getDepth() <= 1 && !stickyTags.contains( name ) )
-                {
-                    // padding heuristic
+                    // newline after final group
                     out.write( lineSeparator );
                 }
+                if( m_handleComment )
+                {
+                    m_handleComment = false;
+
+                    --depth;
+                    writeIndent();
+                    ++depth;
+                }
+                super.endTag( namespace, name );
             }
 
             return this;
