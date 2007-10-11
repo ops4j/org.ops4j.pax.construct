@@ -47,6 +47,13 @@ import org.ops4j.pax.construct.util.PomUtils.Pom;
  *   mvn pax:wrap-jar [-DgroupId=...] -DartifactId=... [-Dversion=...]
  * </pre></code>
  * 
+ * or create a standalone version which doesn't require an existing project
+ *
+ * <code><pre>
+ *   cd some-empty-folder
+ *   mvn org.ops4j:maven-pax-plugin:wrap-jar ...etc...
+ * </pre></code>
+ *
  * @extendsPlugin archetype
  * @extendsGoal create
  * @goal wrap-jar

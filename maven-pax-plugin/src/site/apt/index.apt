@@ -50,7 +50,7 @@ Maven Pax Plugin
 
  []
 
-  You can also create standalone individual bundle (or individual wrapper) OSGi projects with these two goals:
+  You can also create standalone bundle or wrapper projects in empty or non Pax-Construct directories with these two goals:
 
  * {{{create-bundle-mojo.html}org.ops4j:maven-pax-plugin:create-bundle}}
  / {{{wrap-jar-mojo.html}org.ops4j:maven-pax-plugin:wrap-jar}}
