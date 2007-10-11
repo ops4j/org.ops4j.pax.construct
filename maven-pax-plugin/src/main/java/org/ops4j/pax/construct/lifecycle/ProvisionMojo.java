@@ -256,6 +256,21 @@ public class ProvisionMojo extends AbstractMojo
         {
             Artifact artifact = (Artifact) i.next();
 
+            try
+            {
+                m_resolver.resolve( artifact, m_remoteRepos, m_localRepo );
+            }
+            catch( ArtifactNotFoundException e )
+            {
+                getLog().warn( "Skipping missing bundle " + artifact );
+                continue;
+            }
+            catch( ArtifactResolutionException e )
+            {
+                getLog().warn( "Skipping missing bundle " + artifact );
+                continue;
+            }
+
             Dependency dep = new Dependency();
             dep.setGroupId( artifact.getGroupId() );
             dep.setArtifactId( artifact.getArtifactId() );
