@@ -24,7 +24,7 @@
       <item name="Quickstart" href="index.html"/>
       <item name="Installing" href="install.html"/>
       <item name="Settings" href="settings.html"/>
-      <item name="FAQ" href="faq.html"/>
+      <item name="Wiki/FAQ" href="http://wiki.ops4j.org/confluence/x/8Q"/>
     </menu>
 
     <menu name="Examples">

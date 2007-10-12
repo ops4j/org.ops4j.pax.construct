@@ -1,0 +1,43 @@
+ ------
+ pax-remove-bundle
+ ------
+ Stuart McCulloch
+ ------
+ 12 October 2007
+ ------
+
+~~ Copyright 2007 Stuart McCulloch
+~~
+~~ Licensed under the Apache License, Version 2.0 (the "License");
+~~ you may not use this file except in compliance with the License.
+~~ You may obtain a copy of the License at
+~~
+~~      http://www.apache.org/licenses/LICENSE-2.0
+~~
+~~ Unless required by applicable law or agreed to in writing, software
+~~ distributed under the License is distributed on an "AS IS" BASIS,
+~~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+~~ See the License for the specific language governing permissions and
+~~ limitations under the License.
+
+~~ NOTE: For help with the syntax of this file, see:
+~~ http://maven.apache.org/guides/mini/guide-apt-format.html
+
+<<<pax-remove-bundle -n bundleName [-- mvnOpts ...]>>>
+
+ Delete a bundle from the current OSGi project, also removing it from any module lists or dependency references.
+
+* Additional Maven options
+
+*--------------------------------*------------------------------------------------------+
+| <<<-DbaseDirectory=>>><path>   | a directory in the same project as the target bundle |
+*--------------------------------*------------------------------------------------------+
+| <<<-Drepair=false>>>           | don't remove any references to the deleted bundle    |
+*--------------------------------*------------------------------------------------------+
+
+* Examples
+
++---+
+pax-remove-bundle -n simple-impl
++---+
+
