@@ -28,7 +28,8 @@ Environment variables
 *----------------------------*-------------------------------------------------------------+
  <<<PAX_CONSTRUCT_VERSION>>> | force use of a different plugin version
 *----------------------------*-------------------------------------------------------------+
- <<<PAX_CONSTRUCT_OPTIONS>>> | additional Maven plugin options, such as -o to work offline
+ <<<PAX_CONSTRUCT_OPTIONS>>> | lets you set additional Maven plugin options that will apply
+                             | to subsequent plugin calls, ie. set it to -o to work offline
 *----------------------------*-------------------------------------------------------------+
 
 General script usage
