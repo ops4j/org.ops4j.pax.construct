@@ -34,7 +34,7 @@
       <item name="Wrapping jars" href="examples/wrap.html"/>
       <item name="Refactoring" href="examples/refactor.html"/>
       <item name="Using Eclipse" href="examples/eclipse.html"/>
-      <item name="Spring-OSGi" href="examples/spring-osgi.html"/>
+      <item name="Spring DM m3" href="examples/spring-osgi.html"/>
     </menu>
 
     <menu name="Scripts">
