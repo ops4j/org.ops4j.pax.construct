@@ -387,6 +387,10 @@ public final class DirUtils
                         expandedPath.addAll( Arrays.asList( rebasedClassPath.split( "," ) ) );
                     }
                 }
+                else if( !element.equals( bundle ) )
+                {
+                    expandedPath.add( bundle.getPath() );
+                }
             }
         }
 
@@ -401,23 +405,21 @@ public final class DirUtils
      */
     static File locateBundle( File classpathElement )
     {
-        File bundle = classpathElement;
-
         // for now just assume the output directory is target/classes
         String outputDir = "target" + File.separator + "classes";
-        String path = bundle.getPath();
+        String path = classpathElement.getPath();
 
         if( path.endsWith( outputDir ) )
         {
             // we need the final bundle, not the output directory, so load up the project POM
-            File projectDir = bundle.getParentFile().getParentFile();
+            File projectDir = classpathElement.getParentFile().getParentFile();
 
             try
             {
                 Pom reactorPom = PomUtils.readPom( projectDir );
                 if( reactorPom.isBundleProject() )
                 {
-                    // assume standard artifact name
+                    // assumes standard artifact name
                     return reactorPom.getFinalBundle();
                 }
             }
@@ -428,7 +430,7 @@ public final class DirUtils
         }
 
         // otherwise just assume it's a bundle for now (will check for manifest later)
-        return bundle;
+        return classpathElement;
     }
 
     /**
