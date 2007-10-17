@@ -347,7 +347,7 @@ public final class DirUtils
     }
 
     /**
-     * Expand any bundle entries on the classpath to include their unpacked contents (useful when compiling)
+     * Expand any bundle entries on the classpath to include embedded jars, etc.
      * 
      * @param outputDir current output directory
      * @param path list of classpath elements
@@ -361,40 +361,55 @@ public final class DirUtils
 
         for( Iterator i = path.iterator(); i.hasNext(); )
         {
-            // original should appear before expanded entries
             File element = new File( (String) i.next() );
-            expandedPath.add( element.getPath() );
-
-            // don't expand current project
             if( element.equals( outputDir ) )
             {
-                continue;
+                // don't expand the current project
+                expandedPath.add( element.getPath() );
             }
-
-            File bundle = locateBundle( element );
-
-            if( bundle != null && bundle.getName().endsWith( ".jar" ) )
+            else
             {
-                String bundleClassPath = extractBundleClassPath( bundle );
-                if( !".".equals( bundleClassPath ) )
-                {
-                    File here = new File( tempDir, bundle.getName() );
-
-                    if( unpackBundle( archiverManager, bundle, here ) )
-                    {
-                        // refactor bundle classpath to point to the recently unpacked contents and append it
-                        String rebasedClassPath = DirUtils.rebasePaths( bundleClassPath, here.getPath(), ',' );
-                        expandedPath.addAll( Arrays.asList( rebasedClassPath.split( "," ) ) );
-                    }
-                }
-                else if( !element.equals( bundle ) )
-                {
-                    expandedPath.add( bundle.getPath() );
-                }
+                expandedPath.addAll( expandBundleClassPath( element, archiverManager, tempDir ) );
             }
         }
 
         return expandedPath;
+    }
+
+    /**
+     * Expand compilatation classpath element to include extra entries for compiling against OSGi bundles
+     * 
+     * @param element compilatation classpath element
+     * @param archiverManager creates unarchiver objects
+     * @param tempDir temporary directory for unpacking
+     * @return expanded classpath elements
+     */
+    static List expandBundleClassPath( File element, ArchiverManager archiverManager, File tempDir )
+    {
+        File bundle = locateBundle( element );
+
+        if( bundle != null && bundle.getName().endsWith( ".jar" ) )
+        {
+            String bundleClassPath = extractBundleClassPath( bundle );
+            if( !".".equals( bundleClassPath ) )
+            {
+                File here = new File( tempDir, bundle.getName() );
+
+                if( unpackBundle( archiverManager, bundle, here ) )
+                {
+                    // refactor bundle classpath to point to the recently unpacked contents and append it
+                    String rebasedClassPath = DirUtils.rebasePaths( bundleClassPath, here.getPath(), ',' );
+                    return Arrays.asList( rebasedClassPath.split( "," ) );
+                }
+            }
+            else
+            {
+                // no need to unpack, but should use packaged bundle
+                return Collections.singletonList( bundle.getPath() );
+            }
+        }
+
+        return Collections.singletonList( element.getPath() );
     }
 
     /**
