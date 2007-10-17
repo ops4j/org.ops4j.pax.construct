@@ -364,21 +364,36 @@ public class XppPom
     /**
      * {@inheritDoc}
      */
-    public void addRepository( Repository repository, boolean snapshots, boolean releases, boolean overwrite )
+    public void addRepository( Repository repository, boolean snapshots, boolean releases, boolean overwrite,
+        boolean pluginRepo )
         throws ExistingElementException
     {
+        final String listName;
+        final String elemName;
+
+        if( pluginRepo )
+        {
+            listName = "pluginRepositories";
+            elemName = "pluginRepository";
+        }
+        else
+        {
+            listName = "repositories";
+            elemName = "repository";
+        }
+
         String id = repository.getId();
         String url = repository.getUrl();
 
-        String xpath = "repositories/repository[id='" + id + "' or url='" + url + "']";
+        String xpath = listName + '/' + elemName + "[id='" + id + "' or url='" + url + "']";
 
         // clear old elements when overwriting
         if( findChildren( xpath, overwrite ) && !overwrite )
         {
-            throw new ExistingElementException( "repository" );
+            throw new ExistingElementException( elemName );
         }
 
-        Xpp3DomMap repo = new Xpp3DomMap( "repository" );
+        Xpp3DomMap repo = new Xpp3DomMap( elemName );
         repo.putValue( "id", id );
         repo.putValue( "url", url );
 
@@ -396,7 +411,7 @@ public class XppPom
             repo.addChild( releaseFlag );
         }
 
-        Xpp3Dom list = new Xpp3DomList( "repositories" );
+        Xpp3Dom list = new Xpp3DomList( listName );
         list.addChild( repo );
 
         Xpp3Dom newPom = new Xpp3Dom( "project" );

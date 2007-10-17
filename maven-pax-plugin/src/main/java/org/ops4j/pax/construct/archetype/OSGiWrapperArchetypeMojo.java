@@ -29,6 +29,7 @@ import org.apache.maven.artifact.factory.ArtifactFactory;
 import org.apache.maven.artifact.repository.ArtifactRepository;
 import org.apache.maven.artifact.resolver.ArtifactResolver;
 import org.apache.maven.model.Dependency;
+import org.apache.maven.model.Repository;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.project.MavenProject;
 import org.apache.maven.project.MavenProjectBuilder;
@@ -48,12 +49,12 @@ import org.ops4j.pax.construct.util.PomUtils.Pom;
  * </pre></code>
  * 
  * or create a standalone version which doesn't require an existing project
- *
+ * 
  * <code><pre>
  *   cd some-empty-folder
  *   mvn org.ops4j:maven-pax-plugin:wrap-jar ...etc...
  * </pre></code>
- *
+ * 
  * @extendsPlugin archetype
  * @extendsGoal create
  * @goal wrap-jar
@@ -598,11 +599,22 @@ public class OSGiWrapperArchetypeMojo extends AbstractPaxArchetypeMojo
             thisPom.updatePluginVersion( "org.ops4j", "maven-pax-plugin", getArchetypeVersion() );
             thisPom.setGroupId( "org.ops4j.example" );
 
+            // for latest bundle plugin
+            Repository repository = new Repository();
+            repository.setId( "ops4j-snapshots" );
+            repository.setUrl( "http://repository.ops4j.org/mvn-snapshots" );
+            thisPom.addRepository( repository, true, false, true, true );
+
             thisPom.write();
         }
         catch( IOException e )
         {
             getLog().warn( "Unable to convert POM to work standalone" );
+        }
+        catch( ExistingElementException e )
+        {
+            // this should never happen
+            throw new RuntimeException( e );
         }
     }
 }

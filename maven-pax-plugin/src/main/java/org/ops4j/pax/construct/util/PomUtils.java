@@ -151,9 +151,11 @@ public final class PomUtils
          * @param snapshots enable snapshots for this repository
          * @param releases enable releases for this repository
          * @param overwrite overwrite element if true, otherwise throw {@link ExistingElementException}
+         * @param pluginRepo treat as plugin repository if true, otherwise assume normal repository
          * @throws ExistingElementException
          */
-        public void addRepository( Repository repository, boolean snapshots, boolean releases, boolean overwrite )
+        public void addRepository( Repository repository, boolean snapshots, boolean releases, boolean overwrite,
+            boolean pluginRepo )
             throws ExistingElementException;
 
         /**

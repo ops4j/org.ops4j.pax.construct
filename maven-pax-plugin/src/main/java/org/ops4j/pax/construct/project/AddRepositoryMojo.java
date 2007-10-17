@@ -82,6 +82,13 @@ public class AddRepositoryMojo extends AbstractMojo
     private boolean releases;
 
     /**
+     * When true, treat this as a plugin repository.
+     * 
+     * @parameter expression="${pluginRepo}"
+     */
+    private boolean pluginRepo;
+
+    /**
      * Standard Maven mojo entry-point
      */
     public void execute()
@@ -102,9 +109,16 @@ public class AddRepositoryMojo extends AbstractMojo
         repository.setId( repositoryId );
         repository.setUrl( repositoryURL );
 
-        getLog().info( "Adding repository " + repositoryURL + " to " + pom );
+        if( pluginRepo )
+        {
+            getLog().info( "Adding plugin repository " + repositoryURL + " to " + pom );
+        }
+        else
+        {
+            getLog().info( "Adding repository " + repositoryURL + " to " + pom );
+        }
 
-        pom.addRepository( repository, snapshots, releases, overwrite );
+        pom.addRepository( repository, snapshots, releases, overwrite, pluginRepo );
 
         try
         {

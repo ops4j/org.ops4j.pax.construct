@@ -20,10 +20,12 @@ import java.io.File;
 import java.io.IOException;
 
 import org.apache.maven.model.Dependency;
+import org.apache.maven.model.Repository;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.ops4j.pax.construct.util.BndFileUtils;
 import org.ops4j.pax.construct.util.BndFileUtils.BndFile;
 import org.ops4j.pax.construct.util.PomUtils;
+import org.ops4j.pax.construct.util.PomUtils.ExistingElementException;
 import org.ops4j.pax.construct.util.PomUtils.Pom;
 
 /**
@@ -277,11 +279,22 @@ public class OSGiBundleArchetypeMojo extends AbstractPaxArchetypeMojo
             thisPom.updatePluginVersion( "org.ops4j", "maven-pax-plugin", getArchetypeVersion() );
             thisPom.setGroupId( "org.ops4j.example" );
 
+            // for latest bundle plugin
+            Repository repository = new Repository();
+            repository.setId( "ops4j-snapshots" );
+            repository.setUrl( "http://repository.ops4j.org/mvn-snapshots" );
+            thisPom.addRepository( repository, true, false, true, true );
+
             thisPom.write();
         }
         catch( IOException e )
         {
             getLog().warn( "Unable to convert POM to work standalone" );
+        }
+        catch( ExistingElementException e )
+        {
+            // this should never happen
+            throw new RuntimeException( e );
         }
     }
 }
