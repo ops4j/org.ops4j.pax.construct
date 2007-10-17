@@ -166,55 +166,78 @@ public final class DirUtils
         File commonDir = new File( pivot[1] );
         String descentPath = pivot[2];
 
-        // start checking path from common directory
-        Pom parentPom = PomUtils.readPom( commonDir );
-        Pom childPom = parentPom;
+        Pom parentPom = null;
+        Pom childPom = null;
 
         int i = 0;
-        for( int j = descentPath.indexOf( '/' ); j >= 0; i = j + 1, j = descentPath.indexOf( '/', i ) )
+        int j = -1;
+
+        do
         {
             // check the next module pom...
-            pomFile = new File( commonDir, descentPath.substring( 0, j ) + "/pom.xml" );
+            String pathSoFar = descentPath.substring( 0, j + 1 );
+            pomFile = new File( commonDir, pathSoFar + "pom.xml" );
 
             if( pomFile.exists() )
             {
+                // existing pom, follow it along...
                 childPom = PomUtils.readPom( pomFile );
             }
-            else
+            else if( parentPom != null )
             {
-                try
-                {
-                    // no such pom, need to create new module pom
-                    String module = descentPath.substring( i, j );
-
-                    // link parent to new module pom
-                    parentPom.addModule( module, true );
-                    parentPom.write();
-
-                    String groupId = PomUtils.getCompoundId( parentPom.getGroupId(), parentPom.getArtifactId() );
-                    if( groupId.equals( parentPom.getGroupId() ) )
-                    {
-                        groupId += '.' + module;
-                    }
-
-                    // create missing module pom and link back to parent
-                    childPom = PomUtils.createPom( pomFile, groupId, module );
-                    childPom.setParent( parentPom, null, true );
-                    childPom.write();
-                }
-                catch( ExistingElementException e )
-                {
-                    // this should never happen
-                    throw new RuntimeException( e );
-                }
+                // no such pom, need to create new module pom
+                String module = descentPath.substring( i, j );
+                childPom = createMissingPom( parentPom, module, pomFile );
             }
 
             // descend to next pom
             parentPom = childPom;
-        }
+
+            i = j + 1;
+            j = descentPath.indexOf( '/', i );
+
+        } while( j >= 0 );
 
         // final pom in target directory
         return childPom;
+    }
+
+    /**
+     * Add missing Maven project POM and attach to the parent project
+     * 
+     * @param parentPom parent project
+     * @param module new project module
+     * @param pomFile new project file
+     * @return the new Maven POM
+     * @throws IOException
+     */
+    static Pom createMissingPom( Pom parentPom, String module, File pomFile )
+        throws IOException
+    {
+        try
+        {
+            // link parent to new module pom
+            parentPom.addModule( module, true );
+            parentPom.write();
+
+            String groupId = PomUtils.getCompoundId( parentPom.getGroupId(), parentPom.getArtifactId() );
+            if( groupId.equals( parentPom.getGroupId() ) )
+            {
+                groupId += '.' + module;
+            }
+
+            // create missing module pom and link back to parent
+            Pom childPom = PomUtils.createPom( pomFile, groupId, module );
+            childPom.setParent( parentPom, null, true );
+            childPom.write();
+
+            return childPom;
+        }
+        catch( ExistingElementException e )
+        {
+            // this should never happen
+            throw new RuntimeException( e );
+        }
     }
 
     /**
