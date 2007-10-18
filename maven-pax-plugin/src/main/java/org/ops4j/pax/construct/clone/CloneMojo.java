@@ -39,7 +39,7 @@ import org.ops4j.pax.construct.util.DirUtils;
  * @goal clone
  * @aggregator true
  */
-public class SnapshotMojo extends AbstractMojo
+public class CloneMojo extends AbstractMojo
 {
     /**
      * Initiating artifactId.
