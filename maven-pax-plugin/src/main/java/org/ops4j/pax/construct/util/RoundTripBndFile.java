@@ -20,8 +20,6 @@ import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileReader;
-import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Enumeration;
@@ -30,6 +28,8 @@ import java.util.List;
 import java.util.Properties;
 
 import org.codehaus.plexus.util.IOUtil;
+import org.codehaus.plexus.util.ReaderFactory;
+import org.codehaus.plexus.util.WriterFactory;
 import org.ops4j.pax.construct.util.BndFileUtils.BndFile;
 import org.ops4j.pax.construct.util.BndFileUtils.ExistingInstructionException;
 
@@ -165,7 +165,7 @@ public class RoundTripBndFile
         Properties instructions = new Properties();
         instructions.putAll( m_newInstructions );
 
-        BufferedWriter bndWriter = new BufferedWriter( new FileWriter( m_file ) );
+        BufferedWriter bndWriter = new BufferedWriter( WriterFactory.newPlatformWriter( m_file ) );
         for( Iterator i = lines.iterator(); i.hasNext(); )
         {
             String line = (String) i.next();
@@ -216,7 +216,7 @@ public class RoundTripBndFile
     {
         List lines = new ArrayList();
 
-        BufferedReader bndReader = new BufferedReader( new FileReader( m_file ) );
+        BufferedReader bndReader = new BufferedReader( ReaderFactory.newPlatformReader( m_file ) );
         while( bndReader.ready() )
         {
             lines.add( bndReader.readLine() );

@@ -17,7 +17,6 @@ package org.ops4j.pax.construct.lifecycle;
  */
 
 import java.io.File;
-import java.io.FileWriter;
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -46,6 +45,8 @@ import org.apache.maven.project.MavenProjectBuilder;
 import org.apache.maven.project.ProjectBuildingException;
 import org.apache.maven.project.artifact.InvalidDependencyVersionException;
 import org.codehaus.plexus.util.IOUtil;
+import org.codehaus.plexus.util.WriterFactory;
+import org.codehaus.plexus.util.xml.XmlStreamWriter;
 import org.ops4j.pax.construct.util.PomUtils;
 
 /**
@@ -360,7 +361,7 @@ public class ProvisionMojo extends AbstractMojo
 
         try
         {
-            FileWriter writer = new FileWriter( deployFile );
+            XmlStreamWriter writer = WriterFactory.newXmlWriter( deployFile );
             deployProject.writeModel( writer );
             IOUtil.close( writer );
         }

@@ -17,12 +17,14 @@ package org.ops4j.pax.construct.util;
  */
 
 import java.io.File;
-import java.io.FileReader;
-import java.io.FileWriter;
 import java.io.IOException;
+import java.io.Reader;
+import java.io.Writer;
 
 import org.apache.maven.plugin.AbstractMojo;
 import org.codehaus.plexus.util.IOUtil;
+import org.codehaus.plexus.util.ReaderFactory;
+import org.codehaus.plexus.util.WriterFactory;
 
 /**
  * Various utility methods for caching files between plugins
@@ -49,7 +51,7 @@ public final class CacheUtils
         {
             try
             {
-                FileReader input = new FileReader( file );
+                Reader input = ReaderFactory.newPlatformReader( file );
                 mojo.getPluginContext().put( key, IOUtil.toString( input ) );
                 IOUtil.close( input );
             }
@@ -78,7 +80,7 @@ public final class CacheUtils
                 file.getParentFile().mkdirs();
                 file.createNewFile();
 
-                FileWriter output = new FileWriter( file );
+                Writer output = WriterFactory.newPlatformWriter( file );
                 IOUtil.copy( input, output );
                 IOUtil.close( output );
             }
