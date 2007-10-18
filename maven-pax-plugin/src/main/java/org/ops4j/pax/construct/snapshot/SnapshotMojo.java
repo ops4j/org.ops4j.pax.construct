@@ -87,7 +87,6 @@ public class SnapshotMojo extends AbstractMojo
         for( Iterator i = m_reactorProjects.iterator(); i.hasNext(); )
         {
             MavenProject project = (MavenProject) i.next();
-            MavenProject parent = project.getParent();
             String packaging = project.getPackaging();
 
             if( "bundle".equals( packaging ) )
@@ -98,14 +97,9 @@ public class SnapshotMojo extends AbstractMojo
             {
                 // TODO: copy this project unchanged
             }
-            else if( !"poms".equals( project.getBasedir().getName() )
-                && ( parent == null || !m_skippedProjects.contains( parent.getId() ) ) )
-            {
-                handleModule( project );
-            }
             else
             {
-                m_skippedProjects.add( project.getId() );
+                handleModule( project );
             }
         }
 
@@ -114,14 +108,42 @@ public class SnapshotMojo extends AbstractMojo
 
     void handleModule( MavenProject project )
     {
-        if( project.isExecutionRoot() || ( null == project.getParent() && !oneRoot ) )
+        PaxOptionBuilder command = null;
+
+        Dependency importee = findImportee( project );
+        if( importee != null )
         {
-            PaxOptionBuilder command = m_buildScript.at( 0 ).command( "pax-create-project" );
+            command = handleImportee( project, importee );
+        }
+        else if( isMajorProject( project ) )
+        {
+            command = m_buildScript.command( "pax-create-project" );
             command.option( 'g', project.getGroupId() );
             command.option( 'a', project.getArtifactId() );
             command.option( 'v', project.getVersion() );
+        }
+        else
+        {
+            m_skippedProjects.add( project.getId() );
+            return;
+        }
 
-            setTargetDirectory( command, project );
+        setTargetDirectory( command, project );
+    }
+
+    boolean isMajorProject( MavenProject project )
+    {
+        if( project.isExecutionRoot() )
+        {
+            return true;
+        }
+        else if( oneRoot )
+        {
+            return false;
+        }
+        else
+        {
+            return ( null == project.getParent() || new File( project.getBasedir(), "poms" ).isDirectory() );
         }
     }
 
@@ -149,6 +171,28 @@ public class SnapshotMojo extends AbstractMojo
         if( wrappee.getArtifactId() != null )
         {
             return wrappee;
+        }
+
+        return null;
+    }
+
+    Dependency findImportee( MavenProject project )
+    {
+        Properties properties = project.getProperties();
+        if( null == properties )
+        {
+            return null;
+        }
+
+        Dependency importee = new Dependency();
+
+        importee.setGroupId( properties.getProperty( "bundle.groupId" ) );
+        importee.setArtifactId( properties.getProperty( "bundle.artifactId" ) );
+        importee.setVersion( properties.getProperty( "bundle.version" ) );
+
+        if( importee.getArtifactId() != null )
+        {
+            return importee;
         }
 
         return null;
@@ -199,7 +243,7 @@ public class SnapshotMojo extends AbstractMojo
             }
             else
             {
-                m_buildScript.comment( "Skipped " + project.getId() );
+                m_skippedProjects.add( project.getId() );
                 return;
             }
         }
@@ -221,6 +265,17 @@ public class SnapshotMojo extends AbstractMojo
         {
             command.maven().flag( "addVersion" );
         }
+
+        return command;
+    }
+
+    PaxOptionBuilder handleImportee( MavenProject project, Dependency importee )
+    {
+        PaxOptionBuilder command = m_buildScript.command( "pax-import-bundle" );
+
+        command.option( 'g', importee.getGroupId() );
+        command.option( 'a', importee.getArtifactId() );
+        command.option( 'v', importee.getVersion() );
 
         return command;
     }

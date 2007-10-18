@@ -18,9 +18,5 @@ package org.ops4j.pax.construct.snapshot;
 
 public interface PaxScriptBuilder
 {
-    public PaxScriptBuilder comment( String comment );
-
-    public PaxScriptBuilder at( int index );
-
     public PaxOptionBuilder command( String command );
 }

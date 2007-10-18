@@ -25,41 +25,13 @@ public class DefaultPaxScriptBuilder
 {
     private List m_script = new ArrayList();
 
-    private int m_cursor = 0;
-
     private StringBuffer m_buf = new StringBuffer();
-
-    void add( String text )
-    {
-        m_script.add( m_cursor, text );
-        m_cursor = m_script.size();
-    }
-
-    public PaxScriptBuilder comment( String comment )
-    {
-        add( "# " + comment );
-
-        return this;
-    }
-
-    public PaxScriptBuilder at( int index )
-    {
-        if( m_buf.length() > 0 )
-        {
-            add( m_buf.toString() );
-            m_buf.setLength( 0 );
-        }
-
-        m_cursor = index;
-
-        return this;
-    }
 
     public PaxOptionBuilder command( String command )
     {
         if( m_buf.length() > 0 )
         {
-            add( m_buf.toString() );
+            m_script.add( m_buf.toString() );
             m_buf.setLength( 0 );
         }
 
