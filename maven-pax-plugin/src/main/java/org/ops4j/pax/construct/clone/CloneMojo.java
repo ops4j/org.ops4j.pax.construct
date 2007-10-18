@@ -127,20 +127,22 @@ public class CloneMojo extends AbstractMojo
 
         try
         {
+            getLog().info( "Saving UNIX shell script " + nixScript );
             m_buildScript.write( nixScript, "" );
         }
         catch( IOException e )
         {
-            getLog().warn( "Unable to write UNIX script " + nixScript );
+            getLog().warn( "Unable to write " + nixScript );
         }
 
         try
         {
+            getLog().info( "Saving Windows batch file " + winScript );
             m_buildScript.write( winScript, "call " );
         }
         catch( IOException e )
         {
-            getLog().warn( "Unable to write Windows script " + winScript );
+            getLog().warn( "Unable to write " + winScript );
         }
     }
 
@@ -166,7 +168,7 @@ public class CloneMojo extends AbstractMojo
             return;
         }
 
-        setTargetDirectory( command, project );
+        setTargetDirectory( command, project.getBasedir().getParentFile() );
     }
 
     boolean isMajorProject( MavenProject project )
@@ -204,6 +206,15 @@ public class CloneMojo extends AbstractMojo
             wrappee.setGroupId( properties.getProperty( "wrapped.groupId" ) );
             wrappee.setArtifactId( properties.getProperty( "wrapped.artifactId" ) );
             wrappee.setVersion( properties.getProperty( "wrapped.version" ) );
+        }
+
+        MavenProject parent = project.getParent();
+        List dependencies = project.getDependencies();
+
+        if( wrappee.getArtifactId() == null && dependencies.size() > 0 && parent != null
+            && "wrap-jar-as-bundle".equals( parent.getArtifactId() ) )
+        {
+            wrappee = (Dependency) dependencies.get( 0 );
         }
 
         if( wrappee.getArtifactId() != null )
@@ -286,7 +297,9 @@ public class CloneMojo extends AbstractMojo
             }
         }
 
-        setTargetDirectory( command, project );
+        // TODO: merge in dependency and other POM fragments?
+
+        setTargetDirectory( command, project.getBasedir().getParentFile() );
     }
 
     PaxCommandBuilder handleWrapper( MavenProject project, Dependency wrappee )
@@ -318,9 +331,8 @@ public class CloneMojo extends AbstractMojo
         return command;
     }
 
-    void setTargetDirectory( PaxCommandBuilder command, MavenProject project )
+    void setTargetDirectory( PaxCommandBuilder command, File targetDir )
     {
-        File targetDir = project.getBasedir().getParentFile();
         String[] pivot = DirUtils.calculateRelativePath( m_basedir.getParentFile(), targetDir );
 
         if( pivot != null && pivot[2].length() > 0 )
