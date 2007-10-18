@@ -28,73 +28,134 @@ import org.codehaus.plexus.util.WriterFactory;
  * limitations under the License.
  */
 
+/**
+ * Builder implementation for Pax-Construct based build scripts
+ */
 public class PaxScriptImpl
     implements PaxScript
 {
+    /**
+     * Sequence of Pax-Construct commands
+     */
     private final List m_commands;
 
+    /**
+     * Create a new Pax-Construct script builder
+     */
     public PaxScriptImpl()
     {
         m_commands = new ArrayList();
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public PaxCommandBuilder call( String command )
     {
         return new PaxCommand( command );
     }
 
+    /**
+     * Represents a simple command flag, such as -x or -Dy
+     */
     private class Flag
     {
+        /**
+         * Flag name
+         */
         private String m_flag;
 
+        /**
+         * @param flag name of the flag
+         */
         public Flag( String flag )
         {
             m_flag = flag;
         }
 
+        /**
+         * {@inheritDoc}
+         */
         public String toString()
         {
             return '-' + m_flag;
         }
     }
 
+    /**
+     * Represents a simple command option, such as -w foo or -Dz=bar
+     */
     private class Option extends Flag
     {
-        private char m_equals;
+        /**
+         * Option separator
+         */
+        private char m_separator;
 
+        /**
+         * Specified value
+         */
         private String m_value;
 
-        public Option( String option, char equals, String value )
+        /**
+         * @param option name of the option
+         * @param separator separator between option and value
+         * @param value specified value
+         */
+        public Option( String option, char separator, String value )
         {
             super( option );
-            m_equals = equals;
+            m_separator = separator;
             m_value = value;
         }
 
+        /**
+         * {@inheritDoc}
+         */
         public String toString()
         {
-            if( ' ' == m_equals )
+            if( ' ' == m_separator )
             {
-                return super.toString() + m_equals + '\"' + m_value + '\"';
+                // just protect the value (works on Windows and UNIX)
+                return super.toString() + m_separator + '\"' + m_value + '\"';
             }
             else
             {
-                return '\"' + super.toString() + m_equals + m_value + '\"';
+                // protect entire option (works on Windows and UNIX)
+                return '\"' + super.toString() + m_separator + m_value + '\"';
             }
         }
     }
 
+    /**
+     * Builder implementation for Pax-Construct commands
+     */
     private class PaxCommand
         implements PaxCommandBuilder
     {
+        /**
+         * Name of the Pax-Construct script
+         */
         private final String m_name;
 
+        /**
+         * Sequence of Pax-Construct options
+         */
         private final List m_paxOptions;
 
+        /**
+         * Sequence of Maven specific options
+         */
         private final List m_mvnOptions;
 
+        /**
+         * Target directory where the command should be run
+         */
         private String m_targetDir;
 
+        /**
+         * @param command name of the Pax-Construct command
+         */
         public PaxCommand( String command )
         {
             m_name = command;
@@ -105,32 +166,58 @@ public class PaxScriptImpl
             m_commands.add( this );
         }
 
+        /**
+         * @return target directory for this command
+         */
+        String getTargetDir()
+        {
+            return m_targetDir;
+        }
+
+        /**
+         * {@inheritDoc}
+         */
         public PaxCommandBuilder flag( char flag )
         {
             m_paxOptions.add( new Flag( "" + flag ) );
             return this;
         }
 
+        /**
+         * {@inheritDoc}
+         */
         public PaxCommandBuilder option( char option, String value )
         {
             m_paxOptions.add( new Option( "" + option, ' ', value ) );
             return this;
         }
 
+        /**
+         * {@inheritDoc}
+         */
         public MavenOptionBuilder maven()
         {
             return new MavenOption();
         }
 
+        /**
+         * Builder implementation for Maven specific options
+         */
         private class MavenOption
             implements MavenOptionBuilder
         {
+            /**
+             * {@inheritDoc}
+             */
             public MavenOptionBuilder flag( String flag )
             {
                 m_mvnOptions.add( new Flag( 'D' + flag ) );
                 return this;
             }
 
+            /**
+             * {@inheritDoc}
+             */
             public MavenOptionBuilder option( String option, String value )
             {
                 if( "targetDirectory".equals( option ) )
@@ -143,9 +230,12 @@ public class PaxScriptImpl
             }
         }
 
+        /**
+         * {@inheritDoc}
+         */
         public String toString()
         {
-            StringBuffer buf = new StringBuffer( m_name );
+            StringBuffer buf = new StringBuffer( "pax-" + m_name );
 
             for( Iterator i = m_paxOptions.iterator(); i.hasNext(); )
             {
@@ -153,6 +243,7 @@ public class PaxScriptImpl
                 buf.append( i.next() );
             }
 
+            // need option separator?
             if( !m_mvnOptions.isEmpty() )
             {
                 buf.append( " --" );
@@ -168,16 +259,22 @@ public class PaxScriptImpl
         }
     }
 
+    /**
+     * Sort Pax-Construct commands by their target directory, so projects are created before they are used
+     */
     private static class ByTargetDir
         implements Comparator
     {
+        /**
+         * {@inheritDoc}
+         */
         public int compare( Object lhs, Object rhs )
         {
             if( lhs instanceof PaxCommand )
             {
                 if( rhs instanceof PaxCommand )
                 {
-                    return ( (PaxCommand) lhs ).m_targetDir.compareTo( ( (PaxCommand) rhs ).m_targetDir );
+                    return ( (PaxCommand) lhs ).getTargetDir().compareTo( ( (PaxCommand) rhs ).getTargetDir() );
                 }
                 else
                 {
@@ -193,17 +290,28 @@ public class PaxScriptImpl
         }
     }
 
-    public void write( File scriptFile, String linePrefix )
+    /**
+     * {@inheritDoc}
+     */
+    public void write( File scriptFile )
         throws IOException
     {
         scriptFile.getParentFile().mkdirs();
 
         BufferedWriter writer = new BufferedWriter( WriterFactory.newPlatformWriter( scriptFile ) );
 
+        // Sort so projects are created before their bundles
         Collections.sort( m_commands, new ByTargetDir() );
+
         for( Iterator i = m_commands.iterator(); i.hasNext(); )
         {
-            writer.write( linePrefix + i.next() );
+            if( scriptFile.getName().endsWith( ".bat" ) )
+            {
+                // need this in batch files
+                writer.write( "call " );
+            }
+
+            writer.write( i.next().toString() );
             writer.newLine();
         }
 

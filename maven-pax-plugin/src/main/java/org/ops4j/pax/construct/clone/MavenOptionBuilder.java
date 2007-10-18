@@ -16,9 +16,25 @@ package org.ops4j.pax.construct.clone;
  * limitations under the License.
  */
 
+/**
+ * Builder interface for Maven specific options
+ */
 public interface MavenOptionBuilder
 {
+    /**
+     * Add a simple Maven flag, such as -Dflag
+     * 
+     * @param flag the flag name
+     * @return builder for Maven specific options
+     */
     public MavenOptionBuilder flag( String flag );
 
+    /**
+     * Add a Maven property, such as -Doption=value
+     * 
+     * @param option the option name
+     * @param value the value to use
+     * @return builder for Maven specific options
+     */
     public MavenOptionBuilder option( String option, String value );
 }

@@ -19,16 +19,50 @@ package org.ops4j.pax.construct.clone;
 import java.io.File;
 import java.io.IOException;
 
+/**
+ * Builder interface for a build script based on Pax-Construct commands
+ */
 public interface PaxScript
 {
-    public static String CREATE_PROJECT = "pax-create-project";
-    public static String CREATE_BUNDLE = "pax-create-bundle";
-    public static String IMPORT_BUNDLE = "pax-import-bundle";
-    public static String EMBED_JAR = "pax-embed-jar";
-    public static String WRAP_JAR = "pax-wrap-jar";
+    /**
+     * Create a new OSGi project
+     */
+    public static String CREATE_PROJECT = "create-project";
 
+    /**
+     * Create a new OSGi bundle
+     */
+    public static String CREATE_BUNDLE = "create-bundle";
+
+    /**
+     * Import an existing OSGi bundle
+     */
+    public static String IMPORT_BUNDLE = "import-bundle";
+
+    /**
+     * Embed a third-party jar inside an OSGi bundle
+     */
+    public static String EMBED_JAR = "embed-jar";
+
+    /**
+     * Wrap a third-party jar as an OSGi bundle
+     */
+    public static String WRAP_JAR = "wrap-jar";
+
+    /**
+     * Add a call to a Pax-Construct command
+     * 
+     * @param command name of a Pax-Construct command
+     * @return builder for the Pax-Construct command
+     */
     public PaxCommandBuilder call( String command );
 
-    public void write( File scriptFile, String linePrefix )
+    /**
+     * Write the current script to a file, the file extension is used to customize the contents for the target system
+     * 
+     * @param scriptFile where the script should be saved
+     * @throws IOException
+     */
+    public void write( File scriptFile )
         throws IOException;
 }

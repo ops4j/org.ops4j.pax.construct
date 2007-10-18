@@ -16,11 +16,32 @@ package org.ops4j.pax.construct.clone;
  * limitations under the License.
  */
 
+/**
+ * Builder interface for a Pax-Construct command
+ */
 public interface PaxCommandBuilder
 {
+    /**
+     * Add a simple flag to the command, such as -x
+     * 
+     * @param flag the flag character
+     * @return builder for the Pax-Construct command
+     */
     public PaxCommandBuilder flag( char flag );
 
+    /**
+     * Add an option setting to the command, such as -y value
+     * 
+     * @param option the option character
+     * @param value the value to use
+     * @return builder for the Pax-Construct command
+     */
     public PaxCommandBuilder option( char option, String value );
 
+    /**
+     * Add Maven specific options using the given builder
+     * 
+     * @return builder for Maven specific options
+     */
     public MavenOptionBuilder maven();
 }
