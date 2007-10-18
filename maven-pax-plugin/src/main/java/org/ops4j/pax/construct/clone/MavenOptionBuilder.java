@@ -1,4 +1,4 @@
-package org.ops4j.pax.construct.snapshot;
+package org.ops4j.pax.construct.clone;
 
 /*
  * Copyright 2007 Stuart McCulloch
