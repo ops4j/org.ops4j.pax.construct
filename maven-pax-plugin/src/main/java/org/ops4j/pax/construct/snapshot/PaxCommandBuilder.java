@@ -16,11 +16,11 @@ package org.ops4j.pax.construct.snapshot;
  * limitations under the License.
  */
 
-public interface PaxOptionBuilder
+public interface PaxCommandBuilder
 {
-    public PaxOptionBuilder flag( char flag );
+    public PaxCommandBuilder flag( char flag );
 
-    public PaxOptionBuilder option( char option, String value );
+    public PaxCommandBuilder option( char option, String value );
 
     public MavenOptionBuilder maven();
 }

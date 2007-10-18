@@ -16,7 +16,19 @@ package org.ops4j.pax.construct.snapshot;
  * limitations under the License.
  */
 
-public interface PaxScriptBuilder
+import java.io.File;
+import java.io.IOException;
+
+public interface PaxScript
 {
-    public PaxOptionBuilder command( String command );
+    public static String CREATE_PROJECT = "pax-create-project";
+    public static String CREATE_BUNDLE = "pax-create-bundle";
+    public static String IMPORT_BUNDLE = "pax-import-bundle";
+    public static String EMBED_JAR = "pax-embed-jar";
+    public static String WRAP_JAR = "pax-wrap-jar";
+
+    public PaxCommandBuilder call( String command );
+
+    public void write( File scriptFile, String linePrefix )
+        throws IOException;
 }

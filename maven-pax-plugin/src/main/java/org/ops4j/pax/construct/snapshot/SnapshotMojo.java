@@ -17,6 +17,7 @@ package org.ops4j.pax.construct.snapshot;
  */
 
 import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -29,17 +30,26 @@ import org.apache.maven.project.MavenProject;
 import org.ops4j.pax.construct.util.DirUtils;
 
 /**
- * Snapshot a current project and produce a script to mimic its structure using Pax-Construct
+ * Clones a current project and produces a script to mimic its structure using Pax-Construct
  * 
  * <code><pre>
- *   mvn pax:snapshot
+ *   mvn pax:clone
  * </pre></code>
  * 
- * @goal snapshot
+ * @goal clone
  * @aggregator true
  */
 public class SnapshotMojo extends AbstractMojo
 {
+    /**
+     * Initiating artifactId.
+     * 
+     * @parameter expression="${project.artifactId}"
+     * @required
+     * @readonly
+     */
+    private String m_rootId;
+
     /**
      * Initiating base directory.
      * 
@@ -48,6 +58,15 @@ public class SnapshotMojo extends AbstractMojo
      * @readonly
      */
     private File m_basedir;
+
+    /**
+     * Temporary directory, where scripts and templates will be saved.
+     * 
+     * @parameter expression="${project.build.directory}"
+     * @required
+     * @readonly
+     */
+    private File m_tempdir;
 
     /**
      * When true, add missing parents for all POMs except the top-most one.
@@ -73,7 +92,7 @@ public class SnapshotMojo extends AbstractMojo
     /**
      * The generated Pax script to recreate the project
      */
-    private PaxScriptBuilder m_buildScript;
+    private PaxScript m_buildScript;
 
     /**
      * Standard Maven mojo entry-point
@@ -82,7 +101,7 @@ public class SnapshotMojo extends AbstractMojo
         throws MojoExecutionException
     {
         m_skippedProjects = new ArrayList();
-        m_buildScript = new DefaultPaxScriptBuilder();
+        m_buildScript = new PaxScriptImpl();
 
         for( Iterator i = m_reactorProjects.iterator(); i.hasNext(); )
         {
@@ -103,12 +122,31 @@ public class SnapshotMojo extends AbstractMojo
             }
         }
 
-        System.err.println( m_buildScript.toString() );
+        File nixScript = new File( m_tempdir, "pax-clone-" + m_rootId );
+        File winScript = new File( m_tempdir, "pax-clone-" + m_rootId + ".bat" );
+
+        try
+        {
+            m_buildScript.write( nixScript, "" );
+        }
+        catch( IOException e )
+        {
+            getLog().warn( "Unable to write UNIX script " + nixScript );
+        }
+
+        try
+        {
+            m_buildScript.write( winScript, "call " );
+        }
+        catch( IOException e )
+        {
+            getLog().warn( "Unable to write Windows script " + winScript );
+        }
     }
 
     void handleModule( MavenProject project )
     {
-        PaxOptionBuilder command = null;
+        PaxCommandBuilder command = null;
 
         Dependency importee = findImportee( project );
         if( importee != null )
@@ -117,7 +155,7 @@ public class SnapshotMojo extends AbstractMojo
         }
         else if( isMajorProject( project ) )
         {
-            command = m_buildScript.command( "pax-create-project" );
+            command = m_buildScript.call( PaxScript.CREATE_PROJECT );
             command.option( 'g', project.getGroupId() );
             command.option( 'a', project.getArtifactId() );
             command.option( 'v', project.getVersion() );
@@ -222,7 +260,7 @@ public class SnapshotMojo extends AbstractMojo
 
     void handleBundle( MavenProject project )
     {
-        PaxOptionBuilder command;
+        PaxCommandBuilder command;
 
         Dependency wrappee = findWrappee( project );
         if( wrappee != null )
@@ -234,7 +272,7 @@ public class SnapshotMojo extends AbstractMojo
             String namespace = findBundleNamespace( project );
             if( namespace != null )
             {
-                command = m_buildScript.command( "pax-create-bundle" );
+                command = m_buildScript.call( PaxScript.CREATE_BUNDLE );
                 command.option( 'p', namespace );
                 command.option( 'n', project.getArtifactId() );
                 command.option( 'v', project.getVersion() );
@@ -251,9 +289,9 @@ public class SnapshotMojo extends AbstractMojo
         setTargetDirectory( command, project );
     }
 
-    PaxOptionBuilder handleWrapper( MavenProject project, Dependency wrappee )
+    PaxCommandBuilder handleWrapper( MavenProject project, Dependency wrappee )
     {
-        PaxOptionBuilder command = m_buildScript.command( "pax-wrap-jar" );
+        PaxCommandBuilder command = m_buildScript.call( PaxScript.WRAP_JAR );
 
         command.option( 'g', wrappee.getGroupId() );
         command.option( 'a', wrappee.getArtifactId() );
@@ -269,9 +307,9 @@ public class SnapshotMojo extends AbstractMojo
         return command;
     }
 
-    PaxOptionBuilder handleImportee( MavenProject project, Dependency importee )
+    PaxCommandBuilder handleImportee( MavenProject project, Dependency importee )
     {
-        PaxOptionBuilder command = m_buildScript.command( "pax-import-bundle" );
+        PaxCommandBuilder command = m_buildScript.call( PaxScript.IMPORT_BUNDLE );
 
         command.option( 'g', importee.getGroupId() );
         command.option( 'a', importee.getArtifactId() );
@@ -280,7 +318,7 @@ public class SnapshotMojo extends AbstractMojo
         return command;
     }
 
-    void setTargetDirectory( PaxOptionBuilder command, MavenProject project )
+    void setTargetDirectory( PaxCommandBuilder command, MavenProject project )
     {
         File targetDir = project.getBasedir().getParentFile();
         String[] pivot = DirUtils.calculateRelativePath( m_basedir.getParentFile(), targetDir );
