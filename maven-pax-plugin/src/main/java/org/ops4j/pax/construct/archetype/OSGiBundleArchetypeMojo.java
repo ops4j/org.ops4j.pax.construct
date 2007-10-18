@@ -19,6 +19,7 @@ package org.ops4j.pax.construct.archetype;
 import java.io.File;
 import java.io.IOException;
 
+import org.apache.maven.artifact.Artifact;
 import org.apache.maven.model.Dependency;
 import org.apache.maven.model.Repository;
 import org.apache.maven.plugin.MojoExecutionException;
@@ -211,6 +212,7 @@ public class OSGiBundleArchetypeMojo extends AbstractPaxArchetypeMojo
         if( !hasParent() )
         {
             osgiCore.setVersion( "1.0" );
+            osgiCore.setScope( Artifact.SCOPE_PROVIDED );
             osgiCore.setOptional( true );
         }
         thisPom.addDependency( osgiCore, canOverwrite() );
@@ -221,6 +223,7 @@ public class OSGiBundleArchetypeMojo extends AbstractPaxArchetypeMojo
         if( !hasParent() )
         {
             osgiCompendium.setVersion( "1.0" );
+            osgiCompendium.setScope( Artifact.SCOPE_PROVIDED );
             osgiCompendium.setOptional( true );
         }
         thisPom.addDependency( osgiCompendium, canOverwrite() );
