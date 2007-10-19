@@ -1,6 +1,14 @@
 <?xml version="1.0" encoding="ISO-8859-1"?>
 <project name="maven-pax-plugin">
   <body>
+    <head>
+      <script src="http://www.google-analytics.com/urchin.js" type="text/javascript">
+      </script>
+      <script type="text/javascript">
+        _uacct = "UA-2623231-3";
+        urchinTracker();
+      </script>
+    </head>
 
     <menu name="Pax-Construct">
       <item name="Quickstart" href="../index.html"/>
