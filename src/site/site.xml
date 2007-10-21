@@ -28,7 +28,7 @@
       <item name="Maven 2" href="http://maven.apache.org/"/>
     </links>
 
-    <menu name="Pax-Construct">
+    <menu name="Getting Started">
       <item name="Quickstart" href="index.html"/>
       <item name="Settings" href="settings.html"/>
       <item name="Wiki/FAQ" href="http://wiki.ops4j.org/confluence/x/8Q"/>
@@ -47,7 +47,7 @@
       <item name="Spring DM rc1" href="examples/spring-osgi.html"/>
     </menu>
 
-    <menu name="Scripts">
+    <menu name="Script Help">
       <item name="pax-create-project" href="scripts/create-project.html"/>
       <item name="pax-add-repository" href="scripts/add-repository.html"/>
       <item name="pax-create-bundle" href="scripts/create-bundle.html"/>
@@ -58,9 +58,13 @@
       <item name="pax-remove-bundle" href="scripts/remove-bundle.html"/>
     </menu>
 
-    <menu name="Plugins">
+    <menu name="M2 Plugins">
       <item name="maven-pax-plugin" href="maven-pax-plugin/index.html"/>
       <item name="maven-inherit-plugin" href="maven-inherit-plugin/index.html"/>
+    </menu>
+
+    <menu name="Mailing List">
+      <item name="general@lists.ops4j.org" href="mailto:general@lists.ops4j.org"/>
     </menu>
 
   </body>

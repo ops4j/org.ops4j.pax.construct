@@ -10,17 +10,21 @@
       </script>
     </head>
 
-    <menu name="Pax-Construct">
-      <item name="Quickstart" href="../index.html"/>
+    <menu name="Pax Construct">
+      <item name="Getting Started" href="../index.html"/>
     </menu>
 
-    <menu name="Overview">
+    <menu name="Documentation">
       <item name="Introduction" href="index.html"/>
       <item name="Goals" href="plugin-info.html"/>
       <item name="Usage" href="usage.html"/>
     </menu>
 
-    <menu ref="reports"/>
+    <menu ref="reports" name="Status"/>
+
+    <menu name="Mailing List">
+      <item name="general@lists.ops4j.org" href="mailto:general@lists.ops4j.org"/>
+    </menu>
 
   </body>
 </project>
