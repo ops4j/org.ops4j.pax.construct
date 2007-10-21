@@ -22,10 +22,10 @@ set PAX_CONSTRUCT_OPTIONS=%OLD_CONSTRUCT_OPTIONS%
 
 call pax-import-bundle -g org.slf4j -a slf4j-simple -v 1.4.3
 
-call pax-import-bundle -g org.springframework.osgi -a spring-osgi-extender -v 1.0-m3-SNAPSHOT -- -DwidenScope -DimportTransitive
+call pax-import-bundle -g org.springframework.osgi -a spring-osgi-extender -v 1.0-rc1-SNAPSHOT -- -DwidenScope -DimportTransitive
 
-call pax-import-bundle -g org.springframework.osgi.samples -a weather-dao -v 1.0-m3-SNAPSHOT
-call pax-import-bundle -g org.springframework.osgi.samples -a weather-service -v 1.0-m3-SNAPSHOT
+call pax-import-bundle -g org.springframework.osgi.samples -a weather-dao -v 1.0-rc1-SNAPSHOT
+call pax-import-bundle -g org.springframework.osgi.samples -a weather-service -v 1.0-rc1-SNAPSHOT
 
 call mvn clean install pax:provision
 
