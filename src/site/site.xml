@@ -48,14 +48,14 @@
     </menu>
 
     <menu name="Script Help">
-      <item name="pax-create-project" href="scripts/create-project.html"/>
-      <item name="pax-add-repository" href="scripts/add-repository.html"/>
-      <item name="pax-create-bundle" href="scripts/create-bundle.html"/>
-      <item name="pax-import-bundle" href="scripts/import-bundle.html"/>
-      <item name="pax-embed-jar" href="scripts/embed-jar.html"/>
-      <item name="pax-wrap-jar" href="scripts/wrap-jar.html"/>
-      <item name="pax-move-bundle" href="scripts/move-bundle.html"/>
-      <item name="pax-remove-bundle" href="scripts/remove-bundle.html"/>
+      <item name="pax-create-project" href="help/create-project.html"/>
+      <item name="pax-add-repository" href="help/add-repository.html"/>
+      <item name="pax-create-bundle" href="help/create-bundle.html"/>
+      <item name="pax-import-bundle" href="help/import-bundle.html"/>
+      <item name="pax-embed-jar" href="help/embed-jar.html"/>
+      <item name="pax-wrap-jar" href="help/wrap-jar.html"/>
+      <item name="pax-move-bundle" href="help/move-bundle.html"/>
+      <item name="pax-remove-bundle" href="help/remove-bundle.html"/>
     </menu>
 
     <menu name="M2 Plugins">

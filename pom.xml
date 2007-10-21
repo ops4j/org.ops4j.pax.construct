@@ -47,14 +47,39 @@ limitations under the License.
   <packaging>pom</packaging>
 
   <modules>
-    <module>maven-archetype-osgi-project</module>
-    <module>maven-archetype-osgi-wrapper</module>
-    <module>maven-archetype-osgi-bundle</module>
     <module>maven-inherit-plugin</module>
     <module>maven-pax-plugin</module>
-    <module>tests</module>
-    <module>scripts</module>
   </modules>
+
+  <profiles>
+    <profile>
+      <id>build-archetypes</id>
+      <activation>
+        <property>
+          <name>maven.site</name>
+          <value>!true</value>
+        </property>
+      </activation>
+      <modules>
+        <module>maven-archetype-osgi-project</module>
+        <module>maven-archetype-osgi-wrapper</module>
+        <module>maven-archetype-osgi-bundle</module>
+        <module>scripts</module>
+      </modules>
+    </profile>
+    <profile>
+      <id>integration-tests</id>
+      <activation>
+        <property>
+          <name>maven.test.skip</name>
+          <value>!true</value>
+        </property>
+      </activation>
+      <modules>
+        <module>tests</module>
+      </modules>
+    </profile>
+  </profiles>
 
   <organization>
     <name>OPS4J</name>
