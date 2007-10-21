@@ -101,6 +101,13 @@ public class OSGiBundleArchetypeMojo extends AbstractPaxArchetypeMojo
     private boolean provideActivator;
 
     /**
+     * When true, provide an example Bean using the selected Spring version.
+     * 
+     * @parameter expression="${springVersion}"
+     */
+    private String springVersion;
+
+    /**
      * When true, do not add any basic OSGi dependencies to the project.
      * 
      * @parameter expression="${noDependencies}"
@@ -154,6 +161,11 @@ public class OSGiBundleArchetypeMojo extends AbstractPaxArchetypeMojo
             {
                 // standard R4 OSGi API
                 addOSGiDependenciesToPom();
+
+                if( springVersion != null )
+                {
+                    addSpringBeanSupport();
+                }
             }
             catch( IOException e )
             {
@@ -181,15 +193,25 @@ public class OSGiBundleArchetypeMojo extends AbstractPaxArchetypeMojo
     {
         if( !provideInterface )
         {
-            addTempFiles( "src/main/java/**/ExampleService.java" );
+            addTempFiles( "src/main/java/**/Example*.java" );
         }
         if( !provideInternals )
         {
+            addTempFiles( "src/main/resources" );
             addTempFiles( "src/main/java/**/internal" );
+            addTempFiles( "src/test/resources" );
+            addTempFiles( "src/test/java/**/internal" );
         }
         if( !provideActivator )
         {
             addTempFiles( "src/main/java/**/Activator.java" );
+        }
+        if( null == springVersion )
+        {
+            addTempFiles( "src/main/resources/**/spring" );
+            addTempFiles( "src/main/java/**/*Bean*.java" );
+            addTempFiles( "src/test/resources/**/spring" );
+            addTempFiles( "src/test/java/**/*Bean*.java" );
         }
         addTempFiles( "poms" );
     }
@@ -293,6 +315,60 @@ public class OSGiBundleArchetypeMojo extends AbstractPaxArchetypeMojo
         catch( IOException e )
         {
             getLog().warn( "Unable to convert POM to work standalone" );
+        }
+        catch( ExistingElementException e )
+        {
+            // this should never happen
+            throw new RuntimeException( e );
+        }
+    }
+
+    /**
+     * Add additional POM elements to support testing Spring Beans
+     */
+    void addSpringBeanSupport()
+    {
+        try
+        {
+            File baseDir = getPomFile().getParentFile();
+
+            Pom thisPom = PomUtils.readPom( baseDir );
+
+            // Spring milestone repository
+            Repository repository = new Repository();
+            repository.setId( "spring-milestones" );
+            repository.setUrl( "http://s3.amazonaws.com/maven.springframework.org/milestone" );
+            thisPom.addRepository( repository, false, true, canOverwrite(), false );
+
+            Dependency junit = new Dependency();
+            junit.setGroupId( "junit" );
+            junit.setArtifactId( "junit" );
+            junit.setVersion( "3.8.2" );
+            junit.setScope( Artifact.SCOPE_TEST );
+
+            Dependency springTest = new Dependency();
+            springTest.setGroupId( "org.springframework" );
+            springTest.setArtifactId( "spring-test" );
+            springTest.setVersion( springVersion );
+            springTest.setScope( Artifact.SCOPE_TEST );
+
+            // mark as optional so we don't force deployment
+            Dependency springContext = new Dependency();
+            springContext.setGroupId( "org.springframework" );
+            springContext.setArtifactId( "spring-context" );
+            springContext.setVersion( springVersion );
+            springContext.setScope( Artifact.SCOPE_PROVIDED );
+            springContext.setOptional( true );
+
+            thisPom.addDependency( junit, canOverwrite() );
+            thisPom.addDependency( springTest, canOverwrite() );
+            thisPom.addDependency( springContext, canOverwrite() );
+
+            thisPom.write();
+        }
+        catch( IOException e )
+        {
+            getLog().warn( "Unable to add Spring Bean support" );
         }
         catch( ExistingElementException e )
         {
