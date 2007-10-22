@@ -11,11 +11,14 @@
   <groupId>${groupId}</groupId>
   <artifactId>${artifactId}</artifactId>
   <version>${version}</version>
-#literal()
 
-  <name>${bundle.symbolicName} [${bundle.namespace}]</name>
+#set( $dollar = "$" )
+#if( $artifactId.equals($package) )
+  <name>${dollar}{bundle.symbolicName}</name>
+#else
+  <name>${dollar}{bundle.symbolicName} [${dollar}{bundle.namespace}]</name>
+#end
 
   <packaging>bundle</packaging>
 
-#end
 </project>
