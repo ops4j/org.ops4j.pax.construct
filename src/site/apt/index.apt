@@ -65,10 +65,10 @@ pax-create-bundle -p org.ops4j.example.service
 mvn clean install pax:provision
 +---+
 
- [[6]] Create Eclipse project files
+ [[6]] Create Eclipse project files (with source where available)
 
 +---+
-mvn pax:eclipse
+mvn pax:eclipse -DdownloadSources
 +---+
 
  [[7]] Import project into Eclipse ( File -> Import -> Existing project... )

@@ -33,7 +33,13 @@ Spring Dynamic Modules for OSGi(tm)
 
 * Download {{{SPRING_OSGI_EXAMPLE.bat}Windows}} batch file
 
-** Example output
+** Create Eclipse project files for the various imported, wrapped and compiled bundles:
+
++---+
+mvn pax:eclipse -DdownloadSources
++---+
+
+** Example output when provisioning (assumes 'mvn clean install' has already been run)
 
 +---+
 mvn pax:provision 
