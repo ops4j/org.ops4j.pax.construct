@@ -216,6 +216,10 @@ public class EclipseOSGiMojo extends EclipsePlugin
                 m_resolvedDependencies.add( deps[i] );
                 deps[i].setAddedToClasspath( false );
             }
+            else if( deps[i].isTestDependency() )
+            {
+                deps[i] = fixOSGiTestDependency( deps[i] );
+            }
         }
 
         EclipseWriterConfig config = createEclipseWriterConfig( deps );
@@ -226,17 +230,31 @@ public class EclipseOSGiMojo extends EclipsePlugin
         new EclipseClasspathWriter().init( getLog(), config ).write();
         new EclipseProjectWriter().init( getLog(), config ).write();
 
-        File bundleFile = executedProject.getArtifact().getFile();
-        if( bundleFile == null || !bundleFile.exists() )
-        {
-            getLog().warn( "Bundle has not been built, reverting to basic behaviour" );
-            return;
-        }
-
         /*
          * copy bundle manifest to where PDE expects it, but tweak it to fix embedded paths
          */
-        refactorForEclipse( bundleFile );
+        refactorForEclipse( executedProject.getArtifact().getFile() );
+    }
+
+    /**
+     * The maven-eclipse-plugin has a bug where test dependencies that are also OSGi bundles are excluded from the
+     * .classpath because they are expected to be on the Bundle-ClassPath. However, this is not a valid assumption
+     * because the Maven test-cases and their dependencies do not necessarily end-up packaged inside the bundle.
+     * 
+     * @param dependency an IDE test dependency
+     * @return fixed IDE test dependency
+     */
+    IdeDependency fixOSGiTestDependency( IdeDependency dependency )
+    {
+        // unfortunately there's no setIsOsgiBundle() method, so we have to replace the whole dependency...
+        IdeDependency testDependency = new IdeDependency( dependency.getGroupId(), dependency.getArtifactId(),
+            dependency.getVersion(), dependency.getClassifier(), dependency.isReferencedProject(), true, false, false,
+            dependency.isAddedToClasspath(), dependency.getFile(), dependency.getType(), false, null, 0 );
+
+        testDependency.setSourceAttachment( dependency.getSourceAttachment() );
+        testDependency.setJavadocAttachment( dependency.getJavadocAttachment() );
+
+        return testDependency;
     }
 
     /**
@@ -280,6 +298,12 @@ public class EclipseOSGiMojo extends EclipsePlugin
      */
     void refactorForEclipse( File bundleFile )
     {
+        if( bundleFile == null || !bundleFile.exists() )
+        {
+            getLog().warn( "Bundle has not been built, reverting to basic behaviour" );
+            return;
+        }
+
         // temporary location in the output folder
         String tempPath = "target/contents";
 
@@ -578,6 +602,7 @@ public class EclipseOSGiMojo extends EclipsePlugin
     {
         EclipseWriterConfig config = createEclipseWriterConfig( new IdeDependency[0] );
         config.setEclipseProjectName( getEclipseProjectName( executedProject, true ) );
+        config.setClasspathContainers( Collections.EMPTY_LIST );
 
         // not compiling, so just need project and classpath files
         new EclipseClasspathWriter().init( getLog(), config ).write();
