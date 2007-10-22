@@ -26,8 +26,8 @@ import org.apache.maven.shared.model.fileset.util.FileSetManager;
 import org.ops4j.pax.construct.util.CacheUtils;
 
 /**
- * Remove generated IDE files, but support limted recovery during the same build session.<br/>So 'mvn clean install
- * -Peclipse' won't wipe your Eclipse metadata on a compile error.
+ * Remove generated IDE files, but support limited recovery during the same build session.<br/>So 'mvn pax:clean
+ * pax:eclipse' won't wipe out your Eclipse metadata on a compile error.
  * 
  * @goal clean
  * @phase clean
@@ -67,6 +67,7 @@ public class SqueakyCleanMojo extends AbstractMojo
         generatedPaxFiles.addInclude( "OSGI-INF/**" );
         generatedPaxFiles.addInclude( ".project" );
         generatedPaxFiles.addInclude( ".classpath" );
+        generatedPaxFiles.addInclude( "runner" );
 
         try
         {

@@ -71,8 +71,6 @@ mvn clean install pax:provision
 mvn pax:eclipse
 +---+
 
- ( or enable the Eclipse profile using -Peclipse and these files will be created in the packaging step )
-
  [[7]] Import project into Eclipse ( File -> Import -> Existing project... )
 
 * Now try the {{{examples/spring-osgi.html}Spring Dynamic Modules}} example!

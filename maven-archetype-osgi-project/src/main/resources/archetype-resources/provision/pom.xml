@@ -3,13 +3,13 @@
   xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 
   <parent>
-    <relativePath>../poms</relativePath>
-    <groupId>${package}.build</groupId>
-    <artifactId>shared-plugin-settings</artifactId>
+    <groupId>${groupId}</groupId>
+    <artifactId>${artifactId}</artifactId>
     <version>${version}</version>
   </parent>
 
   <modelVersion>4.0.0</modelVersion>
+  <groupId>${package}.build</groupId>
   <artifactId>provision</artifactId>
 
   <name>${artifactId} - imported bundles</name>
