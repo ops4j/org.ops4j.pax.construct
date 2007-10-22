@@ -45,7 +45,6 @@
         <plugin>
           <groupId>org.ops4j</groupId>
           <artifactId>maven-pax-plugin</artifactId>
-          <version>RELEASE</version>
           <extensions>true</extensions>
           <configuration>
           <!--

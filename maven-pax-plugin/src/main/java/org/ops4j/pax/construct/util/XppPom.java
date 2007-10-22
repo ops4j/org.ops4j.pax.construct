@@ -566,11 +566,14 @@ public class XppPom
         int[] children = pathQuery.queryChildren( parent );
         for( int i = 0; i < children.length; i++ )
         {
-            Xpp3Dom version = parent.getChild( children[i] ).getChild( "version" );
-            if( null != version )
+            Xpp3Dom fragment = parent.getChild( children[i] );
+            Xpp3Dom version = fragment.getChild( "version" );
+            if( null == version )
             {
-                version.setValue( newVersion );
+                version = new Xpp3Dom( "version" );
+                Xpp3DomList.addChild( fragment, 2, version );
             }
+            version.setValue( newVersion );
         }
         return children.length > 0;
     }
@@ -728,6 +731,29 @@ public class XppPom
 
             // list elements must append their children when merging with other fragments
             setAttribute( CHILDREN_COMBINATION_MODE_ATTRIBUTE, CHILDREN_COMBINATION_APPEND );
+        }
+
+        /**
+         * Support addition of XML nodes at specific positions
+         * 
+         * @param parent parent node
+         * @param index index at which the child is to be inserted
+         * @param child child node
+         */
+        public static void addChild( Xpp3Dom parent, int index, Xpp3Dom child )
+        {
+            int count = parent.getChildCount();
+
+            // basic API adds to end
+            parent.addChild( child );
+
+            for( int i = index; i < count; i++ )
+            {
+                // shuffle round like a circular buffer
+                Xpp3Dom temp = parent.getChild( index );
+                parent.removeChild( index );
+                parent.addChild( temp );
+            }
         }
     }
 

@@ -1,6 +1,5 @@
 package org.ops4j.pax.construct.archetype;
 
-import java.io.File;
 import java.io.IOException;
 
 import org.apache.maven.plugin.MojoExecutionException;
@@ -105,10 +104,6 @@ public class OSGiProjectArchetypeMojo extends AbstractPaxArchetypeMojo
             Pom rootPom = PomUtils.readPom( getPomFile() );
             rootPom.updatePluginVersion( "org.ops4j", "maven-pax-plugin", pluginVersion );
             rootPom.write();
-
-            Pom pomsPom = PomUtils.readPom( new File( rootPom.getBasedir(), "poms" ) );
-            pomsPom.updatePluginVersion( "org.ops4j", "maven-pax-plugin", pluginVersion );
-            pomsPom.write();
         }
         catch( IOException e )
         {
