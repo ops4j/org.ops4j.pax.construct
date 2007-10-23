@@ -384,6 +384,10 @@ public final class PomUtils
             {
                 return false;
             }
+            catch( NullPointerException e )
+            {
+                return false;
+            }
         }
 
         return true;

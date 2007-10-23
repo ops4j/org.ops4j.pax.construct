@@ -63,7 +63,7 @@ public class ProvisionMojo extends AbstractMojo
     /**
      * Accumulated set of bundles to be deployed
      */
-    private static Set m_bundleArtifacts;
+    private static Set m_bundleIds;
 
     /**
      * Component factory for Maven artifacts
@@ -170,9 +170,9 @@ public class ProvisionMojo extends AbstractMojo
     public void execute()
         throws MojoExecutionException
     {
-        if( null == m_bundleArtifacts )
+        if( null == m_bundleIds )
         {
-            m_bundleArtifacts = new HashSet();
+            m_bundleIds = new HashSet();
 
             if( deployPoms != null )
             {
@@ -197,7 +197,7 @@ public class ProvisionMojo extends AbstractMojo
     {
         if( PomUtils.isBundleProject( project ) )
         {
-            m_bundleArtifacts.add( project.getArtifact() );
+            provisionBundle( project.getArtifact() );
         }
 
         try
@@ -208,13 +208,50 @@ public class ProvisionMojo extends AbstractMojo
                 Artifact artifact = (Artifact) i.next();
                 if( Artifact.SCOPE_PROVIDED.equals( artifact.getScope() ) && !artifact.isOptional() )
                 {
-                    m_bundleArtifacts.add( artifact );
+                    provisionBundle( artifact );
                 }
             }
         }
         catch( InvalidDependencyVersionException e )
         {
             getLog().warn( "Bad version in dependencies for " + project.getId() );
+        }
+    }
+
+    /**
+     * @param bundle potential bundle artifact
+     */
+    void provisionBundle( Artifact bundle )
+    {
+        try
+        {
+            if( !bundle.isResolved() )
+            {
+                // some eager resolution to provide useful logging
+                m_resolver.resolve( bundle, m_remoteRepos, m_localRepo );
+            }
+
+            if( PomUtils.isBundleArtifact( bundle, m_resolver, m_remoteRepos, m_localRepo, true ) )
+            {
+                String version = PomUtils.getMetaVersion( bundle );
+                m_bundleIds.add( bundle.getGroupId() + ':' + bundle.getArtifactId() + ':' + version );
+            }
+            else
+            {
+                getLog().warn( "Skipping non-bundle artifact " + bundle );
+            }
+        }
+        catch( ArtifactResolutionException e )
+        {
+            getLog().warn( "Skipping unresolved artifact " + bundle );
+        }
+        catch( ArtifactNotFoundException e )
+        {
+            getLog().warn( "Skipping missing artifact " + bundle );
+        }
+        catch( NullPointerException e )
+        {
+            getLog().warn( "Skipping unknown artifact " + bundle );
         }
     }
 
@@ -249,7 +286,7 @@ public class ProvisionMojo extends AbstractMojo
     void deployBundles()
         throws MojoExecutionException
     {
-        if( m_bundleArtifacts.size() == 0 )
+        if( m_bundleIds.size() == 0 )
         {
             getLog().info( "~~~~~~~~~~~~~~~~~~~" );
             getLog().info( " No bundles found! " );
@@ -300,29 +337,15 @@ public class ProvisionMojo extends AbstractMojo
     List resolveProvisionedBundles()
     {
         List dependencies = new ArrayList();
-        for( Iterator i = m_bundleArtifacts.iterator(); i.hasNext(); )
+        for( Iterator i = m_bundleIds.iterator(); i.hasNext(); )
         {
-            Artifact artifact = (Artifact) i.next();
-
-            try
-            {
-                m_resolver.resolve( artifact, m_remoteRepos, m_localRepo );
-            }
-            catch( ArtifactNotFoundException e )
-            {
-                getLog().warn( "Skipping missing bundle " + artifact );
-                continue;
-            }
-            catch( ArtifactResolutionException e )
-            {
-                getLog().warn( "Skipping missing bundle " + artifact );
-                continue;
-            }
+            String id = (String) i.next();
+            String[] fields = id.split( ":" );
 
             Dependency dep = new Dependency();
-            dep.setGroupId( artifact.getGroupId() );
-            dep.setArtifactId( artifact.getArtifactId() );
-            dep.setVersion( PomUtils.getMetaVersion( artifact ) );
+            dep.setGroupId( fields[0] );
+            dep.setArtifactId( fields[1] );
+            dep.setVersion( fields[2] );
 
             dependencies.add( dep );
         }
@@ -497,7 +520,7 @@ public class ProvisionMojo extends AbstractMojo
     {
         String[] deployAppCmds = provision;
 
-        if( m_bundleArtifacts.size() > 0 )
+        if( m_bundleIds.size() > 0 )
         {
             String[] defaultCmds = new String[]
             {
