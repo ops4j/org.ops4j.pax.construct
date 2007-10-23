@@ -171,7 +171,7 @@ public class XppPathQuery
                 test = node.getChild( testNode );
             }
 
-            if( pivotNode.equals( node.getName() ) && testValue.equals( test.getValue() ) )
+            if( pivotNode.equals( node.getName() ) && test != null && testValue.equals( test.getValue() ) )
             {
                 results.add( node );
             }
