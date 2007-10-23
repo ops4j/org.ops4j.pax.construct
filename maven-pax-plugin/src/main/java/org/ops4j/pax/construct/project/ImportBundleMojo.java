@@ -116,6 +116,13 @@ public class ImportBundleMojo extends AbstractMojo
     private String version;
 
     /**
+     * Comma-separated list of artifacts (use groupId:artifactId) to exclude from importing.
+     * 
+     * @parameter expression="${exclusions}"
+     */
+    private String exclusions;
+
+    /**
      * Reference to the project's provision POM (use artifactId or groupId:artifactId).
      * 
      * @parameter expression="${provisionId}" default-value="provision"
@@ -187,7 +194,7 @@ public class ImportBundleMojo extends AbstractMojo
     private List m_candidateIds;
 
     /**
-     * A list of artifacts (groupId:artifactId:version) that have already been processed.
+     * A list of artifacts (groupId:artifactId) that have already been processed.
      */
     private Set m_visitedIds;
 
@@ -209,8 +216,8 @@ public class ImportBundleMojo extends AbstractMojo
         m_visitedIds = new HashSet();
 
         // kickstart the import
-        m_candidateIds.add( rootId );
-        m_visitedIds.add( rootId );
+        excludeCandidates( exclusions );
+        scheduleCandidate( rootId );
 
         while( !m_candidateIds.isEmpty() )
         {
@@ -413,11 +420,7 @@ public class ImportBundleMojo extends AbstractMojo
                 }
                 else if( Artifact.SCOPE_PROVIDED.equals( scope ) )
                 {
-                    // is this a new import?
-                    if( m_visitedIds.add( candidateId ) )
-                    {
-                        m_candidateIds.add( candidateId );
-                    }
+                    scheduleCandidate( candidateId );
                 }
                 else
                 {
@@ -428,6 +431,18 @@ public class ImportBundleMojo extends AbstractMojo
         catch( InvalidDependencyVersionException e )
         {
             getLog().warn( "Problem resolving dependencies for " + project.getId() );
+        }
+    }
+
+    /**
+     * @param candidateId potential new candidate
+     */
+    void scheduleCandidate( String candidateId )
+    {
+        int versionIndex = candidateId.lastIndexOf( ':' );
+        if( m_visitedIds.add( candidateId.substring( 0, versionIndex ) ) )
+        {
+            m_candidateIds.add( candidateId );
         }
     }
 
@@ -472,7 +487,6 @@ public class ImportBundleMojo extends AbstractMojo
         dependency.setArtifactId( project.getArtifactId() );
         dependency.setVersion( project.getVersion() );
         dependency.setScope( Artifact.SCOPE_PROVIDED );
-        dependency.setType( project.getPackaging() );
         dependency.setOptional( !deploy );
 
         // only add non-local bundles to the provisioning POM
@@ -486,6 +500,36 @@ public class ImportBundleMojo extends AbstractMojo
         {
             getLog().info( "Adding " + project.getName() + " as dependency to " + m_localBundlePom );
             m_localBundlePom.addDependency( dependency, overwrite );
+        }
+    }
+
+    /**
+     * Explicitly exclude artifacts from the import process
+     * 
+     * @param artifacts comma-separated list of artifacts to exclude from importing
+     */
+    void excludeCandidates( String artifacts )
+    {
+        if( null == artifacts || artifacts.length() == 0 )
+        {
+            return;
+        }
+
+        String[] exclusionIds = artifacts.split( "," );
+        for( int i = 0; i < exclusionIds.length; i++ )
+        {
+            String id = exclusionIds[i];
+            String[] fields = id.split( ":" );
+            if( fields.length > 1 )
+            {
+                // handle groupId:artifactId:other:stuff
+                m_visitedIds.add( fields[0] + ':' + fields[1] );
+            }
+            else
+            {
+                // assume groupId same as artifactId
+                m_visitedIds.add( id + ':' + id );
+            }
         }
     }
 }
