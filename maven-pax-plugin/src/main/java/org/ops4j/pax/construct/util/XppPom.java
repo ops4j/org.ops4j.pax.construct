@@ -600,6 +600,59 @@ public class XppPom
     /**
      * {@inheritDoc}
      */
+    public void addExclusion( String groupId, String artifactId, boolean overwrite )
+        throws ExistingElementException
+    {
+        Xpp3Dom dependencies = m_pom.getChild( "dependencies" );
+        if( null == dependencies || dependencies.getChildCount() <= 0 )
+        {
+            return; // can't exclude what isn't there!
+        }
+
+        String exclusionPath = "dependencies/dependency/exclusions/exclusion";
+        String xpath = exclusionPath + "[groupId='" + groupId + "' and artifactId='" + artifactId + "']";
+
+        // clear old elements when overwriting
+        if( findChildren( xpath, overwrite ) && !overwrite )
+        {
+            throw new ExistingElementException( "exclusion" );
+        }
+
+        Xpp3DomMap exclude = new Xpp3DomMap( "exclusion" );
+        exclude.putValue( "groupId", groupId );
+        exclude.putValue( "artifactId", artifactId );
+
+        Xpp3Dom list = new Xpp3DomList( "exclusions" );
+        list.addChild( exclude );
+
+        Xpp3Dom newDependency = new Xpp3Dom( "dependency" );
+        newDependency.addChild( list );
+
+        // add exclusion to top-most dependency
+        Xpp3Dom.mergeXpp3Dom( dependencies.getChild( 0 ), newDependency );
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public boolean removeExclusion( String groupId, String artifactId )
+    {
+        boolean updated = false;
+
+        String exclusionPath = "dependencies/dependency/exclusions/exclusion";
+
+        String xpath1 = exclusionPath + "[groupId='" + groupId + "' and artifactId='" + artifactId + "']";
+        updated = findChildren( xpath1, true ) || updated;
+
+        String xpath2 = "dependencyManagement/" + xpath1;
+        updated = findChildren( xpath2, true ) || updated;
+
+        return updated;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
     public boolean updatePluginVersion( String groupId, String artifactId, String newVersion )
     {
         boolean updated = false;

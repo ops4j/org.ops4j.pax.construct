@@ -194,6 +194,22 @@ public final class PomUtils
         public boolean removeDependency( Dependency dependency );
 
         /**
+         * @param groupId dependency exclusion group id
+         * @param artifactId dependency exclusion artifact id
+         * @param overwrite overwrite element if true, otherwise throw {@link ExistingElementException}
+         * @throws ExistingElementException
+         */
+        public void addExclusion( String groupId, String artifactId, boolean overwrite )
+            throws ExistingElementException;
+
+        /**
+         * @param groupId dependency exclusion group id
+         * @param artifactId dependency exclusion artifact id
+         * @return true if dependency exclusion was removed from the project, otherwise false
+         */
+        public boolean removeExclusion( String groupId, String artifactId );
+
+        /**
          * @param groupId plugin group id
          * @param artifactId plugin artifact id
          * @param newVersion new plugin version
