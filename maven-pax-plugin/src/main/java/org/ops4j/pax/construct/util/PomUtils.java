@@ -418,18 +418,23 @@ public final class PomUtils
      */
     public static String getMetaVersion( Artifact artifact )
     {
-        try
+        if( artifact.isSnapshot() )
         {
-            return artifact.getSelectedVersion().toString();
+            try
+            {
+                return artifact.getSelectedVersion().toString();
+            }
+            catch( OverConstrainedVersionException e )
+            {
+                return artifact.getVersion();
+            }
+            catch( NullPointerException e )
+            {
+                return artifact.getVersion();
+            }
         }
-        catch( OverConstrainedVersionException e )
-        {
-            return artifact.getVersion();
-        }
-        catch( NullPointerException e )
-        {
-            return artifact.getVersion();
-        }
+
+        return artifact.getVersion();
     }
 
     /**
