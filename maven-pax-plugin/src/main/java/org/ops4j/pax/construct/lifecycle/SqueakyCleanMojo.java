@@ -31,6 +31,8 @@ import org.ops4j.pax.construct.util.CacheUtils;
  * 
  * @goal clean
  * @phase clean
+ * 
+ * @execute phase="clean"
  */
 public class SqueakyCleanMojo extends AbstractMojo
 {
