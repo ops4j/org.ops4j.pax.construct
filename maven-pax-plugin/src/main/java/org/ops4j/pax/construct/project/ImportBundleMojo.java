@@ -27,6 +27,7 @@ import java.util.Set;
 import org.apache.maven.artifact.Artifact;
 import org.apache.maven.artifact.ArtifactStatus;
 import org.apache.maven.artifact.factory.ArtifactFactory;
+import org.apache.maven.artifact.metadata.ArtifactMetadataSource;
 import org.apache.maven.artifact.repository.ArtifactRepository;
 import org.apache.maven.artifact.resolver.ArtifactResolver;
 import org.apache.maven.model.Dependency;
@@ -59,7 +60,7 @@ public class ImportBundleMojo extends AbstractMojo
      * 
      * @component
      */
-    private ArtifactFactory m_artifactFactory;
+    private ArtifactFactory m_factory;
 
     /**
      * Component for resolving Maven artifacts
@@ -67,6 +68,13 @@ public class ImportBundleMojo extends AbstractMojo
      * @component
      */
     private ArtifactResolver m_resolver;
+
+    /**
+     * Component for resolving Maven metadata
+     * 
+     * @component
+     */
+    private ArtifactMetadataSource m_source;
 
     /**
      * Component factory for Maven projects
@@ -289,8 +297,8 @@ public class ImportBundleMojo extends AbstractMojo
 
         if( PomUtils.needReleaseVersion( version ) )
         {
-            version = PomUtils.getReleaseVersion( m_artifactFactory, m_resolver, m_remoteRepos, m_localRepo, groupId,
-                artifactId );
+            Artifact artifact = m_factory.createBuildArtifact( groupId, artifactId, "RELEASE", "jar" );
+            version = PomUtils.getReleaseVersion( artifact, m_source, m_remoteRepos, m_localRepo );
         }
     }
 
@@ -346,7 +354,7 @@ public class ImportBundleMojo extends AbstractMojo
      */
     MavenProject buildMavenProject( String pomGroupId, String pomArtifactId, String pomVersion )
     {
-        Artifact pomArtifact = m_artifactFactory.createProjectArtifact( pomGroupId, pomArtifactId, pomVersion );
+        Artifact pomArtifact = m_factory.createProjectArtifact( pomGroupId, pomArtifactId, pomVersion );
         MavenProject project;
         try
         {
@@ -382,7 +390,7 @@ public class ImportBundleMojo extends AbstractMojo
             else
             {
                 // remote project - assume it creates a jarfile (so we can test later for OSGi metadata)
-                Artifact jar = m_artifactFactory.createBuildArtifact( pomGroupId, pomArtifactId, pomVersion, "jar" );
+                Artifact jar = m_factory.createBuildArtifact( pomGroupId, pomArtifactId, pomVersion, "jar" );
                 project.setArtifact( jar );
 
                 project.setPackaging( "jar" );
@@ -405,7 +413,7 @@ public class ImportBundleMojo extends AbstractMojo
             /*
              * exclude common OSGi system bundles, as they don't need to be imported or provisioned
              */
-            Set artifacts = project.createArtifacts( m_artifactFactory, null, new ExcludeSystemBundlesFilter() );
+            Set artifacts = project.createArtifacts( m_factory, null, new ExcludeSystemBundlesFilter() );
             for( Iterator i = artifacts.iterator(); i.hasNext(); )
             {
                 Artifact artifact = (Artifact) i.next();

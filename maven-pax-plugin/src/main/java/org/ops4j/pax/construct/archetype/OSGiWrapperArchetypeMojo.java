@@ -26,6 +26,7 @@ import java.util.Set;
 
 import org.apache.maven.artifact.Artifact;
 import org.apache.maven.artifact.factory.ArtifactFactory;
+import org.apache.maven.artifact.metadata.ArtifactMetadataSource;
 import org.apache.maven.artifact.repository.ArtifactRepository;
 import org.apache.maven.artifact.resolver.ArtifactResolver;
 import org.apache.maven.model.Dependency;
@@ -67,7 +68,7 @@ public class OSGiWrapperArchetypeMojo extends AbstractPaxArchetypeMojo
      * 
      * @component
      */
-    private ArtifactFactory m_artifactFactory;
+    private ArtifactFactory m_factory;
 
     /**
      * Component for resolving Maven artifacts
@@ -75,6 +76,13 @@ public class OSGiWrapperArchetypeMojo extends AbstractPaxArchetypeMojo
      * @component
      */
     private ArtifactResolver m_resolver;
+
+    /**
+     * Component for resolving Maven metadata
+     * 
+     * @component
+     */
+    private ArtifactMetadataSource m_source;
 
     /**
      * Component factory for Maven projects
@@ -314,8 +322,8 @@ public class OSGiWrapperArchetypeMojo extends AbstractPaxArchetypeMojo
 
         if( PomUtils.needReleaseVersion( version ) )
         {
-            version = PomUtils.getReleaseVersion( m_artifactFactory, m_resolver, m_remoteRepos, m_localRepo, groupId,
-                artifactId );
+            Artifact artifact = m_factory.createBuildArtifact( groupId, artifactId, "RELEASE", "jar" );
+            version = PomUtils.getReleaseVersion( artifact, m_source, m_remoteRepos, m_localRepo );
         }
     }
 
@@ -426,7 +434,7 @@ public class OSGiWrapperArchetypeMojo extends AbstractPaxArchetypeMojo
         List dependencyPoms = new ArrayList();
 
         // use the wrapped artifact's POM to kick things off
-        dependencyPoms.add( m_artifactFactory.createProjectArtifact( groupId, artifactId, version ) );
+        dependencyPoms.add( m_factory.createProjectArtifact( groupId, artifactId, version ) );
 
         while( !dependencyPoms.isEmpty() )
         {
@@ -436,7 +444,7 @@ public class OSGiWrapperArchetypeMojo extends AbstractPaxArchetypeMojo
             {
                 // Standard Maven code to get direct dependencies for a given POM
                 MavenProject p = m_projectBuilder.buildFromRepository( pomArtifact, m_remoteRepos, m_localRepo );
-                Set artifacts = p.createArtifacts( m_artifactFactory, null, null );
+                Set artifacts = p.createArtifacts( m_factory, null, null );
 
                 // look for new artifacts to wrap
                 dependencyPoms.addAll( processDependencies( artifacts ) );

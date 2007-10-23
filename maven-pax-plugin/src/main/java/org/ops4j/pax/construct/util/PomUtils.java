@@ -18,17 +18,22 @@ package org.ops4j.pax.construct.util;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.Iterator;
 import java.util.List;
 import java.util.jar.Attributes;
 import java.util.jar.JarFile;
 import java.util.jar.Manifest;
 
 import org.apache.maven.artifact.Artifact;
-import org.apache.maven.artifact.factory.ArtifactFactory;
+import org.apache.maven.artifact.ArtifactUtils;
+import org.apache.maven.artifact.metadata.ArtifactMetadataRetrievalException;
+import org.apache.maven.artifact.metadata.ArtifactMetadataSource;
 import org.apache.maven.artifact.repository.ArtifactRepository;
 import org.apache.maven.artifact.resolver.ArtifactNotFoundException;
 import org.apache.maven.artifact.resolver.ArtifactResolutionException;
 import org.apache.maven.artifact.resolver.ArtifactResolver;
+import org.apache.maven.artifact.versioning.ArtifactVersion;
+import org.apache.maven.artifact.versioning.DefaultArtifactVersion;
 import org.apache.maven.artifact.versioning.OverConstrainedVersionException;
 import org.apache.maven.model.Dependency;
 import org.apache.maven.model.Repository;
@@ -451,33 +456,34 @@ public final class PomUtils
     }
 
     /**
-     * @param factory artifact factory
-     * @param resolver artifact resolver
+     * @param artifact Maven artifact
+     * @param source metadata source
      * @param remoteRepos sequence of remote repositories
      * @param localRepo local Maven repository
-     * @param groupId project group id
-     * @param artifactId project artifact id
      * @return the release version if available, otherwise throws {@link MojoExecutionException}
      * @throws MojoExecutionException
      */
-    public static String getReleaseVersion( ArtifactFactory factory, ArtifactResolver resolver, List remoteRepos,
-        ArtifactRepository localRepo, String groupId, String artifactId )
+    public static String getReleaseVersion( Artifact artifact, ArtifactMetadataSource source, List remoteRepos,
+        ArtifactRepository localRepo )
         throws MojoExecutionException
     {
-        Artifact artifact = factory.createBuildArtifact( groupId, artifactId, "RELEASE", "jar" );
-
         try
         {
-            resolver.resolve( artifact, remoteRepos, localRepo );
-            return artifact.getVersion();
+            List versions = source.retrieveAvailableVersions( artifact, localRepo, remoteRepos );
+            ArtifactVersion releaseVersion = new DefaultArtifactVersion( "0" );
+            for( Iterator i = versions.iterator(); i.hasNext(); )
+            {
+                ArtifactVersion v = (ArtifactVersion) i.next();
+                if( releaseVersion.compareTo( v ) <= 0 && !ArtifactUtils.isSnapshot( v.toString() ) )
+                {
+                    releaseVersion = v;
+                }
+            }
+            return releaseVersion.toString();
         }
-        catch( ArtifactNotFoundException e )
+        catch( ArtifactMetadataRetrievalException e )
         {
             throw new MojoExecutionException( "Unable to find artifact " + artifact );
-        }
-        catch( ArtifactResolutionException e )
-        {
-            throw new MojoExecutionException( "Unable to resolve artifact " + artifact );
         }
     }
 }

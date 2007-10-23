@@ -22,8 +22,8 @@ import java.util.List;
 
 import org.apache.maven.artifact.Artifact;
 import org.apache.maven.artifact.factory.ArtifactFactory;
+import org.apache.maven.artifact.metadata.ArtifactMetadataSource;
 import org.apache.maven.artifact.repository.ArtifactRepository;
-import org.apache.maven.artifact.resolver.ArtifactResolver;
 import org.apache.maven.model.Dependency;
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
@@ -49,14 +49,14 @@ public class EmbedJarMojo extends AbstractMojo
      * 
      * @component
      */
-    private ArtifactFactory m_artifactFactory;
+    private ArtifactFactory m_factory;
 
     /**
-     * Component for resolving Maven artifacts
+     * Component for resolving Maven metadata
      * 
      * @component
      */
-    private ArtifactResolver m_resolver;
+    private ArtifactMetadataSource m_source;
 
     /**
      * List of remote Maven repositories for the containing project.
@@ -155,8 +155,8 @@ public class EmbedJarMojo extends AbstractMojo
 
         if( PomUtils.needReleaseVersion( version ) )
         {
-            version = PomUtils.getReleaseVersion( m_artifactFactory, m_resolver, m_remoteRepos, m_localRepo, groupId,
-                artifactId );
+            Artifact artifact = m_factory.createBuildArtifact( groupId, artifactId, "RELEASE", "jar" );
+            version = PomUtils.getReleaseVersion( artifact, m_source, m_remoteRepos, m_localRepo );
         }
     }
 

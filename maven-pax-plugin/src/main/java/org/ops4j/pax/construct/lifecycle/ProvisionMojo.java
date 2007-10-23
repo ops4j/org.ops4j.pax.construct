@@ -70,7 +70,7 @@ public class ProvisionMojo extends AbstractMojo
      * 
      * @component
      */
-    private ArtifactFactory m_artifactFactory;
+    private ArtifactFactory m_factory;
 
     /**
      * Component for resolving Maven artifacts
@@ -202,7 +202,7 @@ public class ProvisionMojo extends AbstractMojo
 
         try
         {
-            Set artifacts = project.createArtifacts( m_artifactFactory, null, null );
+            Set artifacts = project.createArtifacts( m_factory, null, null );
             for( Iterator i = artifacts.iterator(); i.hasNext(); )
             {
                 Artifact artifact = (Artifact) i.next();
@@ -409,7 +409,7 @@ public class ProvisionMojo extends AbstractMojo
         String artifactId = project.getArtifactId();
         String version = project.getVersion();
 
-        Artifact pomArtifact = m_artifactFactory.createProjectArtifact( groupId, artifactId, version );
+        Artifact pomArtifact = m_factory.createProjectArtifact( groupId, artifactId, version );
 
         try
         {
@@ -440,7 +440,7 @@ public class ProvisionMojo extends AbstractMojo
             jdk = "jdk14";
         }
 
-        Artifact jar = m_artifactFactory.createArtifactWithClassifier( groupId, artifactId, runner, "jar", jdk );
+        Artifact jar = m_factory.createArtifactWithClassifier( groupId, artifactId, runner, "jar", jdk );
 
         try
         {
