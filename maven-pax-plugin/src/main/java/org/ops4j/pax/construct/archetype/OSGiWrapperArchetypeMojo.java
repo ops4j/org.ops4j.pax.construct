@@ -131,6 +131,13 @@ public class OSGiWrapperArchetypeMojo extends AbstractPaxArchetypeMojo
     private String version;
 
     /**
+     * Comma-separated list of artifacts (use groupId:artifactId) to exclude from wrapping.
+     * 
+     * @parameter expression="${exclusions}"
+     */
+    private String exclusions;
+
+    /**
      * When true, create new wrapper projects for any dependencies.
      * 
      * @parameter expression="${wrapTransitive}"
@@ -203,12 +210,17 @@ public class OSGiWrapperArchetypeMojo extends AbstractPaxArchetypeMojo
     /**
      * A list of artifacts (groupId:artifactId:version) to be wrapped
      */
-    private List m_wrappingIds;
+    private List m_candidateIds;
+
+    /**
+     * A list of artifacts (groupId:artifactId) that have been explicitly excluded.
+     */
+    private Set m_excludedIds;
 
     /**
      * A list of artifacts (groupId:artifactId:version) that have already been processed.
      */
-    private Set m_visitedIds;
+    private Set m_wrappedIds;
 
     /**
      * {@inheritDoc}
@@ -226,7 +238,7 @@ public class OSGiWrapperArchetypeMojo extends AbstractPaxArchetypeMojo
     {
         populateMissingFields();
 
-        if( null == m_wrappingIds )
+        if( null == m_candidateIds )
         {
             // only need to set these fields once
             getArchetypeMojo().setField( "archetypeArtifactId", "maven-archetype-osgi-wrapper" );
@@ -235,14 +247,18 @@ public class OSGiWrapperArchetypeMojo extends AbstractPaxArchetypeMojo
             // bootstrap with the initial wrapper artifact
             String rootId = groupId + ':' + artifactId + ':' + version;
 
-            m_wrappingIds = new ArrayList();
-            m_visitedIds = new HashSet();
+            m_candidateIds = new ArrayList();
+            m_excludedIds = new HashSet();
+            m_wrappedIds = new HashSet();
 
-            m_wrappingIds.add( rootId );
-            m_visitedIds.add( rootId );
+            excludeCandidates( exclusions );
+
+            // kickstart the wrapping
+            m_candidateIds.add( rootId );
+            m_wrappedIds.add( rootId );
         }
 
-        String id = (String) m_wrappingIds.remove( 0 );
+        String id = (String) m_candidateIds.remove( 0 );
         String[] fields = id.split( ":" );
 
         groupId = fields[0];
@@ -316,25 +332,26 @@ public class OSGiWrapperArchetypeMojo extends AbstractPaxArchetypeMojo
             makeStandalone();
         }
 
-        if( wrapTransitive )
+        try
         {
-            try
+            if( wrapTransitive )
             {
-                // look for more to wrap
+                // also handles exclusions
                 wrapDirectDependencies();
+                embedTransitive = false;
             }
-            catch( IOException e )
+            else
             {
-                throw new MojoExecutionException( "Problem updating Wrapper POM: " + getPomFile() );
+                excludeDependencies();
             }
-
-            // no need to embed now
-            embedTransitive = false;
+        }
+        catch( IOException e )
+        {
+            throw new MojoExecutionException( "Problem updating Wrapper POM: " + getPomFile() );
         }
 
         try
         {
-            // apply custom instructions
             updateBndInstructions();
         }
         catch( IOException e )
@@ -391,7 +408,7 @@ public class OSGiWrapperArchetypeMojo extends AbstractPaxArchetypeMojo
      */
     boolean createMoreArtifacts()
     {
-        return !m_wrappingIds.isEmpty();
+        return !m_candidateIds.isEmpty();
     }
 
     /**
@@ -462,9 +479,10 @@ public class OSGiWrapperArchetypeMojo extends AbstractPaxArchetypeMojo
                     newDependencyPoms.add( artifact );
                 }
                 // copy dependency to current wrapper pom (not all require wrapping)
-                else if( addWrapperDependency( thisPom, artifact ) && m_visitedIds.add( candidateId ) )
+                else if( addWrapperDependency( thisPom, artifact ) )
                 {
-                    m_wrappingIds.add( candidateId );
+                    m_candidateIds.add( candidateId );
+                    m_wrappedIds.add( candidateId );
                 }
             }
         }
@@ -472,6 +490,31 @@ public class OSGiWrapperArchetypeMojo extends AbstractPaxArchetypeMojo
         thisPom.write();
 
         return newDependencyPoms;
+    }
+
+    /**
+     * Get the first version of the given artifact to be wrapped during this cycle
+     * 
+     * @param candidateId potential new candidate
+     * @return first version wrapped, or null if it has not been wrapped
+     */
+    String getWrappedVersion( String candidateId )
+    {
+        // ignore version field while searching...
+        int versionIndex = candidateId.lastIndexOf( ':' );
+        String prefix = candidateId.substring( 0, 1 + versionIndex );
+
+        for( Iterator i = m_wrappedIds.iterator(); i.hasNext(); )
+        {
+            String wrappedId = (String) i.next();
+            if( wrappedId.startsWith( prefix ) )
+            {
+                // return version field from the id
+                return wrappedId.substring( prefix.length() );
+            }
+        }
+
+        return null;
     }
 
     /**
@@ -516,15 +559,31 @@ public class OSGiWrapperArchetypeMojo extends AbstractPaxArchetypeMojo
     {
         try
         {
-            if( PomUtils.isBundleArtifact( artifact, m_resolver, m_remoteRepos, m_localRepo, testMetadata ) )
+            if( m_excludedIds.contains( artifact.getGroupId() + ':' + artifact.getArtifactId() ) )
+            {
+                // exclude this dependency from current POM rather than wrapping it here
+                pom.addExclusion( artifact.getGroupId(), artifact.getArtifactId(), true );
+                return false;
+            }
+            else if( PomUtils.isBundleArtifact( artifact, m_resolver, m_remoteRepos, m_localRepo, testMetadata ) )
             {
                 pom.addDependency( getBundleDependency( artifact ), true );
                 return false;
             }
             else
             {
+                String existingVersion = getWrappedVersion( getCandidateId( artifact ) );
+                if( null != existingVersion )
+                {
+                    /*
+                     * We've already wrapped this artifact but with a different version: we can't easily go back and
+                     * update the earlier POMs so we'll force the other transitive wrappers to use the first version
+                     */
+                    artifact.setVersion( existingVersion );
+                }
+
                 pom.addDependency( getWrappedDependency( artifact ), true );
-                return true;
+                return ( null == existingVersion );
             }
         }
         catch( ExistingElementException e )
@@ -616,5 +675,63 @@ public class OSGiWrapperArchetypeMojo extends AbstractPaxArchetypeMojo
             // this should never happen
             throw new RuntimeException( e );
         }
+    }
+
+    /**
+     * Explicitly exclude artifacts from the wrapping process
+     * 
+     * @param artifacts comma-separated list of artifacts to exclude from wrapping
+     */
+    void excludeCandidates( String artifacts )
+    {
+        if( null == artifacts || artifacts.length() == 0 )
+        {
+            return;
+        }
+
+        String[] exclusionIds = artifacts.split( "," );
+        for( int i = 0; i < exclusionIds.length; i++ )
+        {
+            String id = exclusionIds[i];
+            String[] fields = id.split( ":" );
+            if( fields.length > 1 )
+            {
+                // handle groupId:artifactId:other:stuff
+                m_excludedIds.add( fields[0] + ':' + fields[1] );
+            }
+            else
+            {
+                // assume groupId same as artifactId
+                m_excludedIds.add( id + ':' + id );
+            }
+        }
+    }
+
+    /**
+     * Add explicit dependency exclusion list to the main POM dependency element
+     * 
+     * @throws IOException
+     */
+    void excludeDependencies()
+        throws IOException
+    {
+        // open current wrapper pom to add exclusions
+        Pom thisPom = PomUtils.readPom( getPomFile() );
+
+        for( Iterator i = m_excludedIds.iterator(); i.hasNext(); )
+        {
+            try
+            {
+                String[] fields = ( (String) i.next() ).split( ":" );
+                thisPom.addExclusion( fields[0], fields[1], true );
+            }
+            catch( ExistingElementException e )
+            {
+                // this should never happen
+                throw new RuntimeException( e );
+            }
+        }
+
+        thisPom.write();
     }
 }
