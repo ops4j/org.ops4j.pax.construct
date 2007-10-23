@@ -93,15 +93,15 @@ public final class DirUtils
         }
 
         // handle groupId:artifactId:other:stuff
-        String[] segments = pomId.split( ":" );
+        String[] fields = pomId.split( ":" );
 
         String groupId;
         String artifactId;
 
-        if( segments.length > 1 )
+        if( fields.length > 1 )
         {
-            groupId = segments[0];
-            artifactId = segments[1];
+            groupId = fields[0];
+            artifactId = fields[1];
         }
         else
         {
