@@ -40,6 +40,8 @@
 *------------------------------------------------*--------------------------------------------------+
 | <<<-DwidenScope>>>                             | also consider compile and runtime dependencies   |
 *------------------------------------------------*--------------------------------------------------+
+| <<<-Dexclusions=>>><groupId:artifactId,...>    | exclude these artifacts from being imported      |
+*------------------------------------------------*--------------------------------------------------+
 | <<<-DtestMetadata=false>>>                     | disable exhaustive OSGi bundle detection         |
 *------------------------------------------------*--------------------------------------------------+
 | <<<-DprovisionId=>>><groupId:artifactId>       | look for a different provision POM               |
