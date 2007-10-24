@@ -353,14 +353,9 @@ public final class DirUtils
                 rebasedPath.append( pathSeparator );
             }
 
-            if( ".".equals( entries[i] ) )
+            rebasedPath.append( baseDir );
+            if( !".".equals( entries[i] ) )
             {
-                // dot entry is special case
-                rebasedPath.append( baseDir );
-            }
-            else
-            {
-                rebasedPath.append( baseDir );
                 rebasedPath.append( '/' );
                 rebasedPath.append( entries[i] );
             }

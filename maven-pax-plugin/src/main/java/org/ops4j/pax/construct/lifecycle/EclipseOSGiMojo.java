@@ -69,8 +69,6 @@ import org.ops4j.pax.construct.util.ReflectMojo;
  * @extendsPlugin eclipse
  * @goal eclipse
  * @phase package
- * 
- * @execute phase="package"
  */
 public class EclipseOSGiMojo extends EclipsePlugin
 {
@@ -298,23 +296,27 @@ public class EclipseOSGiMojo extends EclipsePlugin
      */
     void refactorForEclipse( File bundleFile )
     {
-        if( bundleFile == null || !bundleFile.exists() )
-        {
-            getLog().warn( "Bundle has not been built, reverting to basic behaviour" );
-            return;
-        }
-
         // temporary location in the output folder
         String tempPath = "target/contents";
+        boolean refactorManifest = false;
 
         // make relative to the provisioning POM
         File baseDir = executedProject.getBasedir();
         File unpackDir = new File( baseDir, tempPath );
 
-        DirUtils.unpackBundle( m_archiverManager, bundleFile, unpackDir );
+        if( bundleFile == null || !bundleFile.exists() )
+        {
+            getLog().warn( "Bundle has not been built, reverting to basic behaviour" );
+        }
+        else
+        {
+            DirUtils.unpackBundle( m_archiverManager, bundleFile, unpackDir );
 
-        copyMetadata( unpackDir, "META-INF", baseDir );
-        copyMetadata( unpackDir, "OSGI-INF", baseDir );
+            copyMetadata( unpackDir, "META-INF", baseDir );
+            copyMetadata( unpackDir, "OSGI-INF", baseDir );
+
+            refactorManifest = true;
+        }
 
         File manifestFile = new File( baseDir, "META-INF/MANIFEST.MF" );
 
@@ -328,16 +330,22 @@ public class EclipseOSGiMojo extends EclipsePlugin
             mainAttributes.putValue( "Bundle-SymbolicName", name.replace( '-', '_' ) );
         }
 
+        String bundleClassPath = mainAttributes.getValue( "Bundle-ClassPath" );
+
         /*
          * refactor Bundle-ClassPath to help Eclipse find the unpacked contents
          */
-        String bundleClassPath = mainAttributes.getValue( "Bundle-ClassPath" );
-        bundleClassPath = ".," + DirUtils.rebasePaths( bundleClassPath, tempPath, ',' );
-
-        mainAttributes.putValue( "Bundle-ClassPath", bundleClassPath );
+        if( refactorManifest )
+        {
+            bundleClassPath = ".," + DirUtils.rebasePaths( bundleClassPath, tempPath, ',' );
+            mainAttributes.putValue( "Bundle-ClassPath", bundleClassPath );
+        }
 
         // add the embedded entries back to the Eclipse classpath
-        addEmbeddedEntriesToEclipseClassPath( tempPath, bundleClassPath );
+        if( bundleClassPath != null )
+        {
+            addEmbeddedEntriesToEclipseClassPath( tempPath, bundleClassPath );
+        }
 
         try
         {
@@ -425,7 +433,7 @@ public class EclipseOSGiMojo extends EclipsePlugin
 
             for( int i = 0; i < classPath.length; i++ )
             {
-                if( ".".equals( classPath[i] ) == false )
+                if( !".".equals( classPath[i] ) && new File( classPath[i] ).exists() )
                 {
                     // embedded jar/directory needs to be a 'lib' entry
                     Xpp3Dom classPathEntry = new Xpp3Dom( "classpathentry" );
