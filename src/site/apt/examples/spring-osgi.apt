@@ -36,7 +36,7 @@ Spring Dynamic Modules for OSGi(tm)
 ** Create Eclipse project files for the various imported, wrapped and compiled bundles:
 
 +---+
-mvn pax:eclipse -DdownloadSources
+mvn clean install pax:eclipse -DdownloadSources
 +---+
 
 ** Example output when provisioning (assumes 'mvn clean install' has already been run)

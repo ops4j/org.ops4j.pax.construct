@@ -30,29 +30,33 @@
 
 * Additional Maven options
 
-*------------------------------------------------*-----------------------------------------+
-| <<<-Dinterface=false>>>                        | remove the example service API          |
-*------------------------------------------------*-----------------------------------------+
-| <<<-Dinternals=false>>>                        | remove all internal (private) code      |
-*------------------------------------------------*-----------------------------------------+
-| <<<-Dactivator=false>>>                        | remove the example bundle activator     |
-*------------------------------------------------*-----------------------------------------+
-| <<<-DspringVersion=>>><version>                | add example Spring Dynamic Modules bean |
-*------------------------------------------------*-----------------------------------------+
-| <<<-DnoDependencies>>>                         | don't add any base OSGi dependencies    |
-*------------------------------------------------*-----------------------------------------+
-| <<<-DparentId=>>><groupId:artifactId>          | look for a different parent POM         |
-*------------------------------------------------*-----------------------------------------+
-| <<<-DtargetDirectory=>>><path>                 | alternative location of the bundle      |
-*------------------------------------------------*-----------------------------------------+
-| <<<-DarchetypeVersion=>>><version>             | use another archetype release           |
-*------------------------------------------------*-----------------------------------------+
-| <<<-DremoteArchetypeRepositories=>>><url list> | where to download the archetype         |
-*------------------------------------------------*-----------------------------------------+
-| <<<-DattachPom=false>>>                        | don't add this bundle as a module       |
-*------------------------------------------------*-----------------------------------------+
-| <<<-DcompactIds=false>>>                       | don't try to combine name segments      |
-*------------------------------------------------*-----------------------------------------+
+*---------------------------------------------------*--------------------------------------------------+
+| <<<-Dinterface=false>>>                           | remove all public (exported) APIs                |
+*---------------------------------------------------*--------------------------------------------------+
+| <<<-Dinternals=false>>>                           | remove all internal (private) code               |
+*---------------------------------------------------*--------------------------------------------------+
+| <<<-Dactivator=false>>>                           | remove any bundle activators                     |
+*---------------------------------------------------*--------------------------------------------------+
+| <<<-DjunitVersion=>>><version>                    | add test dependencies and example tests          |
+*---------------------------------------------------*--------------------------------------------------+
+| <<<-DspringVersion=>>><version>                   | add example Spring Dynamic Modules bean + XML    |
+*---------------------------------------------------*--------------------------------------------------+
+| <<<-Dcontents=>>><groupId:artifactId:version,...> | alternative archetypes to use as bundle contents |
+*---------------------------------------------------*--------------------------------------------------+
+| <<<-DnoDependencies>>>                            | don't add any additional dependencies            |
+*---------------------------------------------------*--------------------------------------------------+
+| <<<-DparentId=>>><groupId:artifactId>             | look for a different parent POM                  |
+*---------------------------------------------------*--------------------------------------------------+
+| <<<-DtargetDirectory=>>><path>                    | alternative location of the bundle               |
+*---------------------------------------------------*--------------------------------------------------+
+| <<<-DarchetypeVersion=>>><version>                | use another archetype release                    |
+*---------------------------------------------------*--------------------------------------------------+
+| <<<-DremoteArchetypeRepositories=>>><url list>    | where to download the archetype                  |
+*---------------------------------------------------*--------------------------------------------------+
+| <<<-DattachPom=false>>>                           | don't add this bundle as a module                |
+*---------------------------------------------------*--------------------------------------------------+
+| <<<-DcompactIds=false>>>                          | don't try to combine name segments               |
+*---------------------------------------------------*--------------------------------------------------+
 
  <<<-DparentId>>> is useful when you want to link the new bundle into an existing non Pax-Construct project.
 
