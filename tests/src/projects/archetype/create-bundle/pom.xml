@@ -85,7 +85,7 @@
                   <value>org.example.simple</value>
                 </property>
                 <property>
-                  <name>activator</name>
+                  <name>internals</name>
                   <value>false</value>
                 </property>
                 <property>

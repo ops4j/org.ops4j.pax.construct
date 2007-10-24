@@ -18,15 +18,19 @@ package org.ops4j.pax.construct.archetype;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Set;
 
 import org.apache.maven.artifact.Artifact;
 import org.apache.maven.model.Dependency;
 import org.apache.maven.model.Repository;
 import org.apache.maven.plugin.MojoExecutionException;
+import org.codehaus.plexus.util.SelectorUtils;
 import org.ops4j.pax.construct.util.BndFileUtils;
 import org.ops4j.pax.construct.util.BndFileUtils.BndFile;
 import org.ops4j.pax.construct.util.PomUtils;
-import org.ops4j.pax.construct.util.PomUtils.ExistingElementException;
 import org.ops4j.pax.construct.util.PomUtils.Pom;
 
 /**
@@ -46,6 +50,7 @@ import org.ops4j.pax.construct.util.PomUtils.Pom;
  * @extendsPlugin archetype
  * @extendsGoal create
  * @goal create-bundle
+ * 
  * @requiresProject false
  */
 public class OSGiBundleArchetypeMojo extends AbstractPaxArchetypeMojo
@@ -87,7 +92,7 @@ public class OSGiBundleArchetypeMojo extends AbstractPaxArchetypeMojo
     private boolean provideInterface;
 
     /**
-     * When false, don't provide any implementation code.
+     * When true, provide some example implementation code.
      * 
      * @parameter expression="${internals}" default-value="true"
      */
@@ -101,18 +106,43 @@ public class OSGiBundleArchetypeMojo extends AbstractPaxArchetypeMojo
     private boolean provideActivator;
 
     /**
-     * When true, provide an example Bean using the selected Spring version.
+     * Add basic support for the selected JUnit version.
+     * 
+     * @parameter expression="${junitVersion}"
+     */
+    private String junitVersion;
+
+    /**
+     * Add basic support for the selected Spring version.
      * 
      * @parameter expression="${springVersion}"
      */
     private String springVersion;
 
     /**
-     * When true, do not add any basic OSGi dependencies to the project.
+     * When true, do not add any dependencies to the project (useful when they are already declared in another POM).
      * 
      * @parameter expression="${noDependencies}"
      */
     private boolean noDependencies;
+
+    /**
+     * Comma-separated list of additional archetypes to apply (use artifactId for Pax-Construct archetypes and
+     * groupId:artifactId:version for external artifacts).
+     * 
+     * @parameter expression="${contents}" default-value="maven-archetype-osgi-service"
+     */
+    private String contents;
+
+    /**
+     * Additional archetype jars that supply content for this bundle
+     */
+    private List m_extraArchetypeIds;
+
+    /**
+     * Cached contents of the updated bundle POM, in case any of the additional archetypes overwrite it
+     */
+    private Pom m_thisPom;
 
     /**
      * {@inheritDoc}
@@ -133,7 +163,19 @@ public class OSGiBundleArchetypeMojo extends AbstractPaxArchetypeMojo
             bundleName = packageName;
         }
 
-        getArchetypeMojo().setField( "archetypeArtifactId", "maven-archetype-osgi-bundle" );
+        if( null == m_extraArchetypeIds )
+        {
+            getArchetypeMojo().setField( "archetypeArtifactId", "maven-archetype-osgi-bundle" );
+        }
+        else
+        {
+            String id = (String) m_extraArchetypeIds.remove( 0 );
+            String[] fields = id.split( ":" );
+
+            getArchetypeMojo().setField( "archetypeGroupId", fields[0] );
+            getArchetypeMojo().setField( "archetypeArtifactId", fields[1] );
+            getArchetypeMojo().setField( "archetypeVersion", fields[2] );
+        }
 
         getArchetypeMojo().setField( "groupId", getInternalGroupId() );
         getArchetypeMojo().setField( "artifactId", bundleName );
@@ -145,89 +187,211 @@ public class OSGiBundleArchetypeMojo extends AbstractPaxArchetypeMojo
     /**
      * {@inheritDoc}
      */
+    boolean createMoreArtifacts()
+    {
+        return !m_extraArchetypeIds.isEmpty();
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    void prepareTarget()
+        throws MojoExecutionException
+    {
+        // only need to prepare once
+        if( null == m_extraArchetypeIds )
+        {
+            super.prepareTarget();
+        }
+    }
+
+    /**
+     * {@inheritDoc}
+     */
     void postProcess()
         throws MojoExecutionException
     {
-        // locate parent
-        super.postProcess();
-        if( !hasParent() )
-        {
-            makeStandalone();
-        }
-
-        if( !noDependencies )
-        {
-            try
-            {
-                // standard R4 OSGi API
-                addOSGiDependenciesToPom();
-
-                if( springVersion != null )
-                {
-                    addSpringBeanSupport();
-                }
-            }
-            catch( IOException e )
-            {
-                throw new MojoExecutionException( "Problem updating Maven POM: " + getPomFile() );
-            }
-        }
-
         try
         {
-            // match with contents
-            updateBndInstructions();
+            if( null == m_extraArchetypeIds )
+            {
+                m_extraArchetypeIds = new ArrayList();
+
+                // locate parent first
+                super.postProcess();
+
+                // only add extra archetypes if we're going to keep the files
+                if( provideInterface || provideInternals )
+                {
+                    scheduleExtraArchetypes();
+                }
+
+                // now load contents into memory for updating
+                m_thisPom = PomUtils.readPom( getPomFile() );
+
+                if( !hasParent() )
+                {
+                    makeStandalone( m_thisPom );
+                }
+
+                // only apply these once
+                updatePomDependencies();
+                markBogusFiles();
+            }
+
+            // archetype processing is complete
+            if( m_extraArchetypeIds.size() == 0 )
+            {
+                updateBndInstructions();
+
+                /*
+                 * RE-SAVE the updated POM in case an extra archetype has overwritten it
+                 */
+                m_thisPom.write();
+            }
         }
         catch( IOException e )
         {
-            throw new MojoExecutionException( "Problem updating Bnd instructions" );
+            throw new MojoExecutionException( "Problem updating Maven POM " + m_thisPom.getFile() );
         }
+    }
 
-        discardFiles();
+    /**
+     * Add extra Maven archetypes, to be used after the main OSGi bundle archetype has finished
+     */
+    void scheduleExtraArchetypes()
+    {
+        String[] ids = contents.split( "," );
+        for( int i = 0; i < ids.length; i++ )
+        {
+            String id = ids[i].trim();
+            if( id.length() == 0 )
+            {
+                continue;
+            }
+
+            // handle groupId:artifactId:other:stuff
+            String[] fields = id.split( ":" );
+            if( fields.length > 2 )
+            {
+                // fully-qualified external archetype
+                m_extraArchetypeIds.add( fields[0] + ':' + fields[1] + ':' + fields[2] );
+            }
+            else if( fields.length > 1 )
+            {
+                // semi-qualified external archetype (assume groupId same as artifactId)
+                m_extraArchetypeIds.add( fields[0] + ':' + fields[0] + ':' + fields[1] );
+            }
+            else
+            {
+                // internal Pax-Construct archetype (assume same version as current archetype template)
+                m_extraArchetypeIds.add( PAX_ARCHETYPE_GROUP_ID + ':' + fields[0] + ':' + getArchetypeVersion() );
+            }
+        }
+    }
+
+    /**
+     * Add various dependencies to the Maven project to allow out-of-the-box compilation
+     * 
+     * @throws MojoExecutionException
+     */
+    void updatePomDependencies()
+        throws MojoExecutionException
+    {
+        if( !noDependencies )
+        {
+            addCoreOSGiSupport( m_thisPom );
+
+            if( junitVersion != null )
+            {
+                addJUnitTestSupport( m_thisPom );
+            }
+            if( springVersion != null )
+            {
+                addSpringBeanSupport( m_thisPom );
+            }
+        }
     }
 
     /**
      * Mark any temporary or unnecessary files
      */
-    void discardFiles()
+    void markBogusFiles()
     {
+        String packagePath = packageName.replace( '.', '/' );
+
         if( !provideInterface )
         {
-            addTempFiles( "src/main/java/**/Example*.java" );
+            addTempFiles( "src/main/java/" + packagePath + "/*.java" );
         }
         if( !provideInternals )
         {
-            addTempFiles( "src/main/resources" );
-            addTempFiles( "src/main/java/**/internal" );
-            addTempFiles( "src/test/resources" );
-            addTempFiles( "src/test/java/**/internal" );
+            addTempFiles( "src/main/resources/" );
+            addTempFiles( "src/main/java/" + packagePath + "/internal/" );
+        }
+        if( !provideInternals || null == junitVersion )
+        {
+            addTempFiles( "src/test/resources/" );
+            addTempFiles( "src/test/java/" + packagePath + "/internal/" );
         }
         if( !provideActivator )
         {
-            addTempFiles( "src/main/java/**/Activator.java" );
+            addTempFiles( "src/main/java/" + packagePath + "/internal/*Activator.java" );
         }
-        if( null == springVersion )
-        {
-            addTempFiles( "src/main/resources/**/spring" );
-            addTempFiles( "src/main/java/**/*Bean*.java" );
-            addTempFiles( "src/test/resources/**/spring" );
-            addTempFiles( "src/test/java/**/*Bean*.java" );
-        }
-        addTempFiles( "poms" );
+
+        // poms no longer needed
+        addTempFiles( "poms/" );
     }
 
     /**
-     * Adds the standard R4 OSGi API to the compilation path
+     * Add additional POM elements to make it work standalone
      * 
-     * @throws IOException
+     * @param pom Maven project model
      * @throws MojoExecutionException
      */
-    void addOSGiDependenciesToPom()
-        throws IOException,
-        MojoExecutionException
+    void makeStandalone( Pom pom )
+        throws MojoExecutionException
     {
-        Pom thisPom = PomUtils.readPom( getPomFile() );
+        File baseDir = pom.getBasedir();
+        Pom compiledSettings;
+        Pom pluginSettings;
 
+        try
+        {
+            compiledSettings = PomUtils.readPom( new File( baseDir, "poms/compiled" ) );
+            pluginSettings = PomUtils.readPom( new File( baseDir, "poms" ) );
+        }
+        catch( IOException e )
+        {
+            throw new MojoExecutionException( "Unable to find settings POM" );
+        }
+
+        // Must merge plugin fragment first, so child elements combine properly!
+        pom.merge( pluginSettings, "build/pluginManagement/plugins", "build" );
+        pom.merge( compiledSettings, "build/plugins", "build" );
+
+        // Replace Maven super-POM group...
+        pom.setGroupId( pom.getArtifactId() );
+
+        pom.updatePluginVersion( "org.ops4j", "maven-pax-plugin", getArchetypeVersion() );
+
+        // for latest bundle plugin
+        Repository repository = new Repository();
+        repository.setId( "ops4j-snapshots" );
+        repository.setUrl( "http://repository.ops4j.org/mvn-snapshots" );
+
+        pom.addRepository( repository, true, false, true, true );
+    }
+
+    /**
+     * Adds the standard R4 OSGi API to the build path
+     * 
+     * @param pom Maven project model
+     * @throws MojoExecutionException
+     */
+    void addCoreOSGiSupport( Pom pom )
+        throws MojoExecutionException
+    {
         Dependency osgiCore = new Dependency();
         osgiCore.setGroupId( "org.osgi" );
         osgiCore.setArtifactId( "osgi_R4_core" );
@@ -237,7 +401,8 @@ public class OSGiBundleArchetypeMojo extends AbstractPaxArchetypeMojo
             osgiCore.setScope( Artifact.SCOPE_PROVIDED );
             osgiCore.setOptional( true );
         }
-        thisPom.addDependency( osgiCore, canOverwrite() );
+
+        pom.addDependency( osgiCore, canOverwrite() );
 
         Dependency osgiCompendium = new Dependency();
         osgiCompendium.setGroupId( "org.osgi" );
@@ -248,132 +413,144 @@ public class OSGiBundleArchetypeMojo extends AbstractPaxArchetypeMojo
             osgiCompendium.setScope( Artifact.SCOPE_PROVIDED );
             osgiCompendium.setOptional( true );
         }
-        thisPom.addDependency( osgiCompendium, canOverwrite() );
 
-        thisPom.write();
+        pom.addDependency( osgiCompendium, canOverwrite() );
     }
 
     /**
-     * Updates the default BND instructions to match the remaining contents
+     * Add additional POM elements to support testing Spring beans
      * 
-     * @throws IOException
+     * @param pom Maven project model
      * @throws MojoExecutionException
      */
-    void updateBndInstructions()
-        throws IOException,
-        MojoExecutionException
+    void addSpringBeanSupport( Pom pom )
+        throws MojoExecutionException
     {
-        BndFile bndFile = BndFileUtils.readBndFile( getPomFile().getParentFile() );
-
-        if( provideInternals && !provideInterface )
+        // include the Spring bean code sample
+        if( provideInterface || provideInternals )
         {
-            // internals, but nothing to export
-            bndFile.setInstruction( "Export-Package", null, canOverwrite() );
-        }
-        if( !provideInternals && provideInterface )
-        {
-            // public api, but no internals left
-            bndFile.setInstruction( "Private-Package", null, canOverwrite() );
-        }
-        if( !provideActivator || !provideInternals )
-        {
-            bndFile.removeInstruction( "Bundle-Activator" );
+            String id = PAX_ARCHETYPE_GROUP_ID + ":maven-archetype-spring-bean:" + getArchetypeVersion();
+            m_extraArchetypeIds.add( id );
         }
 
-        bndFile.write();
-    }
+        // Spring milestone repository
+        Repository repository = new Repository();
+        repository.setId( "spring-milestones" );
+        repository.setUrl( "http://s3.amazonaws.com/maven.springframework.org/milestone" );
 
-    /**
-     * Add additional POM elements to make it work standalone
-     */
-    void makeStandalone()
-    {
-        try
+        pom.addRepository( repository, false, true, canOverwrite(), false );
+
+        if( junitVersion != null )
         {
-            File baseDir = getPomFile().getParentFile();
-
-            Pom pluginSettings = PomUtils.readPom( new File( baseDir, "poms" ) );
-            Pom compiledSettings = PomUtils.readPom( new File( baseDir, "poms/compiled" ) );
-
-            Pom thisPom = PomUtils.readPom( baseDir );
-
-            // Must merge plugin fragment first, so child elements combine properly!
-            thisPom.merge( pluginSettings, "build/pluginManagement/plugins", "build" );
-            thisPom.merge( compiledSettings, "build/plugins", "build" );
-
-            thisPom.updatePluginVersion( "org.ops4j", "maven-pax-plugin", getArchetypeVersion() );
-            thisPom.setGroupId( "org.ops4j.example" );
-
-            // for latest bundle plugin
-            Repository repository = new Repository();
-            repository.setId( "ops4j-snapshots" );
-            repository.setUrl( "http://repository.ops4j.org/mvn-snapshots" );
-            thisPom.addRepository( repository, true, false, true, true );
-
-            thisPom.write();
-        }
-        catch( IOException e )
-        {
-            getLog().warn( "Unable to convert POM to work standalone" );
-        }
-        catch( ExistingElementException e )
-        {
-            // this should never happen
-            throw new RuntimeException( e );
-        }
-    }
-
-    /**
-     * Add additional POM elements to support testing Spring Beans
-     */
-    void addSpringBeanSupport()
-    {
-        try
-        {
-            File baseDir = getPomFile().getParentFile();
-
-            Pom thisPom = PomUtils.readPom( baseDir );
-
-            // Spring milestone repository
-            Repository repository = new Repository();
-            repository.setId( "spring-milestones" );
-            repository.setUrl( "http://s3.amazonaws.com/maven.springframework.org/milestone" );
-            thisPom.addRepository( repository, false, true, canOverwrite(), false );
-
-            Dependency junit = new Dependency();
-            junit.setGroupId( "junit" );
-            junit.setArtifactId( "junit" );
-            junit.setVersion( "3.8.2" );
-            junit.setScope( Artifact.SCOPE_TEST );
-
             Dependency springTest = new Dependency();
             springTest.setGroupId( "org.springframework" );
             springTest.setArtifactId( "spring-test" );
             springTest.setVersion( springVersion );
             springTest.setScope( Artifact.SCOPE_TEST );
 
-            // mark as optional so we don't force deployment
-            Dependency springContext = new Dependency();
-            springContext.setGroupId( "org.springframework" );
-            springContext.setArtifactId( "spring-context" );
-            springContext.setVersion( springVersion );
-            springContext.setScope( Artifact.SCOPE_PROVIDED );
-            springContext.setOptional( true );
+            pom.addDependency( springTest, canOverwrite() );
+        }
 
-            thisPom.addDependency( junit, canOverwrite() );
-            thisPom.addDependency( springTest, canOverwrite() );
-            thisPom.addDependency( springContext, canOverwrite() );
+        // mark as optional so we don't force deployment
+        Dependency springContext = new Dependency();
+        springContext.setGroupId( "org.springframework" );
+        springContext.setArtifactId( "spring-context" );
+        springContext.setVersion( springVersion );
+        springContext.setScope( Artifact.SCOPE_PROVIDED );
+        springContext.setOptional( true );
 
-            thisPom.write();
+        pom.addDependency( springContext, canOverwrite() );
+    }
+
+    /**
+     * Add additional POM elements to support testing with JUnit
+     * 
+     * @param pom Maven project model
+     * @throws MojoExecutionException
+     */
+    void addJUnitTestSupport( Pom pom )
+        throws MojoExecutionException
+    {
+        Dependency junit = new Dependency();
+        junit.setGroupId( "junit" );
+        junit.setArtifactId( "junit" );
+        junit.setVersion( junitVersion );
+        junit.setScope( Artifact.SCOPE_TEST );
+
+        pom.addDependency( junit, canOverwrite() );
+    }
+
+    /**
+     * Updates the default BND instructions to match the remaining contents
+     * 
+     * @throws MojoExecutionException
+     */
+    void updateBndInstructions()
+        throws MojoExecutionException
+    {
+        boolean haveActivator = false;
+        boolean haveInternals = false;
+        boolean haveInterface = false;
+
+        /*
+         * check the source code in case we need to override the basic BND settings
+         */
+        Set filenames = super.getLiveFilenames();
+        for( Iterator i = filenames.iterator(); i.hasNext(); )
+        {
+            String name = (String) i.next();
+
+            if( SelectorUtils.matchPath( "src/main/java/**/*Activator.java", name ) )
+            {
+                haveActivator = true;
+            }
+
+            if( SelectorUtils.matchPath( "src/main/java/**/internal/*.java", name ) )
+            {
+                haveInternals = true;
+            }
+            else if( SelectorUtils.matchPath( "src/main/java/**/*.java", name ) )
+            {
+                haveInterface = true;
+            }
+        }
+
+        applyBndInstructions( haveActivator, haveInternals, haveInterface );
+    }
+
+    /**
+     * Apply the new BND instructions to the current project
+     * 
+     * @param haveActivator true if there is an Activator file
+     * @param haveInternals true if there are internal packages
+     * @param haveInterface true if there are non-internal packages
+     * @throws MojoExecutionException
+     */
+    void applyBndInstructions( boolean haveActivator, boolean haveInternals, boolean haveInterface )
+        throws MojoExecutionException
+    {
+        try
+        {
+            BndFile bndFile = BndFileUtils.readBndFile( getPomFile().getParentFile() );
+
+            if( !haveActivator )
+            {
+                bndFile.removeInstruction( "Bundle-Activator" );
+            }
+            if( !haveInternals )
+            {
+                bndFile.setInstruction( "Private-Package", null, canOverwrite() );
+            }
+            if( !haveInterface )
+            {
+                bndFile.setInstruction( "Export-Package", null, canOverwrite() );
+            }
+
+            bndFile.write();
         }
         catch( IOException e )
         {
-            getLog().warn( "Unable to add Spring Bean support" );
-        }
-        catch( ExistingElementException e )
-        {
-            // this should never happen
-            throw new RuntimeException( e );
+            throw new MojoExecutionException( "Unable to update BND settings" );
         }
     }
 }

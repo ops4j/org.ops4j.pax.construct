@@ -18,6 +18,9 @@ package org.ops4j.pax.construct.archetype;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.Set;
 
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.archetype.MavenArchetypeMojo;
@@ -27,8 +30,8 @@ import org.codehaus.plexus.util.DirectoryScanner;
 import org.codehaus.plexus.util.FileUtils;
 import org.ops4j.pax.construct.util.DirUtils;
 import org.ops4j.pax.construct.util.PomUtils;
-import org.ops4j.pax.construct.util.ReflectMojo;
 import org.ops4j.pax.construct.util.PomUtils.Pom;
+import org.ops4j.pax.construct.util.ReflectMojo;
 
 /**
  * Extends <a href="http://maven.apache.org/plugins/maven-archetype-plugin/create-mojo.html">MavenArchetypeMojo</a> to
@@ -290,22 +293,34 @@ public abstract class AbstractPaxArchetypeMojo extends MavenArchetypeMojo
 
         if( attachPom )
         {
-            try
+            attachToContainingProject( pomDirectory );
+        }
+    }
+
+    /**
+     * Attach this Maven project to the project that surrounds it, creating intermediate POMs when required
+     * 
+     * @param pomDirectory the project directory
+     * @throws MojoExecutionException
+     */
+    void attachToContainingProject( File pomDirectory )
+        throws MojoExecutionException
+    {
+        try
+        {
+            // make sure we can reach the location of the new project from the current project
+            Pom modulesPom = DirUtils.createModuleTree( m_project.getBasedir(), targetDirectory );
+            if( null != modulesPom )
             {
-                // make sure we can reach the location of the new project from the current project
-                Pom modulesPom = DirUtils.createModuleTree( m_project.getBasedir(), targetDirectory );
-                if( null != modulesPom )
-                {
-                    // attach new project to its physical parent
-                    pomDirectory.mkdirs();
-                    modulesPom.addModule( artifactId, overwrite );
-                    modulesPom.write();
-                }
+                // attach new project to its physical parent
+                pomDirectory.mkdirs();
+                modulesPom.addModule( pomDirectory.getName(), overwrite );
+                modulesPom.write();
             }
-            catch( IOException e )
-            {
-                getLog().info( "Unable to attach POM to existing project" );
-            }
+        }
+        catch( IOException e )
+        {
+            getLog().info( "Unable to attach POM to existing project" );
         }
     }
 
@@ -396,5 +411,28 @@ public abstract class AbstractPaxArchetypeMojo extends MavenArchetypeMojo
 
         // simple append
         return '+' + groupId;
+    }
+
+    /**
+     * @return set of filenames that will be left at the end of this archetype cycle
+     */
+    Set getLiveFilenames()
+    {
+        Set liveFiles = new HashSet();
+
+        DirectoryScanner scanner = new DirectoryScanner();
+        scanner.setBasedir( m_tempFiles.getDirectory() );
+        scanner.setFollowSymlinks( false );
+
+        scanner.addDefaultExcludes();
+        scanner.setExcludes( m_tempFiles.getExcludesArray() );
+        scanner.setIncludes( m_tempFiles.getIncludesArray() );
+
+        scanner.scan();
+
+        liveFiles.addAll( Arrays.asList( scanner.getNotIncludedFiles() ) );
+        liveFiles.addAll( Arrays.asList( scanner.getExcludedFiles() ) );
+
+        return liveFiles;
     }
 }

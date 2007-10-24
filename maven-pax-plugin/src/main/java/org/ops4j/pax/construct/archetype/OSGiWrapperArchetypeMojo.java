@@ -369,7 +369,7 @@ public class OSGiWrapperArchetypeMojo extends AbstractPaxArchetypeMojo
         }
 
         // poms no longer needed
-        addTempFiles( "poms/**" );
+        addTempFiles( "poms/" );
     }
 
     /**

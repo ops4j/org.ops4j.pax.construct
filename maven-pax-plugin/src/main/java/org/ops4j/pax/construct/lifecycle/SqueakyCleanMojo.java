@@ -65,11 +65,11 @@ public class SqueakyCleanMojo extends AbstractMojo
         generatedPaxFiles.setFollowSymlinks( false );
 
         // remove Eclipse/PDE files (keep .settings)
-        generatedPaxFiles.addInclude( "META-INF/**" );
-        generatedPaxFiles.addInclude( "OSGI-INF/**" );
+        generatedPaxFiles.addInclude( "META-INF/" );
+        generatedPaxFiles.addInclude( "OSGI-INF/" );
         generatedPaxFiles.addInclude( ".project" );
         generatedPaxFiles.addInclude( ".classpath" );
-        generatedPaxFiles.addInclude( "runner/**" );
+        generatedPaxFiles.addInclude( "runner/" );
 
         try
         {
