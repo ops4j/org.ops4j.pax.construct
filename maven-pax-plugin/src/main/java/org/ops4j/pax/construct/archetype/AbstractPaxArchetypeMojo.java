@@ -41,7 +41,7 @@ public abstract class AbstractPaxArchetypeMojo extends MavenArchetypeMojo
     /**
      * Our local archetype group
      */
-    private static final String PAX_ARCHETYPE_GROUP_ID = "org.ops4j.pax.construct";
+    protected static final String PAX_ARCHETYPE_GROUP_ID = "org.ops4j.pax.construct";
 
     /**
      * The archetype version to use, defaults to the plugin version.

@@ -59,6 +59,7 @@ import org.ops4j.pax.construct.util.PomUtils.Pom;
  * @extendsPlugin archetype
  * @extendsGoal create
  * @goal wrap-jar
+ * 
  * @requiresProject false
  */
 public class OSGiWrapperArchetypeMojo extends AbstractPaxArchetypeMojo
