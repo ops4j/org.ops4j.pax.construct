@@ -1,0 +1,12 @@
+<archetype>
+  <id>maven-archetype-osgi-service</id>
+  <allowPartial>true</allowPartial>
+  <sources>
+    <source>src/main/java/ExampleService.java</source>
+    <source>src/main/java/internal/ExampleServiceImpl.java</source>
+    <source>src/main/java/internal/ExampleActivator.java</source>
+  </sources>
+  <testSources>
+    <source>src/test/java/internal/ExampleServiceImplTest.java</source>
+  </testSources>
+</archetype>

@@ -64,6 +64,8 @@ limitations under the License.
         <module>maven-archetype-osgi-project</module>
         <module>maven-archetype-osgi-wrapper</module>
         <module>maven-archetype-osgi-bundle</module>
+        <module>maven-archetype-osgi-service</module>
+        <module>maven-archetype-spring-bean</module>
         <module>scripts</module>
       </modules>
     </profile>
