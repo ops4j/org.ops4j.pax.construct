@@ -1,17 +1,12 @@
 package ${package}.internal;
 
-import java.util.Dictionary;
-import java.util.Properties;
-
 import org.osgi.framework.BundleActivator;
 import org.osgi.framework.BundleContext;
-
-import ${package}.ExampleService;
 
 /**
  * Extension of the default OSGi bundle activator
  */
-public final class Activator
+public final class ExampleActivator
     implements BundleActivator
 {
     /**
@@ -21,14 +16,6 @@ public final class Activator
         throws Exception
     {
         System.out.println( "STARTING ${package}" );
-
-        Dictionary props = new Properties();
-        // add specific service properties here...
-
-        System.out.println( "REGISTER ${package}.ExampleService" );
-
-        // Register our example service implementation in the OSGi service registry
-        bc.registerService( ExampleService.class.getName(), new ExampleServiceImpl(), props );
     }
 
     /**
@@ -38,8 +25,6 @@ public final class Activator
         throws Exception
     {
         System.out.println( "STOPPING ${package}" );
-
-        // no need to unregister our service - the OSGi framework handles it for us
     }
 }
 

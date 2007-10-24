@@ -2,22 +2,8 @@
   <id>maven-archetype-osgi-bundle</id>
   <allowPartial>true</allowPartial>
   <sources>
-    <!--
-      Standard OSGi Example
-    -->
-    <source>src/main/java/ExampleService.java</source>
-    <source>src/main/java/internal/ExampleServiceImpl.java</source>
-    <source>src/main/java/internal/Activator.java</source>
-    <!--
-      Spring Bean Example
-    -->
-    <source>src/main/java/ExampleBean.java</source>
-    <source>src/main/java/internal/ExampleBeanImpl.java</source>
+    <source>src/main/java/internal/ExampleActivator.java</source>
   </sources>
-  <testSources>
-    <source>src/test/java/internal/ExampleBeanImplTest.java</source>
-    <source>src/test/java/internal/ExampleBeanIntegrationTest.java</source>
-  </testSources>
   <resources>
     <!--
       Pax-Construct Infrastructure
@@ -25,10 +11,5 @@
     <resource>osgi.bnd</resource>
     <resource>poms/compiled/pom.xml</resource>
     <resource>poms/pom.xml</resource>
-    <!--
-      Spring Bean Testcase
-    -->
-    <resource>src/main/resources/META-INF/spring/bundle-context-osgi.xml</resource>
-    <resource>src/main/resources/META-INF/spring/bundle-context.xml</resource>
   </resources>
 </archetype>
