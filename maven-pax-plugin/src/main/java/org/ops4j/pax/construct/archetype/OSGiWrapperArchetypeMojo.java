@@ -368,8 +368,8 @@ public class OSGiWrapperArchetypeMojo extends AbstractPaxArchetypeMojo
             throw new MojoExecutionException( "Problem updating Bnd instructions" );
         }
 
-        // no longer needed
-        addTempFiles( "poms" );
+        // poms no longer needed
+        addTempFiles( "poms/**" );
     }
 
     /**

@@ -69,7 +69,7 @@ public class SqueakyCleanMojo extends AbstractMojo
         generatedPaxFiles.addInclude( "OSGI-INF/**" );
         generatedPaxFiles.addInclude( ".project" );
         generatedPaxFiles.addInclude( ".classpath" );
-        generatedPaxFiles.addInclude( "runner" );
+        generatedPaxFiles.addInclude( "runner/**" );
 
         try
         {

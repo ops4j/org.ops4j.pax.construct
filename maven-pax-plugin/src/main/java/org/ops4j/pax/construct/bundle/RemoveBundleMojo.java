@@ -23,8 +23,7 @@ import java.util.Iterator;
 import org.apache.maven.model.Dependency;
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
-import org.apache.maven.shared.model.fileset.FileSet;
-import org.apache.maven.shared.model.fileset.util.FileSetManager;
+import org.codehaus.plexus.util.FileUtils;
 import org.ops4j.pax.construct.util.PomIterator;
 import org.ops4j.pax.construct.util.PomUtils.Pom;
 
@@ -126,12 +125,7 @@ public class RemoveBundleMojo extends AbstractMojo
 
         try
         {
-            FileSet bundleFiles = new FileSet();
-
-            bundleFiles.setDirectory( bundleDir.getParent() );
-            bundleFiles.addInclude( bundleDir.getName() );
-
-            new FileSetManager( getLog(), false ).delete( bundleFiles );
+            FileUtils.deleteDirectory( bundleDir );
         }
         catch( IOException e )
         {

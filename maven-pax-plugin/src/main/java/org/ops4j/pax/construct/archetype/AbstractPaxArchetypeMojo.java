@@ -23,11 +23,12 @@ import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.archetype.MavenArchetypeMojo;
 import org.apache.maven.project.MavenProject;
 import org.apache.maven.shared.model.fileset.FileSet;
-import org.apache.maven.shared.model.fileset.util.FileSetManager;
+import org.codehaus.plexus.util.DirectoryScanner;
+import org.codehaus.plexus.util.FileUtils;
 import org.ops4j.pax.construct.util.DirUtils;
 import org.ops4j.pax.construct.util.PomUtils;
-import org.ops4j.pax.construct.util.PomUtils.Pom;
 import org.ops4j.pax.construct.util.ReflectMojo;
+import org.ops4j.pax.construct.util.PomUtils.Pom;
 
 /**
  * Extends <a href="http://maven.apache.org/plugins/maven-archetype-plugin/create-mojo.html">MavenArchetypeMojo</a> to
@@ -101,7 +102,7 @@ public abstract class AbstractPaxArchetypeMojo extends MavenArchetypeMojo
     private File m_pomFile;
 
     /**
-     * Temporary files that should be removed at the end
+     * Excludes any existing files, includes any discarded files
      */
     private FileSet m_tempFiles;
 
@@ -274,6 +275,19 @@ public abstract class AbstractPaxArchetypeMojo extends MavenArchetypeMojo
         m_tempFiles = new FileSet();
         m_tempFiles.setDirectory( pomDirectory.getAbsolutePath() );
 
+        if( pomDirectory.exists() )
+        {
+            try
+            {
+                // exclude any already existing files, so we don't accidentally trash modified files
+                m_tempFiles.setExcludes( FileUtils.getFileNames( pomDirectory, null, null, false ) );
+            }
+            catch( IOException e )
+            {
+                throw new MojoExecutionException( "I/O error while protecting existing files from deletion" );
+            }
+        }
+
         if( attachPom )
         {
             try
@@ -300,20 +314,24 @@ public abstract class AbstractPaxArchetypeMojo extends MavenArchetypeMojo
      */
     final void cleanUp()
     {
-        try
-        {
-            if( !m_tempFiles.getIncludes().isEmpty() )
-            {
-                new FileSetManager( getLog(), false ).delete( m_tempFiles );
-            }
+        DirectoryScanner scanner = new DirectoryScanner();
+        scanner.setBasedir( m_tempFiles.getDirectory() );
+        scanner.setFollowSymlinks( false );
 
-            // remove any left-over empty directories after the cleanup
-            DirUtils.pruneEmptyFolders( new File( m_tempFiles.getDirectory() ) );
-        }
-        catch( IOException e )
+        scanner.addDefaultExcludes();
+        scanner.setExcludes( m_tempFiles.getExcludesArray() );
+        scanner.setIncludes( m_tempFiles.getIncludesArray() );
+
+        scanner.scan();
+
+        String[] discardedFiles = scanner.getIncludedFiles();
+        for( int i = 0; i < discardedFiles.length; i++ )
         {
-            getLog().warn( "I/O error while cleaning temporary files", e );
+            new File( scanner.getBasedir(), discardedFiles[i] ).delete();
         }
+
+        // remove any empty directories after the cleanup
+        DirUtils.pruneEmptyFolders( scanner.getBasedir() );
     }
 
     /**
