@@ -28,6 +28,7 @@ import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.project.MavenProject;
 import org.ops4j.pax.construct.util.DirUtils;
+import org.ops4j.pax.construct.util.PomUtils;
 
 /**
  * Clones an existing project and produces a script to mimic its structure using Pax-Construct
@@ -42,13 +43,22 @@ import org.ops4j.pax.construct.util.DirUtils;
 public class CloneMojo extends AbstractMojo
 {
     /**
+     * Initiating groupId.
+     * 
+     * @parameter expression="${project.groupId}"
+     * @required
+     * @readonly
+     */
+    private String m_rootGroupId;
+
+    /**
      * Initiating artifactId.
      * 
      * @parameter expression="${project.artifactId}"
      * @required
      * @readonly
      */
-    private String m_rootId;
+    private String m_rootArtifactId;
 
     /**
      * Initiating base directory.
@@ -123,8 +133,9 @@ public class CloneMojo extends AbstractMojo
             }
         }
 
-        File nixScript = new File( m_tempdir, "pax-clone-" + m_rootId );
-        File winScript = new File( m_tempdir, "pax-clone-" + m_rootId + ".bat" );
+        String scriptName = "pax-clone-" + PomUtils.getCompoundId( m_rootGroupId, m_rootArtifactId );
+        File winScript = new File( m_tempdir, scriptName + ".bat" );
+        File nixScript = new File( m_tempdir, scriptName );
 
         try
         {
@@ -245,14 +256,10 @@ public class CloneMojo extends AbstractMojo
      */
     Dependency findCustomizedWrapper( MavenProject project )
     {
-        for( Iterator i = project.getCompileSourceRoots().iterator(); i.hasNext(); )
+        // check in case it's really a compiled bundle
+        if( findBundleNamespace( project ) != null )
         {
-            // assume wrapper projects have no sources
-            File soureDir = new File( (String) i.next() );
-            if( soureDir.isDirectory() )
-            {
-                return null;
-            }
+            return null;
         }
 
         // assume first dependency is the wrapped artifact
@@ -423,7 +430,9 @@ public class CloneMojo extends AbstractMojo
         String[] pivot = DirUtils.calculateRelativePath( m_basedir.getParentFile(), targetDir );
         if( pivot != null && pivot[2].length() > 0 )
         {
-            command.maven().option( "targetDirectory", pivot[2] );
+            // fix path to use the correct artifactId, in case directory tree has been renamed
+            String relativePath = pivot[2].replaceFirst( m_basedir.getName(), m_rootArtifactId );
+            command.maven().option( "targetDirectory", relativePath );
         }
     }
 
