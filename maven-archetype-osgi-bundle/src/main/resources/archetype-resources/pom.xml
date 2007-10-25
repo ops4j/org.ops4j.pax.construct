@@ -2,8 +2,16 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
   xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 
+##------------------------------------------------
+## Use PomUtils to combine group and artifact ids
+##------------------------------------------------
+#set( $pomUtils = $artifactId.getClass().forName("org.ops4j.pax.construct.util.PomUtils") )
+#set( $compoundId = $pomUtils.newInstance().getCompoundId($groupId, $artifactId) )
+#if( !$compoundId )
+  #set( $compoundId = $artifactId )
+#end
   <properties>
-    <bundle.symbolicName>${artifactId}</bundle.symbolicName>
+    <bundle.symbolicName>${compoundId}</bundle.symbolicName>
     <bundle.namespace>${package}</bundle.namespace>
   </properties>
 
@@ -13,7 +21,7 @@
   <version>${version}</version>
 
 #set( $dollar = "$" )
-#if( $artifactId.equals($package) )
+#if( $compoundId.equals($package) )
   <name>${dollar}{bundle.symbolicName}</name>
 #else
   <name>${dollar}{bundle.symbolicName} [${dollar}{bundle.namespace}]</name>

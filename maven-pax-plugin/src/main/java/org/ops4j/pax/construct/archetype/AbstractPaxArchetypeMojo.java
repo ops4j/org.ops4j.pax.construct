@@ -135,7 +135,15 @@ public abstract class AbstractPaxArchetypeMojo extends MavenArchetypeMojo
      */
     String getInternalGroupId()
     {
-        return getCompoundId( m_project.getGroupId(), m_project.getArtifactId() );
+        if( m_project.getFile() != null )
+        {
+            return getCompoundId( m_project.getGroupId(), m_project.getArtifactId() );
+        }
+        else
+        {
+            // standalone group
+            return "examples";
+        }
     }
 
     /**

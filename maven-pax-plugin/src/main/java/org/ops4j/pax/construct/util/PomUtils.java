@@ -46,9 +46,9 @@ import org.apache.maven.project.MavenProject;
 public final class PomUtils
 {
     /**
-     * Hide constructor for utility class
+     * Provide public constructor so utility methods can be used from the Velocity template in the bundle archetype
      */
-    private PomUtils()
+    public PomUtils()
     {
     }
 
