@@ -2,64 +2,38 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
   xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 
-##------------------------------------
-## args from OSGiWrapperArchetypeMojo
-##------------------------------------
-#set( $compoundId = $artifactId )
-#set( $compoundMarker = $package )
-##=====================
-## ADD VERSION SUPPORT
-##=====================
-#if( $version.startsWith("+") )
-  ##------------------------------
-  ## COMPOUND ID INCLUDES VERSION
-  ##------------------------------
-  #set( $len = $compoundId.length() - $version.length() )
-  #set( $compoundId = $compoundId.substring(0,$len) )
-#end
-#set( $wrappedVersion = $version.substring(1) )
-##=====================
-## COMPOUND ID SUPPORT
-##=====================
-#if( $compoundMarker.startsWith("+") )
-  ##------------------------------------
-  ## COMPOUND ID = GROUPID . ARTIFACTID
-  ##------------------------------------
-  #set( $len = $compoundMarker.length() )
-  #set( $wrappedArtifactId = $compoundId.substring($len) )
-  #set( $wrappedGroupId = $compoundMarker.substring(1) )
-#else
-  #if( $compoundMarker.startsWith("]") )
-    ##-----------------------
-    ## COMPOUND ID = GROUPID
-    ##-----------------------
-    #set( $wrappedArtifactId = $compoundMarker.substring(1) )
-    #set( $wrappedGroupId = $compoundId )
-  #else
-    ##--------------------------
-    ## COMPOUND ID = ARTIFACTID
-    ##--------------------------
-    #set( $wrappedArtifactId = $compoundId )
-    #set( $wrappedGroupId = $compoundMarker.substring(1) )
-  #end
-#end
+##=====================================================
+## call back into current mojo for Bundle-SymbolicName
+##-----------------------------------------------------
+#set( $bridge = $artifactId.getClass().forName("org.ops4j.pax.construct.archetype.VelocityBridge") )
+#set( $mojo = $bridge.newInstance().getMojo() )
+##=====================================================
   <properties>
-    <bundle.symbolicName>${compoundId}</bundle.symbolicName>
+#set( $bsn = $mojo.getBundleSymbolicName() )
+#if( !$bsn )
+#set( $bsn = $artifactId )
+#end
+    <bundle.symbolicName>${bsn}</bundle.symbolicName>
+#set( $wrappedGroupId = $mojo.getWrappedGroupId() )
+#if( !$wrappedGroupId )
+#set( $wrappedGroupId = $package )
+#end
+#set( $wrappedArtifactId = $mojo.getWrappedArtifactId() )
+#if( !$wrappedArtifactId )
+#set( $wrappedArtifactId = $package )
+#end
     <wrapped.groupId>${wrappedGroupId}</wrapped.groupId>
     <wrapped.artifactId>${wrappedArtifactId}</wrapped.artifactId>
-    <wrapped.version>${wrappedVersion}</wrapped.version>
+    <wrapped.version>${version}</wrapped.version>
   </properties>
 
   <modelVersion>4.0.0</modelVersion>
   <groupId>${groupId}</groupId>
   <artifactId>${artifactId}</artifactId>
-##===============================
-## ADD LOCAL VERSION IF REQUIRED
-##===============================
-#if( ! $version.startsWith("+") )
-  <version>${wrappedVersion}-001</version>
-#else
+#if( $mojo.isAddVersion() )
   <version>001</version>
+#else
+  <version>${version}-001</version>
 #end
 #literal()
 

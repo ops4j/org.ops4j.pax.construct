@@ -185,6 +185,16 @@ public class OSGiBundleArchetypeMojo extends AbstractPaxArchetypeMojo
     }
 
     /**
+     * Provide Velocity template with customized Bundle-SymbolicName
+     * 
+     * @return bundle symbolic name
+     */
+    public String getBundleSymbolicName()
+    {
+        return getCompoundId( getInternalGroupId(), bundleName );
+    }
+
+    /**
      * {@inheritDoc}
      */
     boolean createMoreArtifacts()

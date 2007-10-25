@@ -118,7 +118,7 @@ mvn clean install pax:provision
   xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 
   <modelVersion>4.0.0</modelVersion>
-  <groupId>org.ops4j.example</groupId>
+  <groupId>examples</groupId>
   <artifactId>sample-project</artifactId>
   <version>0.2.0</version>
 

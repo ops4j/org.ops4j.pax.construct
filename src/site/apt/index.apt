@@ -48,7 +48,7 @@ set PATH=C:\Temp\pax-construct-0.2.0-ga\bin;%PATH%
  [[3]] Create a new OSGi project
 
 +---+
-pax-create-project -g org.ops4j.example -a test
+pax-create-project -g examples -a test
 +---+
 
  [[4]] Create an example bundle in your new project
@@ -56,7 +56,7 @@ pax-create-project -g org.ops4j.example -a test
 +---+
 cd test
 
-pax-create-bundle -p org.ops4j.example.service
+pax-create-bundle -p org.example.pkg -n test.bundle
 +---+
 
  [[5]] Build and deploy to Felix

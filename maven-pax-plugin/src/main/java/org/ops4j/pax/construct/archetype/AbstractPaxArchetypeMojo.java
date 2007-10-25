@@ -192,6 +192,9 @@ public abstract class AbstractPaxArchetypeMojo extends MavenArchetypeMojo
     public final void execute()
         throws MojoExecutionException
     {
+        // to support better templates
+        VelocityBridge.setMojo( this );
+
         updateFields();
 
         /*
@@ -394,31 +397,6 @@ public abstract class AbstractPaxArchetypeMojo extends MavenArchetypeMojo
         }
 
         return groupId + '.' + artifactId;
-    }
-
-    /**
-     * Provide a marker that can be used with the compoundId to get back the group and artifact
-     * 
-     * @param groupId project group id
-     * @param artifactId project artifact id
-     * @param compoundId compound id created from the group and artifact
-     * @return marker string for the compoundId
-     */
-    final String getCompoundMarker( String groupId, String artifactId, String compoundId )
-    {
-        if( artifactId.equals( compoundId ) )
-        {
-            // groupId prefix
-            return '[' + groupId;
-        }
-        else if( groupId.equals( compoundId ) )
-        {
-            // artifactId suffix
-            return ']' + artifactId;
-        }
-
-        // simple append
-        return '+' + groupId;
     }
 
     /**

@@ -1,6 +1,6 @@
 p {
   name = 'package'
-  example = 'org.ops4j.example'
+  example = 'org.example.pkg'
 }
 
 n {

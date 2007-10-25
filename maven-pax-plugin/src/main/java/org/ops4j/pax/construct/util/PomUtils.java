@@ -46,9 +46,9 @@ import org.apache.maven.project.MavenProject;
 public final class PomUtils
 {
     /**
-     * Provide public constructor so utility methods can be used from the Velocity template in the bundle archetype
+     * Hide constructor for utility class
      */
-    public PomUtils()
+    private PomUtils()
     {
     }
 
@@ -417,7 +417,28 @@ public final class PomUtils
             return groupId;
         }
 
-        return groupId + '.' + artifactId;
+        return fuseOverlappingSegments( groupId, artifactId );
+    }
+
+    /**
+     * Combine overlaps, for example: org.ops4j.pax.logging + pax-logging-api == org.ops4j.pax.logging.api
+     * 
+     * @param lhs leftmost text
+     * @param rhs rightmost text
+     * @return combined left+right text with any overlapping segments in the middle combined
+     */
+    static String fuseOverlappingSegments( String lhs, String rhs )
+    {
+        String overlapId = '.' + rhs.replace( '-', '.' );
+        for( int i = overlapId.length(); i > 0; i = overlapId.lastIndexOf( '.', i - 1 ) )
+        {
+            if( lhs.endsWith( overlapId.substring( 0, i ) ) )
+            {
+                return lhs + overlapId.substring( i );
+            }
+        }
+
+        return lhs + '.' + rhs;
     }
 
     /**

@@ -274,37 +274,54 @@ public class OSGiWrapperArchetypeMojo extends AbstractPaxArchetypeMojo
         artifactId = fields[1];
         version = fields[2];
 
-        /*
-         * This is a little trick to get the archetype mojo to create the wrapper project with a compound name - based
-         * on the groupId and artifactId - while still allowing the archetype files to use the groupId and artifactId.
-         * 
-         * See the velocity macros in: maven-archetype-osgi-wrapper/src/main/resources/archetype-resources/pom.xml
-         */
         String compoundWrapperId = getCompoundId( groupId, artifactId );
-        String compoundMarker = getCompoundMarker( groupId, artifactId, compoundWrapperId );
-
-        /*
-         * Provide support for wrapping different versions of an artifact: the versioning can either be done in the POM
-         * using a project version similar to "2.1-001" where 001 is the local edition of the POM, or by appending the
-         * version to the directory name - in which case the POM can simply follow the project version.
-         * 
-         * example 1, addVersion is false : asm/pom.xml <-- POM version 3.0-001
-         * 
-         * example 2, addVersion is true : asm-3.0/pom.xml <-- POM version 1.0-SNAPSHOT
-         * 
-         */
         if( addVersion )
         {
-            getArchetypeMojo().setField( "artifactId", compoundWrapperId + '-' + version );
-            getArchetypeMojo().setField( "version", '+' + version );
-        }
-        else
-        {
-            getArchetypeMojo().setField( "artifactId", compoundWrapperId );
-            getArchetypeMojo().setField( "version", '!' + version );
+            compoundWrapperId += '-' + version;
         }
 
-        getArchetypeMojo().setField( "packageName", compoundMarker );
+        // common groupId shared between all wrappers in same session
+        getArchetypeMojo().setField( "artifactId", compoundWrapperId );
+        getArchetypeMojo().setField( "packageName", artifactId );
+        getArchetypeMojo().setField( "version", version );
+    }
+
+    /**
+     * Provide Velocity template with customized Bundle-SymbolicName
+     * 
+     * @return bundle symbolic name
+     */
+    public String getBundleSymbolicName()
+    {
+        return getCompoundId( groupId, artifactId );
+    }
+
+    /**
+     * Provide Velocity template with wrappee's groupId
+     * 
+     * @return wrapped group id
+     */
+    public String getWrappedGroupId()
+    {
+        return groupId;
+    }
+
+    /**
+     * Provide Velocity template with wrappee's artifactId
+     * 
+     * @return wrapped artifact id
+     */
+    public String getWrappedArtifactId()
+    {
+        return artifactId;
+    }
+
+    /**
+     * @return true if the final project name includes the wrapped version
+     */
+    public boolean isAddVersion()
+    {
+        return addVersion;
     }
 
     /**
@@ -665,7 +682,6 @@ public class OSGiWrapperArchetypeMojo extends AbstractPaxArchetypeMojo
             thisPom.merge( wrapperSettings, "build/plugins", "build" );
 
             thisPom.updatePluginVersion( "org.ops4j", "maven-pax-plugin", getArchetypeVersion() );
-            thisPom.setGroupId( "org.ops4j.example" );
 
             // for latest bundle plugin
             Repository repository = new Repository();
