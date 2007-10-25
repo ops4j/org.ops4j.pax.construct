@@ -319,7 +319,7 @@ public class OSGiWrapperArchetypeMojo extends AbstractPaxArchetypeMojo
     /**
      * @return true if the final project name includes the wrapped version
      */
-    public boolean isAddVersion()
+    public boolean projectNameHasVersion()
     {
         return addVersion;
     }

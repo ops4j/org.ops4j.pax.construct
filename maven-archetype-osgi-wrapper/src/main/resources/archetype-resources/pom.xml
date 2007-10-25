@@ -30,7 +30,7 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>${groupId}</groupId>
   <artifactId>${artifactId}</artifactId>
-#if( $mojo.isAddVersion() )
+#if( $mojo.projectNameHasVersion() )
   <version>001</version>
 #else
   <version>${version}-001</version>
