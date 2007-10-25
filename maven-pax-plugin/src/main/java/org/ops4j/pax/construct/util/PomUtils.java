@@ -407,11 +407,12 @@ public final class PomUtils
      */
     public static String getCompoundId( String groupId, String artifactId )
     {
-        if( artifactId.startsWith( groupId + '.' ) || artifactId.equals( groupId ) )
+        if( artifactId.startsWith( groupId + '.' ) || artifactId.startsWith( groupId + '-' )
+            || artifactId.equals( groupId ) )
         {
             return artifactId;
         }
-        else if( groupId.endsWith( '.' + artifactId ) )
+        else if( groupId.endsWith( '.' + artifactId ) || groupId.endsWith( '-' + artifactId ) )
         {
             return groupId;
         }
