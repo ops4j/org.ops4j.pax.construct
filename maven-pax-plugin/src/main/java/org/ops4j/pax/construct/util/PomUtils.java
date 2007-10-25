@@ -407,38 +407,36 @@ public final class PomUtils
      */
     public static String getCompoundId( String groupId, String artifactId )
     {
-        if( artifactId.startsWith( groupId + '.' ) || artifactId.startsWith( groupId + '-' )
-            || artifactId.equals( groupId ) )
+        // treat any dashes like dots
+        String lhs = groupId.replace( '-', '.' );
+        String rhs = artifactId.replace( '-', '.' );
+
+        // simple common prefix check
+        if( rhs.equals( lhs ) || rhs.startsWith( lhs + '.' ) )
         {
             return artifactId;
         }
-        else if( groupId.endsWith( '.' + artifactId ) || groupId.endsWith( '-' + artifactId ) )
-        {
-            return groupId;
-        }
 
-        return fuseOverlappingSegments( groupId, artifactId );
-    }
+        rhs = '.' + rhs; // optimization when testing for overlap
 
-    /**
-     * Combine overlaps, for example: org.ops4j.pax.logging + pax-logging-api == org.ops4j.pax.logging.api
-     * 
-     * @param lhs leftmost text
-     * @param rhs rightmost text
-     * @return combined left+right text with any overlapping segments in the middle combined
-     */
-    static String fuseOverlappingSegments( String lhs, String rhs )
-    {
-        String overlapId = '.' + rhs.replace( '-', '.' );
-        for( int i = overlapId.length(); i > 0; i = overlapId.lastIndexOf( '.', i - 1 ) )
+        // check for overlapping segments by repeated chopping of artifactId
+        for( int i = rhs.length(); i > 0; i = rhs.lastIndexOf( '.', i - 1 ) )
         {
-            if( lhs.endsWith( overlapId.substring( 0, i ) ) )
+            if( lhs.endsWith( rhs.substring( 0, i ) ) )
             {
-                return lhs + overlapId.substring( i );
+                if( rhs.length() == i )
+                {
+                    return groupId;
+                }
+                else
+                {
+                    return groupId + '.' + artifactId.substring( i );
+                }
             }
         }
 
-        return lhs + '.' + rhs;
+        // no common segments, so append
+        return groupId + '.' + artifactId;
     }
 
     /**

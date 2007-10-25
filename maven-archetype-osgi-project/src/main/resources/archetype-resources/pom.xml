@@ -25,7 +25,7 @@
   <artifactId>${artifactId}</artifactId>
   <version>${version}</version>
 
-  <name>${groupId}.${artifactId} (OSGi project)</name>
+  <name>${package} (OSGi project)</name>
 #literal()
 
   <description>
