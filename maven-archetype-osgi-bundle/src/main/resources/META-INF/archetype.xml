@@ -1,9 +1,6 @@
 <archetype>
   <id>maven-archetype-osgi-bundle</id>
   <allowPartial>true</allowPartial>
-  <sources>
-    <source>src/main/java/internal/ExampleActivator.java</source>
-  </sources>
   <resources>
     <!--
       Pax-Construct Infrastructure
