@@ -23,10 +23,15 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Properties;
 
+import org.apache.maven.artifact.Artifact;
+import org.apache.maven.artifact.factory.ArtifactFactory;
+import org.apache.maven.artifact.installer.ArtifactInstaller;
+import org.apache.maven.artifact.repository.ArtifactRepository;
 import org.apache.maven.model.Dependency;
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.project.MavenProject;
+import org.codehaus.plexus.archiver.Archiver;
 import org.ops4j.pax.construct.util.DirUtils;
 import org.ops4j.pax.construct.util.PomUtils;
 
@@ -42,6 +47,36 @@ import org.ops4j.pax.construct.util.PomUtils;
  */
 public class CloneMojo extends AbstractMojo
 {
+    /**
+     * Component factory for Maven artifacts
+     * 
+     * @component
+     */
+    private ArtifactFactory m_factory;
+
+    /**
+     * Jar archiver
+     * 
+     * @component role-hint="jar"
+     */
+    private Archiver m_archiver;
+
+    /**
+     * Component for installing Maven artifacts
+     * 
+     * @component
+     */
+    private ArtifactInstaller m_installer;
+
+    /**
+     * The local Maven repository for the containing project.
+     * 
+     * @parameter expression="${localRepository}"
+     * @required
+     * @readonly
+     */
+    private ArtifactRepository m_localRepo;
+
     /**
      * Initiating groupId.
      * 
@@ -340,8 +375,10 @@ public class CloneMojo extends AbstractMojo
      * Analyze bundle project and determine if any pax-create-bundle or pax-wrap-jar calls are needed
      * 
      * @param project Maven bundle project
+     * @throws MojoExecutionException
      */
     void handleBundle( MavenProject project )
+        throws MojoExecutionException
     {
         PaxCommandBuilder command;
 
@@ -359,6 +396,11 @@ public class CloneMojo extends AbstractMojo
                 command.option( 'p', namespace );
                 command.option( 'n', project.getArtifactId() );
                 command.option( 'v', project.getVersion() );
+
+                Properties properties = new Properties();
+                properties.setProperty( "package", namespace.replace( '.', '/' ) );
+
+                createBundleArchetype( project, namespace );
 
                 // TODO: clone bundle source code and BND settings
 
@@ -444,5 +486,22 @@ public class CloneMojo extends AbstractMojo
     void cloneDirectory( MavenProject project )
     {
         // TODO: clone entire directory
+    }
+
+    void createBundleArchetype( MavenProject project, String namespace )
+        throws MojoExecutionException
+    {
+        File archetypeDir = new File( m_tempdir, "archetype-fragment" );
+        ArchetypeFragment fragment = new ArchetypeFragment( archetypeDir );
+
+        fragment.addSources( project.getBasedir(), "src/main/java", namespace, false );
+        fragment.addResources( project.getBasedir(), "src/main/resources", namespace, false );
+
+        String groupId = project.getGroupId();
+        String artifactId = project.getArtifactId() + "-archetype";
+        String version = project.getVersion();
+
+        Artifact artifact = m_factory.createBuildArtifact( groupId, artifactId, version, "jar" );
+        fragment.install( artifact, m_archiver, m_installer, m_localRepo );
     }
 }
