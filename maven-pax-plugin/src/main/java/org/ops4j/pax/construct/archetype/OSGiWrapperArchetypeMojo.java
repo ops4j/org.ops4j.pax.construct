@@ -36,8 +36,7 @@ import org.apache.maven.project.MavenProject;
 import org.apache.maven.project.MavenProjectBuilder;
 import org.apache.maven.project.ProjectBuildingException;
 import org.apache.maven.project.artifact.InvalidDependencyVersionException;
-import org.ops4j.pax.construct.util.BndFileUtils;
-import org.ops4j.pax.construct.util.BndFileUtils.BndFile;
+import org.ops4j.pax.construct.util.BndUtils.Bnd;
 import org.ops4j.pax.construct.util.PomUtils;
 import org.ops4j.pax.construct.util.PomUtils.ExistingElementException;
 import org.ops4j.pax.construct.util.PomUtils.Pom;
@@ -59,8 +58,6 @@ import org.ops4j.pax.construct.util.PomUtils.Pom;
  * @extendsPlugin archetype
  * @extendsGoal create
  * @goal wrap-jar
- * 
- * @requiresProject false
  */
 public class OSGiWrapperArchetypeMojo extends AbstractPaxArchetypeMojo
 {
@@ -348,85 +345,74 @@ public class OSGiWrapperArchetypeMojo extends AbstractPaxArchetypeMojo
     /**
      * {@inheritDoc}
      */
-    protected void postProcess()
+    protected void postProcess( Pom pom, Bnd bnd )
         throws MojoExecutionException
     {
-        // locate parent
-        super.postProcess();
-        if( !hasParent() )
+        if( null == pom.getParentId() )
         {
-            makeStandalone();
+            makeStandalone( pom );
         }
 
-        try
-        {
-            if( wrapTransitive )
-            {
-                // also handles exclusions
-                wrapDirectDependencies();
-                embedTransitive = false;
-            }
-            else
-            {
-                excludeDependencies();
-            }
-        }
-        catch( IOException e )
-        {
-            throw new MojoExecutionException( "Problem updating Wrapper POM: " + getPomFile() );
-        }
-
-        try
-        {
-            updateBndInstructions();
-        }
-        catch( IOException e )
-        {
-            throw new MojoExecutionException( "Problem updating Bnd instructions" );
-        }
+        updatePomDependencies( pom );
+        updateBndInstructions( bnd );
 
         // poms no longer needed
         addTempFiles( "poms/" );
     }
 
     /**
-     * Updates the default BND instructions with custom settings
+     * Add dependencies to the Maven project according to wrapper settings
      * 
-     * @throws IOException
+     * @param pom Maven project model
      * @throws MojoExecutionException
      */
-    private void updateBndInstructions()
-        throws IOException,
-        MojoExecutionException
+    private void updatePomDependencies( Pom pom )
     {
-        BndFile bndFile = BndFileUtils.readBndFile( getPomFile().getParentFile() );
+        if( wrapTransitive )
+        {
+            // also handles exclusions
+            wrapDirectDependencies( pom );
+            embedTransitive = false;
+        }
+        else
+        {
+            excludeDependencies( pom );
+        }
+    }
 
+    /**
+     * Updates the default Bnd instructions with custom settings
+     * 
+     * @param bnd Bnd instructions
+     * @throws MojoExecutionException
+     */
+    private void updateBndInstructions( Bnd bnd )
+        throws MojoExecutionException
+    {
         if( embedTransitive )
         {
-            bndFile.setInstruction( "Embed-Transitive", "true", canOverwrite() );
+            bnd.setInstruction( "Embed-Transitive", "true", canOverwrite() );
         }
         if( includeResource != null )
         {
-            bndFile.setInstruction( "Include-Resource", includeResource, canOverwrite() );
+            bnd.setInstruction( "Include-Resource", includeResource, canOverwrite() );
         }
         if( importPackage != null )
         {
-            bndFile.setInstruction( "Import-Package", importPackage, canOverwrite() );
+            bnd.setInstruction( "Import-Package", importPackage, canOverwrite() );
         }
         if( exportContents != null )
         {
-            bndFile.setInstruction( "-exportcontents", exportContents, canOverwrite() );
+            bnd.setInstruction( "-exportcontents", exportContents, canOverwrite() );
         }
         if( requireBundle != null )
         {
-            bndFile.setInstruction( "Require-Bundle", requireBundle, canOverwrite() );
+            bnd.setInstruction( "Require-Bundle", requireBundle, canOverwrite() );
         }
         if( dynamicImportPackage != null )
         {
-            bndFile.setInstruction( "DynamicImport-Package", dynamicImportPackage, canOverwrite() );
+            bnd.setInstruction( "DynamicImport-Package", dynamicImportPackage, canOverwrite() );
         }
-
-        bndFile.write();
     }
 
     /**
@@ -440,10 +426,10 @@ public class OSGiWrapperArchetypeMojo extends AbstractPaxArchetypeMojo
     /**
      * Attempt to wrap direct dependencies of the wrapped artifact - in turn they will call this method, and so on...
      * 
+     * @param pom Maven project model
      * @throws IOException
      */
-    private void wrapDirectDependencies()
-        throws IOException
+    private void wrapDirectDependencies( Pom pom )
     {
         /*
          * Use a local list to capture dependencies that are type POM, ie. collections of dependencies. These POM
@@ -465,7 +451,7 @@ public class OSGiWrapperArchetypeMojo extends AbstractPaxArchetypeMojo
                 Set artifacts = p.createArtifacts( m_factory, null, null );
 
                 // look for new artifacts to wrap
-                dependencyPoms.addAll( processDependencies( artifacts ) );
+                dependencyPoms.addAll( processDependencies( pom, artifacts ) );
             }
             catch( ProjectBuildingException e )
             {
@@ -481,16 +467,13 @@ public class OSGiWrapperArchetypeMojo extends AbstractPaxArchetypeMojo
     /**
      * Look for more artifacts that need to be wrapped, ignoring those already wrapped or containing OSGi metadata
      * 
+     * @param pom Maven project model
      * @param artifacts list of potential artifacts to be wrapped
      * @return list of POM artifacts discovered while processing
      * @throws IOException
      */
-    private List processDependencies( Set artifacts )
-        throws IOException
+    private List processDependencies( Pom pom, Set artifacts )
     {
-        // open current wrapper pom to add dependencies
-        Pom thisPom = PomUtils.readPom( getPomFile() );
-
         List newDependencyPoms = new ArrayList();
         for( Iterator i = artifacts.iterator(); i.hasNext(); )
         {
@@ -505,15 +488,13 @@ public class OSGiWrapperArchetypeMojo extends AbstractPaxArchetypeMojo
                     newDependencyPoms.add( artifact );
                 }
                 // copy dependency to current wrapper pom (not all require wrapping)
-                else if( addWrapperDependency( thisPom, artifact ) )
+                else if( addWrapperDependency( pom, artifact ) )
                 {
                     m_candidateIds.add( candidateId );
                     m_wrappedIds.add( candidateId );
                 }
             }
         }
-
-        thisPom.write();
 
         return newDependencyPoms;
     }
@@ -577,7 +558,7 @@ public class OSGiWrapperArchetypeMojo extends AbstractPaxArchetypeMojo
     /**
      * Adds a dependency to the wrapped artifact, or the original if it doesn't require wrapping
      * 
-     * @param pom wrapped Maven project
+     * @param pom Maven project model
      * @param artifact wrapper dependency
      * @return true if the dependency should be wrapped, otherwise false
      */
@@ -665,41 +646,37 @@ public class OSGiWrapperArchetypeMojo extends AbstractPaxArchetypeMojo
 
     /**
      * Add additional POM elements to make it work standalone
+     * 
+     * @param pom Maven project model
      */
-    private void makeStandalone()
+    private void makeStandalone( Pom pom )
+        throws MojoExecutionException
     {
+        File baseDir = pom.getBasedir();
+        Pom wrapperSettings;
+        Pom pluginSettings;
+
         try
         {
-            File baseDir = getPomFile().getParentFile();
-
-            Pom pluginSettings = PomUtils.readPom( new File( baseDir, "poms" ) );
-            Pom wrapperSettings = PomUtils.readPom( new File( baseDir, "poms/wrappers" ) );
-
-            Pom thisPom = PomUtils.readPom( baseDir );
-
-            // Must merge plugin fragment first, so child elements combine properly!
-            thisPom.merge( pluginSettings, "build/pluginManagement/plugins", "build" );
-            thisPom.merge( wrapperSettings, "build/plugins", "build" );
-
-            thisPom.updatePluginVersion( "org.ops4j", "maven-pax-plugin", getArchetypeVersion() );
-
-            // for latest bundle plugin
-            Repository repository = new Repository();
-            repository.setId( "ops4j-snapshots" );
-            repository.setUrl( "http://repository.ops4j.org/mvn-snapshots" );
-            thisPom.addRepository( repository, true, false, true, true );
-
-            thisPom.write();
+            wrapperSettings = PomUtils.readPom( new File( baseDir, "poms/wrapper" ) );
+            pluginSettings = PomUtils.readPom( new File( baseDir, "poms" ) );
         }
         catch( IOException e )
         {
-            getLog().warn( "Unable to convert POM to work standalone" );
+            throw new MojoExecutionException( "Unable to find settings POM" );
         }
-        catch( ExistingElementException e )
-        {
-            // this should never happen
-            throw new RuntimeException( e );
-        }
+
+        // Must merge plugin fragment first, so child elements combine properly!
+        pom.merge( pluginSettings, "build/pluginManagement/plugins", "build" );
+        pom.merge( wrapperSettings, "build/plugins", "build" );
+
+        pom.updatePluginVersion( "org.ops4j", "maven-pax-plugin", getArchetypeVersion() );
+
+        // for latest bundle plugin
+        Repository repository = new Repository();
+        repository.setId( "ops4j-snapshots" );
+        repository.setUrl( "http://repository.ops4j.org/mvn-snapshots" );
+        pom.addRepository( repository, true, false, true, true );
     }
 
     /**
@@ -735,20 +712,17 @@ public class OSGiWrapperArchetypeMojo extends AbstractPaxArchetypeMojo
     /**
      * Add explicit dependency exclusion list to the main POM dependency element
      * 
+     * @param pom Maven project model
      * @throws IOException
      */
-    private void excludeDependencies()
-        throws IOException
+    private void excludeDependencies( Pom pom )
     {
-        // open current wrapper pom to add exclusions
-        Pom thisPom = PomUtils.readPom( getPomFile() );
-
         for( Iterator i = m_excludedIds.iterator(); i.hasNext(); )
         {
             try
             {
                 String[] fields = ( (String) i.next() ).split( ":" );
-                thisPom.addExclusion( fields[0], fields[1], true );
+                pom.addExclusion( fields[0], fields[1], true );
             }
             catch( ExistingElementException e )
             {
@@ -756,7 +730,5 @@ public class OSGiWrapperArchetypeMojo extends AbstractPaxArchetypeMojo
                 throw new RuntimeException( e );
             }
         }
-
-        thisPom.write();
     }
 }

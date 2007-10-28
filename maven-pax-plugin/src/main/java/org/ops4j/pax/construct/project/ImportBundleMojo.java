@@ -52,6 +52,8 @@ import org.ops4j.pax.construct.util.PomUtils.Pom;
  * 
  * @goal import-bundle
  * @aggregator true
+ * 
+ * @requiresProject false
  */
 public class ImportBundleMojo extends AbstractMojo
 {
@@ -243,7 +245,8 @@ public class ImportBundleMojo extends AbstractMojo
                 // support 'dependency' POMs
                 processDependencies( p );
             }
-            else if( PomUtils.isBundleProject( p, m_resolver, m_remoteRepos, m_localRepo, testMetadata ) )
+            else if( rootId.equals( id ) /* user knows best: assume given artifact is a bundle */
+                || PomUtils.isBundleProject( p, m_resolver, m_remoteRepos, m_localRepo, testMetadata ) )
             {
                 importBundle( p );
 

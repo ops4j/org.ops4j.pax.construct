@@ -22,21 +22,21 @@ import java.io.IOException;
 import org.apache.maven.plugin.MojoExecutionException;
 
 /**
- * Provide API {@link BndFile} and factory for editing Bnd instruction files
+ * Provide API {@link Bnd} and factory for editing Bnd instruction files
  */
-public final class BndFileUtils
+public final class BndUtils
 {
     /**
      * Hide constructor for utility class
      */
-    private BndFileUtils()
+    private BndUtils()
     {
     }
 
     /**
      * API for editing Bnd files
      */
-    public interface BndFile
+    public interface Bnd
     {
         /**
          * @param directive a Bnd directive
@@ -77,7 +77,7 @@ public final class BndFileUtils
     }
 
     /**
-     * Thrown when a Bnd instruction already exists and can't be overwritten {@link BndFile}
+     * Thrown when a Bnd instruction already exists and can't be overwritten {@link Bnd}
      */
     public static class ExistingInstructionException extends MojoExecutionException
     {
@@ -99,7 +99,7 @@ public final class BndFileUtils
      * @return simple Bnd file editor
      * @throws IOException
      */
-    public static BndFile readBndFile( File here )
+    public static Bnd readBnd( File here )
         throws IOException
     {
         File candidate = here;

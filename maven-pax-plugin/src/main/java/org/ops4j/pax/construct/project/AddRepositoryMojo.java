@@ -34,6 +34,8 @@ import org.ops4j.pax.construct.util.PomUtils.Pom;
  * 
  * @goal add-repository
  * @aggregator true
+ * 
+ * @requiresProject false
  */
 public class AddRepositoryMojo extends AbstractMojo
 {

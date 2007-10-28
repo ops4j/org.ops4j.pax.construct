@@ -18,9 +18,7 @@ package org.ops4j.pax.construct.archetype;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.Iterator;
-import java.util.List;
 import java.util.Set;
 
 import org.apache.maven.artifact.Artifact;
@@ -28,8 +26,7 @@ import org.apache.maven.model.Dependency;
 import org.apache.maven.model.Repository;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.codehaus.plexus.util.SelectorUtils;
-import org.ops4j.pax.construct.util.BndFileUtils;
-import org.ops4j.pax.construct.util.BndFileUtils.BndFile;
+import org.ops4j.pax.construct.util.BndUtils.Bnd;
 import org.ops4j.pax.construct.util.PomUtils;
 import org.ops4j.pax.construct.util.PomUtils.Pom;
 
@@ -50,8 +47,6 @@ import org.ops4j.pax.construct.util.PomUtils.Pom;
  * @extendsPlugin archetype
  * @extendsGoal create
  * @goal create-bundle
- * 
- * @requiresProject false
  */
 public class OSGiBundleArchetypeMojo extends AbstractPaxArchetypeMojo
 {
@@ -120,29 +115,11 @@ public class OSGiBundleArchetypeMojo extends AbstractPaxArchetypeMojo
     private String springVersion;
 
     /**
-     * When true, do not add any dependencies to the project (useful when they are already declared in another POM).
+     * When true, do not add any dependencies to the project (useful when they are already provided by another POM).
      * 
      * @parameter expression="${noDependencies}"
      */
     private boolean noDependencies;
-
-    /**
-     * Comma-separated list of additional archetypes to apply (use artifactId for Pax-Construct archetypes and
-     * groupId:artifactId:version for external artifacts).
-     * 
-     * @parameter expression="${contents}" default-value="maven-archetype-osgi-service"
-     */
-    private String contents;
-
-    /**
-     * Additional archetype jars that supply content for this bundle
-     */
-    private List m_extraArchetypeIds;
-
-    /**
-     * Cached contents of the updated bundle POM, in case any of the additional archetypes overwrite it
-     */
-    private Pom m_thisPom;
 
     /**
      * {@inheritDoc}
@@ -163,19 +140,19 @@ public class OSGiBundleArchetypeMojo extends AbstractPaxArchetypeMojo
             bundleName = packageName;
         }
 
-        if( null == m_extraArchetypeIds )
+        // should we provide code samples?
+        if( provideInterface || provideInternals )
         {
-            getArchetypeMojo().setField( "archetypeArtifactId", "maven-archetype-osgi-bundle" );
+            // OSGi service + activator example
+            scheduleArchetype( PAX_ARCHETYPE_GROUP_ID, "maven-archetype-osgi-service", getArchetypeVersion() );
+            if( springVersion != null )
+            {
+                // Spring Dynamic-Modules bean example
+                scheduleArchetype( PAX_ARCHETYPE_GROUP_ID, "maven-archetype-spring-bean", getArchetypeVersion() );
+            }
         }
-        else
-        {
-            String id = (String) m_extraArchetypeIds.remove( 0 );
-            String[] fields = id.split( ":" );
 
-            getArchetypeMojo().setField( "archetypeGroupId", fields[0] );
-            getArchetypeMojo().setField( "archetypeArtifactId", fields[1] );
-            getArchetypeMojo().setField( "archetypeVersion", fields[2] );
-        }
+        getArchetypeMojo().setField( "archetypeArtifactId", "maven-archetype-osgi-bundle" );
 
         getArchetypeMojo().setField( "groupId", getInternalGroupId() );
         getArchetypeMojo().setField( "artifactId", bundleName );
@@ -197,128 +174,40 @@ public class OSGiBundleArchetypeMojo extends AbstractPaxArchetypeMojo
     /**
      * {@inheritDoc}
      */
-    protected boolean createMoreArtifacts()
-    {
-        return !m_extraArchetypeIds.isEmpty();
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    protected void prepareTarget()
+    protected void postProcess( Pom pom, Bnd bnd )
         throws MojoExecutionException
     {
-        // only need to prepare once
-        if( null == m_extraArchetypeIds )
+        if( null == pom.getParentId() )
         {
-            super.prepareTarget();
+            makeStandalone( pom );
         }
-    }
 
-    /**
-     * {@inheritDoc}
-     */
-    protected void postProcess()
-        throws MojoExecutionException
-    {
-        try
-        {
-            if( null == m_extraArchetypeIds )
-            {
-                m_extraArchetypeIds = new ArrayList();
+        updatePomDependencies( pom );
+        updateBndInstructions( bnd );
 
-                // locate parent first
-                super.postProcess();
-
-                // only add extra archetypes if we're going to keep the files
-                if( provideInterface || provideInternals )
-                {
-                    scheduleExtraArchetypes();
-                }
-
-                // now load contents into memory for updating
-                m_thisPom = PomUtils.readPom( getPomFile() );
-
-                if( !hasParent() )
-                {
-                    makeStandalone( m_thisPom );
-                }
-
-                // only apply these once
-                updatePomDependencies();
-                markBogusFiles();
-            }
-
-            // archetype processing is complete
-            if( m_extraArchetypeIds.size() == 0 )
-            {
-                updateBndInstructions();
-
-                /*
-                 * RE-SAVE the updated POM in case an extra archetype has overwritten it
-                 */
-                m_thisPom.write();
-            }
-        }
-        catch( IOException e )
-        {
-            throw new MojoExecutionException( "Problem updating Maven POM " + m_thisPom.getFile() );
-        }
-    }
-
-    /**
-     * Add extra Maven archetypes, to be used after the main OSGi bundle archetype has finished
-     */
-    private void scheduleExtraArchetypes()
-    {
-        String[] ids = contents.split( "," );
-        for( int i = 0; i < ids.length; i++ )
-        {
-            String id = ids[i].trim();
-            if( id.length() == 0 )
-            {
-                continue;
-            }
-
-            // handle groupId:artifactId:other:stuff
-            String[] fields = id.split( ":" );
-            if( fields.length > 2 )
-            {
-                // fully-qualified external archetype
-                m_extraArchetypeIds.add( fields[0] + ':' + fields[1] + ':' + fields[2] );
-            }
-            else if( fields.length > 1 )
-            {
-                // semi-qualified external archetype (assume groupId same as artifactId)
-                m_extraArchetypeIds.add( fields[0] + ':' + fields[0] + ':' + fields[1] );
-            }
-            else
-            {
-                // internal Pax-Construct archetype (assume same version as current archetype template)
-                m_extraArchetypeIds.add( PAX_ARCHETYPE_GROUP_ID + ':' + fields[0] + ':' + getArchetypeVersion() );
-            }
-        }
+        markBogusFiles();
     }
 
     /**
      * Add various dependencies to the Maven project to allow out-of-the-box compilation
      * 
+     * @param pom Maven project model
      * @throws MojoExecutionException
      */
-    private void updatePomDependencies()
+    private void updatePomDependencies( Pom pom )
         throws MojoExecutionException
     {
         if( !noDependencies )
         {
-            addCoreOSGiSupport( m_thisPom );
+            addCoreOSGiSupport( pom );
 
             if( junitVersion != null )
             {
-                addJUnitTestSupport( m_thisPom );
+                addJUnitTestSupport( pom );
             }
             if( springVersion != null )
             {
-                addSpringBeanSupport( m_thisPom );
+                addSpringBeanSupport( pom );
             }
         }
     }
@@ -405,7 +294,7 @@ public class OSGiBundleArchetypeMojo extends AbstractPaxArchetypeMojo
         Dependency osgiCore = new Dependency();
         osgiCore.setGroupId( "org.osgi" );
         osgiCore.setArtifactId( "osgi_R4_core" );
-        if( !hasParent() )
+        if( null == pom.getParentId() )
         {
             osgiCore.setVersion( "1.0" );
             osgiCore.setScope( Artifact.SCOPE_PROVIDED );
@@ -417,7 +306,7 @@ public class OSGiBundleArchetypeMojo extends AbstractPaxArchetypeMojo
         Dependency osgiCompendium = new Dependency();
         osgiCompendium.setGroupId( "org.osgi" );
         osgiCompendium.setArtifactId( "osgi_R4_compendium" );
-        if( !hasParent() )
+        if( null == pom.getParentId() )
         {
             osgiCompendium.setVersion( "1.0" );
             osgiCompendium.setScope( Artifact.SCOPE_PROVIDED );
@@ -436,13 +325,6 @@ public class OSGiBundleArchetypeMojo extends AbstractPaxArchetypeMojo
     private void addSpringBeanSupport( Pom pom )
         throws MojoExecutionException
     {
-        // include the Spring bean code sample
-        if( provideInterface || provideInternals )
-        {
-            String id = PAX_ARCHETYPE_GROUP_ID + ":maven-archetype-spring-bean:" + getArchetypeVersion();
-            m_extraArchetypeIds.add( id );
-        }
-
         // Spring milestone repository
         Repository repository = new Repository();
         repository.setId( "spring-milestones" );
@@ -493,9 +375,10 @@ public class OSGiBundleArchetypeMojo extends AbstractPaxArchetypeMojo
     /**
      * Updates the default BND instructions to match the remaining contents
      * 
+     * @param bnd Bnd instructions
      * @throws MojoExecutionException
      */
-    private void updateBndInstructions()
+    private void updateBndInstructions( Bnd bnd )
         throws MojoExecutionException
     {
         boolean haveActivator = false;
@@ -505,7 +388,7 @@ public class OSGiBundleArchetypeMojo extends AbstractPaxArchetypeMojo
         /*
          * check the source code in case we need to override the basic BND settings
          */
-        Set filenames = super.getFinalFilenames();
+        Set filenames = getFinalFilenames();
         for( Iterator i = filenames.iterator(); i.hasNext(); )
         {
             String name = (String) i.next();
@@ -525,42 +408,32 @@ public class OSGiBundleArchetypeMojo extends AbstractPaxArchetypeMojo
             }
         }
 
-        applyBndInstructions( haveActivator, haveInternals, haveInterface );
+        applyBndInstructions( bnd, haveActivator, haveInternals, haveInterface );
     }
 
     /**
-     * Apply the new BND instructions to the current project
+     * Apply the new Bnd instructions to the current project
      * 
+     * @param bnd Bnd instructions
      * @param haveActivator true if there is an Activator file
      * @param haveInternals true if there are internal packages
      * @param haveInterface true if there are non-internal packages
      * @throws MojoExecutionException
      */
-    private void applyBndInstructions( boolean haveActivator, boolean haveInternals, boolean haveInterface )
+    private void applyBndInstructions( Bnd bnd, boolean haveActivator, boolean haveInternals, boolean haveInterface )
         throws MojoExecutionException
     {
-        try
+        if( !haveActivator )
         {
-            BndFile bndFile = BndFileUtils.readBndFile( getPomFile().getParentFile() );
-
-            if( !haveActivator )
-            {
-                bndFile.removeInstruction( "Bundle-Activator" );
-            }
-            if( !haveInternals )
-            {
-                bndFile.setInstruction( "Private-Package", null, canOverwrite() );
-            }
-            if( !haveInterface )
-            {
-                bndFile.setInstruction( "Export-Package", null, canOverwrite() );
-            }
-
-            bndFile.write();
+            bnd.removeInstruction( "Bundle-Activator" );
         }
-        catch( IOException e )
+        if( !haveInternals )
         {
-            throw new MojoExecutionException( "Unable to update BND settings" );
+            bnd.setInstruction( "Private-Package", null, canOverwrite() );
+        }
+        if( !haveInterface )
+        {
+            bnd.setInstruction( "Export-Package", null, canOverwrite() );
         }
     }
 }

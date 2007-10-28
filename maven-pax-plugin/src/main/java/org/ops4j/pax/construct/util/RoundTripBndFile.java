@@ -30,14 +30,14 @@ import java.util.Properties;
 import org.codehaus.plexus.util.IOUtil;
 import org.codehaus.plexus.util.ReaderFactory;
 import org.codehaus.plexus.util.WriterFactory;
-import org.ops4j.pax.construct.util.BndFileUtils.BndFile;
-import org.ops4j.pax.construct.util.BndFileUtils.ExistingInstructionException;
+import org.ops4j.pax.construct.util.BndUtils.Bnd;
+import org.ops4j.pax.construct.util.BndUtils.ExistingInstructionException;
 
 /**
  * Support round-trip editing of Bnd files, preserving formatting as much as possible
  */
 public class RoundTripBndFile
-    implements BndFile
+    implements Bnd
 {
     /**
      * Underlying Bnd file
@@ -67,9 +67,12 @@ public class RoundTripBndFile
         m_oldInstructions = new Properties();
         m_newInstructions = new Properties();
 
-        FileInputStream bndStream = new FileInputStream( m_file );
-        m_oldInstructions.load( bndStream );
-        IOUtil.close( bndStream );
+        if( m_file.exists() )
+        {
+            FileInputStream bndStream = new FileInputStream( m_file );
+            m_oldInstructions.load( bndStream );
+            IOUtil.close( bndStream );
+        }
 
         m_newInstructions.putAll( m_oldInstructions );
     }

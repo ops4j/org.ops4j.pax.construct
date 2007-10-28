@@ -38,6 +38,8 @@ import org.ops4j.pax.construct.util.PomUtils.Pom;
  * 
  * @goal move-bundle
  * @aggregator true
+ * 
+ * @requiresProject false
  */
 public class MoveBundleMojo extends AbstractMojo
 {

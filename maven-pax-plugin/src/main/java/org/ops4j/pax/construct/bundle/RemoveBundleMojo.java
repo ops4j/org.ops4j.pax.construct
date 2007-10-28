@@ -36,6 +36,8 @@ import org.ops4j.pax.construct.util.PomUtils.Pom;
  * 
  * @goal remove-bundle
  * @aggregator true
+ * 
+ * @requiresProject false
  */
 public class RemoveBundleMojo extends AbstractMojo
 {

@@ -27,8 +27,8 @@ import org.apache.maven.artifact.repository.ArtifactRepository;
 import org.apache.maven.model.Dependency;
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
-import org.ops4j.pax.construct.util.BndFileUtils;
-import org.ops4j.pax.construct.util.BndFileUtils.BndFile;
+import org.ops4j.pax.construct.util.BndUtils;
+import org.ops4j.pax.construct.util.BndUtils.Bnd;
 import org.ops4j.pax.construct.util.PomUtils;
 import org.ops4j.pax.construct.util.PomUtils.Pom;
 
@@ -41,6 +41,8 @@ import org.ops4j.pax.construct.util.PomUtils.Pom;
  * 
  * @goal embed-jar
  * @aggregator true
+ * 
+ * @requiresProject false
  */
 public class EmbedJarMojo extends AbstractMojo
 {
@@ -134,9 +136,8 @@ public class EmbedJarMojo extends AbstractMojo
     {
         populateMissingFields();
 
-        addDependencyToPom();
-
-        addInstructionsToBndFile();
+        updatePomDependencies();
+        updateBndInstructions();
     }
 
     /**
@@ -165,7 +166,7 @@ public class EmbedJarMojo extends AbstractMojo
      * 
      * @throws MojoExecutionException
      */
-    private void addDependencyToPom()
+    private void updatePomDependencies()
         throws MojoExecutionException
     {
         Pom pom;
@@ -213,14 +214,14 @@ public class EmbedJarMojo extends AbstractMojo
      * 
      * @throws MojoExecutionException
      */
-    private void addInstructionsToBndFile()
+    private void updateBndInstructions()
         throws MojoExecutionException
     {
-        BndFile bndFile;
+        Bnd bnd;
 
         try
         {
-            bndFile = BndFileUtils.readBndFile( targetDirectory );
+            bnd = BndUtils.readBnd( targetDirectory );
         }
         catch( IOException e )
         {
@@ -230,23 +231,23 @@ public class EmbedJarMojo extends AbstractMojo
         final String embedKey = artifactId + ";groupId=" + groupId;
         final String embedClause = embedKey + ";inline=" + unpack;
 
-        String embedDependency = bndFile.getInstruction( "Embed-Dependency" );
+        String embedDependency = bnd.getInstruction( "Embed-Dependency" );
         embedDependency = addEmbedClause( embedClause, embedDependency );
 
-        bndFile.setInstruction( "Embed-Dependency", embedDependency, true );
+        bnd.setInstruction( "Embed-Dependency", embedDependency, true );
 
         if( exportContents != null )
         {
-            bndFile.setInstruction( "-exportcontents", exportContents, overwrite );
+            bnd.setInstruction( "-exportcontents", exportContents, overwrite );
         }
 
         try
         {
-            bndFile.write();
+            bnd.write();
         }
         catch( IOException e )
         {
-            throw new MojoExecutionException( "Problem writing Bnd file: " + bndFile.getFile() );
+            throw new MojoExecutionException( "Problem writing Bnd file: " + bnd.getFile() );
         }
     }
 

@@ -18,8 +18,11 @@ package org.ops4j.pax.construct.archetype;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
+import java.util.Iterator;
+import java.util.List;
 import java.util.Set;
 
 import org.apache.maven.plugin.MojoExecutionException;
@@ -28,6 +31,8 @@ import org.apache.maven.project.MavenProject;
 import org.apache.maven.shared.model.fileset.FileSet;
 import org.codehaus.plexus.util.DirectoryScanner;
 import org.codehaus.plexus.util.FileUtils;
+import org.ops4j.pax.construct.util.BndUtils;
+import org.ops4j.pax.construct.util.BndUtils.Bnd;
 import org.ops4j.pax.construct.util.DirUtils;
 import org.ops4j.pax.construct.util.PomUtils;
 import org.ops4j.pax.construct.util.PomUtils.Pom;
@@ -39,6 +44,8 @@ import org.ops4j.pax.construct.util.ReflectMojo;
  * unfortunately don't appear in the generated docs.
  * 
  * @aggregator true
+ * 
+ * @requiresProject false
  */
 public abstract class AbstractPaxArchetypeMojo extends MavenArchetypeMojo
 {
@@ -55,9 +62,9 @@ public abstract class AbstractPaxArchetypeMojo extends MavenArchetypeMojo
     private String archetypeVersion;
 
     /**
-     * Comma separated list of additional remote repository URLs.
+     * Comma-separated list of additional remote repository URLs.
      * 
-     * @parameter expression="${remoteArchetypeRepositories}" default-value="http://repository.ops4j.org/maven2"
+     * @parameter expression="${remoteArchetypeRepositories}"
      */
     private String remoteArchetypeRepositories;
 
@@ -67,6 +74,14 @@ public abstract class AbstractPaxArchetypeMojo extends MavenArchetypeMojo
      * @parameter expression="${targetDirectory}" default-value="${project.basedir}"
      */
     private File targetDirectory;
+
+    /**
+     * Comma-separated list of additional archetypes to merge with the current one (use artifactId for Pax-Construct
+     * archetypes and groupId:artifactId:version for external artifacts).
+     * 
+     * @parameter expression="${contents}"
+     */
+    private String contents;
 
     /**
      * When true, avoid duplicate elements when combining group and artifact ids.
@@ -90,7 +105,7 @@ public abstract class AbstractPaxArchetypeMojo extends MavenArchetypeMojo
     private boolean overwrite;
 
     /**
-     * The current Maven project (may be null)
+     * The current Maven project (will be Maven super-POM if no existing project)
      */
     private MavenProject m_project;
 
@@ -110,22 +125,24 @@ public abstract class AbstractPaxArchetypeMojo extends MavenArchetypeMojo
     private FileSet m_tempFiles;
 
     /**
-     * Does the new project have a logical parent?
+     * Additional archetypes that supply customized content
      */
-    private boolean m_hasParent;
+    private List m_customArchetypeIds;
 
     /**
-     * @return true if the new project has a logical parent, otherwise false
+     * Working copy of current Maven POM
      */
-    protected boolean hasParent()
-    {
-        return m_hasParent;
-    }
+    private Pom m_pom;
+
+    /**
+     * Working copy of current Bnd instructions
+     */
+    private Bnd m_bnd;
 
     /**
      * @return true if existing files can be overwritten, otherwise false
      */
-    protected boolean canOverwrite()
+    protected final boolean canOverwrite()
     {
         return overwrite;
     }
@@ -133,7 +150,7 @@ public abstract class AbstractPaxArchetypeMojo extends MavenArchetypeMojo
     /**
      * @return the internal groupId for support artifacts belonging to the new project
      */
-    protected String getInternalGroupId()
+    protected final String getInternalGroupId()
     {
         if( m_project.getFile() != null )
         {
@@ -149,7 +166,7 @@ public abstract class AbstractPaxArchetypeMojo extends MavenArchetypeMojo
     /**
      * @return the version of the archetype
      */
-    protected String getArchetypeVersion()
+    protected final String getArchetypeVersion()
     {
         return archetypeVersion;
     }
@@ -157,7 +174,7 @@ public abstract class AbstractPaxArchetypeMojo extends MavenArchetypeMojo
     /**
      * @return the version of the new project
      */
-    protected String getProjectVersion()
+    protected final String getProjectVersion()
     {
         return m_project.getVersion();
     }
@@ -165,23 +182,15 @@ public abstract class AbstractPaxArchetypeMojo extends MavenArchetypeMojo
     /**
      * @return Access to the archetype mojo
      */
-    protected ReflectMojo getArchetypeMojo()
+    protected final ReflectMojo getArchetypeMojo()
     {
         return m_archetypeMojo;
     }
 
     /**
-     * @return The new project's POM file
-     */
-    protected File getPomFile()
-    {
-        return m_pomFile;
-    }
-
-    /**
      * @param pathExpression Ant-style path expression, can include wildcards
      */
-    protected void addTempFiles( String pathExpression )
+    protected final void addTempFiles( String pathExpression )
     {
         m_tempFiles.addInclude( pathExpression );
     }
@@ -202,10 +211,15 @@ public abstract class AbstractPaxArchetypeMojo extends MavenArchetypeMojo
          */
         do
         {
+            scheduleCustomArchetypes();
             updateExtensionFields();
 
             prepareTarget();
             super.execute();
+            cacheSettings();
+
+            runCustomArchetypes();
+
             postProcess();
             cleanUp();
 
@@ -213,29 +227,36 @@ public abstract class AbstractPaxArchetypeMojo extends MavenArchetypeMojo
     }
 
     /**
-     * @return true to continue creating more projects, otherwise false
-     */
-    protected boolean createMoreArtifacts()
-    {
-        return false;
-    }
-
-    /**
      * Set common fields in the archetype mojo
      */
-    private final void updateFields()
+    private void updateFields()
     {
-        m_archetypeMojo = new ReflectMojo( this, MavenArchetypeMojo.class );
-
-        // different repository for snapshots
+        String ops4jRepo;
         if( archetypeVersion.indexOf( "SNAPSHOT" ) >= 0 )
         {
-            remoteArchetypeRepositories = "http://repository.ops4j.org/mvn-snapshots";
+            // OPS4J snapshot repository
+            ops4jRepo = "http://repository.ops4j.org/mvn-snapshots";
+        }
+        else
+        {
+            // OPS4J standard repository
+            ops4jRepo = "http://repository.ops4j.org/maven2";
+        }
+
+        // put OPS4J repository before others
+        if( null == remoteArchetypeRepositories )
+        {
+            remoteArchetypeRepositories = ops4jRepo;
+        }
+        else
+        {
+            remoteArchetypeRepositories = ops4jRepo + ',' + remoteArchetypeRepositories;
         }
 
         /*
          * common shared settings
          */
+        m_archetypeMojo = new ReflectMojo( this, MavenArchetypeMojo.class );
         m_archetypeMojo.setField( "archetypeGroupId", PAX_ARCHETYPE_GROUP_ID );
         m_archetypeMojo.setField( "archetypeVersion", archetypeVersion );
         m_archetypeMojo.setField( "remoteRepositories", remoteArchetypeRepositories );
@@ -269,11 +290,40 @@ public abstract class AbstractPaxArchetypeMojo extends MavenArchetypeMojo
     protected abstract String getParentId();
 
     /**
+     * Gives sub-classes the chance to cache the original files before custom archetypes run
+     */
+    protected void cacheOriginalFiles()
+    {
+        // for sub-classes to override
+    }
+
+    /**
+     * Sub-class specific post-processing, which runs *after* custom archetypes are added
+     * 
+     * @param pom working copy of Maven POM
+     * @param bnd working copy of Bnd instructions
+     * @throws MojoExecutionException
+     */
+    protected void postProcess( Pom pom, Bnd bnd )
+        throws MojoExecutionException
+    {
+        // for sub-classes to override
+    }
+
+    /**
+     * @return true to continue creating more projects, otherwise false
+     */
+    protected boolean createMoreArtifacts()
+    {
+        return false;
+    }
+
+    /**
      * Lay the foundations for the new project
      * 
      * @throws MojoExecutionException
      */
-    protected void prepareTarget()
+    private void prepareTarget()
         throws MojoExecutionException
     {
         String artifactId = (String) m_archetypeMojo.getField( "artifactId" );
@@ -286,6 +336,7 @@ public abstract class AbstractPaxArchetypeMojo extends MavenArchetypeMojo
             m_pomFile.delete();
         }
 
+        // reset trashcan
         m_tempFiles = new FileSet();
         m_tempFiles.setDirectory( pomDirectory.getAbsolutePath() );
 
@@ -298,7 +349,7 @@ public abstract class AbstractPaxArchetypeMojo extends MavenArchetypeMojo
             }
             catch( IOException e )
             {
-                throw new MojoExecutionException( "I/O error while protecting existing files from deletion" );
+                throw new MojoExecutionException( "I/O error while protecting existing files from deletion", e );
             }
         }
 
@@ -336,24 +387,81 @@ public abstract class AbstractPaxArchetypeMojo extends MavenArchetypeMojo
     }
 
     /**
-     * Make any necessary adjustments to the generated files
+     * Cache the original generated files before any custom archetypes run
      * 
      * @throws MojoExecutionException
      */
-    protected void postProcess()
+    private void cacheSettings()
         throws MojoExecutionException
     {
         try
         {
-            // attempt to find the logical parent of the new project (may be null)
-            if( DirUtils.updateLogicalParent( m_pomFile, getParentId() ) != null )
-            {
-                m_hasParent = true;
-            }
+            // before caching, search for logical parent in project tree
+            DirUtils.updateLogicalParent( m_pomFile, getParentId() );
+            m_pom = PomUtils.readPom( m_pomFile );
         }
         catch( IOException e )
         {
-            getLog().warn( "Unable to set parent POM: " + getParentId(), e );
+            throw new MojoExecutionException( "I/O error reading generated Maven POM " + m_pomFile, e );
+        }
+
+        try
+        {
+            // uses empty instructions if no existing file
+            m_bnd = BndUtils.readBnd( m_pom.getBasedir() );
+        }
+        catch( IOException e )
+        {
+            throw new MojoExecutionException( "I/O error reading generated Bnd instructions", e );
+        }
+
+        // sub-class caching
+        cacheOriginalFiles();
+    }
+
+    /**
+     * Apply selected custom archetypes to the directory, which may overwrite some of the original archetype content
+     * 
+     * @throws MojoExecutionException
+     */
+    private void runCustomArchetypes()
+        throws MojoExecutionException
+    {
+        for( Iterator i = m_customArchetypeIds.iterator(); i.hasNext(); )
+        {
+            String[] fields = ( (String) i.next() ).split( ":" );
+
+            getArchetypeMojo().setField( "archetypeGroupId", fields[0] );
+            getArchetypeMojo().setField( "archetypeArtifactId", fields[1] );
+            getArchetypeMojo().setField( "archetypeVersion", fields[2] );
+
+            super.execute();
+        }
+    }
+
+    /**
+     * Perform any necessary post-processing and write Maven POM and optional Bnd instructions back to disk
+     * 
+     * @throws MojoExecutionException
+     */
+    private void postProcess()
+        throws MojoExecutionException
+    {
+        // sub-class processing
+        postProcess( m_pom, m_bnd );
+
+        /*
+         * finally, save back working copies of the Maven POM and optional Bnd instructions
+         */
+
+        try
+        {
+            m_pom.write();
+            m_bnd.write();
+        }
+        catch( IOException e )
+        {
+            getLog().error( "Unable to save customized settings" );
         }
     }
 
@@ -375,9 +483,59 @@ public abstract class AbstractPaxArchetypeMojo extends MavenArchetypeMojo
     }
 
     /**
+     * Add custom Maven archetypes, to be used after the main archetype has finished
+     */
+    private void scheduleCustomArchetypes()
+    {
+        m_customArchetypeIds = new ArrayList();
+
+        // are there any extra command-line archetypes?
+        if( null == contents || contents.length() == 0 )
+        {
+            return;
+        }
+
+        String[] ids = contents.split( "," );
+        for( int i = 0; i < ids.length; i++ )
+        {
+            String id = ids[i].trim();
+
+            // handle groupId:artifactId:other:stuff
+            String[] fields = id.split( ":" );
+            if( fields.length > 2 )
+            {
+                // fully-qualified external archetype
+                scheduleArchetype( fields[0], fields[1], fields[2] );
+            }
+            else if( fields.length > 1 )
+            {
+                // semi-qualified external archetype (assume groupId same as artifactId)
+                scheduleArchetype( fields[0], fields[0], fields[1] );
+            }
+            else
+            {
+                // internal Pax-Construct archetype (assume same version as archetype template)
+                scheduleArchetype( PAX_ARCHETYPE_GROUP_ID, fields[0], getArchetypeVersion() );
+            }
+        }
+    }
+
+    /**
+     * Add a custom archetype to the list of archetypes to merge in once the main archetype has been applied
+     * 
+     * @param groupId archetype group id
+     * @param artifactId archetype atifact id
+     * @param version archetype version
+     */
+    protected final void scheduleArchetype( String groupId, String artifactId, String version )
+    {
+        m_customArchetypeIds.add( groupId + ':' + artifactId + ':' + version );
+    }
+
+    /**
      * @return set of filenames that will be left at the end of this archetype cycle
      */
-    protected Set getFinalFilenames()
+    protected final Set getFinalFilenames()
     {
         Set finalFiles = new HashSet();
 
@@ -400,7 +558,7 @@ public abstract class AbstractPaxArchetypeMojo extends MavenArchetypeMojo
     /**
      * Clean up any temporary or unnecessary files, including empty directories
      */
-    private final void cleanUp()
+    private void cleanUp()
     {
         DirectoryScanner scanner = new DirectoryScanner();
         scanner.setBasedir( m_tempFiles.getDirectory() );
