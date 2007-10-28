@@ -658,7 +658,7 @@ public class OSGiWrapperArchetypeMojo extends AbstractPaxArchetypeMojo
 
         try
         {
-            wrapperSettings = PomUtils.readPom( new File( baseDir, "poms/wrapper" ) );
+            wrapperSettings = PomUtils.readPom( new File( baseDir, "poms/wrappers" ) );
             pluginSettings = PomUtils.readPom( new File( baseDir, "poms" ) );
         }
         catch( IOException e )

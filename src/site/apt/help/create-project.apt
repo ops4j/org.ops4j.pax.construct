@@ -29,19 +29,21 @@
 
 * Additional Maven options
 
-*------------------------------------------------*-------------------------------------+
-| <<<-DparentId=>>><groupId:artifactId>          | look for a different parent POM     |
-*------------------------------------------------*-------------------------------------+
-| <<<-DtargetDirectory=>>><path>                 | alternative location of the project |
-*------------------------------------------------*-------------------------------------+
-| <<<-DarchetypeVersion=>>><version>             | use another archetype release       |
-*------------------------------------------------*-------------------------------------+
-| <<<-DremoteArchetypeRepositories=>>><url list> | where to download the archetype     |
-*------------------------------------------------*-------------------------------------+
-| <<<-DattachPom=false>>>                        | don't add this project as a module  |
-*------------------------------------------------*-------------------------------------+
-| <<<-DcompactIds=false>>>                       | don't try to combine name segments  |
-*------------------------------------------------*-------------------------------------+
+*---------------------------------------------------*---------------------------------------------------+
+| <<<-DparentId=>>><groupId:artifactId>             | look for a different parent POM                   |
+*---------------------------------------------------*---------------------------------------------------+
+| <<<-Dcontents=>>><groupId:artifactId:version,...> | custom archetypes that provide additional content |
+*---------------------------------------------------*---------------------------------------------------+
+| <<<-DtargetDirectory=>>><path>                    | alternative location of the project               |
+*---------------------------------------------------*---------------------------------------------------+
+| <<<-DarchetypeVersion=>>><version>                | use another archetype release                     |
+*---------------------------------------------------*---------------------------------------------------+
+| <<<-DremoteArchetypeRepositories=>>><url list>    | where to download the archetype                   |
+*---------------------------------------------------*---------------------------------------------------+
+| <<<-DattachPom=false>>>                           | don't add this project as a module                |
+*---------------------------------------------------*---------------------------------------------------+
+| <<<-DcompactIds=false>>>                          | don't try to combine name segments                |
+*---------------------------------------------------*---------------------------------------------------+
 
  <<<-DparentId>>> is useful when you want to link the new project into an existing non Pax-Construct build.
 

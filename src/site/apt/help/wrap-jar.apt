@@ -30,41 +30,43 @@
 
 * Additional Maven options
 
-*------------------------------------------------*--------------------------------------------------+
-| <<<-DaddVersion>>>                             | add the library version to the wrapper directory |
-*------------------------------------------------*--------------------------------------------------+
-| <<<-DwrapTransitive>>>                         | create wrappers for transitive dependencies      |
-*------------------------------------------------*--------------------------------------------------+
-| <<<-DwrapOptional>>>                           | also create wrappers for optional dependencies   |
-*------------------------------------------------*--------------------------------------------------+
-| <<<-Dexclusions=>>><groupId:artifactId,...>    | exclude these artifacts from being wrapped       |
-*------------------------------------------------*--------------------------------------------------+
-| <<<-DembedTransitive>>>                        | embed transitive dependencies inside the wrapper |
-*------------------------------------------------*--------------------------------------------------+
-| <<<-DincludeResource=>>><directive>            | Include-Resource BND directive                   |
-*------------------------------------------------*--------------------------------------------------+
-| <<<-DimportPackage=>>><directive>              | Import-Package BND directive                     |
-*------------------------------------------------*--------------------------------------------------+
-| <<<-DexportContents=>>><directive>             | -exportcontents BND directive                    |
-*------------------------------------------------*--------------------------------------------------+
-| <<<-DrequireBundle=>>><directive>              | Require-Bundle BND directive                     |
-*------------------------------------------------*--------------------------------------------------+
-| <<<-DdynamicImportPackage=>>><directive>       | DynamicImport-Package BND directive              |
-*------------------------------------------------*--------------------------------------------------+
-| <<<-DtestMetadata=false>>>                     | disable exhaustive OSGi bundle detection         |
-*------------------------------------------------*--------------------------------------------------+
-| <<<-DparentId=>>><groupId:artifactId>          | look for a different parent POM                  |
-*------------------------------------------------*--------------------------------------------------+
-| <<<-DtargetDirectory=>>><path>                 | alternative location of the wrapper              |
-*------------------------------------------------*--------------------------------------------------+
-| <<<-DarchetypeVersion=>>><version>             | use another archetype release                    |
-*------------------------------------------------*--------------------------------------------------+
-| <<<-DremoteArchetypeRepositories=>>><url list> | where to download the archetype                  |
-*------------------------------------------------*--------------------------------------------------+
-| <<<-DattachPom=false>>>                        | don't add this wrapper as a module               |
-*------------------------------------------------*--------------------------------------------------+
-| <<<-DcompactIds=false>>>                       | don't try to combine name segments               |
-*------------------------------------------------*--------------------------------------------------+
+*---------------------------------------------------*---------------------------------------------------+
+| <<<-DaddVersion>>>                                | add the library version to the wrapper directory  |
+*---------------------------------------------------*---------------------------------------------------+
+| <<<-DwrapTransitive>>>                            | create wrappers for transitive dependencies       |
+*---------------------------------------------------*---------------------------------------------------+
+| <<<-DwrapOptional>>>                              | also create wrappers for optional dependencies    |
+*---------------------------------------------------*---------------------------------------------------+
+| <<<-Dexclusions=>>><groupId:artifactId,...>       | exclude these artifacts from being wrapped        |
+*---------------------------------------------------*---------------------------------------------------+
+| <<<-DembedTransitive>>>                           | embed transitive dependencies inside the wrapper  |
+*---------------------------------------------------*---------------------------------------------------+
+| <<<-DincludeResource=>>><directive>               | Include-Resource BND directive                    |
+*---------------------------------------------------*---------------------------------------------------+
+| <<<-DimportPackage=>>><directive>                 | Import-Package BND directive                      |
+*---------------------------------------------------*---------------------------------------------------+
+| <<<-DexportContents=>>><directive>                | -exportcontents BND directive                     |
+*---------------------------------------------------*---------------------------------------------------+
+| <<<-DrequireBundle=>>><directive>                 | Require-Bundle BND directive                      |
+*---------------------------------------------------*---------------------------------------------------+
+| <<<-DdynamicImportPackage=>>><directive>          | DynamicImport-Package BND directive               |
+*---------------------------------------------------*---------------------------------------------------+
+| <<<-Dcontents=>>><groupId:artifactId:version,...> | custom archetypes that provide additional content |
+*---------------------------------------------------*---------------------------------------------------+
+| <<<-DtestMetadata=false>>>                        | disable exhaustive OSGi bundle detection          |
+*---------------------------------------------------*---------------------------------------------------+
+| <<<-DparentId=>>><groupId:artifactId>             | look for a different parent POM                   |
+*---------------------------------------------------*---------------------------------------------------+
+| <<<-DtargetDirectory=>>><path>                    | alternative location of the wrapper               |
+*---------------------------------------------------*---------------------------------------------------+
+| <<<-DarchetypeVersion=>>><version>                | use another archetype release                     |
+*---------------------------------------------------*---------------------------------------------------+
+| <<<-DremoteArchetypeRepositories=>>><url list>    | where to download the archetype                   |
+*---------------------------------------------------*---------------------------------------------------+
+| <<<-DattachPom=false>>>                           | don't add this wrapper as a module                |
+*---------------------------------------------------*---------------------------------------------------+
+| <<<-DcompactIds=false>>>                          | don't try to combine name segments                |
+*---------------------------------------------------*---------------------------------------------------+
 
  <<<-DparentId>>> is useful when you want to link the new wrapper into an existing non Pax-Construct project.
 
