@@ -281,7 +281,8 @@ public class CloneMojo extends AbstractMojo
             command.option( 'a', importee.getArtifactId() );
             command.option( 'v', importee.getVersion() );
 
-            setTargetDirectory( command, project.getBasedir().getParentFile() );
+            // imported bundles now in provision POM
+            setTargetDirectory( command, m_basedir );
             m_handledProjectIds.add( project.getId() );
         }
         // else handled by the major project
