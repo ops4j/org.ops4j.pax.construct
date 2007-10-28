@@ -19,7 +19,7 @@ package org.ops4j.pax.construct.archetype;
 /**
  * Simple singleton to help bridge between Velocity templates and the archetype mojos
  */
-public class VelocityBridge
+public final class VelocityBridge
 {
     /**
      * Current archetype mojo

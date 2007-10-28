@@ -193,7 +193,7 @@ public class ProvisionMojo extends AbstractMojo
      * 
      * @param project a Maven project
      */
-    void addBundleDependencies( MavenProject project )
+    private void addBundleDependencies( MavenProject project )
     {
         if( PomUtils.isBundleProject( project ) )
         {
@@ -221,7 +221,7 @@ public class ProvisionMojo extends AbstractMojo
     /**
      * @param bundle potential bundle artifact
      */
-    void provisionBundle( Artifact bundle )
+    private void provisionBundle( Artifact bundle )
     {
         try
         {
@@ -258,7 +258,7 @@ public class ProvisionMojo extends AbstractMojo
     /**
      * Add user supplied POMs as if they were in the Maven reactor
      */
-    void addAdditionalPoms()
+    private void addAdditionalPoms()
     {
         String[] pomPaths = deployPoms.split( "," );
         for( int i = 0; i < pomPaths.length; i++ )
@@ -283,7 +283,7 @@ public class ProvisionMojo extends AbstractMojo
      * 
      * @throws MojoExecutionException
      */
-    void deployBundles()
+    private void deployBundles()
         throws MojoExecutionException
     {
         if( m_bundleIds.size() == 0 )
@@ -334,7 +334,7 @@ public class ProvisionMojo extends AbstractMojo
      * 
      * @return list of bundles to be deployed (as Maven dependencies)
      */
-    List resolveProvisionedBundles()
+    private List resolveProvisionedBundles()
     {
         List dependencies = new ArrayList();
         for( Iterator i = m_bundleIds.iterator(); i.hasNext(); )
@@ -359,7 +359,7 @@ public class ProvisionMojo extends AbstractMojo
      * @return deployment project
      * @throws MojoExecutionException
      */
-    MavenProject createDeploymentProject( List bundles )
+    private MavenProject createDeploymentProject( List bundles )
         throws MojoExecutionException
     {
         MavenProject rootProject = (MavenProject) m_reactorProjects.get( 0 );
@@ -402,7 +402,7 @@ public class ProvisionMojo extends AbstractMojo
      * @param project deployment project
      * @throws MojoExecutionException
      */
-    void installDeploymentPom( MavenProject project )
+    private void installDeploymentPom( MavenProject project )
         throws MojoExecutionException
     {
         String groupId = project.getGroupId();
@@ -431,7 +431,7 @@ public class ProvisionMojo extends AbstractMojo
      * @return main pax-runner class
      * @throws MojoExecutionException
      */
-    Class loadRunnerClass( String groupId, String artifactId, String mainClass, boolean needClassifier )
+    private Class loadRunnerClass( String groupId, String artifactId, String mainClass, boolean needClassifier )
         throws MojoExecutionException
     {
         String jdk = null;
@@ -486,7 +486,7 @@ public class ProvisionMojo extends AbstractMojo
      * @param repositories comma separated list of Maven repositories
      * @throws MojoExecutionException
      */
-    void deployRunnerClassic( Class mainClass, MavenProject project, String repositories )
+    private void deployRunnerClassic( Class mainClass, MavenProject project, String repositories )
         throws MojoExecutionException
     {
         String workDir = project.getBasedir() + "/work";
@@ -515,7 +515,7 @@ public class ProvisionMojo extends AbstractMojo
      * @param repositories comma separated list of Maven repositories
      * @throws MojoExecutionException
      */
-    void deployRunnerNG( Class mainClass, MavenProject project, String repositories )
+    private void deployRunnerNG( Class mainClass, MavenProject project, String repositories )
         throws MojoExecutionException
     {
         String[] deployAppCmds = provision;
@@ -545,7 +545,7 @@ public class ProvisionMojo extends AbstractMojo
      * @param commands array of command-line options
      * @throws MojoExecutionException
      */
-    void invokePaxRunner( Class mainClass, String[] commands )
+    private void invokePaxRunner( Class mainClass, String[] commands )
         throws MojoExecutionException
     {
         Class[] paramTypes = new Class[1];

@@ -147,7 +147,7 @@ public class OSGiBundleArchetypeMojo extends AbstractPaxArchetypeMojo
     /**
      * {@inheritDoc}
      */
-    String getParentId()
+    protected String getParentId()
     {
         return parentId;
     }
@@ -155,7 +155,7 @@ public class OSGiBundleArchetypeMojo extends AbstractPaxArchetypeMojo
     /**
      * {@inheritDoc}
      */
-    void updateExtensionFields()
+    protected void updateExtensionFields()
     {
         // use the Java package as the symbolic name if no name given
         if( null == bundleName || bundleName.trim().length() == 0 )
@@ -197,7 +197,7 @@ public class OSGiBundleArchetypeMojo extends AbstractPaxArchetypeMojo
     /**
      * {@inheritDoc}
      */
-    boolean createMoreArtifacts()
+    protected boolean createMoreArtifacts()
     {
         return !m_extraArchetypeIds.isEmpty();
     }
@@ -205,7 +205,7 @@ public class OSGiBundleArchetypeMojo extends AbstractPaxArchetypeMojo
     /**
      * {@inheritDoc}
      */
-    void prepareTarget()
+    protected void prepareTarget()
         throws MojoExecutionException
     {
         // only need to prepare once
@@ -218,7 +218,7 @@ public class OSGiBundleArchetypeMojo extends AbstractPaxArchetypeMojo
     /**
      * {@inheritDoc}
      */
-    void postProcess()
+    protected void postProcess()
         throws MojoExecutionException
     {
         try
@@ -269,7 +269,7 @@ public class OSGiBundleArchetypeMojo extends AbstractPaxArchetypeMojo
     /**
      * Add extra Maven archetypes, to be used after the main OSGi bundle archetype has finished
      */
-    void scheduleExtraArchetypes()
+    private void scheduleExtraArchetypes()
     {
         String[] ids = contents.split( "," );
         for( int i = 0; i < ids.length; i++ )
@@ -305,7 +305,7 @@ public class OSGiBundleArchetypeMojo extends AbstractPaxArchetypeMojo
      * 
      * @throws MojoExecutionException
      */
-    void updatePomDependencies()
+    private void updatePomDependencies()
         throws MojoExecutionException
     {
         if( !noDependencies )
@@ -326,7 +326,7 @@ public class OSGiBundleArchetypeMojo extends AbstractPaxArchetypeMojo
     /**
      * Mark any temporary or unnecessary files
      */
-    void markBogusFiles()
+    private void markBogusFiles()
     {
         String packagePath = packageName.replace( '.', '/' );
 
@@ -359,7 +359,7 @@ public class OSGiBundleArchetypeMojo extends AbstractPaxArchetypeMojo
      * @param pom Maven project model
      * @throws MojoExecutionException
      */
-    void makeStandalone( Pom pom )
+    private void makeStandalone( Pom pom )
         throws MojoExecutionException
     {
         File baseDir = pom.getBasedir();
@@ -399,7 +399,7 @@ public class OSGiBundleArchetypeMojo extends AbstractPaxArchetypeMojo
      * @param pom Maven project model
      * @throws MojoExecutionException
      */
-    void addCoreOSGiSupport( Pom pom )
+    private void addCoreOSGiSupport( Pom pom )
         throws MojoExecutionException
     {
         Dependency osgiCore = new Dependency();
@@ -433,7 +433,7 @@ public class OSGiBundleArchetypeMojo extends AbstractPaxArchetypeMojo
      * @param pom Maven project model
      * @throws MojoExecutionException
      */
-    void addSpringBeanSupport( Pom pom )
+    private void addSpringBeanSupport( Pom pom )
         throws MojoExecutionException
     {
         // include the Spring bean code sample
@@ -478,7 +478,7 @@ public class OSGiBundleArchetypeMojo extends AbstractPaxArchetypeMojo
      * @param pom Maven project model
      * @throws MojoExecutionException
      */
-    void addJUnitTestSupport( Pom pom )
+    private void addJUnitTestSupport( Pom pom )
         throws MojoExecutionException
     {
         Dependency junit = new Dependency();
@@ -495,7 +495,7 @@ public class OSGiBundleArchetypeMojo extends AbstractPaxArchetypeMojo
      * 
      * @throws MojoExecutionException
      */
-    void updateBndInstructions()
+    private void updateBndInstructions()
         throws MojoExecutionException
     {
         boolean haveActivator = false;
@@ -505,7 +505,7 @@ public class OSGiBundleArchetypeMojo extends AbstractPaxArchetypeMojo
         /*
          * check the source code in case we need to override the basic BND settings
          */
-        Set filenames = super.getLiveFilenames();
+        Set filenames = super.getFinalFilenames();
         for( Iterator i = filenames.iterator(); i.hasNext(); )
         {
             String name = (String) i.next();
@@ -536,7 +536,7 @@ public class OSGiBundleArchetypeMojo extends AbstractPaxArchetypeMojo
      * @param haveInterface true if there are non-internal packages
      * @throws MojoExecutionException
      */
-    void applyBndInstructions( boolean haveActivator, boolean haveInternals, boolean haveInterface )
+    private void applyBndInstructions( boolean haveActivator, boolean haveInternals, boolean haveInterface )
         throws MojoExecutionException
     {
         try

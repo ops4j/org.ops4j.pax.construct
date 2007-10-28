@@ -27,7 +27,7 @@ public interface PaxCommandBuilder
      * @param flag the flag character
      * @return builder for the Pax-Construct command
      */
-    public PaxCommandBuilder flag( char flag );
+    PaxCommandBuilder flag( char flag );
 
     /**
      * Add an option setting to the command, such as -y value
@@ -36,12 +36,12 @@ public interface PaxCommandBuilder
      * @param value the value to use
      * @return builder for the Pax-Construct command
      */
-    public PaxCommandBuilder option( char option, String value );
+    PaxCommandBuilder option( char option, String value );
 
     /**
      * Add Maven specific options using the given builder
      * 
      * @return builder for Maven specific options
      */
-    public MavenOptionBuilder maven();
+    MavenOptionBuilder maven();
 }

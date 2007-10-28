@@ -79,7 +79,7 @@ public class MoveBundleMojo extends AbstractMojo
      * @return the matching POM
      * @throws MojoExecutionException
      */
-    public static Pom locateBundlePom( File baseDir, String pathOrName )
+    protected static Pom locateBundlePom( File baseDir, String pathOrName )
         throws MojoExecutionException
     {
         Pom bundlePom;
@@ -136,7 +136,7 @@ public class MoveBundleMojo extends AbstractMojo
      * @return modules POM directly above the new bundle directory
      * @throws MojoExecutionException
      */
-    Pom moveBundleFiles( Pom bundlePom )
+    private Pom moveBundleFiles( Pom bundlePom )
         throws MojoExecutionException
     {
         Pom newModulesPom;
@@ -198,7 +198,7 @@ public class MoveBundleMojo extends AbstractMojo
      * @param newModulesPom modules POM directly above the new bundle directory
      * @throws MojoExecutionException
      */
-    void transferBundleOwnership( File oldBundleDir, Pom newModulesPom )
+    private void transferBundleOwnership( File oldBundleDir, Pom newModulesPom )
         throws MojoExecutionException
     {
         String moduleName = oldBundleDir.getName();
@@ -226,7 +226,7 @@ public class MoveBundleMojo extends AbstractMojo
      * @param bundlePom bundle POM from the new directory
      * @param newGroupId groupId based on the new location
      */
-    void changeBundleGroup( Pom bundlePom, String newGroupId )
+    private void changeBundleGroup( Pom bundlePom, String newGroupId )
     {
         try
         {
@@ -258,7 +258,7 @@ public class MoveBundleMojo extends AbstractMojo
      * @param newGroupId new bundle group id
      * @param artifactId bundle artifact id
      */
-    void updateBundleReferences( Pom pom, String oldGroupId, String newGroupId, String artifactId )
+    private void updateBundleReferences( Pom pom, String oldGroupId, String newGroupId, String artifactId )
     {
         Dependency dependency = new Dependency();
         dependency.setGroupId( oldGroupId );

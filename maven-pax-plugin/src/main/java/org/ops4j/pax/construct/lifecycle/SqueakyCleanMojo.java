@@ -86,7 +86,7 @@ public class SqueakyCleanMojo extends AbstractMojo
      * 
      * @param mojo currently executing mojo
      */
-    public static void recoverMetaData( AbstractMojo mojo )
+    protected static void recoverMetaData( AbstractMojo mojo )
     {
         mojo.getLog().info( "[recovering meta-data]" );
 

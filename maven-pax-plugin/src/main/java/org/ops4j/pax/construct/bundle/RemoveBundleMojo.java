@@ -97,7 +97,7 @@ public class RemoveBundleMojo extends AbstractMojo
      * 
      * @param bundlePom the Maven POM for the bundle
      */
-    void dropBundleOwnership( Pom bundlePom )
+    private void dropBundleOwnership( Pom bundlePom )
     {
         String moduleName = bundlePom.getBasedir().getName();
 
@@ -118,7 +118,7 @@ public class RemoveBundleMojo extends AbstractMojo
      * 
      * @param bundlePom the Maven POM for the bundle
      */
-    void removeBundleFiles( Pom bundlePom )
+    private void removeBundleFiles( Pom bundlePom )
     {
         getLog().info( "Removing " + bundlePom );
         File bundleDir = bundlePom.getBasedir();
@@ -139,7 +139,7 @@ public class RemoveBundleMojo extends AbstractMojo
      * @param pom a Maven POM in the project tree
      * @param bundlePom the Maven POM for the bundle
      */
-    void removeBundleReferences( Pom pom, Pom bundlePom )
+    private void removeBundleReferences( Pom pom, Pom bundlePom )
     {
         Dependency dependency = new Dependency();
         dependency.setGroupId( bundlePom.getGroupId() );

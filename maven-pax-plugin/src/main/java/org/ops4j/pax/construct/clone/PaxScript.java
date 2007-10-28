@@ -27,27 +27,27 @@ public interface PaxScript
     /**
      * Create a new OSGi project
      */
-    public static String CREATE_PROJECT = "create-project";
+    static String CREATE_PROJECT = "create-project";
 
     /**
      * Create a new OSGi bundle
      */
-    public static String CREATE_BUNDLE = "create-bundle";
+    static String CREATE_BUNDLE = "create-bundle";
 
     /**
      * Import an existing OSGi bundle
      */
-    public static String IMPORT_BUNDLE = "import-bundle";
+    static String IMPORT_BUNDLE = "import-bundle";
 
     /**
      * Embed a third-party jar inside an OSGi bundle
      */
-    public static String EMBED_JAR = "embed-jar";
+    static String EMBED_JAR = "embed-jar";
 
     /**
      * Wrap a third-party jar as an OSGi bundle
      */
-    public static String WRAP_JAR = "wrap-jar";
+    static String WRAP_JAR = "wrap-jar";
 
     /**
      * Add a call to a Pax-Construct command
@@ -55,7 +55,7 @@ public interface PaxScript
      * @param command name of a Pax-Construct command
      * @return builder for the Pax-Construct command
      */
-    public PaxCommandBuilder call( String command );
+    PaxCommandBuilder call( String command );
 
     /**
      * Write the current script to a file, the file extension is used to customize the contents for the target system
@@ -63,6 +63,6 @@ public interface PaxScript
      * @param scriptFile where the script should be saved
      * @throws IOException
      */
-    public void write( File scriptFile )
+    void write( File scriptFile )
         throws IOException;
 }

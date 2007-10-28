@@ -234,7 +234,7 @@ public class OSGiWrapperArchetypeMojo extends AbstractPaxArchetypeMojo
     /**
      * {@inheritDoc}
      */
-    String getParentId()
+    protected String getParentId()
     {
         return parentId;
     }
@@ -242,7 +242,7 @@ public class OSGiWrapperArchetypeMojo extends AbstractPaxArchetypeMojo
     /**
      * {@inheritDoc}
      */
-    void updateExtensionFields()
+    protected void updateExtensionFields()
         throws MojoExecutionException
     {
         populateMissingFields();
@@ -329,7 +329,7 @@ public class OSGiWrapperArchetypeMojo extends AbstractPaxArchetypeMojo
      * 
      * @throws MojoExecutionException
      */
-    void populateMissingFields()
+    private void populateMissingFields()
         throws MojoExecutionException
     {
         if( null == groupId || groupId.length() == 0 )
@@ -348,7 +348,7 @@ public class OSGiWrapperArchetypeMojo extends AbstractPaxArchetypeMojo
     /**
      * {@inheritDoc}
      */
-    void postProcess()
+    protected void postProcess()
         throws MojoExecutionException
     {
         // locate parent
@@ -395,7 +395,7 @@ public class OSGiWrapperArchetypeMojo extends AbstractPaxArchetypeMojo
      * @throws IOException
      * @throws MojoExecutionException
      */
-    void updateBndInstructions()
+    private void updateBndInstructions()
         throws IOException,
         MojoExecutionException
     {
@@ -432,7 +432,7 @@ public class OSGiWrapperArchetypeMojo extends AbstractPaxArchetypeMojo
     /**
      * {@inheritDoc}
      */
-    boolean createMoreArtifacts()
+    protected boolean createMoreArtifacts()
     {
         return !m_candidateIds.isEmpty();
     }
@@ -442,7 +442,7 @@ public class OSGiWrapperArchetypeMojo extends AbstractPaxArchetypeMojo
      * 
      * @throws IOException
      */
-    void wrapDirectDependencies()
+    private void wrapDirectDependencies()
         throws IOException
     {
         /*
@@ -485,7 +485,7 @@ public class OSGiWrapperArchetypeMojo extends AbstractPaxArchetypeMojo
      * @return list of POM artifacts discovered while processing
      * @throws IOException
      */
-    List processDependencies( Set artifacts )
+    private List processDependencies( Set artifacts )
         throws IOException
     {
         // open current wrapper pom to add dependencies
@@ -524,7 +524,7 @@ public class OSGiWrapperArchetypeMojo extends AbstractPaxArchetypeMojo
      * @param candidateId potential new candidate
      * @return first version wrapped, or null if it has not been wrapped
      */
-    String getWrappedVersion( String candidateId )
+    private String getWrappedVersion( String candidateId )
     {
         // ignore version field while searching...
         int versionIndex = candidateId.lastIndexOf( ':' );
@@ -547,7 +547,7 @@ public class OSGiWrapperArchetypeMojo extends AbstractPaxArchetypeMojo
      * @param artifact wrapper dependency
      * @return groupId:artifactId:metaVersion
      */
-    static String getCandidateId( Artifact artifact )
+    private static String getCandidateId( Artifact artifact )
     {
         return artifact.getGroupId() + ':' + artifact.getArtifactId() + ':' + PomUtils.getMetaVersion( artifact );
     }
@@ -556,7 +556,7 @@ public class OSGiWrapperArchetypeMojo extends AbstractPaxArchetypeMojo
      * @param artifact wrapper dependency
      * @return true if this artifact needs to be wrapped, otherwise false
      */
-    boolean isValidWrapperDependency( Artifact artifact )
+    private boolean isValidWrapperDependency( Artifact artifact )
     {
         String scope = artifact.getScope();
 
@@ -581,7 +581,7 @@ public class OSGiWrapperArchetypeMojo extends AbstractPaxArchetypeMojo
      * @param artifact wrapper dependency
      * @return true if the dependency should be wrapped, otherwise false
      */
-    boolean addWrapperDependency( Pom pom, Artifact artifact )
+    private boolean addWrapperDependency( Pom pom, Artifact artifact )
     {
         try
         {
@@ -623,7 +623,7 @@ public class OSGiWrapperArchetypeMojo extends AbstractPaxArchetypeMojo
      * @param artifact wrapper dependency
      * @return a provided dependency to the bundle
      */
-    Dependency getBundleDependency( Artifact artifact )
+    private Dependency getBundleDependency( Artifact artifact )
     {
         Dependency dependency = new Dependency();
 
@@ -639,7 +639,7 @@ public class OSGiWrapperArchetypeMojo extends AbstractPaxArchetypeMojo
      * @param artifact wrapper dependency
      * @return a provided dependency to the (future) wrapped artifact
      */
-    Dependency getWrappedDependency( Artifact artifact )
+    private Dependency getWrappedDependency( Artifact artifact )
     {
         Dependency dependency = new Dependency();
 
@@ -666,7 +666,7 @@ public class OSGiWrapperArchetypeMojo extends AbstractPaxArchetypeMojo
     /**
      * Add additional POM elements to make it work standalone
      */
-    void makeStandalone()
+    private void makeStandalone()
     {
         try
         {
@@ -707,7 +707,7 @@ public class OSGiWrapperArchetypeMojo extends AbstractPaxArchetypeMojo
      * 
      * @param artifacts comma-separated list of artifacts to exclude from wrapping
      */
-    void excludeCandidates( String artifacts )
+    private void excludeCandidates( String artifacts )
     {
         if( null == artifacts || artifacts.length() == 0 )
         {
@@ -737,7 +737,7 @@ public class OSGiWrapperArchetypeMojo extends AbstractPaxArchetypeMojo
      * 
      * @throws IOException
      */
-    void excludeDependencies()
+    private void excludeDependencies()
         throws IOException
     {
         // open current wrapper pom to add exclusions

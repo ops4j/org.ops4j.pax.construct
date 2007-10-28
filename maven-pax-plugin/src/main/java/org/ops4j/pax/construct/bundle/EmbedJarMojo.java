@@ -144,7 +144,7 @@ public class EmbedJarMojo extends AbstractMojo
      * 
      * @throws MojoExecutionException
      */
-    void populateMissingFields()
+    private void populateMissingFields()
         throws MojoExecutionException
     {
         if( null == groupId || groupId.length() == 0 )
@@ -165,7 +165,7 @@ public class EmbedJarMojo extends AbstractMojo
      * 
      * @throws MojoExecutionException
      */
-    void addDependencyToPom()
+    private void addDependencyToPom()
         throws MojoExecutionException
     {
         Pom pom;
@@ -213,7 +213,7 @@ public class EmbedJarMojo extends AbstractMojo
      * 
      * @throws MojoExecutionException
      */
-    void addInstructionsToBndFile()
+    private void addInstructionsToBndFile()
         throws MojoExecutionException
     {
         BndFile bndFile;
@@ -255,7 +255,7 @@ public class EmbedJarMojo extends AbstractMojo
      * @param embedDependency comma separated list of clauses
      * @return updated Embed-Dependency instruction
      */
-    String addEmbedClause( String embedClause, String embedDependency )
+    private String addEmbedClause( String embedClause, String embedDependency )
     {
         if( null == embedDependency )
         {

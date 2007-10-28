@@ -117,7 +117,7 @@ public abstract class AbstractPaxArchetypeMojo extends MavenArchetypeMojo
     /**
      * @return true if the new project has a logical parent, otherwise false
      */
-    boolean hasParent()
+    protected boolean hasParent()
     {
         return m_hasParent;
     }
@@ -125,7 +125,7 @@ public abstract class AbstractPaxArchetypeMojo extends MavenArchetypeMojo
     /**
      * @return true if existing files can be overwritten, otherwise false
      */
-    boolean canOverwrite()
+    protected boolean canOverwrite()
     {
         return overwrite;
     }
@@ -133,7 +133,7 @@ public abstract class AbstractPaxArchetypeMojo extends MavenArchetypeMojo
     /**
      * @return the internal groupId for support artifacts belonging to the new project
      */
-    String getInternalGroupId()
+    protected String getInternalGroupId()
     {
         if( m_project.getFile() != null )
         {
@@ -149,7 +149,7 @@ public abstract class AbstractPaxArchetypeMojo extends MavenArchetypeMojo
     /**
      * @return the version of the archetype
      */
-    String getArchetypeVersion()
+    protected String getArchetypeVersion()
     {
         return archetypeVersion;
     }
@@ -157,7 +157,7 @@ public abstract class AbstractPaxArchetypeMojo extends MavenArchetypeMojo
     /**
      * @return the version of the new project
      */
-    String getProjectVersion()
+    protected String getProjectVersion()
     {
         return m_project.getVersion();
     }
@@ -165,7 +165,7 @@ public abstract class AbstractPaxArchetypeMojo extends MavenArchetypeMojo
     /**
      * @return Access to the archetype mojo
      */
-    ReflectMojo getArchetypeMojo()
+    protected ReflectMojo getArchetypeMojo()
     {
         return m_archetypeMojo;
     }
@@ -173,7 +173,7 @@ public abstract class AbstractPaxArchetypeMojo extends MavenArchetypeMojo
     /**
      * @return The new project's POM file
      */
-    File getPomFile()
+    protected File getPomFile()
     {
         return m_pomFile;
     }
@@ -181,7 +181,7 @@ public abstract class AbstractPaxArchetypeMojo extends MavenArchetypeMojo
     /**
      * @param pathExpression Ant-style path expression, can include wildcards
      */
-    void addTempFiles( String pathExpression )
+    protected void addTempFiles( String pathExpression )
     {
         m_tempFiles.addInclude( pathExpression );
     }
@@ -215,7 +215,7 @@ public abstract class AbstractPaxArchetypeMojo extends MavenArchetypeMojo
     /**
      * @return true to continue creating more projects, otherwise false
      */
-    boolean createMoreArtifacts()
+    protected boolean createMoreArtifacts()
     {
         return false;
     }
@@ -223,7 +223,7 @@ public abstract class AbstractPaxArchetypeMojo extends MavenArchetypeMojo
     /**
      * Set common fields in the archetype mojo
      */
-    final void updateFields()
+    private final void updateFields()
     {
         m_archetypeMojo = new ReflectMojo( this, MavenArchetypeMojo.class );
 
@@ -260,20 +260,20 @@ public abstract class AbstractPaxArchetypeMojo extends MavenArchetypeMojo
      * 
      * @throws MojoExecutionException
      */
-    abstract void updateExtensionFields()
+    protected abstract void updateExtensionFields()
         throws MojoExecutionException;
 
     /**
      * @return The logical parent of the new project (use artifactId or groupId:artifactId)
      */
-    abstract String getParentId();
+    protected abstract String getParentId();
 
     /**
      * Lay the foundations for the new project
      * 
      * @throws MojoExecutionException
      */
-    void prepareTarget()
+    protected void prepareTarget()
         throws MojoExecutionException
     {
         String artifactId = (String) m_archetypeMojo.getField( "artifactId" );
@@ -314,7 +314,7 @@ public abstract class AbstractPaxArchetypeMojo extends MavenArchetypeMojo
      * @param pomDirectory the project directory
      * @throws MojoExecutionException
      */
-    void attachToContainingProject( File pomDirectory )
+    private void attachToContainingProject( File pomDirectory )
         throws MojoExecutionException
     {
         try
@@ -336,36 +336,11 @@ public abstract class AbstractPaxArchetypeMojo extends MavenArchetypeMojo
     }
 
     /**
-     * Clean up any temporary or unnecessary files, including empty directories
-     */
-    final void cleanUp()
-    {
-        DirectoryScanner scanner = new DirectoryScanner();
-        scanner.setBasedir( m_tempFiles.getDirectory() );
-        scanner.setFollowSymlinks( false );
-
-        scanner.addDefaultExcludes();
-        scanner.setExcludes( m_tempFiles.getExcludesArray() );
-        scanner.setIncludes( m_tempFiles.getIncludesArray() );
-
-        scanner.scan();
-
-        String[] discardedFiles = scanner.getIncludedFiles();
-        for( int i = 0; i < discardedFiles.length; i++ )
-        {
-            new File( scanner.getBasedir(), discardedFiles[i] ).delete();
-        }
-
-        // remove any empty directories after the cleanup
-        DirUtils.pruneEmptyFolders( scanner.getBasedir() );
-    }
-
-    /**
      * Make any necessary adjustments to the generated files
      * 
      * @throws MojoExecutionException
      */
-    void postProcess()
+    protected void postProcess()
         throws MojoExecutionException
     {
         try
@@ -389,7 +364,7 @@ public abstract class AbstractPaxArchetypeMojo extends MavenArchetypeMojo
      * @param artifactId project artifact id
      * @return the combined group and artifact sequence
      */
-    final String getCompoundId( String groupId, String artifactId )
+    protected final String getCompoundId( String groupId, String artifactId )
     {
         if( compactIds )
         {
@@ -402,9 +377,9 @@ public abstract class AbstractPaxArchetypeMojo extends MavenArchetypeMojo
     /**
      * @return set of filenames that will be left at the end of this archetype cycle
      */
-    Set getLiveFilenames()
+    protected Set getFinalFilenames()
     {
-        Set liveFiles = new HashSet();
+        Set finalFiles = new HashSet();
 
         DirectoryScanner scanner = new DirectoryScanner();
         scanner.setBasedir( m_tempFiles.getDirectory() );
@@ -416,9 +391,34 @@ public abstract class AbstractPaxArchetypeMojo extends MavenArchetypeMojo
 
         scanner.scan();
 
-        liveFiles.addAll( Arrays.asList( scanner.getNotIncludedFiles() ) );
-        liveFiles.addAll( Arrays.asList( scanner.getExcludedFiles() ) );
+        finalFiles.addAll( Arrays.asList( scanner.getNotIncludedFiles() ) );
+        finalFiles.addAll( Arrays.asList( scanner.getExcludedFiles() ) );
 
-        return liveFiles;
+        return finalFiles;
+    }
+
+    /**
+     * Clean up any temporary or unnecessary files, including empty directories
+     */
+    private final void cleanUp()
+    {
+        DirectoryScanner scanner = new DirectoryScanner();
+        scanner.setBasedir( m_tempFiles.getDirectory() );
+        scanner.setFollowSymlinks( false );
+
+        scanner.addDefaultExcludes();
+        scanner.setExcludes( m_tempFiles.getExcludesArray() );
+        scanner.setIncludes( m_tempFiles.getIncludesArray() );
+
+        scanner.scan();
+
+        String[] discardedFiles = scanner.getIncludedFiles();
+        for( int i = 0; i < discardedFiles.length; i++ )
+        {
+            new File( scanner.getBasedir(), discardedFiles[i] ).delete();
+        }
+
+        // remove any empty directories after the cleanup
+        DirUtils.pruneEmptyFolders( scanner.getBasedir() );
     }
 }

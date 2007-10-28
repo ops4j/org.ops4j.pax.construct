@@ -151,7 +151,7 @@ public class EclipseOSGiMojo extends EclipsePlugin
      * 
      * @return true if this looks like a provisioning POM, otherwise false
      */
-    boolean isProvisioningPom()
+    private boolean isProvisioningPom()
     {
         // ignore POMs which don't have provision as their artifactId
         if( !"provision".equals( executedProject.getArtifactId() ) )
@@ -189,7 +189,7 @@ public class EclipseOSGiMojo extends EclipsePlugin
         else
         {
             // imported (external) OSGi bundle
-            writeImportedConfiguration( deps );
+            writeImportedConfiguration();
         }
     }
 
@@ -199,7 +199,7 @@ public class EclipseOSGiMojo extends EclipsePlugin
      * @param deps resolved project dependencies, potentially with sources and javadocs
      * @throws MojoExecutionException
      */
-    void writeBundleConfiguration( IdeDependency[] deps )
+    private void writeBundleConfiguration( IdeDependency[] deps )
         throws MojoExecutionException
     {
         m_resolvedDependencies = new ArrayList();
@@ -242,7 +242,7 @@ public class EclipseOSGiMojo extends EclipsePlugin
      * @param dependency an IDE test dependency
      * @return fixed IDE test dependency
      */
-    IdeDependency fixOSGiTestDependency( IdeDependency dependency )
+    private IdeDependency fixOSGiTestDependency( IdeDependency dependency )
     {
         // unfortunately there's no setIsOsgiBundle() method, so we have to replace the whole dependency...
         IdeDependency testDependency = new IdeDependency( dependency.getGroupId(), dependency.getArtifactId(),
@@ -262,7 +262,7 @@ public class EclipseOSGiMojo extends EclipsePlugin
      * @param addVersion when true, add the project version to the name
      * @return an Eclipse friendly name for the bundle
      */
-    static String getEclipseProjectName( MavenProject project, boolean addVersion )
+    private static String getEclipseProjectName( MavenProject project, boolean addVersion )
     {
         String projectName = project.getProperties().getProperty( "bundle.symbolicName" );
         if( null == projectName )
@@ -294,7 +294,7 @@ public class EclipseOSGiMojo extends EclipsePlugin
      * 
      * @param bundleFile the packaged bundle
      */
-    void refactorForEclipse( File bundleFile )
+    private void refactorForEclipse( File bundleFile )
     {
         // temporary location in the output folder
         String tempPath = "target/contents";
@@ -364,7 +364,7 @@ public class EclipseOSGiMojo extends EclipsePlugin
      * @param manifestFile path to the local bundle manifest
      * @return the bundle manifest, or sane defaults if the manifest couldn't be opened
      */
-    Manifest getBundleManifest( File manifestFile )
+    private Manifest getBundleManifest( File manifestFile )
     {
         Manifest manifest = new Manifest();
 
@@ -398,7 +398,7 @@ public class EclipseOSGiMojo extends EclipsePlugin
      * @param metadata metadata folder
      * @param toDir target directory
      */
-    void copyMetadata( File fromDir, String metadata, File toDir )
+    private void copyMetadata( File fromDir, String metadata, File toDir )
     {
         File metadataDir = new File( fromDir, metadata );
         if( metadataDir.exists() )
@@ -420,7 +420,7 @@ public class EclipseOSGiMojo extends EclipsePlugin
      * @param bundleLocation relative path to the unpacked bundle
      * @param bundleClassPath the refactored Bundle-ClassPath
      */
-    void addEmbeddedEntriesToEclipseClassPath( String bundleLocation, String bundleClassPath )
+    private void addEmbeddedEntriesToEclipseClassPath( String bundleLocation, String bundleClassPath )
     {
         String[] classPath = bundleClassPath.split( "," );
 
@@ -473,7 +473,7 @@ public class EclipseOSGiMojo extends EclipsePlugin
      * @param classPathEntry classpath element
      * @return path to the attached sources
      */
-    File findAttachedSource( String bundleLocation, String classPathEntry )
+    private File findAttachedSource( String bundleLocation, String classPathEntry )
     {
         for( Iterator i = m_resolvedDependencies.iterator(); i.hasNext(); )
         {
@@ -499,7 +499,7 @@ public class EclipseOSGiMojo extends EclipsePlugin
      * @throws InvalidDependencyVersionException
      * @throws MojoExecutionException
      */
-    public void setupImportedBundles()
+    private void setupImportedBundles()
         throws InvalidDependencyVersionException,
         MojoExecutionException
     {
@@ -561,7 +561,7 @@ public class EclipseOSGiMojo extends EclipsePlugin
      * @param artifact Maven artifact
      * @return the downloaded project
      */
-    MavenProject writeProjectPom( Artifact artifact )
+    private MavenProject writeProjectPom( Artifact artifact )
     {
         MavenProject pom = null;
 
@@ -602,10 +602,9 @@ public class EclipseOSGiMojo extends EclipsePlugin
     /**
      * Customize Eclipse project files for imported (unpacked) bundles
      * 
-     * @param deps resolved project dependencies, potentially with sources and javadocs
      * @throws MojoExecutionException
      */
-    void writeImportedConfiguration( IdeDependency[] deps )
+    private void writeImportedConfiguration()
         throws MojoExecutionException
     {
         EclipseWriterConfig config = createEclipseWriterConfig( new IdeDependency[0] );
@@ -649,7 +648,7 @@ public class EclipseOSGiMojo extends EclipsePlugin
      * 
      * @param sourcePath path to the attached bundle source
      */
-    void attachImportedSource( String sourcePath )
+    private void attachImportedSource( String sourcePath )
     {
         try
         {

@@ -27,7 +27,7 @@ public interface MavenOptionBuilder
      * @param flag the flag name
      * @return builder for Maven specific options
      */
-    public MavenOptionBuilder flag( String flag );
+    MavenOptionBuilder flag( String flag );
 
     /**
      * Add a Maven property, such as -Doption=value
@@ -36,5 +36,5 @@ public interface MavenOptionBuilder
      * @param value the value to use
      * @return builder for Maven specific options
      */
-    public MavenOptionBuilder option( String option, String value );
+    MavenOptionBuilder option( String option, String value );
 }

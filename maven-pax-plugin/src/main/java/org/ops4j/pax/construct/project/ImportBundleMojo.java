@@ -271,7 +271,7 @@ public class ImportBundleMojo extends AbstractMojo
      * 
      * @throws MojoExecutionException
      */
-    void populateMissingFields()
+    private void populateMissingFields()
         throws MojoExecutionException
     {
         if( null == groupId || groupId.length() == 0 )
@@ -305,7 +305,7 @@ public class ImportBundleMojo extends AbstractMojo
     /**
      * @param pom the Maven POM to write
      */
-    void writeUpdatedPom( Pom pom )
+    private void writeUpdatedPom( Pom pom )
     {
         if( pom != null )
         {
@@ -324,7 +324,7 @@ public class ImportBundleMojo extends AbstractMojo
      * @param here a Maven POM, or a directory containing a file named 'pom.xml'
      * @return the POM, null if the POM is not a bundle project or doesn't exist
      */
-    static Pom readBundlePom( File here )
+    private static Pom readBundlePom( File here )
     {
         try
         {
@@ -352,7 +352,7 @@ public class ImportBundleMojo extends AbstractMojo
      * @param pomVersion project version
      * @return resolved Maven project
      */
-    MavenProject buildMavenProject( String pomGroupId, String pomArtifactId, String pomVersion )
+    private MavenProject buildMavenProject( String pomGroupId, String pomArtifactId, String pomVersion )
     {
         Artifact pomArtifact = m_factory.createProjectArtifact( pomGroupId, pomArtifactId, pomVersion );
         MavenProject project;
@@ -406,7 +406,7 @@ public class ImportBundleMojo extends AbstractMojo
      * 
      * @param project the Maven project being imported
      */
-    void processDependencies( MavenProject project )
+    private void processDependencies( MavenProject project )
     {
         try
         {
@@ -445,7 +445,7 @@ public class ImportBundleMojo extends AbstractMojo
     /**
      * @param candidateId potential new candidate
      */
-    void scheduleCandidate( String candidateId )
+    private void scheduleCandidate( String candidateId )
     {
         int versionIndex = candidateId.lastIndexOf( ':' );
         if( m_visitedIds.add( candidateId.substring( 0, versionIndex ) ) )
@@ -460,7 +460,7 @@ public class ImportBundleMojo extends AbstractMojo
      * @param scope original dependency scope
      * @return potentially widened scope
      */
-    String adjustDependencyScope( String scope )
+    private String adjustDependencyScope( String scope )
     {
         if( widenScope && !Artifact.SCOPE_SYSTEM.equals( scope ) && !Artifact.SCOPE_TEST.equals( scope ) )
         {
@@ -474,7 +474,7 @@ public class ImportBundleMojo extends AbstractMojo
      * @param artifact candidate artifact
      * @return simple unique id
      */
-    static String getCandidateId( Artifact artifact )
+    private static String getCandidateId( Artifact artifact )
     {
         return artifact.getGroupId() + ':' + artifact.getArtifactId() + ':' + PomUtils.getMetaVersion( artifact );
     }
@@ -485,7 +485,7 @@ public class ImportBundleMojo extends AbstractMojo
      * @param project bundle project
      * @throws MojoExecutionException
      */
-    void importBundle( MavenProject project )
+    private void importBundle( MavenProject project )
         throws MojoExecutionException
     {
         Dependency dependency = new Dependency();
@@ -516,7 +516,7 @@ public class ImportBundleMojo extends AbstractMojo
      * 
      * @param artifacts comma-separated list of artifacts to exclude from importing
      */
-    void excludeCandidates( String artifacts )
+    private void excludeCandidates( String artifacts )
     {
         if( null == artifacts || artifacts.length() == 0 )
         {

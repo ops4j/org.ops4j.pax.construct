@@ -169,7 +169,7 @@ public class PaxScriptImpl
         /**
          * @return target directory for this command
          */
-        String getTargetDir()
+        private String getTargetDir()
         {
             return m_targetDir;
         }

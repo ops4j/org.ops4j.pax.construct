@@ -70,7 +70,7 @@ public class OSGiProjectArchetypeMojo extends AbstractPaxArchetypeMojo
     /**
      * {@inheritDoc}
      */
-    void updateExtensionFields()
+    protected void updateExtensionFields()
     {
         getArchetypeMojo().setField( "archetypeArtifactId", "maven-archetype-osgi-project" );
 
@@ -84,7 +84,7 @@ public class OSGiProjectArchetypeMojo extends AbstractPaxArchetypeMojo
     /**
      * {@inheritDoc}
      */
-    String getParentId()
+    protected String getParentId()
     {
         return parentId;
     }
@@ -92,7 +92,7 @@ public class OSGiProjectArchetypeMojo extends AbstractPaxArchetypeMojo
     /**
      * {@inheritDoc}
      */
-    void postProcess()
+    protected void postProcess()
         throws MojoExecutionException
     {
         // locate parent
