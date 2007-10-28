@@ -528,7 +528,7 @@ public class XppPom
      * @param newGroupId new group id
      * @return true if any elements were updated, otherwise false
      */
-    boolean updateGroupId( String xpath, String newGroupId )
+    private boolean updateGroupId( String xpath, String newGroupId )
     {
         XppPathQuery pathQuery = new XppPathQuery( xpath );
         Xpp3Dom parent = pathQuery.queryParent( m_pom );
@@ -554,7 +554,7 @@ public class XppPom
      * @param newVersion new version
      * @return true if any elements were updated, otherwise false
      */
-    boolean updateVersion( String xpath, String newVersion )
+    private boolean updateVersion( String xpath, String newVersion )
     {
         XppPathQuery pathQuery = new XppPathQuery( xpath );
         Xpp3Dom parent = pathQuery.queryParent( m_pom );
@@ -728,7 +728,7 @@ public class XppPom
     /**
      * Local utility class to help construct a "map" style XML fragment
      */
-    static class Xpp3DomMap extends Xpp3Dom
+    private static class Xpp3DomMap extends Xpp3Dom
     {
         /**
          * Create a new map fragment
@@ -756,7 +756,7 @@ public class XppPom
          * @param name element name
          * @param value element value
          */
-        static void putValue( Xpp3Dom map, String name, String value )
+        private static void putValue( Xpp3Dom map, String name, String value )
         {
             if( null != value )
             {
@@ -771,7 +771,7 @@ public class XppPom
     /**
      * Private utility class to help construct a "list" style XML fragment
      */
-    static class Xpp3DomList extends Xpp3Dom
+    private static class Xpp3DomList extends Xpp3Dom
     {
         /**
          * Create a new list fragment
@@ -817,7 +817,7 @@ public class XppPom
      * @param clear remove matching elements
      * @return true if any child elements matched, otherwise false
      */
-    boolean findChildren( String xpath, boolean clear )
+    private boolean findChildren( String xpath, boolean clear )
     {
         XppPathQuery pathQuery = new XppPathQuery( xpath );
         Xpp3Dom parent = pathQuery.queryParent( m_pom );

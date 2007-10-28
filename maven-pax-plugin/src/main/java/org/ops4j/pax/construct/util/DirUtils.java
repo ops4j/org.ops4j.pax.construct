@@ -127,7 +127,7 @@ public final class DirUtils
      * @param artifactId project artifact id or bundle symbolic name
      * @return true if the project has matching ids, otherwise false
      */
-    static boolean sameProject( Pom pom, String groupId, String artifactId )
+    private static boolean sameProject( Pom pom, String groupId, String artifactId )
     {
         if( ( artifactId.equals( pom.getArtifactId() ) || artifactId.equals( pom.getBundleSymbolicName() ) )
             && ( null == groupId || groupId.equals( pom.getGroupId() ) ) )
@@ -211,7 +211,7 @@ public final class DirUtils
      * @return the new Maven POM
      * @throws IOException
      */
-    static Pom createMissingPom( Pom parentPom, String module, File pomFile )
+    private static Pom createMissingPom( Pom parentPom, String module, File pomFile )
         throws IOException
     {
         try
@@ -402,7 +402,7 @@ public final class DirUtils
      * @param tempDir temporary directory for unpacking
      * @return expanded classpath elements
      */
-    static List expandBundleClassPath( File element, ArchiverManager archiverManager, File tempDir )
+    private static List expandBundleClassPath( File element, ArchiverManager archiverManager, File tempDir )
     {
         File bundle = locateBundle( element );
 
@@ -436,7 +436,7 @@ public final class DirUtils
      * @param classpathElement classpath element, may be myProject/target/classes
      * @return the final bundle, null if it hasn't been built yet
      */
-    static File locateBundle( File classpathElement )
+    private static File locateBundle( File classpathElement )
     {
         // for now just assume the output directory is target/classes
         String outputDir = "target" + File.separator + "classes";
@@ -470,7 +470,7 @@ public final class DirUtils
      * @param bundle jarfile
      * @return Bundle-ClassPath
      */
-    static String extractBundleClassPath( File bundle )
+    private static String extractBundleClassPath( File bundle )
     {
         String bundleClassPath = null;
 

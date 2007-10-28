@@ -60,73 +60,73 @@ public final class PomUtils
         /**
          * @return unique project identifier
          */
-        public String getId();
+        String getId();
 
         /**
          * @return parents' unique project identifier
          */
-        public String getParentId();
+        String getParentId();
 
         /**
          * @return project group id
          */
-        public String getGroupId();
+        String getGroupId();
 
         /**
          * @return project artifact id
          */
-        public String getArtifactId();
+        String getArtifactId();
 
         /**
          * @return project version
          */
-        public String getVersion();
+        String getVersion();
 
         /**
          * @return project packaging
          */
-        public String getPackaging();
+        String getPackaging();
 
         /**
          * @return names of modules contained in this project
          */
-        public List getModuleNames();
+        List getModuleNames();
 
         /**
          * @return the physical parent project
          */
-        public Pom getContainingPom();
+        Pom getContainingPom();
 
         /**
          * @param module name of a module in this project
          * @return the module POM, null if it doesn't exist
          */
-        public Pom getModulePom( String module );
+        Pom getModulePom( String module );
 
         /**
          * @return the underlying Maven POM file
          */
-        public File getFile();
+        File getFile();
 
         /**
          * @return the directory containing this Maven project
          */
-        public File getBasedir();
+        File getBasedir();
 
         /**
          * @return true if this is an OSGi bundle project, otherwise false
          */
-        public boolean isBundleProject();
+        boolean isBundleProject();
 
         /**
          * @return the symbolic name for this project, null if it doesn't define one
          */
-        public String getBundleSymbolicName();
+        String getBundleSymbolicName();
 
         /**
          * @return the final bundle produced by this Maven project, null if not yet built
          */
-        public File getFinalBundle();
+        File getFinalBundle();
 
         /**
          * @param pom the new logical parent project
@@ -134,7 +134,7 @@ public final class PomUtils
          * @param overwrite overwrite element if true, otherwise throw {@link ExistingElementException}
          * @throws ExistingElementException
          */
-        public void setParent( Pom pom, String relativePath, boolean overwrite )
+        void setParent( Pom pom, String relativePath, boolean overwrite )
             throws ExistingElementException;
 
         /**
@@ -143,13 +143,13 @@ public final class PomUtils
          * @param overwrite overwrite element if true, otherwise throw {@link ExistingElementException}
          * @throws ExistingElementException
          */
-        public void setParent( MavenProject project, String relativePath, boolean overwrite )
+        void setParent( MavenProject project, String relativePath, boolean overwrite )
             throws ExistingElementException;
 
         /**
          * @param newGroupId the new project group id
          */
-        public void setGroupId( String newGroupId );
+        void setGroupId( String newGroupId );
 
         /**
          * @param repository a Maven repository
@@ -159,7 +159,7 @@ public final class PomUtils
          * @param pluginRepo treat as plugin repository if true, otherwise assume normal repository
          * @throws ExistingElementException
          */
-        public void addRepository( Repository repository, boolean snapshots, boolean releases, boolean overwrite,
+        void addRepository( Repository repository, boolean snapshots, boolean releases, boolean overwrite,
             boolean pluginRepo )
             throws ExistingElementException;
 
@@ -168,21 +168,21 @@ public final class PomUtils
          * @param overwrite overwrite element if true, otherwise throw {@link ExistingElementException}
          * @throws ExistingElementException
          */
-        public void addModule( String module, boolean overwrite )
+        void addModule( String module, boolean overwrite )
             throws ExistingElementException;
 
         /**
          * @param module module name
          * @return true if module was removed from the project, otherwise false
          */
-        public boolean removeModule( String module );
+        boolean removeModule( String module );
 
         /**
          * @param dependency project dependency
          * @param overwrite overwrite element if true, otherwise throw {@link ExistingElementException}
          * @throws ExistingElementException
          */
-        public void addDependency( Dependency dependency, boolean overwrite )
+        void addDependency( Dependency dependency, boolean overwrite )
             throws ExistingElementException;
 
         /**
@@ -190,13 +190,13 @@ public final class PomUtils
          * @param newGroupId updated dependency group id
          * @return true if the dependency was updated
          */
-        public boolean updateDependencyGroup( Dependency dependency, String newGroupId );
+        boolean updateDependencyGroup( Dependency dependency, String newGroupId );
 
         /**
          * @param dependency project dependency
          * @return true if dependency was removed from the project, otherwise false
          */
-        public boolean removeDependency( Dependency dependency );
+        boolean removeDependency( Dependency dependency );
 
         /**
          * @param groupId dependency exclusion group id
@@ -204,7 +204,7 @@ public final class PomUtils
          * @param overwrite overwrite element if true, otherwise throw {@link ExistingElementException}
          * @throws ExistingElementException
          */
-        public void addExclusion( String groupId, String artifactId, boolean overwrite )
+        void addExclusion( String groupId, String artifactId, boolean overwrite )
             throws ExistingElementException;
 
         /**
@@ -212,7 +212,7 @@ public final class PomUtils
          * @param artifactId dependency exclusion artifact id
          * @return true if dependency exclusion was removed from the project, otherwise false
          */
-        public boolean removeExclusion( String groupId, String artifactId );
+        boolean removeExclusion( String groupId, String artifactId );
 
         /**
          * @param groupId plugin group id
@@ -220,7 +220,7 @@ public final class PomUtils
          * @param newVersion new plugin version
          * @return true if the plugin was updated
          */
-        public boolean updatePluginVersion( String groupId, String artifactId, String newVersion );
+        boolean updatePluginVersion( String groupId, String artifactId, String newVersion );
 
         /**
          * Merge a section of XML from another Maven project POM
@@ -229,12 +229,12 @@ public final class PomUtils
          * @param fromSection path to XML section to merge from
          * @param toSection path to XML section to merge into
          */
-        public void merge( Pom pom, String fromSection, String toSection );
+        void merge( Pom pom, String fromSection, String toSection );
 
         /**
          * @throws IOException
          */
-        public void write()
+        void write()
             throws IOException;
     }
 
@@ -372,7 +372,7 @@ public final class PomUtils
      * @param localRepo local Maven repository
      * @return true if the artifact is available, otherwise false
      */
-    static boolean haveArtifactFile( Artifact artifact, ArtifactResolver resolver, List remoteRepos,
+    private static boolean haveArtifactFile( Artifact artifact, ArtifactResolver resolver, List remoteRepos,
         ArtifactRepository localRepo )
     {
         if( artifact.getFile() == null || !artifact.getFile().exists() )

@@ -42,7 +42,7 @@ public final class BndFileUtils
          * @param directive a Bnd directive
          * @return assigned Bnd instruction
          */
-        public String getInstruction( String directive );
+        String getInstruction( String directive );
 
         /**
          * @param directive a Bnd directive
@@ -50,29 +50,29 @@ public final class BndFileUtils
          * @param overwrite overwrite existing instruction if true, otherwise throw {@link ExistingInstructionException}
          * @throws ExistingInstructionException
          */
-        public void setInstruction( String directive, String instruction, boolean overwrite )
+        void setInstruction( String directive, String instruction, boolean overwrite )
             throws ExistingInstructionException;
 
         /**
          * @param directive a Bnd directive
          * @return true if there was an existing instruction, otherwise false
          */
-        public boolean removeInstruction( String directive );
+        boolean removeInstruction( String directive );
 
         /**
          * @return the underlying Bnd instruction file
          */
-        public File getFile();
+        File getFile();
 
         /**
          * @return the directory containing the Bnd file
          */
-        public File getBasedir();
+        File getBasedir();
 
         /**
          * @throws IOException
          */
-        public void write()
+        void write()
             throws IOException;
     }
 

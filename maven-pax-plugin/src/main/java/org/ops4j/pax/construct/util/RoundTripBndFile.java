@@ -154,7 +154,7 @@ public class RoundTripBndFile
      * 
      * @throws IOException
      */
-    void writeUpdatedInstructions()
+    private void writeUpdatedInstructions()
         throws IOException
     {
         List lines = readLines();
@@ -211,7 +211,7 @@ public class RoundTripBndFile
      * @return list of all the lines in the Bnd file
      * @throws IOException
      */
-    List readLines()
+    private List readLines()
         throws IOException
     {
         List lines = new ArrayList();
@@ -235,7 +235,7 @@ public class RoundTripBndFile
      * @return true if existing line should be echoed unchanged, otherwise false
      * @throws IOException
      */
-    boolean checkInstructionLine( Properties instructions, BufferedWriter writer, String line )
+    private boolean checkInstructionLine( Properties instructions, BufferedWriter writer, String line )
         throws IOException
     {
         String[] keyAndValue = line.split( "[=: \t\r\n\f]", 2 );
@@ -263,7 +263,7 @@ public class RoundTripBndFile
      * @param line existing line
      * @return true if line only contains whitespace or comments
      */
-    static boolean isWhitespaceOrComment( String line )
+    private static boolean isWhitespaceOrComment( String line )
     {
         String comment = line.trim();
         if( comment.length() == 0 )
@@ -279,7 +279,7 @@ public class RoundTripBndFile
      * @param line existing line
      * @return true if line ends in a continuation marker
      */
-    static boolean isLineContinuation( String line )
+    private static boolean isLineContinuation( String line )
     {
         boolean continueLine = false;
         for( int c = line.length() - 1; c >= 0 && '\\' == line.charAt( c ); c-- )
@@ -297,7 +297,7 @@ public class RoundTripBndFile
      * @param value property value
      * @throws IOException
      */
-    static void writeInstruction( BufferedWriter writer, String key, String value )
+    private static void writeInstruction( BufferedWriter writer, String key, String value )
         throws IOException
     {
         writer.write( key + ':' );

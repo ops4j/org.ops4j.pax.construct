@@ -157,7 +157,7 @@ public class XppPathQuery
      * @param testValue test value
      * @return matching child nodes
      */
-    Set filter( List children, String pivotNode, String testNode, String testValue )
+    private Set filter( List children, String pivotNode, String testNode, String testValue )
     {
         Set results = new HashSet();
 
