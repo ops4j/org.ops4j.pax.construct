@@ -28,15 +28,21 @@ import org.apache.maven.artifact.factory.ArtifactFactory;
 import org.apache.maven.artifact.installer.ArtifactInstaller;
 import org.apache.maven.artifact.repository.ArtifactRepository;
 import org.apache.maven.model.Dependency;
+import org.apache.maven.model.Resource;
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.project.MavenProject;
 import org.codehaus.plexus.archiver.Archiver;
+import org.codehaus.plexus.archiver.manager.ArchiverManager;
+import org.codehaus.plexus.archiver.manager.NoSuchArchiverException;
+import org.codehaus.plexus.util.DirectoryScanner;
 import org.ops4j.pax.construct.util.DirUtils;
+import org.ops4j.pax.construct.util.PomIterator;
 import org.ops4j.pax.construct.util.PomUtils;
+import org.ops4j.pax.construct.util.PomUtils.Pom;
 
 /**
- * Clones an existing project and produces a script to mimic its structure using Pax-Construct
+ * Clones an existing project and produces a script (plus archetypes) to mimic its structure using Pax-Construct
  * 
  * <code><pre>
  *   mvn pax:clone [-DunifyRoot]
@@ -55,11 +61,11 @@ public class CloneMojo extends AbstractMojo
     private ArtifactFactory m_factory;
 
     /**
-     * Jar archiver
+     * Component factory for various archivers
      * 
-     * @component role-hint="jar"
+     * @component
      */
-    private Archiver m_archiver;
+    private ArchiverManager m_archiverManager;
 
     /**
      * Component for installing Maven artifacts
@@ -69,7 +75,7 @@ public class CloneMojo extends AbstractMojo
     private ArtifactInstaller m_installer;
 
     /**
-     * The local Maven repository for the containing project.
+     * The local Maven repository.
      * 
      * @parameter expression="${localRepository}"
      * @required
@@ -130,14 +136,9 @@ public class CloneMojo extends AbstractMojo
     private List m_reactorProjects;
 
     /**
-     * Infrastructure POMs that cannot be directly translated
+     * Ids of Maven project that we've already handled
      */
-    private List m_skippedProjects;
-
-    /**
-     * The generated Pax script to recreate the project
-     */
-    private PaxScript m_buildScript;
+    private List m_handledProjectIds;
 
     /**
      * Standard Maven mojo entry-point
@@ -145,37 +146,57 @@ public class CloneMojo extends AbstractMojo
     public void execute()
         throws MojoExecutionException
     {
-        m_skippedProjects = new ArrayList();
-        m_buildScript = new PaxScriptImpl();
+        // general purpose Pax-Construct script
+        PaxScript buildScript = new PaxScriptImpl();
+
+        m_handledProjectIds = new ArrayList();
+        List majorProjectIds = new ArrayList();
 
         for( Iterator i = m_reactorProjects.iterator(); i.hasNext(); )
         {
+            // potential project to be converted / captured
             MavenProject project = (MavenProject) i.next();
             String packaging = project.getPackaging();
 
             if( "bundle".equals( packaging ) )
             {
-                handleBundle( project );
+                handleBundleProject( buildScript, project );
             }
-            else if( !"pom".equals( packaging ) )
+            else if( "pom".equals( packaging ) )
             {
-                // non-OSGi project?
-                cloneDirectory( project );
+                if( isMajorProject( project ) )
+                {
+                    majorProjectIds.add( project.getId() );
+                }
+                else
+                {
+                    handleBundleImport( buildScript, project );
+                }
             }
-            else
-            {
-                handleModule( project );
-            }
+            // else handled by the major project(s)
         }
 
+        // collect up all non-bundle projects and settings
+        archiveMajorProjects( buildScript, majorProjectIds );
+        writePlatformScripts( buildScript );
+    }
+
+    /**
+     * Write out various platform-specific scripts based on the abstract build script
+     * 
+     * @param script build script
+     */
+    private void writePlatformScripts( PaxScript script )
+    {
         String scriptName = "pax-clone-" + PomUtils.getCompoundId( m_rootGroupId, m_rootArtifactId );
+
         File winScript = new File( m_tempdir, scriptName + ".bat" );
         File nixScript = new File( m_tempdir, scriptName );
 
         try
         {
             getLog().info( "Saving UNIX shell script " + nixScript );
-            m_buildScript.write( nixScript );
+            script.write( nixScript );
         }
         catch( IOException e )
         {
@@ -185,7 +206,7 @@ public class CloneMojo extends AbstractMojo
         try
         {
             getLog().info( "Saving Windows batch file " + winScript );
-            m_buildScript.write( winScript );
+            script.write( winScript );
         }
         catch( IOException e )
         {
@@ -194,33 +215,76 @@ public class CloneMojo extends AbstractMojo
     }
 
     /**
-     * Analyze POM project and determine if any pax-create-project or pax-import-bundle calls are needed
+     * Analyze bundle project and determine if any pax-create-bundle or pax-wrap-jar calls are needed
      * 
-     * @param project Maven POM project
+     * @param script build script
+     * @param project Maven bundle project
+     * @throws MojoExecutionException
      */
-    void handleModule( MavenProject project )
+    private void handleBundleProject( PaxScript script, MavenProject project )
+        throws MojoExecutionException
     {
-        PaxCommandBuilder command = null;
+        PaxCommandBuilder command;
+        String contents;
 
-        Dependency importee = findImportee( project );
-        if( importee != null )
+        Dependency wrappee = findWrappee( project );
+        if( wrappee != null )
         {
-            command = handleImportee( project, importee );
-        }
-        else if( isMajorProject( project ) )
-        {
-            command = m_buildScript.call( PaxScript.CREATE_PROJECT );
-            command.option( 'g', project.getGroupId() );
-            command.option( 'a', project.getArtifactId() );
-            command.option( 'v', project.getVersion() );
+            command = script.call( PaxScript.WRAP_JAR );
+            command.option( 'g', wrappee.getGroupId() );
+            command.option( 'a', wrappee.getArtifactId() );
+            command.option( 'v', wrappee.getVersion() );
+
+            if( project.getArtifactId().endsWith( wrappee.getVersion() ) )
+            {
+                command.maven().flag( "addVersion" );
+            }
+
+            contents = createBundleArchetype( project, null );
         }
         else
         {
-            m_skippedProjects.add( project.getId() );
-            return;
+            String namespace = findBundleNamespace( project );
+
+            command = script.call( PaxScript.CREATE_BUNDLE );
+            command.option( 'p', namespace );
+            command.option( 'n', project.getArtifactId() );
+            command.option( 'v', project.getVersion() );
+
+            contents = createBundleArchetype( project, namespace );
         }
 
+        // customized sources, POMs, Bnd instructions
+        command.maven().option( "contents", contents );
+
         setTargetDirectory( command, project.getBasedir().getParentFile() );
+        m_handledProjectIds.add( project.getId() );
+    }
+
+    /**
+     * Analyze POM project and determine if any pax-import-bundle calls are needed
+     * 
+     * @param script build script
+     * @param project Maven POM project
+     * @throws MojoExecutionException
+     */
+    private void handleBundleImport( PaxScript script, MavenProject project )
+        throws MojoExecutionException
+    {
+        Dependency importee = findImportee( project );
+        if( importee != null )
+        {
+            PaxCommandBuilder command;
+
+            command = script.call( PaxScript.IMPORT_BUNDLE );
+            command.option( 'g', importee.getGroupId() );
+            command.option( 'a', importee.getArtifactId() );
+            command.option( 'v', importee.getVersion() );
+
+            setTargetDirectory( command, project.getBasedir().getParentFile() );
+            m_handledProjectIds.add( project.getId() );
+        }
+        // else handled by the major project
     }
 
     /**
@@ -229,7 +293,7 @@ public class CloneMojo extends AbstractMojo
      * @param project Maven POM project
      * @return true if this project requires a pax-create-project call
      */
-    boolean isMajorProject( MavenProject project )
+    private boolean isMajorProject( MavenProject project )
     {
         if( project.isExecutionRoot() )
         {
@@ -254,33 +318,31 @@ public class CloneMojo extends AbstractMojo
      * @param project Maven bundle project
      * @return wrapped artifact, null if it isn't a wrapper project
      */
-    Dependency findWrappee( MavenProject project )
+    private Dependency findWrappee( MavenProject project )
     {
         Properties properties = project.getProperties();
         Dependency wrappee = new Dependency();
 
-        // original Pax-Construct
-        wrappee.setGroupId( properties.getProperty( "jar.groupId" ) );
-        wrappee.setArtifactId( properties.getProperty( "jar.artifactId" ) );
-        wrappee.setVersion( properties.getProperty( "jar.version" ) );
+        // Pax-Construct v2
+        wrappee.setGroupId( properties.getProperty( "wrapped.groupId" ) );
+        wrappee.setArtifactId( properties.getProperty( "wrapped.artifactId" ) );
+        wrappee.setVersion( properties.getProperty( "wrapped.version" ) );
 
-        if( wrappee.getArtifactId() == null )
+        if( null == wrappee.getArtifactId() )
         {
-            // Pax-Construct v2
-            wrappee.setGroupId( properties.getProperty( "wrapped.groupId" ) );
-            wrappee.setArtifactId( properties.getProperty( "wrapped.artifactId" ) );
-            wrappee.setVersion( properties.getProperty( "wrapped.version" ) );
+            // original Pax-Construct
+            wrappee.setGroupId( properties.getProperty( "jar.groupId" ) );
+            wrappee.setArtifactId( properties.getProperty( "jar.artifactId" ) );
+            wrappee.setVersion( properties.getProperty( "jar.version" ) );
+
+            if( null == wrappee.getArtifactId() )
+            {
+                // has someone customized their wrapper?
+                return findCustomizedWrappee( project );
+            }
         }
 
-        if( wrappee.getArtifactId() == null )
-        {
-            // has someone customized their wrapper?
-            return findCustomizedWrapper( project );
-        }
-        else
-        {
-            return wrappee;
-        }
+        return wrappee;
     }
 
     /**
@@ -289,17 +351,13 @@ public class CloneMojo extends AbstractMojo
      * @param project Maven bundle project
      * @return wrapped artifact, null if it isn't a wrapper project
      */
-    Dependency findCustomizedWrapper( MavenProject project )
+    private Dependency findCustomizedWrappee( MavenProject project )
     {
-        // check in case it's really a compiled bundle
-        if( findBundleNamespace( project ) != null )
-        {
-            return null;
-        }
-
-        // assume first dependency is the wrapped artifact
         List dependencies = project.getDependencies();
-        if( dependencies.size() > 0 )
+        List sourceRoots = project.getCompileSourceRoots();
+
+        // assume first dependency is the wrapped artifact (unless there are some sources)
+        if( dependencies.size() > 0 && ( null == sourceRoots || sourceRoots.size() == 0 ) )
         {
             return (Dependency) dependencies.get( 0 );
         }
@@ -313,7 +371,7 @@ public class CloneMojo extends AbstractMojo
      * @param project Maven POM project
      * @return imported bundle, null if it isn't a import project
      */
-    Dependency findImportee( MavenProject project )
+    private Dependency findImportee( MavenProject project )
     {
         Properties properties = project.getProperties();
         Dependency importee = new Dependency();
@@ -327,138 +385,102 @@ public class CloneMojo extends AbstractMojo
         {
             return importee;
         }
-
-        return null;
+        else
+        {
+            return null;
+        }
     }
 
     /**
-     * Analyze bundle project to find the namespace (ie. the key Java package)
+     * Analyze bundle project to find the primary namespace it provides
      * 
-     * @param project Maven bundle project
-     * @return key namespace for the bundle
+     * @param project Maven project
+     * @return primary Java namespace
      */
-    String findBundleNamespace( MavenProject project )
+    private String findBundleNamespace( MavenProject project )
     {
-        String namespace = null;
-
         Properties properties = project.getProperties();
 
-        // original Pax-Construct
-        namespace = properties.getProperty( "bundle.package" );
+        // Pax-Construct v2
+        String namespace = properties.getProperty( "bundle.namespace" );
         if( null == namespace )
         {
-            // Pax-Construct v2
-            namespace = properties.getProperty( "bundle.namespace" );
-        }
-        if( null == namespace )
-        {
-            // non Pax-Construct OSGi bundle
-            namespace = findTopJavaPackage( project );
+            // original Pax-Construct
+            namespace = properties.getProperty( "bundle.package" );
+            if( null == namespace )
+            {
+                namespace = findPrimaryPackage( project.getBuild().getSourceDirectory() );
+            }
         }
 
         return namespace;
     }
 
     /**
-     * Try to identify the key Java package this bundle provides
+     * Find the most likely candidate for the primary Java package
      * 
-     * @param project Maven bundle project
-     * @return key Java package
+     * @param dir source directory
+     * @return primary Java package
      */
-    String findTopJavaPackage( MavenProject project )
+    private String findPrimaryPackage( String dir )
     {
-        // TODO: find best package
-        return null;
-    }
-
-    /**
-     * Analyze bundle project and determine if any pax-create-bundle or pax-wrap-jar calls are needed
-     * 
-     * @param project Maven bundle project
-     * @throws MojoExecutionException
-     */
-    void handleBundle( MavenProject project )
-        throws MojoExecutionException
-    {
-        PaxCommandBuilder command;
-
-        Dependency wrappee = findWrappee( project );
-        if( wrappee != null )
+        String[] pathInclude = new String[]
         {
-            command = handleWrapper( project, wrappee );
-        }
-        else
+            // look for bundle activators or any internal source code
+            "**/*Activator.java", "**/internal/*.java", "**/impl/*.java"
+        };
+
+        DirectoryScanner scanner = new DirectoryScanner();
+
+        scanner.setIncludes( pathInclude );
+        scanner.setFollowSymlinks( false );
+        scanner.addDefaultExcludes();
+        scanner.setBasedir( dir );
+
+        scanner.scan();
+
+        String javaFile = null;
+
+        String[] candidates = scanner.getIncludedFiles();
+        for( int i = 0; i < scanner.getIncludedFiles().length; i++ )
         {
-            String namespace = findBundleNamespace( project );
-            if( namespace != null )
+            // favour bundle activators over everything
+            if( null == javaFile || candidates[i].endsWith( "Activator.java" ) )
             {
-                command = m_buildScript.call( PaxScript.CREATE_BUNDLE );
-                command.option( 'p', namespace );
-                command.option( 'n', project.getArtifactId() );
-                command.option( 'v', project.getVersion() );
-
-                Properties properties = new Properties();
-                properties.setProperty( "package", namespace.replace( '.', '/' ) );
-
-                createBundleArchetype( project, namespace );
-
-                // TODO: clone bundle source code and BND settings
-
-                command.maven().option( "internals", "false" );
+                javaFile = candidates[i];
             }
-            else
+            // otherwise pick the internal package with the shortest path
+            else if( !javaFile.endsWith( "Activator.java" ) && candidates[i].length() < javaFile.length() )
             {
-                m_skippedProjects.add( project.getId() );
-                return;
+                javaFile = candidates[i];
             }
         }
 
-        // TODO: merge in dependency and other POM fragments?
-
-        setTargetDirectory( command, project.getBasedir().getParentFile() );
+        return getJavaNamespace( javaFile );
     }
 
     /**
-     * Add a call to wrap the given artifact as done in the existing project
+     * Convert source code location into dotted Java namespace
      * 
-     * @param project Maven bundle project
-     * @param wrappee artifact to wrap
-     * @return Pax-Construct command builder
+     * @param javaFile source location
+     * @return Java namespace
      */
-    PaxCommandBuilder handleWrapper( MavenProject project, Dependency wrappee )
+    private String getJavaNamespace( String javaFile )
     {
-        PaxCommandBuilder command = m_buildScript.call( PaxScript.WRAP_JAR );
-
-        command.option( 'g', wrappee.getGroupId() );
-        command.option( 'a', wrappee.getArtifactId() );
-        command.option( 'v', wrappee.getVersion() );
-
-        // TODO: clone BND settings
-
-        if( project.getArtifactId().endsWith( wrappee.getVersion() ) )
+        if( null == javaFile )
         {
-            command.maven().flag( "addVersion" );
+            return null;
         }
 
-        return command;
-    }
+        // strip the classname and any internal package
+        File packageDir = new File( javaFile ).getParentFile();
+        if( "internal".equals( packageDir.getName() ) || "impl".equals( packageDir.getName() ) )
+        {
+            packageDir = packageDir.getParentFile();
+        }
 
-    /**
-     * Add a call to import the given bundle
-     * 
-     * @param project Maven bundle project
-     * @param importee bundle to import
-     * @return Pax-Construct command builder
-     */
-    PaxCommandBuilder handleImportee( MavenProject project, Dependency importee )
-    {
-        PaxCommandBuilder command = m_buildScript.call( PaxScript.IMPORT_BUNDLE );
-
-        command.option( 'g', importee.getGroupId() );
-        command.option( 'a', importee.getArtifactId() );
-        command.option( 'v', importee.getVersion() );
-
-        return command;
+        // standard slashes to dots conversion
+        return packageDir.getPath().replaceAll( "[/\\\\]+", "." );
     }
 
     /**
@@ -467,7 +489,7 @@ public class CloneMojo extends AbstractMojo
      * @param command Pax-Construct command
      * @param targetDir target directory
      */
-    void setTargetDirectory( PaxCommandBuilder command, File targetDir )
+    private void setTargetDirectory( PaxCommandBuilder command, File targetDir )
     {
         String[] pivot = DirUtils.calculateRelativePath( m_basedir.getParentFile(), targetDir );
         if( pivot != null && pivot[2].length() > 0 )
@@ -479,29 +501,148 @@ public class CloneMojo extends AbstractMojo
     }
 
     /**
-     * Archive the contents of this project so it can be unpacked later on
+     * Create a new archetype for a bundle project, with potentially customized POM and Bnd settings
      * 
-     * @param project non-OSGi Maven project
+     * @param project Maven project
+     * @param namespace Java namespace, can be null
+     * @return clause identifying the archetype fragment
+     * @throws MojoExecutionException
      */
-    void cloneDirectory( MavenProject project )
-    {
-        // TODO: clone entire directory
-    }
-
-    void createBundleArchetype( MavenProject project, String namespace )
+    private String createBundleArchetype( MavenProject project, String namespace )
         throws MojoExecutionException
     {
-        File archetypeDir = new File( m_tempdir, "archetype-fragment" );
-        ArchetypeFragment fragment = new ArchetypeFragment( archetypeDir );
+        ArchetypeFragment fragment = new ArchetypeFragment( m_tempdir, namespace );
+        fragment.addPom( project.getBasedir() );
 
-        fragment.addSources( project.getBasedir(), "src/main/java", namespace, false );
-        fragment.addResources( project.getBasedir(), "src/main/resources", namespace, false );
+        if( null != namespace )
+        {
+            fragment.addSources( project.getBasedir(), project.getBuild().getSourceDirectory(), false );
+            fragment.addSources( project.getBasedir(), project.getBuild().getTestSourceDirectory(), true );
+        }
 
+        for( Iterator i = project.getResources().iterator(); i.hasNext(); )
+        {
+            fragment.addResources( project.getBasedir(), ( (Resource) i.next() ).getDirectory(), false );
+        }
+        for( Iterator i = project.getTestResources().iterator(); i.hasNext(); )
+        {
+            fragment.addResources( project.getBasedir(), ( (Resource) i.next() ).getDirectory(), true );
+        }
+
+        // archetype must use different id
         String groupId = project.getGroupId();
         String artifactId = project.getArtifactId() + "-archetype";
         String version = project.getVersion();
 
+        // install in local repository so it's accessible to the Pax-Construct scripts later on
         Artifact artifact = m_factory.createBuildArtifact( groupId, artifactId, version, "jar" );
-        fragment.install( artifact, m_archiver, m_installer, m_localRepo );
+        fragment.install( artifact, newJarArchiver(), m_installer, m_localRepo );
+
+        return groupId + ':' + artifactId + ':' + version;
+    }
+
+    /**
+     * Go through local project tree looking for non-bundle files to archive
+     * 
+     * @param script build script
+     * @param majorProjectIds list of major projects
+     * @throws MojoExecutionException
+     */
+    private void archiveMajorProjects( PaxScript script, List majorProjectIds )
+        throws MojoExecutionException
+    {
+        PaxCommandBuilder command = null;
+        List resourcePaths = new ArrayList();
+
+        Pom majorPom = null;
+        for( Iterator i = new PomIterator( m_basedir, true ); i.hasNext(); )
+        {
+            Pom pom = (Pom) i.next();
+            if( majorProjectIds.contains( pom.getId() ) )
+            {
+                // flush previous major archetype to local repo
+                createMajorArchetype( majorPom, command, resourcePaths );
+
+                command = script.call( PaxScript.CREATE_PROJECT );
+                command.option( 'g', pom.getGroupId() );
+                command.option( 'a', pom.getArtifactId() );
+                command.option( 'v', pom.getVersion() );
+
+                resourcePaths.clear();
+                majorPom = pom;
+            }
+            else if( !m_handledProjectIds.contains( pom.getId() ) )
+            {
+                if( "pom".equals( pom.getPackaging() ) )
+                {
+                    // only copy the POM, not subfolders
+                    resourcePaths.add( pom.getFile() );
+                }
+                else
+                {
+                    // add the entire non-bundle project
+                    resourcePaths.add( pom.getBasedir() );
+                }
+            }
+        }
+
+        // flush previous major archetype to local repo
+        createMajorArchetype( majorPom, command, resourcePaths );
+    }
+
+    /**
+     * Archive all the selected resources under a single Maven archetype
+     * 
+     * @param majorPom containing Maven project
+     * @param command create-project command
+     * @param resourcePaths selected resources
+     * @throws MojoExecutionException
+     */
+    private void createMajorArchetype( Pom majorPom, PaxCommandBuilder command, List resourcePaths )
+        throws MojoExecutionException
+    {
+        // nothing to do!
+        if( null == majorPom )
+        {
+            return;
+        }
+
+        ArchetypeFragment fragment = new ArchetypeFragment( m_tempdir, null );
+        fragment.addPom( majorPom.getBasedir() );
+
+        for( Iterator i = resourcePaths.iterator(); i.hasNext(); )
+        {
+            fragment.addResources( majorPom.getBasedir(), i.next().toString(), false );
+        }
+
+        // archetype must use different id
+        String groupId = majorPom.getGroupId();
+        String artifactId = majorPom.getArtifactId() + "-archetype";
+        String version = majorPom.getVersion();
+
+        // install in local repository so it's accessible to the Pax-Construct scripts later on
+        Artifact artifact = m_factory.createBuildArtifact( groupId, artifactId, version, "jar" );
+        fragment.install( artifact, newJarArchiver(), m_installer, m_localRepo );
+        String fragmentId = groupId + ':' + artifactId + ':' + version;
+
+        // customized POMs and non-bundle projects
+        command.maven().option( "contents", fragmentId );
+    }
+
+    /**
+     * @return new Jar archiver
+     * @throws MojoExecutionException
+     */
+    private Archiver newJarArchiver()
+        throws MojoExecutionException
+    {
+        try
+        {
+            return m_archiverManager.getArchiver( "jar" );
+        }
+        catch( NoSuchArchiverException e )
+        {
+            throw new MojoExecutionException( "Unable to find Jar archiver", e );
+        }
     }
 }

@@ -47,9 +47,24 @@ public class PomIterator
     private Set m_visited;
 
     /**
+     * Initiating POM
+     */
+    private Pom m_initialPom;
+
+    /**
      * @param here a directory somewhere in the project tree
      */
     public PomIterator( File here )
+    {
+        // full tree search
+        this( here, false );
+    }
+
+    /**
+     * @param here a directory somewhere in the project tree
+     * @param localSearch when true, only search downwards
+     */
+    public PomIterator( File here, boolean localSearch )
     {
         m_visited = new HashSet();
 
@@ -60,6 +75,11 @@ public class PomIterator
         catch( IOException e )
         {
             m_pom = null;
+        }
+
+        if( localSearch )
+        {
+            m_initialPom = m_pom;
         }
     }
 
@@ -115,6 +135,12 @@ public class PomIterator
                 // visit module
                 return subPom;
             }
+        }
+
+        // finished local search?
+        if( m_pom.equals( m_initialPom ) )
+        {
+            return null;
         }
 
         // backtrack to search siblings
