@@ -19,6 +19,7 @@ package org.ops4j.pax.construct.util;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import org.apache.maven.model.Dependency;
@@ -671,40 +672,123 @@ public class XppPom
     /**
      * {@inheritDoc}
      */
-    public void merge( Pom pom, String fromSection, String toSection )
+    public void mergeSection( Pom pom, String fromSection, String toSection, boolean append )
     {
-        if( pom instanceof XppPom )
-        {
-            Xpp3Dom source = ( (XppPom) pom ).m_pom;
-            Xpp3Dom project = new Xpp3Dom( "project" );
-
-            String[] fromPath = fromSection.split( "/" );
-            for( int i = 0; i < fromPath.length; i++ )
-            {
-                source = source.getChild( fromPath[i] );
-            }
-
-            Xpp3Dom destination = project;
-
-            if( toSection != null )
-            {
-                String[] toPath = toSection.split( "/" );
-                for( int i = 0; i < toPath.length; i++ )
-                {
-                    Xpp3Dom temp = new Xpp3Dom( toPath[i] );
-                    destination.addChild( temp );
-                    destination = temp;
-                }
-            }
-
-            destination.addChild( source );
-
-            m_pom = Xpp3Dom.mergeXpp3Dom( m_pom, project );
-        }
-        else
+        if( !( pom instanceof XppPom ) )
         {
             throw new IllegalArgumentException( "Unable to merge POM type " + pom.getClass() );
         }
+
+        mergeSection( ( (XppPom) pom ).m_pom, fromSection, toSection, append );
+    }
+
+    /**
+     * Merge a section of XML from another XML fragment
+     * 
+     * @param from another XML fragment
+     * @param fromSection path to XML section to merge from
+     * @param toSection path to XML section to merge into
+     * @param append when true, append instead of merging
+     */
+    private void mergeSection( Xpp3Dom from, String fromSection, String toSection, boolean append )
+    {
+        String[] fromPath = fromSection.split( "/" );
+
+        // find source section
+        Xpp3Dom source = from;
+        for( int i = 0; i < fromPath.length; i++ )
+        {
+            source = source.getChild( fromPath[i] );
+            if( null == source )
+            {
+                return;
+            }
+        }
+
+        if( append )
+        {
+            Xpp3DomList.makeIntoList( source );
+        }
+
+        Xpp3Dom project = new Xpp3Dom( "project" );
+
+        // create skeleton template
+        Xpp3Dom skeleton = project;
+        if( toSection != null )
+        {
+            String[] toPath = toSection.split( "/" );
+            for( int i = 0; i < toPath.length; i++ )
+            {
+                Xpp3Dom temp = new Xpp3Dom( toPath[i] );
+                skeleton.addChild( temp );
+                skeleton = temp;
+            }
+        }
+
+        // add source to template
+        skeleton.addChild( source );
+
+        m_pom = Xpp3Dom.mergeXpp3Dom( m_pom, project );
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public void overlayDetails( Pom pom )
+    {
+        if( !( pom instanceof XppPom ) )
+        {
+            throw new IllegalArgumentException( "Unable to overlay POM type " + pom.getClass() );
+        }
+
+        Xpp3Dom overlay = ( (XppPom) pom ).m_pom;
+        Xpp3Dom project = new Xpp3Dom( "project" );
+
+        Xpp3Dom[] sections = m_pom.getChildren();
+        for( int i = 0; i < sections.length; i++ )
+        {
+            String name = sections[i].getName();
+            if( isProtectedSection( name ) || null == overlay.getChild( name ) )
+            {
+                project.addChild( sections[i] );
+            }
+        }
+
+        Xpp3Dom originalPom = new Xpp3Dom( m_pom );
+        m_pom = Xpp3Dom.mergeXpp3Dom( project, overlay );
+
+        // we want to keep these plugins exactly as they were in the original Pax-Construct v2 POMs
+        String plugins = "plugins/plugin[artifactId='maven-bundle-plugin' or artifactId='maven-pax-plugin']";
+
+        String xpath1 = "build/" + plugins;
+        findChildren( xpath1, true );
+
+        String xpath2 = "build/pluginManagement/" + plugins;
+        findChildren( xpath2, true );
+
+        // can safely append now we've zapped the existing entries
+        mergeSection( originalPom, "build/pluginManagement/plugins", "build/pluginManagement", true );
+        mergeSection( originalPom, "build/plugins", "build", true );
+
+        Xpp3Dom name = m_pom.getChild( "name" );
+        if( null != name )
+        {
+            name.setValue( name.getValue().replaceAll( "bundle\\.package", "bundle\\.namespace" ) );
+        }
+    }
+
+    /**
+     * @param name section of the Maven project model
+     * @return true if this section cannot be overlaid
+     */
+    private static boolean isProtectedSection( String name )
+    {
+        List protectedSections = Arrays.asList( new String[]
+        {
+            "modelVersion", "parent", "artifactId", "groupId", "version", "packaging", "modules"
+        } );
+
+        return protectedSections.contains( name );
     }
 
     /**
@@ -781,9 +865,18 @@ public class XppPom
         public Xpp3DomList( String name )
         {
             super( name );
+            makeIntoList( this );
+        }
 
-            // list elements must append their children when merging with other fragments
-            setAttribute( CHILDREN_COMBINATION_MODE_ATTRIBUTE, CHILDREN_COMBINATION_APPEND );
+        /**
+         * Switch an existing XML fragment to use the "list" style
+         * 
+         * @param fragment existing XML fragment
+         */
+        public static void makeIntoList( Xpp3Dom fragment )
+        {
+            // list fragments must append their children when merging with other XML fragments
+            fragment.setAttribute( CHILDREN_COMBINATION_MODE_ATTRIBUTE, CHILDREN_COMBINATION_APPEND );
         }
 
         /**
@@ -831,7 +924,11 @@ public class XppPom
 
         if( clear )
         {
-            for( int i = 0; i < children.length; i++ )
+            // sort ascending order
+            Arrays.sort( children );
+
+            // now remove in reverse in case array shrinks
+            for( int i = children.length - 1; i >= 0; i-- )
             {
                 parent.removeChild( children[i] );
             }

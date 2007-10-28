@@ -667,15 +667,17 @@ public class OSGiWrapperArchetypeMojo extends AbstractPaxArchetypeMojo
         }
 
         // Must merge plugin fragment first, so child elements combine properly!
-        pom.merge( pluginSettings, "build/pluginManagement/plugins", "build" );
-        pom.merge( wrapperSettings, "build/plugins", "build" );
+        pom.mergeSection( pluginSettings, "build/pluginManagement/plugins", "build", false );
+        pom.mergeSection( wrapperSettings, "build/plugins", "build", false );
 
+        // always tie the pax-plugin to a specific version (helps with reproducible builds)
         pom.updatePluginVersion( "org.ops4j", "maven-pax-plugin", getArchetypeVersion() );
 
         // for latest bundle plugin
         Repository repository = new Repository();
         repository.setId( "ops4j-snapshots" );
         repository.setUrl( "http://repository.ops4j.org/mvn-snapshots" );
+
         pom.addRepository( repository, true, false, true, true );
     }
 

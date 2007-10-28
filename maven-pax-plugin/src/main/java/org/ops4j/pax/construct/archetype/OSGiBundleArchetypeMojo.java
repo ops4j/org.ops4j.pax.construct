@@ -266,12 +266,10 @@ public class OSGiBundleArchetypeMojo extends AbstractPaxArchetypeMojo
         }
 
         // Must merge plugin fragment first, so child elements combine properly!
-        pom.merge( pluginSettings, "build/pluginManagement/plugins", "build" );
-        pom.merge( compiledSettings, "build/plugins", "build" );
+        pom.mergeSection( pluginSettings, "build/pluginManagement/plugins", "build", false );
+        pom.mergeSection( compiledSettings, "build/plugins", "build", false );
 
-        // Replace Maven super-POM group...
-        pom.setGroupId( pom.getArtifactId() );
-
+        // always tie the pax-plugin to a specific version (helps with reproducible builds)
         pom.updatePluginVersion( "org.ops4j", "maven-pax-plugin", getArchetypeVersion() );
 
         // for latest bundle plugin

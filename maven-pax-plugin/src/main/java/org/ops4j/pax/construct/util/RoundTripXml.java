@@ -17,6 +17,7 @@ package org.ops4j.pax.construct.util;
  */
 
 import java.io.IOException;
+import java.io.Writer;
 import java.util.Arrays;
 import java.util.List;
 
@@ -247,6 +248,15 @@ public final class RoundTripXml
             }
 
             return this;
+        }
+
+        /**
+         * {@inheritDoc}
+         */
+        protected void writeElementContent( String text, Writer writer )
+            throws IOException
+        {
+            super.writeElementContent( text.trim(), writer );
         }
     }
 }

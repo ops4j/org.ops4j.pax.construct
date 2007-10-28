@@ -228,8 +228,16 @@ public final class PomUtils
          * @param pom another Maven project
          * @param fromSection path to XML section to merge from
          * @param toSection path to XML section to merge into
+         * @param append when true, append instead of merging
          */
-        void merge( Pom pom, String fromSection, String toSection );
+        void mergeSection( Pom pom, String fromSection, String toSection, boolean append );
+
+        /**
+         * Overlay POM template with detail from another Maven project POM
+         * 
+         * @param pom another Maven project
+         */
+        void overlayDetails( Pom pom );
 
         /**
          * @throws IOException

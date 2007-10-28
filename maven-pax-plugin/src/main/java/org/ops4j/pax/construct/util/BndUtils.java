@@ -18,6 +18,7 @@ package org.ops4j.pax.construct.util;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.Set;
 
 import org.apache.maven.plugin.MojoExecutionException;
 
@@ -58,6 +59,18 @@ public final class BndUtils
          * @return true if there was an existing instruction, otherwise false
          */
         boolean removeInstruction( String directive );
+
+        /**
+         * @return set of current directive names
+         */
+        Set getDirectives();
+
+        /**
+         * Overlay existing instructions onto the current setup
+         * 
+         * @param bnd existing Bnd instructions
+         */
+        void overlayInstructions( Bnd bnd );
 
         /**
          * @return the underlying Bnd instruction file

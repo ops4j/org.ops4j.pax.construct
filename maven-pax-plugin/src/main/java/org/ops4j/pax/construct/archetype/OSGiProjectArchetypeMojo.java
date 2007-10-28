@@ -1,9 +1,5 @@
 package org.ops4j.pax.construct.archetype;
 
-import org.apache.maven.plugin.MojoExecutionException;
-import org.ops4j.pax.construct.util.BndUtils.Bnd;
-import org.ops4j.pax.construct.util.PomUtils.Pom;
-
 /*
  * Copyright 2007 Stuart McCulloch
  *
@@ -19,6 +15,18 @@ import org.ops4j.pax.construct.util.PomUtils.Pom;
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
+import java.io.File;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
+
+import org.apache.maven.archetype.FileUtils;
+import org.apache.maven.plugin.MojoExecutionException;
+import org.ops4j.pax.construct.util.BndUtils.Bnd;
+import org.ops4j.pax.construct.util.PomUtils;
+import org.ops4j.pax.construct.util.PomUtils.Pom;
 
 /**
  * Create a new OSGi project tree that supports wrapping, compiling and provisioning of bundles
@@ -64,6 +72,11 @@ public class OSGiProjectArchetypeMojo extends AbstractPaxArchetypeMojo
     private String version;
 
     /**
+     * Important POMs related to Pax-Construct project settings that we don't want overwritten
+     */
+    private List m_settingPoms;
+
+    /**
      * {@inheritDoc}
      */
     protected void updateExtensionFields()
@@ -88,10 +101,73 @@ public class OSGiProjectArchetypeMojo extends AbstractPaxArchetypeMojo
     /**
      * {@inheritDoc}
      */
+    protected void cacheOriginalFiles( File baseDir )
+    {
+        m_settingPoms = new ArrayList();
+
+        try
+        {
+            // additional POMs not captured by the abstract archetype class
+            Pom pluginSettings = PomUtils.readPom( new File( baseDir, "poms" ) );
+            Pom compiledSettings = PomUtils.readPom( new File( baseDir, "poms/compiled" ) );
+            Pom wrapperSettings = PomUtils.readPom( new File( baseDir, "poms/wrappers" ) );
+
+            m_settingPoms.add( pluginSettings );
+            m_settingPoms.add( compiledSettings );
+            m_settingPoms.add( wrapperSettings );
+
+            // delete to allow customization
+            pluginSettings.getFile().delete();
+            compiledSettings.getFile().delete();
+            wrapperSettings.getFile().delete();
+        }
+        catch( IOException e )
+        {
+            getLog().warn( "Unable to cache project settings" );
+        }
+    }
+
+    /**
+     * {@inheritDoc}
+     */
     protected void postProcess( Pom pom, Bnd bnd )
         throws MojoExecutionException
     {
-        // tie the pax-plugin to a specific version (helps with reproducible builds)
+        // always tie the pax-plugin to a specific version (helps with reproducible builds)
         pom.updatePluginVersion( "org.ops4j", "maven-pax-plugin", getArchetypeVersion() );
+
+        // are there any customized POM settings that need merging?
+        if( null == m_settingPoms || m_settingPoms.size() == 0 )
+        {
+            return;
+        }
+
+        // check the various POMs in case they've been customized
+        for( Iterator i = m_settingPoms.iterator(); i.hasNext(); )
+        {
+            Pom settingsPom = (Pom) i.next();
+
+            try
+            {
+                // merge and write updates back
+                saveProjectModel( settingsPom );
+                settingsPom.write();
+            }
+            catch( IOException e )
+            {
+                getLog().warn( "Unable to merge project settings" + settingsPom );
+            }
+        }
+
+        File importedSettingsDir = new File( pom.getBasedir(), "poms/imported" );
+        try
+        {
+            // imported settings are no longer used in v2
+            FileUtils.deleteDirectory( importedSettingsDir );
+        }
+        catch( IOException e )
+        {
+            getLog().warn( "Unable to remove redundant directory " + importedSettingsDir );
+        }
     }
 }

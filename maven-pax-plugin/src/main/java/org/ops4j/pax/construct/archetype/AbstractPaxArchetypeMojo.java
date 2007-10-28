@@ -291,10 +291,12 @@ public abstract class AbstractPaxArchetypeMojo extends MavenArchetypeMojo
 
     /**
      * Gives sub-classes the chance to cache the original files before custom archetypes run
+     * 
+     * @param baseDir project base directory
      */
-    protected void cacheOriginalFiles()
+    protected void cacheOriginalFiles( File baseDir )
     {
-        // for sub-classes to override
+        // for sub-classes to override if they need to
     }
 
     /**
@@ -307,7 +309,7 @@ public abstract class AbstractPaxArchetypeMojo extends MavenArchetypeMojo
     protected void postProcess( Pom pom, Bnd bnd )
         throws MojoExecutionException
     {
-        // for sub-classes to override
+        // for sub-classes to override if they need to
     }
 
     /**
@@ -399,6 +401,11 @@ public abstract class AbstractPaxArchetypeMojo extends MavenArchetypeMojo
             // before caching, search for logical parent in project tree
             DirUtils.updateLogicalParent( m_pomFile, getParentId() );
             m_pom = PomUtils.readPom( m_pomFile );
+            if( contents != null )
+            {
+                // allow further customization
+                m_pom.getFile().delete();
+            }
         }
         catch( IOException e )
         {
@@ -407,20 +414,27 @@ public abstract class AbstractPaxArchetypeMojo extends MavenArchetypeMojo
 
         try
         {
-            // uses empty instructions if no existing file
             m_bnd = BndUtils.readBnd( m_pom.getBasedir() );
+            if( contents != null )
+            {
+                // allow further customization
+                m_bnd.getFile().delete();
+            }
         }
         catch( IOException e )
         {
             throw new MojoExecutionException( "I/O error reading generated Bnd instructions", e );
         }
 
-        // sub-class caching
-        cacheOriginalFiles();
+        if( contents != null )
+        {
+            // no need to cache if not customizing
+            cacheOriginalFiles( m_pom.getBasedir() );
+        }
     }
 
     /**
-     * Apply selected custom archetypes to the directory, which may overwrite some of the original archetype content
+     * Apply selected custom archetypes to the directory, which may add to the original archetype content
      * 
      * @throws MojoExecutionException
      */
@@ -450,19 +464,48 @@ public abstract class AbstractPaxArchetypeMojo extends MavenArchetypeMojo
         // sub-class processing
         postProcess( m_pom, m_bnd );
 
-        /*
-         * finally, save back working copies of the Maven POM and optional Bnd instructions
-         */
-
         try
         {
-            m_pom.write();
-            m_bnd.write();
+            /*
+             * merge customized files with the original Pax-Construct generated templates
+             */
+            saveProjectModel( m_pom );
+            saveBndInstructions( m_bnd );
         }
         catch( IOException e )
         {
             getLog().error( "Unable to save customized settings" );
         }
+    }
+
+    /**
+     * @param pom Maven project to merge with the latest file copy
+     * @throws IOException
+     */
+    protected final void saveProjectModel( Pom pom )
+        throws IOException
+    {
+        if( contents != null )
+        {
+            Pom customPom = PomUtils.readPom( pom.getBasedir() );
+            pom.overlayDetails( customPom );
+        }
+        pom.write();
+    }
+
+    /**
+     * @param bnd Bnd instructions to merge with the latest file copy
+     * @throws IOException
+     */
+    protected final void saveBndInstructions( Bnd bnd )
+        throws IOException
+    {
+        if( contents != null )
+        {
+            Bnd customBnd = BndUtils.readBnd( bnd.getBasedir() );
+            bnd.overlayInstructions( customBnd );
+        }
+        bnd.write();
     }
 
     /**

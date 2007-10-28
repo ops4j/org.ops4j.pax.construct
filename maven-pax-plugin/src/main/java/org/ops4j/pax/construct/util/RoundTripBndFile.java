@@ -26,6 +26,7 @@ import java.util.Enumeration;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Properties;
+import java.util.Set;
 
 import org.codehaus.plexus.util.IOUtil;
 import org.codehaus.plexus.util.ReaderFactory;
@@ -115,6 +116,38 @@ public class RoundTripBndFile
     public boolean removeInstruction( String directive )
     {
         return null != m_newInstructions.remove( directive );
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public Set getDirectives()
+    {
+        return m_newInstructions.keySet();
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public void overlayInstructions( Bnd bnd )
+    {
+        for( Iterator i = bnd.getDirectives().iterator(); i.hasNext(); )
+        {
+            String directive = (String) i.next();
+            String instruction = bnd.getInstruction( directive );
+
+            /*
+             * for now just do a simple filter+copy of instructions
+             */
+
+            instruction = instruction.replaceAll( "bundle\\.package", "bundle\\.namespace" );
+
+            instruction = instruction.replaceAll( "jar\\.groupId", "wrapped\\.groupId" );
+            instruction = instruction.replaceAll( "jar\\.artifactId", "wrapped\\.artifactId" );
+            instruction = instruction.replaceAll( "jar\\.version", "wrapped\\.version" );
+
+            m_newInstructions.setProperty( directive, instruction );
+        }
     }
 
     /**
