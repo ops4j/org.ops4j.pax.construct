@@ -182,10 +182,10 @@ public class OSGiBundleArchetypeMojo extends AbstractPaxArchetypeMojo
             makeStandalone( pom );
         }
 
+        markBogusFiles();
+
         updatePomDependencies( pom );
         updateBndInstructions( bnd );
-
-        markBogusFiles();
     }
 
     /**
