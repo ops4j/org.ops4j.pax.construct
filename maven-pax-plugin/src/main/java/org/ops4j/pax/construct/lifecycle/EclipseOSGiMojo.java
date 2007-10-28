@@ -231,7 +231,22 @@ public class EclipseOSGiMojo extends EclipsePlugin
         /*
          * copy bundle manifest to where PDE expects it, but tweak it to fix embedded paths
          */
-        refactorForEclipse( executedProject.getArtifact().getFile() );
+        refactorForEclipse( getBundleFile( executedProject ) );
+    }
+
+    /**
+     * @param project bundle project
+     * @return recently built bundle
+     */
+    private static File getBundleFile( MavenProject project )
+    {
+        File bundleFile = project.getArtifact().getFile();
+        if( null == bundleFile || !bundleFile.exists() )
+        {
+            String name = project.getBuild().getFinalName() + ".jar";
+            bundleFile = new File( project.getBuild().getDirectory(), name );
+        }
+        return bundleFile;
     }
 
     /**
