@@ -126,14 +126,14 @@ public class PluginXml
      * 
      * @param mojo dominant mojo
      * @param tempMojo temporary mojo
-     * @param listName name of the element list to check
-     * @param idPath simple XML path with the location of the id element
+     * @param name name of the element list to check
+     * @param path simple XML path with the location of the id element
      * @param verbose print warnings about any matching elements
      */
-    static void removeDuplicates( Xpp3Dom mojo, Xpp3Dom tempMojo, String listName, String idPath, boolean verbose )
+    private static void removeDuplicates( Xpp3Dom mojo, Xpp3Dom tempMojo, String name, String path, boolean verbose )
     {
-        Xpp3Dom list = mojo.getChild( listName );
-        Xpp3Dom tempList = tempMojo.getChild( listName );
+        Xpp3Dom list = mojo.getChild( name );
+        Xpp3Dom tempList = tempMojo.getChild( name );
 
         if( null == tempList || null == list )
         {
@@ -142,8 +142,8 @@ public class PluginXml
 
         for( int s = 0; s < tempList.getChildCount(); s++ )
         {
-            Xpp3Dom idElement = getIdElement( tempList.getChild( s ), idPath );
-            if( hasMatchingElement( list, idPath, verbose, idElement ) )
+            Xpp3Dom idElement = getIdElement( tempList.getChild( s ), path );
+            if( hasMatchingElement( list, path, verbose, idElement ) )
             {
                 // decrement index to avoid skipping entries, as list shrinks by one
                 tempList.removeChild( s-- );
@@ -158,21 +158,21 @@ public class PluginXml
      * not null and ends in / then the content of the id element is used, otherwise the name of the id element is used
      * 
      * @param list element list
-     * @param idPath simple XML path with the location of the id element
+     * @param path simple XML path with the location of the id element
      * @param verbose print warnings about any matching elements
      * @param theIdElement id element to compare against
      * @return true if element list contains a matching element
      */
-    static boolean hasMatchingElement( Xpp3Dom list, String idPath, boolean verbose, Xpp3Dom theIdElement )
+    private static boolean hasMatchingElement( Xpp3Dom list, String path, boolean verbose, Xpp3Dom theIdElement )
     {
         for( int n = 0; n < list.getChildCount(); n++ )
         {
-            Xpp3Dom idElement = getIdElement( list.getChild( n ), idPath );
+            Xpp3Dom idElement = getIdElement( list.getChild( n ), path );
 
             String lhs;
             String rhs;
 
-            if( null != idPath && idPath.endsWith( "/" ) )
+            if( null != path && path.endsWith( "/" ) )
             {
                 lhs = theIdElement.getValue();
                 rhs = idElement.getValue();
@@ -201,16 +201,16 @@ public class PluginXml
      * Finds the element that represents the id, according to an XML path
      * 
      * @param element start element
-     * @param idPath simple XML path with the location of the id element
+     * @param path simple XML path with the location of the id element
      * @return id element
      */
-    static Xpp3Dom getIdElement( Xpp3Dom element, String idPath )
+    private static Xpp3Dom getIdElement( Xpp3Dom element, String path )
     {
         Xpp3Dom idElement = element;
 
-        if( null != idPath )
+        if( null != path )
         {
-            String[] idSegments = idPath.split( "/" );
+            String[] idSegments = path.split( "/" );
             for( int i = 0; i < idSegments.length; i++ )
             {
                 idElement = element.getChild( idSegments[i] );
@@ -225,7 +225,7 @@ public class PluginXml
      * 
      * @param element an element in the plugin metadata
      */
-    static void setAppendMode( Xpp3Dom element )
+    private static void setAppendMode( Xpp3Dom element )
     {
         if( null != element )
         {

@@ -69,17 +69,17 @@ public class InheritMojo extends AbstractMojo
     /**
      * classic mojo tag
      */
-    static final String GOAL = "goal";
+    private static final String GOAL = "goal";
 
     /**
      * new inheritance mojo tag
      */
-    static final String EXTENDS_PLUGIN = "extendsPlugin";
+    private static final String EXTENDS_PLUGIN = "extendsPlugin";
 
     /**
      * new inheritance mojo tag
      */
-    static final String EXTENDS_GOAL = "extendsGoal";
+    private static final String EXTENDS_GOAL = "extendsGoal";
 
     /**
      * local plugin project
@@ -164,7 +164,7 @@ public class InheritMojo extends AbstractMojo
      * @return plugin metadata
      * @throws MojoExecutionException
      */
-    PluginXml loadPluginMetadata( File pluginDir )
+    private PluginXml loadPluginMetadata( File pluginDir )
         throws MojoExecutionException
     {
         File metadata = new File( pluginDir, "META-INF/maven/plugin.xml" );
@@ -189,7 +189,7 @@ public class InheritMojo extends AbstractMojo
      * @return mapping from simple plugin name to plugin metadata
      * @throws MojoExecutionException
      */
-    Map loadDependentPluginMetaData()
+    private Map loadDependentPluginMetaData()
         throws MojoExecutionException
     {
         File buildArea = new File( m_project.getBuild().getDirectory(), "plugins" );
@@ -220,7 +220,7 @@ public class InheritMojo extends AbstractMojo
      * @param unpackDir directory to unpack to
      * @throws MojoExecutionException
      */
-    void unpackPlugin( Artifact artifact, File unpackDir )
+    private void unpackPlugin( Artifact artifact, File unpackDir )
         throws MojoExecutionException
     {
         File pluginFile = artifact.getFile();
@@ -254,7 +254,7 @@ public class InheritMojo extends AbstractMojo
      * @param targetPlugin local plugin metadata
      * @param superPlugin plugin metadata being extended
      */
-    void mergePluginMojo( JavaClass mojoClass, PluginXml targetPlugin, PluginXml superPlugin )
+    private void mergePluginMojo( JavaClass mojoClass, PluginXml targetPlugin, PluginXml superPlugin )
     {
         DocletTag goalTag = mojoClass.getTagByName( GOAL );
         if( null == goalTag )
