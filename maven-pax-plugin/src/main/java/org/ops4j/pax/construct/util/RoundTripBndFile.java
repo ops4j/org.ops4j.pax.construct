@@ -30,7 +30,6 @@ import java.util.Set;
 
 import org.codehaus.plexus.util.IOUtil;
 import org.codehaus.plexus.util.ReaderFactory;
-import org.codehaus.plexus.util.StringUtils;
 import org.codehaus.plexus.util.WriterFactory;
 import org.ops4j.pax.construct.util.BndUtils.Bnd;
 import org.ops4j.pax.construct.util.BndUtils.ExistingInstructionException;
@@ -135,17 +134,13 @@ public class RoundTripBndFile
         for( Iterator i = bnd.getDirectives().iterator(); i.hasNext(); )
         {
             String directive = (String) i.next();
+            if( "Private-Package".equals( directive ) || "Export-Package".equals( directive ) )
+            {
+                // old wrapper: maintain behaviour
+                removeInstruction( "Embed-Dependency" );
+            }
+
             String instruction = bnd.getInstruction( directive );
-
-            /*
-             * for now just do a simple filter+copy of instructions
-             */
-
-            instruction = StringUtils.replace( instruction, "bundle.package", "bundle.namespace" );
-            instruction = StringUtils.replace( instruction, "jar.groupId", "wrapped.groupId" );
-            instruction = StringUtils.replace( instruction, "jar.artifactId", "wrapped.artifactId" );
-            instruction = StringUtils.replace( instruction, "jar.version", "wrapped.version" );
-
             m_newInstructions.setProperty( directive, instruction );
         }
     }
@@ -176,7 +171,7 @@ public class RoundTripBndFile
         {
             m_file.delete();
         }
-        else if( !m_newInstructions.equals( m_oldInstructions ) )
+        else if( !m_newInstructions.equals( m_oldInstructions ) || !m_file.exists() )
         {
             writeUpdatedInstructions();
         }
@@ -252,12 +247,15 @@ public class RoundTripBndFile
     {
         List lines = new ArrayList();
 
-        BufferedReader bndReader = new BufferedReader( ReaderFactory.newPlatformReader( m_file ) );
-        while( bndReader.ready() )
+        if( m_file.exists() )
         {
-            lines.add( bndReader.readLine() );
+            BufferedReader bndReader = new BufferedReader( ReaderFactory.newPlatformReader( m_file ) );
+            while( bndReader.ready() )
+            {
+                lines.add( bndReader.readLine() );
+            }
+            IOUtil.close( bndReader );
         }
-        IOUtil.close( bndReader );
 
         return lines;
     }
