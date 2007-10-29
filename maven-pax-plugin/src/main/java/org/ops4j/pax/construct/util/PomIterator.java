@@ -130,7 +130,7 @@ public class PomIterator
         for( Iterator i = m_pom.getModuleNames().iterator(); i.hasNext(); )
         {
             Pom subPom = m_pom.getModulePom( (String) i.next() );
-            if( !m_visited.contains( subPom ) )
+            if( subPom != null && !m_visited.contains( subPom ) )
             {
                 // visit module
                 return subPom;

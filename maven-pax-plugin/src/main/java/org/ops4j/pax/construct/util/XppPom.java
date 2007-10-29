@@ -662,11 +662,8 @@ public class XppPom
 
         String plugins = "plugins/plugin[groupId='" + groupId + "' and artifactId='" + artifactId + "']";
 
-        String xpath1 = "build/" + plugins;
-        updated = updateVersion( xpath1, newVersion ) || updated;
-
-        String xpath2 = "build/pluginManagement/" + plugins;
-        updated = updateVersion( xpath2, newVersion ) || updated;
+        updated = updateVersion( "build/" + plugins, newVersion ) || updated;
+        updated = updateVersion( "build/pluginManagement/" + plugins, newVersion ) || updated;
 
         return updated;
     }
@@ -762,19 +759,16 @@ public class XppPom
         // we want to keep these plugins exactly as they were in the original Pax-Construct v2 POMs
         String plugins = "plugins/plugin[artifactId='maven-bundle-plugin' or artifactId='maven-pax-plugin']";
 
-        String xpath1 = "build/" + plugins;
-        findChildren( xpath1, true );
-
-        String xpath2 = "build/pluginManagement/" + plugins;
-        findChildren( xpath2, true );
-
-        // can safely append now we've zapped the existing entries
-        mergeSection( originalPom, "build/pluginManagement/plugins", "build/pluginManagement", true );
+        findChildren( "build/" + plugins, true );
         mergeSection( originalPom, "build/plugins", "build", true );
+
+        findChildren( "build/pluginManagement/" + plugins, true );
+        mergeSection( originalPom, "build/pluginManagement/plugins", "build/pluginManagement", true );
 
         Xpp3Dom name = m_pom.getChild( "name" );
         if( null != name )
         {
+            // upgrade old names to use the new variable
             name.setValue( StringUtils.replace( name.getValue(), "bundle.package", "bundle.namespace" ) );
         }
 
