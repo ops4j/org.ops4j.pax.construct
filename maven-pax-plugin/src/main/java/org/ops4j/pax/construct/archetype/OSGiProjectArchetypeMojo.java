@@ -23,6 +23,7 @@ import java.util.Iterator;
 import java.util.List;
 
 import org.apache.maven.archetype.FileUtils;
+import org.apache.maven.model.Repository;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.ops4j.pax.construct.util.BndUtils.Bnd;
 import org.ops4j.pax.construct.util.PomUtils;
@@ -136,6 +137,13 @@ public class OSGiProjectArchetypeMojo extends AbstractPaxArchetypeMojo
         // always tie the pax-plugin to a specific version (helps with reproducible builds)
         pom.updatePluginVersion( "org.ops4j", "maven-pax-plugin", getArchetypeVersion() );
 
+        // for latest bundle plugin
+        Repository repository = new Repository();
+        repository.setId( "ops4j-snapshots" );
+        repository.setUrl( "http://repository.ops4j.org/mvn-snapshots" );
+
+        pom.addRepository( repository, true, false, true, true );
+
         // are there any customized POM settings that need merging?
         if( null == m_settingPoms || m_settingPoms.size() == 0 )
         {
@@ -151,11 +159,12 @@ public class OSGiProjectArchetypeMojo extends AbstractPaxArchetypeMojo
             {
                 // merge and write updates back
                 saveProjectModel( settingsPom );
+                settingsPom.removeModule( "imported" );
                 settingsPom.write();
             }
             catch( IOException e )
             {
-                getLog().warn( "Unable to merge project settings" + settingsPom );
+                getLog().warn( "Unable to merge project settings " + settingsPom );
             }
         }
 

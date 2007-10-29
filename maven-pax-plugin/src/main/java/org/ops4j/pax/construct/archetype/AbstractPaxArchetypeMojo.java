@@ -493,7 +493,7 @@ public abstract class AbstractPaxArchetypeMojo extends MavenArchetypeMojo
     protected final void saveProjectModel( Pom pom )
         throws IOException
     {
-        if( hasCustomContent() )
+        if( hasCustomContent() && pom.getFile().exists() )
         {
             Pom customPom = PomUtils.readPom( pom.getBasedir() );
             pom.overlayDetails( customPom );
@@ -508,7 +508,7 @@ public abstract class AbstractPaxArchetypeMojo extends MavenArchetypeMojo
     protected final void saveBndInstructions( Bnd bnd )
         throws IOException
     {
-        if( hasCustomContent() )
+        if( hasCustomContent() && bnd.getFile().exists() )
         {
             Bnd customBnd = BndUtils.readBnd( bnd.getBasedir() );
             bnd.overlayInstructions( customBnd );
