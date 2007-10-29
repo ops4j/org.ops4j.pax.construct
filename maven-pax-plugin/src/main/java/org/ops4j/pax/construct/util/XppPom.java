@@ -29,7 +29,6 @@ import org.apache.maven.model.Repository;
 import org.apache.maven.project.MavenProject;
 import org.codehaus.plexus.util.IOUtil;
 import org.codehaus.plexus.util.ReaderFactory;
-import org.codehaus.plexus.util.StringUtils;
 import org.codehaus.plexus.util.WriterFactory;
 import org.codehaus.plexus.util.xml.XmlStreamReader;
 import org.codehaus.plexus.util.xml.XmlStreamWriter;
@@ -743,11 +742,14 @@ public class XppPom
         Xpp3Dom overlay = ( (XppPom) pom ).m_pom;
         Xpp3Dom project = new Xpp3Dom( "project" );
 
+        // avoid corruption of key elements
+        removeProtectedElements( overlay );
+
         Xpp3Dom[] sections = m_pom.getChildren();
         for( int i = 0; i < sections.length; i++ )
         {
-            String name = sections[i].getName();
-            if( isProtectedSection( name ) || null == overlay.getChild( name ) )
+            // provide basic XML framework underneath the overlay
+            if( null == overlay.getChild( sections[i].getName() ) )
             {
                 project.addChild( sections[i] );
             }
@@ -765,32 +767,36 @@ public class XppPom
         findChildren( "build/pluginManagement/" + plugins, true );
         mergeSection( originalPom, "build/pluginManagement/plugins", "build/pluginManagement", true );
 
-        Xpp3Dom name = m_pom.getChild( "name" );
-        if( null != name )
-        {
-            // upgrade old names to use the new variable
-            name.setValue( StringUtils.replace( name.getValue(), "bundle.package", "bundle.namespace" ) );
-        }
-
         // add custom modules below Pax-Construct infrastructure entries
         for( Iterator i = pom.getModuleNames().iterator(); i.hasNext(); )
         {
-            addModule( (String) i.next(), true );
+            String module = (String) i.next();
+            if( new File( pom.getBasedir(), module ).exists() )
+            {
+                addModule( module, true );
+            }
         }
     }
 
     /**
-     * @param name section of the Maven project model
-     * @return true if this section cannot be overlaid
+     * @param fragment existing XML fragment
      */
-    private static boolean isProtectedSection( String name )
+    private static void removeProtectedElements( Xpp3Dom fragment )
     {
-        List protectedSections = Arrays.asList( new String[]
+        List protectedElements = Arrays.asList( new String[]
         {
             "modelVersion", "parent", "artifactId", "groupId", "version", "packaging", "modules"
         } );
 
-        return protectedSections.contains( name );
+        Xpp3Dom[] elements = fragment.getChildren();
+        for( int i = elements.length - 1; i >= 0; i-- )
+        {
+            // we don't want these protected elements customized
+            if( protectedElements.contains( elements[i].getName() ) )
+            {
+                fragment.removeChild( i );
+            }
+        }
     }
 
     /**
