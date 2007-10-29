@@ -249,7 +249,7 @@ public final class PomUtils
     /**
      * Thrown when a POM element already exists and can't be overwritten {@link Pom}
      */
-    public static class ExistingElementException extends MojoExecutionException
+    public static class ExistingElementException extends RuntimeException
     {
         private static final long serialVersionUID = 1L;
 

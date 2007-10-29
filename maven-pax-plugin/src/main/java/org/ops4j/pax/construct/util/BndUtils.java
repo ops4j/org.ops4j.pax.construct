@@ -20,8 +20,6 @@ import java.io.File;
 import java.io.IOException;
 import java.util.Set;
 
-import org.apache.maven.plugin.MojoExecutionException;
-
 /**
  * Provide API {@link Bnd} and factory for editing Bnd instruction files
  */
@@ -92,7 +90,7 @@ public final class BndUtils
     /**
      * Thrown when a Bnd instruction already exists and can't be overwritten {@link Bnd}
      */
-    public static class ExistingInstructionException extends MojoExecutionException
+    public static class ExistingInstructionException extends RuntimeException
     {
         private static final long serialVersionUID = 1L;
 

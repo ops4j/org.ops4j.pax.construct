@@ -520,7 +520,9 @@ public class CloneMojo extends AbstractMojo
         throws MojoExecutionException
     {
         ArchetypeFragment fragment = new ArchetypeFragment( m_tempdir, namespace );
+
         fragment.addPom( project.getBasedir() );
+        fragment.addResources( project.getBasedir(), "osgi.bnd", false );
 
         if( null != namespace )
         {

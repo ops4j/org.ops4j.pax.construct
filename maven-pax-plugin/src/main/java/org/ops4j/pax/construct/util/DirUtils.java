@@ -31,7 +31,6 @@ import org.codehaus.plexus.archiver.ArchiverException;
 import org.codehaus.plexus.archiver.UnArchiver;
 import org.codehaus.plexus.archiver.manager.ArchiverManager;
 import org.codehaus.plexus.archiver.manager.NoSuchArchiverException;
-import org.ops4j.pax.construct.util.PomUtils.ExistingElementException;
 import org.ops4j.pax.construct.util.PomUtils.Pom;
 
 /**
@@ -214,30 +213,22 @@ public final class DirUtils
     private static Pom createMissingPom( Pom parentPom, String module, File pomFile )
         throws IOException
     {
-        try
+        // link parent to new module pom
+        parentPom.addModule( module, true );
+        parentPom.write();
+
+        String groupId = PomUtils.getCompoundId( parentPom.getGroupId(), parentPom.getArtifactId() );
+        if( groupId.equals( parentPom.getGroupId() ) )
         {
-            // link parent to new module pom
-            parentPom.addModule( module, true );
-            parentPom.write();
-
-            String groupId = PomUtils.getCompoundId( parentPom.getGroupId(), parentPom.getArtifactId() );
-            if( groupId.equals( parentPom.getGroupId() ) )
-            {
-                groupId += '.' + module;
-            }
-
-            // create missing module pom and link back to parent
-            Pom childPom = PomUtils.createPom( pomFile, groupId, module );
-            childPom.setParent( parentPom, null, true );
-            childPom.write();
-
-            return childPom;
+            groupId += '.' + module;
         }
-        catch( ExistingElementException e )
-        {
-            // this should never happen
-            throw new RuntimeException( e );
-        }
+
+        // create missing module pom and link back to parent
+        Pom childPom = PomUtils.createPom( pomFile, groupId, module );
+        childPom.setParent( parentPom, null, true );
+        childPom.write();
+
+        return childPom;
     }
 
     /**
@@ -296,36 +287,28 @@ public final class DirUtils
     public static String updateLogicalParent( File pomFile, String parentId )
         throws IOException
     {
-        try
+        Pom pom = PomUtils.readPom( pomFile );
+        File baseDir = pom.getBasedir();
+
+        Pom parentPom = DirUtils.findPom( baseDir, parentId );
+        if( null == parentPom )
         {
-            Pom pom = PomUtils.readPom( pomFile );
-            File baseDir = pom.getBasedir();
-
-            Pom parentPom = DirUtils.findPom( baseDir, parentId );
-            if( null == parentPom )
-            {
-                return null;
-            }
-
-            String[] pivot = DirUtils.calculateRelativePath( baseDir, parentPom.getBasedir() );
-            if( null == pivot )
-            {
-                return null;
-            }
-
-            String relativePath = pivot[0] + pivot[2];
-
-            // (re-)attach project to its logical parent
-            pom.setParent( parentPom, relativePath, true );
-            pom.write();
-
-            return relativePath;
+            return null;
         }
-        catch( ExistingElementException e )
+
+        String[] pivot = DirUtils.calculateRelativePath( baseDir, parentPom.getBasedir() );
+        if( null == pivot )
         {
-            // this should never happen
-            throw new RuntimeException( e );
+            return null;
         }
+
+        String relativePath = pivot[0] + pivot[2];
+
+        // (re-)attach project to its logical parent
+        pom.setParent( parentPom, relativePath, true );
+        pom.write();
+
+        return relativePath;
     }
 
     /**

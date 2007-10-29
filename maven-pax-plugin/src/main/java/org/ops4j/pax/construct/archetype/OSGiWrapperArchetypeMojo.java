@@ -36,9 +36,8 @@ import org.apache.maven.project.MavenProject;
 import org.apache.maven.project.MavenProjectBuilder;
 import org.apache.maven.project.ProjectBuildingException;
 import org.apache.maven.project.artifact.InvalidDependencyVersionException;
-import org.ops4j.pax.construct.util.BndUtils.Bnd;
 import org.ops4j.pax.construct.util.PomUtils;
-import org.ops4j.pax.construct.util.PomUtils.ExistingElementException;
+import org.ops4j.pax.construct.util.BndUtils.Bnd;
 import org.ops4j.pax.construct.util.PomUtils.Pom;
 
 /**
@@ -564,39 +563,31 @@ public class OSGiWrapperArchetypeMojo extends AbstractPaxArchetypeMojo
      */
     private boolean addWrapperDependency( Pom pom, Artifact artifact )
     {
-        try
+        if( m_excludedIds.contains( artifact.getGroupId() + ':' + artifact.getArtifactId() ) )
         {
-            if( m_excludedIds.contains( artifact.getGroupId() + ':' + artifact.getArtifactId() ) )
-            {
-                // exclude this dependency from current POM rather than wrapping it here
-                pom.addExclusion( artifact.getGroupId(), artifact.getArtifactId(), true );
-                return false;
-            }
-            else if( PomUtils.isBundleArtifact( artifact, m_resolver, m_remoteRepos, m_localRepo, testMetadata ) )
-            {
-                pom.addDependency( getBundleDependency( artifact ), true );
-                return false;
-            }
-            else
-            {
-                String existingVersion = getWrappedVersion( getCandidateId( artifact ) );
-                if( null != existingVersion )
-                {
-                    /*
-                     * We've already wrapped this artifact but with a different version: we can't easily go back and
-                     * update the earlier POMs so we'll force the other transitive wrappers to use the first version
-                     */
-                    artifact.setVersion( existingVersion );
-                }
-
-                pom.addDependency( getWrappedDependency( artifact ), true );
-                return ( null == existingVersion );
-            }
+            // exclude this dependency from current POM rather than wrapping it here
+            pom.addExclusion( artifact.getGroupId(), artifact.getArtifactId(), true );
+            return false;
         }
-        catch( ExistingElementException e )
+        else if( PomUtils.isBundleArtifact( artifact, m_resolver, m_remoteRepos, m_localRepo, testMetadata ) )
         {
-            // this should never happen
-            throw new RuntimeException( e );
+            pom.addDependency( getBundleDependency( artifact ), true );
+            return false;
+        }
+        else
+        {
+            String existingVersion = getWrappedVersion( getCandidateId( artifact ) );
+            if( null != existingVersion )
+            {
+                /*
+                 * We've already wrapped this artifact but with a different version: we can't easily update any of the
+                 * earlier wrapper POMs so for now we'll force the other transitive wrappers to use the first version
+                 */
+                artifact.setVersion( existingVersion );
+            }
+
+            pom.addDependency( getWrappedDependency( artifact ), true );
+            return ( null == existingVersion );
         }
     }
 
@@ -721,16 +712,8 @@ public class OSGiWrapperArchetypeMojo extends AbstractPaxArchetypeMojo
     {
         for( Iterator i = m_excludedIds.iterator(); i.hasNext(); )
         {
-            try
-            {
-                String[] fields = ( (String) i.next() ).split( ":" );
-                pom.addExclusion( fields[0], fields[1], true );
-            }
-            catch( ExistingElementException e )
-            {
-                // this should never happen
-                throw new RuntimeException( e );
-            }
+            String[] fields = ( (String) i.next() ).split( ":" );
+            pom.addExclusion( fields[0], fields[1], true );
         }
     }
 }

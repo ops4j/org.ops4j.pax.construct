@@ -20,6 +20,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Iterator;
 import java.util.List;
 
 import org.apache.maven.model.Dependency;
@@ -775,6 +776,12 @@ public class XppPom
         if( null != name )
         {
             name.setValue( StringUtils.replace( name.getValue(), "bundle.package", "bundle.namespace" ) );
+        }
+
+        // add custom modules below Pax-Construct infrastructure entries
+        for( Iterator i = pom.getModuleNames().iterator(); i.hasNext(); )
+        {
+            addModule( (String) i.next(), true );
         }
     }
 
