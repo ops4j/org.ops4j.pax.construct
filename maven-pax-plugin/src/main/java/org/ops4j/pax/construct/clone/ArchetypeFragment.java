@@ -17,15 +17,13 @@ package org.ops4j.pax.construct.clone;
  */
 
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
-import org.apache.maven.archetype.Copier;
-import org.apache.maven.archetype.FileUtils;
-import org.apache.maven.archetype.FilteringCopier;
-import org.apache.maven.archetype.StandardCopier;
 import org.apache.maven.archetype.model.ArchetypeModel;
 import org.apache.maven.archetype.model.io.xpp3.ArchetypeXpp3Writer;
 import org.apache.maven.artifact.Artifact;
@@ -36,6 +34,7 @@ import org.apache.maven.plugin.MojoExecutionException;
 import org.codehaus.plexus.archiver.Archiver;
 import org.codehaus.plexus.archiver.ArchiverException;
 import org.codehaus.plexus.util.DirectoryScanner;
+import org.codehaus.plexus.util.FileUtils;
 import org.codehaus.plexus.util.IOUtil;
 import org.codehaus.plexus.util.StringUtils;
 import org.codehaus.plexus.util.WriterFactory;
@@ -63,11 +62,6 @@ public class ArchetypeFragment
     private String m_namespace;
 
     /**
-     * Filter to replace primary namespace with property
-     */
-    private Copier m_filter;
-
-    /**
      * Temporary directory for this fragment
      */
     private File m_tempDir;
@@ -84,16 +78,8 @@ public class ArchetypeFragment
         m_model = new ArchetypeModel();
         m_model.setAllowPartial( true );
 
+        // primary Java package
         m_namespace = namespace;
-        if( null == m_namespace )
-        {
-            // nothing to replace
-            m_filter = new StandardCopier();
-        }
-        else
-        {
-            m_filter = new FilteringCopier( m_namespace, "${package}" );
-        }
 
         // unique scratch directory for the fragment assembly
         m_tempDir = new File( tempDir, "fragment" + ( m_fragmentCount++ ) );
@@ -108,15 +94,8 @@ public class ArchetypeFragment
     {
         File to = new File( m_tempDir, "archetype-resources" );
 
-        try
-        {
-            // relocate to 'classic' archetype location
-            FileUtils.copyFile( new File( projectDir, "pom.xml" ), new File( to, "pom.xml" ), m_filter );
-        }
-        catch( IOException e )
-        {
-            System.err.println( "I/O error copying " + projectDir + "/pom.xml" );
-        }
+        // relocate to 'classic' archetype location
+        translateFile( new File( projectDir, "pom.xml" ), new File( to, "pom.xml" ) );
     }
 
     /**
@@ -143,25 +122,19 @@ public class ArchetypeFragment
         for( Iterator i = getFilenames( projectDir, sourcePath ).iterator(); i.hasNext(); )
         {
             String filename = (String) i.next();
-            try
-            {
-                // relocate to 'classic' archetype location (primary package gets trimmed)
-                String target = StringUtils.replace( filename, packagePath, sourcePath );
 
-                FileUtils.copyFile( new File( projectDir, filename ), new File( to, target ), m_filter );
-                if( target.equals( filename ) )
-                {
-                    // not primary package, so treat as resource (otherwise would end up with bogus package prefix)
-                    addResourceEntry( target, isTest );
-                }
-                else
-                {
-                    addSourceEntry( target, isTest );
-                }
-            }
-            catch( IOException e )
+            // relocate to 'classic' archetype location (primary package gets trimmed)
+            String target = StringUtils.replace( filename, packagePath, sourcePath );
+            translateFile( new File( projectDir, filename ), new File( to, target ) );
+
+            if( target.equals( filename ) )
             {
-                System.err.println( "I/O error copying source " + filename );
+                // not primary package, so treat as resource (otherwise would end up with bogus package prefix)
+                addResourceEntry( target, isTest );
+            }
+            else
+            {
+                addSourceEntry( target, isTest );
             }
         }
     }
@@ -187,23 +160,17 @@ public class ArchetypeFragment
         for( Iterator i = getFilenames( projectDir, resourcePath ).iterator(); i.hasNext(); )
         {
             String filename = (String) i.next();
-            try
-            {
-                // special case for Bnd instructions
-                String target = filename;
-                if( target.endsWith( ".bnd" ) || target.endsWith( "osgi.bundle" ) )
-                {
-                    target = "osgi.bnd";
-                }
 
-                // relocate to 'classic' archetype location
-                FileUtils.copyFile( new File( projectDir, filename ), new File( to, target ), m_filter );
-                addResourceEntry( target, isTest );
-            }
-            catch( IOException e )
+            // special case for Bnd instructions
+            String target = filename;
+            if( target.endsWith( ".bnd" ) || target.endsWith( "osgi.bundle" ) )
             {
-                System.err.println( "I/O error copying resource " + filename );
+                target = "osgi.bnd";
             }
+
+            // relocate to 'classic' archetype location
+            translateFile( new File( projectDir, filename ), new File( to, target ) );
+            addResourceEntry( target, isTest );
         }
     }
 
@@ -305,6 +272,8 @@ public class ArchetypeFragment
             XmlStreamWriter writer = WriterFactory.newXmlWriter( modelFile );
             new ArchetypeXpp3Writer().write( writer, m_model );
             IOUtil.close( writer );
+
+            repairModel( modelFile );
         }
         catch( IOException e )
         {
@@ -349,6 +318,81 @@ public class ArchetypeFragment
         catch( IOException e )
         {
             throw new MojoExecutionException( "Unable to remove archetype files", e );
+        }
+    }
+
+    /**
+     * Translate file content to work with Pax-Construct v2 archetype processing
+     * 
+     * @param from source file
+     * @param to destination file
+     */
+    private void translateFile( File from, File to )
+    {
+        try
+        {
+            FileInputStream in = new FileInputStream( from );
+            String content = IOUtil.toString( in );
+            IOUtil.close( in );
+
+            // protect existing variables from accidental replacement
+            content = StringUtils.replace( content, "$", "${dollar}" );
+            content = "#set( $dollar = '$' )" + System.getProperty( "line.separator" ) + content;
+
+            // standard archetype translation
+            content = StringUtils.replace( content, m_namespace, "${package}" );
+
+            // Pax-Construct v1 => v2 translation
+            content = StringUtils.replace( content, "bundle.package", "bundle.namespace" );
+            content = StringUtils.replace( content, "jar.groupId", "wrapped.groupId" );
+            content = StringUtils.replace( content, "jar.artifactId", "wrapped.artifactId" );
+            content = StringUtils.replace( content, "jar.version", "wrapped.version" );
+
+            to.getParentFile().mkdirs();
+            FileOutputStream out = new FileOutputStream( to );
+            IOUtil.copy( content, out );
+            IOUtil.close( out );
+        }
+        catch( IOException e1 )
+        {
+            System.err.println( "WARNING: problem translating " + from );
+            try
+            {
+                // fall-back to basic copy
+                FileUtils.copyFile( from, to );
+            }
+            catch( IOException e2 )
+            {
+                System.err.println( "WARNING: problem copying " + from );
+            }
+        }
+    }
+
+    /**
+     * Repair archetype model, so it works with the old archetype system
+     * 
+     * @param modelFile model file
+     */
+    private void repairModel( File modelFile )
+    {
+        try
+        {
+            FileInputStream in = new FileInputStream( modelFile );
+            String content = IOUtil.toString( in );
+            IOUtil.close( in );
+
+            content = StringUtils.replace( content, "<testSource>", "<source>" );
+            content = StringUtils.replace( content, "</testSource>", "</source>" );
+            content = StringUtils.replace( content, "<testResource>", "<resource>" );
+            content = StringUtils.replace( content, "</testResource>", "</resource>" );
+
+            FileOutputStream out = new FileOutputStream( modelFile );
+            IOUtil.copy( content, out );
+            IOUtil.close( out );
+        }
+        catch( IOException e )
+        {
+            System.err.println( "WARNING: problem repairing " + modelFile );
         }
     }
 }
