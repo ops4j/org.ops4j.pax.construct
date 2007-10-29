@@ -362,10 +362,10 @@ public class CloneMojo extends AbstractMojo
     private Dependency findCustomizedWrappee( MavenProject project )
     {
         List dependencies = project.getDependencies();
-        List sourceRoots = project.getCompileSourceRoots();
+        String sourcePath = project.getBuild().getSourceDirectory();
 
-        // assume first dependency is the wrapped artifact (unless there are some sources)
-        if( dependencies.size() > 0 && ( null == sourceRoots || sourceRoots.size() == 0 ) )
+        // assume first dependency is wrapped artifact (unless has source)
+        if( dependencies.size() > 0 && !new File( sourcePath ).exists() )
         {
             return (Dependency) dependencies.get( 0 );
         }
@@ -415,9 +415,10 @@ public class CloneMojo extends AbstractMojo
         {
             // original Pax-Construct
             namespace = properties.getProperty( "bundle.package" );
-            if( null == namespace )
+            String sourcePath = project.getBuild().getSourceDirectory();
+            if( null == namespace && new File( sourcePath ).exists() )
             {
-                namespace = findPrimaryPackage( project.getBuild().getSourceDirectory() );
+                namespace = findPrimaryPackage( sourcePath );
             }
         }
 
@@ -577,6 +578,11 @@ public class CloneMojo extends AbstractMojo
                 command.option( 'g', pom.getGroupId() );
                 command.option( 'a', pom.getArtifactId() );
                 command.option( 'v', pom.getVersion() );
+
+                // enable overwrite
+                command.flag( 'o' );
+
+                setTargetDirectory( command, pom.getBasedir().getParentFile() );
 
                 resourcePaths.clear();
                 majorPom = pom;
