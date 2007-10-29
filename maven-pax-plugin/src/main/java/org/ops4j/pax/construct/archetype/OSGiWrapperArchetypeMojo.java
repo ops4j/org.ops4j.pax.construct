@@ -36,8 +36,8 @@ import org.apache.maven.project.MavenProject;
 import org.apache.maven.project.MavenProjectBuilder;
 import org.apache.maven.project.ProjectBuildingException;
 import org.apache.maven.project.artifact.InvalidDependencyVersionException;
-import org.ops4j.pax.construct.util.PomUtils;
 import org.ops4j.pax.construct.util.BndUtils.Bnd;
+import org.ops4j.pax.construct.util.PomUtils;
 import org.ops4j.pax.construct.util.PomUtils.Pom;
 
 /**

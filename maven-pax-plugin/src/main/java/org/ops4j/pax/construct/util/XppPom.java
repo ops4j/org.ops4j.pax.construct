@@ -748,10 +748,8 @@ public class XppPom
         Xpp3Dom[] sections = m_pom.getChildren();
         for( int i = 0; i < sections.length; i++ )
         {
-            String name = sections[i].getName();
-
             // provide basic XML framework underneath the overlay
-            if( null == overlay.getChild( name ) || "properties".equals( name ) )
+            if( null == overlay.getChild( sections[i].getName() ) )
             {
                 project.addChild( sections[i] );
             }
@@ -768,6 +766,9 @@ public class XppPom
 
         findChildren( "build/pluginManagement/" + plugins, true );
         mergeSection( originalPom, "build/pluginManagement/plugins", "build/pluginManagement", true );
+
+        // merge properties - customized values take precedence
+        mergeSection( originalPom, "properties", null, false );
 
         // add custom modules below Pax-Construct infrastructure entries
         for( Iterator i = pom.getModuleNames().iterator(); i.hasNext(); )
