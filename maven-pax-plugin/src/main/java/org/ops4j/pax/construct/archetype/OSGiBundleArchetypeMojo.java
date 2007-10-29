@@ -103,21 +103,21 @@ public class OSGiBundleArchetypeMojo extends AbstractPaxArchetypeMojo
     /**
      * Add basic support for the selected JUnit version.
      * 
-     * @parameter expression="${junitVersion}"
+     * @parameter expression="${junit}"
      */
     private String junitVersion;
 
     /**
      * Add basic support for the selected Spring version.
      * 
-     * @parameter expression="${springVersion}"
+     * @parameter expression="${spring}"
      */
     private String springVersion;
 
     /**
      * When true, do not add any dependencies to the project (useful when they are already provided by another POM).
      * 
-     * @parameter expression="${noDependencies}"
+     * @parameter expression="${noDeps}"
      */
     private boolean noDependencies;
 
@@ -134,18 +134,17 @@ public class OSGiBundleArchetypeMojo extends AbstractPaxArchetypeMojo
      */
     protected void updateExtensionFields()
     {
-        // use the Java package as the symbolic name if no name given
-        if( null == bundleName || bundleName.trim().length() == 0 )
-        {
-            bundleName = packageName;
-        }
+        populateMissingFields();
 
         // should we provide code samples?
-        if( provideInterface || provideInternals )
+        if( !hasCustomContent() && ( provideInterface || provideInternals ) )
         {
-            // OSGi service + activator example
-            scheduleArchetype( PAX_ARCHETYPE_GROUP_ID, "maven-archetype-osgi-service", getArchetypeVersion() );
-            if( springVersion != null )
+            if( null == springVersion )
+            {
+                // OSGi service + activator example
+                scheduleArchetype( PAX_ARCHETYPE_GROUP_ID, "maven-archetype-osgi-service", getArchetypeVersion() );
+            }
+            else
             {
                 // Spring Dynamic-Modules bean example
                 scheduleArchetype( PAX_ARCHETYPE_GROUP_ID, "maven-archetype-spring-bean", getArchetypeVersion() );
@@ -159,6 +158,30 @@ public class OSGiBundleArchetypeMojo extends AbstractPaxArchetypeMojo
         getArchetypeMojo().setField( "version", version );
 
         getArchetypeMojo().setField( "packageName", packageName );
+    }
+
+    /**
+     * Populate blank or empty fields with defaults
+     */
+    private void populateMissingFields()
+    {
+        // use the Java package as the symbolic name if no name given
+        if( null == bundleName || bundleName.trim().length() == 0 )
+        {
+            bundleName = packageName;
+        }
+
+        // default to the classic version of JUnit
+        if( "true".equals( junitVersion ) || "".equals( junitVersion ) )
+        {
+            junitVersion = "3.8.1";
+        }
+
+        // default to a recent version of Spring
+        if( "true".equals( springVersion ) || "".equals( springVersion ) )
+        {
+            springVersion = "2.5-rc1";
+        }
     }
 
     /**

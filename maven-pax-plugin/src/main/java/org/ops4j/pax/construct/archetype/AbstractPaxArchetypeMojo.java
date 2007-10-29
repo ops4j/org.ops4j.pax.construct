@@ -148,6 +148,14 @@ public abstract class AbstractPaxArchetypeMojo extends MavenArchetypeMojo
     }
 
     /**
+     * @return true if the user has selected one or more custom archetypes
+     */
+    protected final boolean hasCustomContent()
+    {
+        return null != contents;
+    }
+
+    /**
      * @return the internal groupId for support artifacts belonging to the new project
      */
     protected final String getInternalGroupId()
@@ -333,7 +341,7 @@ public abstract class AbstractPaxArchetypeMojo extends MavenArchetypeMojo
 
         // support overwriting of existing projects
         m_pomFile = new File( pomDirectory, "pom.xml" );
-        if( overwrite && m_pomFile.exists() )
+        if( canOverwrite() && m_pomFile.exists() )
         {
             m_pomFile.delete();
         }
@@ -378,7 +386,7 @@ public abstract class AbstractPaxArchetypeMojo extends MavenArchetypeMojo
             {
                 // attach new project to its physical parent
                 pomDirectory.mkdirs();
-                modulesPom.addModule( pomDirectory.getName(), overwrite );
+                modulesPom.addModule( pomDirectory.getName(), canOverwrite() );
                 modulesPom.write();
             }
         }
@@ -401,7 +409,7 @@ public abstract class AbstractPaxArchetypeMojo extends MavenArchetypeMojo
             // before caching, search for logical parent in project tree
             DirUtils.updateLogicalParent( m_pomFile, getParentId() );
             m_pom = PomUtils.readPom( m_pomFile );
-            if( contents != null )
+            if( hasCustomContent() )
             {
                 // allow further customization
                 m_pom.getFile().delete();
@@ -415,7 +423,7 @@ public abstract class AbstractPaxArchetypeMojo extends MavenArchetypeMojo
         try
         {
             m_bnd = BndUtils.readBnd( m_pom.getBasedir() );
-            if( contents != null )
+            if( hasCustomContent() )
             {
                 // allow further customization
                 m_bnd.getFile().delete();
@@ -426,7 +434,7 @@ public abstract class AbstractPaxArchetypeMojo extends MavenArchetypeMojo
             throw new MojoExecutionException( "I/O error reading generated Bnd instructions", e );
         }
 
-        if( contents != null )
+        if( hasCustomContent() )
         {
             // no need to cache if not customizing
             cacheOriginalFiles( m_pom.getBasedir() );
@@ -485,7 +493,7 @@ public abstract class AbstractPaxArchetypeMojo extends MavenArchetypeMojo
     protected final void saveProjectModel( Pom pom )
         throws IOException
     {
-        if( contents != null )
+        if( hasCustomContent() )
         {
             Pom customPom = PomUtils.readPom( pom.getBasedir() );
             pom.overlayDetails( customPom );
@@ -500,7 +508,7 @@ public abstract class AbstractPaxArchetypeMojo extends MavenArchetypeMojo
     protected final void saveBndInstructions( Bnd bnd )
         throws IOException
     {
-        if( contents != null )
+        if( hasCustomContent() )
         {
             Bnd customBnd = BndUtils.readBnd( bnd.getBasedir() );
             bnd.overlayInstructions( customBnd );
@@ -532,8 +540,8 @@ public abstract class AbstractPaxArchetypeMojo extends MavenArchetypeMojo
     {
         m_customArchetypeIds = new ArrayList();
 
-        // are there any extra command-line archetypes?
-        if( null == contents || contents.length() == 0 )
+        // use default content
+        if( !hasCustomContent() || contents.trim().length() == 0 )
         {
             return;
         }

@@ -37,13 +37,13 @@
 *---------------------------------------------------*---------------------------------------------------+
 | <<<-Dactivator=false>>>                           | remove any bundle activators                      |
 *---------------------------------------------------*---------------------------------------------------+
-| <<<-DjunitVersion=>>><version>                    | add test dependencies and example tests           |
+| <<<-Djunit>>> or <<<-Djunit=>>><version>          | add test dependencies and example tests           |
 *---------------------------------------------------*---------------------------------------------------+
-| <<<-DspringVersion=>>><version>                   | add example Spring Dynamic Modules bean + XML     |
+| <<<-Dspring>>> or <<<-Dspring=>>><version>        | add example Spring Dynamic Modules bean + XML     |
 *---------------------------------------------------*---------------------------------------------------+
 | <<<-Dcontents=>>><groupId:artifactId:version,...> | custom archetypes that provide additional content |
 *---------------------------------------------------*---------------------------------------------------+
-| <<<-DnoDependencies>>>                            | don't add any additional dependencies             |
+| <<<-DnoDeps>>>                                    | don't add any additional dependencies             |
 *---------------------------------------------------*---------------------------------------------------+
 | <<<-DparentId=>>><groupId:artifactId>             | look for a different parent POM                   |
 *---------------------------------------------------*---------------------------------------------------+
