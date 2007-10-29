@@ -258,6 +258,9 @@ public class CloneMojo extends AbstractMojo
         // customized sources, POMs, Bnd instructions
         command.maven().option( "contents", contents );
 
+        // enable overwrite
+        command.flag( 'o' );
+
         setTargetDirectory( command, project.getBasedir().getParentFile() );
         m_handledProjectIds.add( project.getId() );
     }
@@ -281,6 +284,9 @@ public class CloneMojo extends AbstractMojo
             command.option( 'g', importee.getGroupId() );
             command.option( 'a', importee.getArtifactId() );
             command.option( 'v', importee.getVersion() );
+
+            // enable overwrite
+            command.flag( 'o' );
 
             // imported bundles now in provision POM
             setTargetDirectory( command, m_basedir );
