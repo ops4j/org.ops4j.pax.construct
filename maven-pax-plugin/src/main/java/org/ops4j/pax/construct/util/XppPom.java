@@ -748,8 +748,10 @@ public class XppPom
         Xpp3Dom[] sections = m_pom.getChildren();
         for( int i = 0; i < sections.length; i++ )
         {
+            String name = sections[i].getName();
+
             // provide basic XML framework underneath the overlay
-            if( null == overlay.getChild( sections[i].getName() ) )
+            if( null == overlay.getChild( name ) || "properties".equals( name ) )
             {
                 project.addChild( sections[i] );
             }
