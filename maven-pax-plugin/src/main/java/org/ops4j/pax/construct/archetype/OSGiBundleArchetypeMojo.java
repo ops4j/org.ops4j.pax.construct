@@ -251,7 +251,7 @@ public class OSGiBundleArchetypeMojo extends AbstractPaxArchetypeMojo
             addTempFiles( "src/main/resources/" );
             addTempFiles( "src/main/java/" + packagePath + "/internal/" );
         }
-        if( !provideInternals || null == junitVersion )
+        if( !provideInternals || ( null == junitVersion && !hasCustomContent() ) )
         {
             addTempFiles( "src/test/resources/" );
             addTempFiles( "src/test/java/" + packagePath + "/internal/" );
