@@ -36,6 +36,7 @@ import org.codehaus.plexus.archiver.Archiver;
 import org.codehaus.plexus.archiver.manager.ArchiverManager;
 import org.codehaus.plexus.archiver.manager.NoSuchArchiverException;
 import org.codehaus.plexus.util.DirectoryScanner;
+import org.codehaus.plexus.util.StringUtils;
 import org.ops4j.pax.construct.util.DirUtils;
 import org.ops4j.pax.construct.util.PomIterator;
 import org.ops4j.pax.construct.util.PomUtils;
@@ -496,7 +497,7 @@ public class CloneMojo extends AbstractMojo
         if( pivot != null && pivot[2].length() > 0 )
         {
             // fix path to use the correct artifactId, in case directory tree has been renamed
-            String relativePath = pivot[2].replaceFirst( m_basedir.getName(), m_rootArtifactId );
+            String relativePath = StringUtils.replaceOnce( pivot[2], m_basedir.getName(), m_rootArtifactId );
             command.maven().option( "targetDirectory", relativePath );
         }
     }

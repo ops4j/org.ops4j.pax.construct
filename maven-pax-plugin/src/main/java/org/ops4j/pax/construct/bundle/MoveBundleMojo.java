@@ -84,15 +84,19 @@ public class MoveBundleMojo extends AbstractMojo
     protected static Pom locateBundlePom( File baseDir, String pathOrName )
         throws MojoExecutionException
     {
-        Pom bundlePom;
-        try
+        Pom bundlePom = null;
+
+        if( null != pathOrName )
         {
-            bundlePom = PomUtils.readPom( new File( pathOrName ) );
-        }
-        catch( IOException e )
-        {
-            String name = pathOrName.replaceAll( ".*[/\\\\]", "" );
-            bundlePom = DirUtils.findPom( baseDir, name );
+            File path = new File( pathOrName );
+            try
+            {
+                bundlePom = PomUtils.readPom( path );
+            }
+            catch( IOException e )
+            {
+                bundlePom = DirUtils.findPom( baseDir, path.getName() );
+            }
         }
 
         if( null == bundlePom )

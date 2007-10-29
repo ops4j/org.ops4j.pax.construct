@@ -30,6 +30,7 @@ import java.util.Set;
 
 import org.codehaus.plexus.util.IOUtil;
 import org.codehaus.plexus.util.ReaderFactory;
+import org.codehaus.plexus.util.StringUtils;
 import org.codehaus.plexus.util.WriterFactory;
 import org.ops4j.pax.construct.util.BndUtils.Bnd;
 import org.ops4j.pax.construct.util.BndUtils.ExistingInstructionException;
@@ -140,11 +141,10 @@ public class RoundTripBndFile
              * for now just do a simple filter+copy of instructions
              */
 
-            instruction = instruction.replaceAll( "bundle\\.package", "bundle\\.namespace" );
-
-            instruction = instruction.replaceAll( "jar\\.groupId", "wrapped\\.groupId" );
-            instruction = instruction.replaceAll( "jar\\.artifactId", "wrapped\\.artifactId" );
-            instruction = instruction.replaceAll( "jar\\.version", "wrapped\\.version" );
+            instruction = StringUtils.replace( instruction, "bundle.package", "bundle.namespace" );
+            instruction = StringUtils.replace( instruction, "jar.groupId", "wrapped.groupId" );
+            instruction = StringUtils.replace( instruction, "jar.artifactId", "wrapped.artifactId" );
+            instruction = StringUtils.replace( instruction, "jar.version", "wrapped.version" );
 
             m_newInstructions.setProperty( directive, instruction );
         }

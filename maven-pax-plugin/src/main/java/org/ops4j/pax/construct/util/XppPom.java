@@ -28,6 +28,7 @@ import org.apache.maven.model.Repository;
 import org.apache.maven.project.MavenProject;
 import org.codehaus.plexus.util.IOUtil;
 import org.codehaus.plexus.util.ReaderFactory;
+import org.codehaus.plexus.util.StringUtils;
 import org.codehaus.plexus.util.WriterFactory;
 import org.codehaus.plexus.util.xml.XmlStreamReader;
 import org.codehaus.plexus.util.xml.XmlStreamWriter;
@@ -773,7 +774,7 @@ public class XppPom
         Xpp3Dom name = m_pom.getChild( "name" );
         if( null != name )
         {
-            name.setValue( name.getValue().replaceAll( "bundle\\.package", "bundle\\.namespace" ) );
+            name.setValue( StringUtils.replace( name.getValue(), "bundle.package", "bundle.namespace" ) );
         }
     }
 

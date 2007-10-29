@@ -18,6 +18,9 @@ package org.ops4j.pax.construct.clone;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
 
 import org.apache.maven.archetype.Copier;
 import org.apache.maven.archetype.FileUtils;
@@ -34,6 +37,7 @@ import org.codehaus.plexus.archiver.Archiver;
 import org.codehaus.plexus.archiver.ArchiverException;
 import org.codehaus.plexus.util.DirectoryScanner;
 import org.codehaus.plexus.util.IOUtil;
+import org.codehaus.plexus.util.StringUtils;
 import org.codehaus.plexus.util.WriterFactory;
 import org.codehaus.plexus.util.xml.XmlStreamWriter;
 import org.ops4j.pax.construct.util.DirUtils;
@@ -136,16 +140,16 @@ public class ArchetypeFragment
         String packagePath = sourcePath + m_namespace.replace( '.', '/' ) + '/';
 
         File to = new File( m_tempDir, "archetype-resources" );
-        String[] sources = getFilenames( projectDir, sourcePath );
-        for( int i = 0; i < sources.length; i++ )
+        for( Iterator i = getFilenames( projectDir, sourcePath ).iterator(); i.hasNext(); )
         {
+            String filename = (String) i.next();
             try
             {
                 // relocate to 'classic' archetype location (primary package gets trimmed)
-                String target = sources[i].replaceFirst( packagePath, sourcePath );
+                String target = StringUtils.replace( filename, packagePath, sourcePath );
 
-                FileUtils.copyFile( new File( projectDir, sources[i] ), new File( to, target ), m_filter );
-                if( target.equals( sources[i] ) )
+                FileUtils.copyFile( new File( projectDir, filename ), new File( to, target ), m_filter );
+                if( target.equals( filename ) )
                 {
                     // not primary package, so treat as resource (otherwise would end up with bogus package prefix)
                     addResourceEntry( target, isTest );
@@ -157,7 +161,7 @@ public class ArchetypeFragment
             }
             catch( IOException e )
             {
-                System.err.println( "I/O error copying source " + sources[i] );
+                System.err.println( "I/O error copying source " + filename );
             }
         }
     }
@@ -180,25 +184,25 @@ public class ArchetypeFragment
         }
 
         File to = new File( m_tempDir, "archetype-resources" );
-        String[] resources = getFilenames( projectDir, resourcePath );
-        for( int i = 0; i < resources.length; i++ )
+        for( Iterator i = getFilenames( projectDir, resourcePath ).iterator(); i.hasNext(); )
         {
+            String filename = (String) i.next();
             try
             {
                 // special case for Bnd instructions
-                String target = resources[i];
+                String target = filename;
                 if( target.endsWith( ".bnd" ) || target.endsWith( "osgi.bundle" ) )
                 {
                     target = "osgi.bnd";
                 }
 
                 // relocate to 'classic' archetype location
-                FileUtils.copyFile( new File( projectDir, resources[i] ), new File( to, target ), m_filter );
+                FileUtils.copyFile( new File( projectDir, filename ), new File( to, target ), m_filter );
                 addResourceEntry( target, isTest );
             }
             catch( IOException e )
             {
-                System.err.println( "I/O error copying resource " + resources[i] );
+                System.err.println( "I/O error copying resource " + filename );
             }
         }
     }
@@ -208,9 +212,9 @@ public class ArchetypeFragment
      * 
      * @param dir project directory
      * @param path location in project
-     * @return array of filenames
+     * @return list of filenames
      */
-    private static String[] getFilenames( File dir, String path )
+    private static List getFilenames( File dir, String path )
     {
         DirectoryScanner scanner = new DirectoryScanner();
 
@@ -231,7 +235,16 @@ public class ArchetypeFragment
 
         scanner.scan();
 
-        return scanner.getIncludedFiles();
+        List filenames = new ArrayList();
+
+        String[] includedFiles = scanner.getIncludedFiles();
+        for( int i = 0; i < includedFiles.length; i++ )
+        {
+            // normalize to use the standard Maven file separator (same as UNIX)
+            filenames.add( includedFiles[i].replace( File.separatorChar, '/' ) );
+        }
+
+        return filenames;
     }
 
     /**

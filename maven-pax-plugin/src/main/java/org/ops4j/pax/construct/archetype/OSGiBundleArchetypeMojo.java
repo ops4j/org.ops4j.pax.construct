@@ -391,22 +391,31 @@ public class OSGiBundleArchetypeMojo extends AbstractPaxArchetypeMojo
         {
             String name = (String) i.next();
 
-            if( SelectorUtils.matchPath( "src/main/java/**/*Activator.java", name ) )
+            if( SelectorUtils.matchPath( fixPathPattern( "src/main/java/**/*Activator.java" ), name ) )
             {
                 haveActivator = true;
             }
 
-            if( SelectorUtils.matchPath( "src/main/java/**/internal/*.java", name ) )
+            if( SelectorUtils.matchPath( fixPathPattern( "src/main/java/**/internal/*.java" ), name ) )
             {
                 haveInternals = true;
             }
-            else if( SelectorUtils.matchPath( "src/main/java/**/*.java", name ) )
+            else if( SelectorUtils.matchPath( fixPathPattern( "src/main/java/**/*.java" ), name ) )
             {
                 haveInterface = true;
             }
         }
 
         applyBndInstructions( bnd, haveActivator, haveInternals, haveInterface );
+    }
+
+    /**
+     * @param pathPattern path pattern
+     * @return localized path pattern
+     */
+    private static String fixPathPattern( String pathPattern )
+    {
+        return pathPattern.replace( '/', File.separatorChar );
     }
 
     /**
