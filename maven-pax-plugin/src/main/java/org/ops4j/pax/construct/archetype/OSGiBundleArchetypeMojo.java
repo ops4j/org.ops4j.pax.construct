@@ -50,6 +50,9 @@ import org.ops4j.pax.construct.util.PomUtils.Pom;
  */
 public class OSGiBundleArchetypeMojo extends AbstractPaxArchetypeMojo
 {
+    private static final String SPRING_VERSION_PROPERTY = "spring.maven.artifact.version";
+    private static final String SPRING_VERSION_VARIABLE = "${" + SPRING_VERSION_PROPERTY + "}";
+
     /**
      * The logical parent of the new project (use artifactId or groupId:artifactId).
      * 
@@ -352,9 +355,6 @@ public class OSGiBundleArchetypeMojo extends AbstractPaxArchetypeMojo
         repository.setUrl( "http://s3.amazonaws.com/maven.springframework.org/milestone" );
 
         pom.addRepository( repository, false, true, canOverwrite(), false );
-
-        final String SPRING_VERSION_PROPERTY = "spring.maven.artifact.version";
-        final String SPRING_VERSION_VARIABLE = "${" + SPRING_VERSION_PROPERTY + "}";
 
         // Use property so it's easy to switch versions later on
         pom.setProperty( SPRING_VERSION_PROPERTY, springVersion );
