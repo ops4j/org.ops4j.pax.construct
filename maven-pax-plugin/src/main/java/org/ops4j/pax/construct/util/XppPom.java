@@ -781,6 +781,9 @@ public class XppPom
         Xpp3Dom overlay = ( (XppPom) pom ).m_pom;
         Xpp3Dom project = new Xpp3Dom( "project" );
 
+        // record before we drop any elements
+        List newModules = pom.getModuleNames();
+
         // avoid corruption of key elements
         removeProtectedElements( overlay );
 
@@ -809,11 +812,11 @@ public class XppPom
         // merge properties - customized values take precedence
         mergeSection( originalPom, "properties", null, false );
 
-        // add custom modules below Pax-Construct infrastructure entries
-        for( Iterator i = pom.getModuleNames().iterator(); i.hasNext(); )
+        // new modules go below existing infrastructure entries
+        for( Iterator i = newModules.iterator(); i.hasNext(); )
         {
             String module = (String) i.next();
-            if( new File( pom.getBasedir(), module ).exists() )
+            if( new File( getBasedir(), module ).exists() )
             {
                 addModule( module, true );
             }
