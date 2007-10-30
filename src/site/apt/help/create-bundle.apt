@@ -67,8 +67,8 @@
 * Examples
 
 +---+
-pax-create-bundle -n simple-api -p org.example.simple -- -Dinternals=false
+pax-create-bundle -n simple-api -p org.example.simple -- "-Dinternals=false"
 
-pax-create-bundle -n simple-impl -p org.example.simple -- -Dinterface=false
+pax-create-bundle -n simple-impl -p org.example.simple -- "-Dinterface=false"
 +---+
 

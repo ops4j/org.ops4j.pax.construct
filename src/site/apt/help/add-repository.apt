@@ -44,6 +44,6 @@
 +---+
 pax-add-repository -i spring-milestones -u http://s3.amazonaws.com/maven.springframework.org/milestone
 
-pax-add-repository -i spring-snapshots -u http://static.springframework.org/maven2-snapshots -- -Dsnapshots -Dreleases=false
+pax-add-repository -i spring-snapshots -u http://static.springframework.org/maven2-snapshots -- -Dsnapshots "-Dreleases=false"
 +---+
 
