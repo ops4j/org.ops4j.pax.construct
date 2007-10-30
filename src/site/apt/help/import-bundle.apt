@@ -29,9 +29,9 @@
  Maven POM and the provisioning POM referenced by the provisionId. Local bundles are only added to the
  current Maven POM.
 
- If no groupId is given, it is assumed to be the same as the artifactId.
+ * if no groupId is given, it is assumed to be the same as the artifactId.
 
- If no version is given, the latest version in the repository is selected.
+ * if no version is given, the latest version in the repository is selected.
 
 * Additional Maven options
 

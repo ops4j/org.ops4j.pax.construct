@@ -27,20 +27,20 @@
 
  Creates a Maven project layout to build and manage an OSGi application, use -o to overwrite an existing project.
 
- If no version is given, it is assumed to be 1.0-SNAPSHOT.
+ * if no version is given, it is assumed to be 1.0-SNAPSHOT.
 
 * Additional Maven options
 
 *---------------------------------------------------*---------------------------------------------------+
 | <<<-DparentId=>>><groupId:artifactId>             | look for a different parent POM                   |
 *---------------------------------------------------*---------------------------------------------------+
-| <<<-Dcontents=>>><groupId:artifactId:version,...> | custom archetypes that provide additional content |
-*---------------------------------------------------*---------------------------------------------------+
 | <<<-DtargetDirectory=>>><path>                    | alternative location of the project               |
 *---------------------------------------------------*---------------------------------------------------+
-| <<<-DarchetypeVersion=>>><version>                | use another archetype release                     |
+| <<<-Dcontents=>>><groupId:artifactId:version,...> | include content from selected archetypes          |
 *---------------------------------------------------*---------------------------------------------------+
-| <<<-DremoteArchetypeRepositories=>>><url list>    | where to download the archetype                   |
+| <<<-DarchetypeVersion=>>><version>                | use a different release of the Pax archetype      |
+*---------------------------------------------------*---------------------------------------------------+
+| <<<-DremoteArchetypeRepositories=>>><url list>    | where to download the project archetype(s)        |
 *---------------------------------------------------*---------------------------------------------------+
 | <<<-DattachPom=false>>>                           | don't add this project as a module                |
 *---------------------------------------------------*---------------------------------------------------+

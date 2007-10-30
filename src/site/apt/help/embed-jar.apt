@@ -27,9 +27,9 @@
 
  Embed a third-party jar inside an OSGi bundle, use -o to overwrite an existing entry.
 
- If no groupId is given, it is assumed to be the same as the artifactId.
+ * if no groupId is given, it is assumed to be the same as the artifactId.
 
- If no version is given, the latest version in the repository is selected.
+ * if no version is given, the latest version in the repository is selected.
 
 * Additional Maven options
 
