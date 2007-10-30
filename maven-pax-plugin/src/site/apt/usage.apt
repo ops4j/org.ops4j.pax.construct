@@ -79,7 +79,7 @@ mvn pax:create-bundle "-DbundleName=simple-api" "-Dpackage=org.example.simple" "
 mvn pax:create-bundle "-DbundleName=simple-impl" "-Dpackage=org.example.simple" "-Dinterface=false"
 
 cd simple-impl
-mvn pax:embed-jar "-DartifactId=junit" "-Dversion=3.8.1"
+mvn pax:embed-jar "-DartifactId=junit" "-Dversion=3.8.2"
 mvn pax:import-bundle "-DartifactId=simple-api"
 cd ..
 
@@ -101,7 +101,7 @@ pax-create-bundle -n simple-api -p org.example.simple -- "-Dinternals=false"
 pax-create-bundle -n simple-impl -p org.example.simple -- "-Dinterface=false"
 
 cd simple-impl
-pax-embed-jar -a junit -v 3.8.1
+pax-embed-jar -a junit -v 3.8.2
 pax-import-bundle -a simple-api
 cd ..
 
@@ -281,7 +281,7 @@ mvn clean install pax:provision
                 </property>
                 <property>
                   <name>version</name>
-                  <value>3.8.1</value>
+                  <value>3.8.2</value>
                 </property>
               </testProperties>
             </configuration>

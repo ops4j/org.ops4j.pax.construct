@@ -28,6 +28,10 @@
  Creates a Maven POM to wrap a third-party jar as an OSGi bundle, use -o to overwrite an existing wrapper.
  When this script is used outside of a Pax-Construct project, it creates a standalone POM.
 
+ If no groupId is given, it is assumed to be the same as the artifactId.
+
+ If no version is given, the latest version in the repository is selected.
+
 * Additional Maven options
 
 *---------------------------------------------------*---------------------------------------------------+

@@ -57,7 +57,7 @@ mvn pax:provision
 [INFO]   aopalliance 1.0 [osgi]
 [INFO]   javax.servlet.servlet-api 2.5 [osgi]
 [INFO]   javax.servlet.jsp-api 2.0 [osgi]
-[INFO]   junit 3.8.1 [osgi]
+[INFO]   junit 3.8.2 [osgi]
 [INFO]   
 [INFO] Searching repository for plugin with prefix: 'pax'.
 [INFO] ----------------------------------------------------------------------------
@@ -116,7 +116,7 @@ mvn pax:provision
 [INFO] ----------------------------------------------------------------------------
 [INFO] [pax:provision]
 [INFO] ----------------------------------------------------------------------------
-[INFO] Building junit 3.8.1 [osgi]
+[INFO] Building junit 3.8.2 [osgi]
 [INFO]    task-segment: [pax:provision]
 [INFO] ----------------------------------------------------------------------------
 [INFO] [pax:provision]
@@ -165,7 +165,7 @@ Pax Runner from OPS4J - http://www.ops4j.org
  -> Installing bundle [{location=mvn:examples.spring-osgi-example/commons-collections-3.2/001,startlevel=null,shouldStart=true}]
  -> Installing bundle [{location=mvn:org.springframework.osgi/spring-osgi-extender/1.0-rc1-SNAPSHOT,startlevel=null,shouldStart=true}]
  -> Installing bundle [{location=mvn:org.slf4j/jcl104-over-slf4j/1.4.3,startlevel=null,shouldStart=true}]
- -> Installing bundle [{location=mvn:examples.spring-osgi-example/junit-3.8.1/001,startlevel=null,shouldStart=true}]
+ -> Installing bundle [{location=mvn:examples.spring-osgi-example/junit-3.8.2/001,startlevel=null,shouldStart=true}]
  -> Installing bundle [{location=mvn:org.springframework.osgi.samples/weather-dao/1.0-rc1-SNAPSHOT,startlevel=null,shouldStart=true}]
  -> Downloading bundles...
  -> mvn:org.springframework/spring-test/2.1-m4 : 160767 bytes @ [ 3091kBps ]
@@ -187,7 +187,7 @@ Pax Runner from OPS4J - http://www.ops4j.org
  -> mvn:examples.spring-osgi-example/commons-collections-3.2/001 : 580607 bytes @ [ 6830kBps ]
  -> mvn:org.springframework.osgi/spring-osgi-extender/1.0-rc1-SNAPSHOT : 51199 bytes @ [ 8533kBps ]]
  -> mvn:org.slf4j/jcl104-over-slf4j/1.4.3 : 15359 bytes @ [ 7679kBps ]]
- -> mvn:examples.spring-osgi-example/junit-3.8.1/001 : 122879 bytes @ [ 6467kBps ]
+ -> mvn:examples.spring-osgi-example/junit-3.8.2/001 : 122879 bytes @ [ 6467kBps ]
  -> mvn:org.springframework.osgi.samples/weather-dao/1.0-rc1-SNAPSHOT : 5119 bytes @ [ 5119kBps ]
  -> Execution environment [J2SE-1.5]
  -> Starting platform [Felix]. Runner has succesfully finished his job!
@@ -235,7 +235,7 @@ START LEVEL 6
 [  20] [Active     ] [    5] commons-collections 3.2 [osgi] (3.2)
 [  21] [Active     ] [    5] spring-osgi-extender (1.0.0.rc1_SNAPSHOT)
 [  22] [Active     ] [    5] jcl104-over-slf4j (1.4.3)
-[  23] [Active     ] [    5] junit 3.8.1 [osgi] (3.8.1)
+[  23] [Active     ] [    5] junit 3.8.2 [osgi] (3.8.2)
 [  24] [Active     ] [    5] weather-dao (1.0.0.rc1_SNAPSHOT)
 -> stop 0
 7785 [Felix Shell TUI] INFO org.springframework.osgi.internal.extender.ContextLoaderListener - Stopping org.springframework.osgi.extender bundle
@@ -261,7 +261,7 @@ START LEVEL 6
 [INFO] aopalliance 1.0 [osgi] ................................ SUCCESS [0.001s]
 [INFO] javax.servlet.servlet-api 2.5 [osgi] .................. SUCCESS [0.001s]
 [INFO] javax.servlet.jsp-api 2.0 [osgi] ...................... SUCCESS [0.001s]
-[INFO] junit 3.8.1 [osgi] .................................... SUCCESS [0.002s]
+[INFO] junit 3.8.2 [osgi] .................................... SUCCESS [0.002s]
 [INFO]  ...................................................... SUCCESS [10.606s]
 [INFO] ------------------------------------------------------------------------
 [INFO] ------------------------------------------------------------------------

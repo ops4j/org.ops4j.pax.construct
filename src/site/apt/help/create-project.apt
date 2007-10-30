@@ -27,6 +27,8 @@
 
  Creates a Maven project layout to build and manage an OSGi application, use -o to overwrite an existing project.
 
+ If no version is given, it is assumed to be 1.0-SNAPSHOT.
+
 * Additional Maven options
 
 *---------------------------------------------------*---------------------------------------------------+
