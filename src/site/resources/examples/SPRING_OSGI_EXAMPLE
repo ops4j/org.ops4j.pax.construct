@@ -1,32 +1,78 @@
+#!/bin/sh
 
-pax-create-project -g examples -a spring-osgi-example
+#--------------------------------
+# let's start with a new project
+#--------------------------------
 
-cd spring-osgi-example
+pax-create-project -g examples -a spring
 
-pax-add-repository -i spring-osgi -u http://static.springframework.org/maven2-snapshots -- -Dsnapshots -Dreleases=false
-pax-add-repository -i spring -u http://s3.amazonaws.com/maven.springframework.org/milestone
+cd spring
+
+#---------------------------------------------------------------------
+# basic Spring repositories, so we can import existing Spring bundles
+#---------------------------------------------------------------------
+
+pax-add-repository -i spring-milestones -u http://s3.amazonaws.com/maven.springframework.org/milestone
+pax-add-repository -i spring-snapshots -u http://static.springframework.org/maven2-snapshots -- -Dsnapshots "-Dreleases=false"
+
+#---------------------------------------------------------------------------
+# importTransitive also imports any bundles spring-osgi-extender depends on
+#   (use widenScope to also consider non-provided dependencies)
+#---------------------------------------------------------------------------
+
+pax-import-bundle -g org.springframework.osgi -a spring-osgi-extender -v 1.0-rc1-SNAPSHOT -- -DwidenScope -DimportTransitive
+
+#-----------------------------------
+# basic SLF4J implementation bundle
+#-----------------------------------
+
+pax-import-bundle -g org.slf4j -a slf4j-simple -v 1.4.3
+
+#-----------------------------------------------------------------------------------
+# put wrapped jars in a subdirectory and add the wrapped version to each entry name
+#-----------------------------------------------------------------------------------
 
 OLD_CONSTRUCT_OPTIONS="${PAX_CONSTRUCT_OPTIONS}"
 PAX_CONSTRUCT_OPTIONS="-DaddVersion -DtargetDirectory=wrappers ${OLD_CONSTRUCT_OPTIONS}"
 export PAX_CONSTRUCT_OPTIONS
 
 pax-wrap-jar -a backport-util-concurrent -v 3.0 -- "-DimportPackage=sun.misc;resolution:=optional,*"
-pax-wrap-jar -a commons-collections -v 3.2
 
-pax-wrap-jar -a asm -v 2.2.3
 pax-wrap-jar -a aopalliance -v 1.0
-pax-wrap-jar -g javax.servlet -a servlet-api -v 2.5
+pax-wrap-jar -a asm -v 2.2.3
+pax-wrap-jar -a commons-collections -v 3.2
 pax-wrap-jar -g javax.servlet -a jsp-api -v 2.0
-pax-wrap-jar -a junit
+pax-wrap-jar -g javax.servlet -a servlet-api -v 2.5
+pax-wrap-jar -a junit -v 3.8.2
+
+#---------------------------------
+# switch back to previous setting
+#---------------------------------
 
 PAX_CONSTRUCT_OPTIONS="${OLD_CONSTRUCT_OPTIONS}"
 
-pax-import-bundle -g org.slf4j -a slf4j-simple -v 1.4.3
-
-pax-import-bundle -g org.springframework.osgi -a spring-osgi-extender -v 1.0-rc1-SNAPSHOT -- -DwidenScope -DimportTransitive
+#-------------------------------------
+# Spring Dynamic Modules sample beans
+#-------------------------------------
 
 pax-import-bundle -g org.springframework.osgi.samples -a weather-dao -v 1.0-rc1-SNAPSHOT
 pax-import-bundle -g org.springframework.osgi.samples -a weather-service -v 1.0-rc1-SNAPSHOT
+
+#------------------------------------------------------------
+# create new OSGi service bundle with example code and tests
+#------------------------------------------------------------
+
+pax-create-bundle -p org.example.service -- -Djunit
+
+#--------------------------------------------------------------------
+# create new Spring Dynamic Modules bean with example code and tests
+#--------------------------------------------------------------------
+
+pax-create-bundle -p org.example.bean -- -Dspring -Djunit
+
+#-------------------
+# build and deploy!
+#-------------------
 
 mvn clean install pax:provision
 
