@@ -174,7 +174,7 @@ public class OSGiBundleArchetypeMojo extends AbstractPaxArchetypeMojo
         // default to the classic version of JUnit
         if( "true".equals( junitVersion ) || "".equals( junitVersion ) )
         {
-            junitVersion = "3.8.1";
+            junitVersion = "3.8.2";
         }
 
         // default to a recent version of Spring
@@ -353,26 +353,36 @@ public class OSGiBundleArchetypeMojo extends AbstractPaxArchetypeMojo
 
         pom.addRepository( repository, false, true, canOverwrite(), false );
 
+        final String SPRING_VERSION_PROPERTY = "spring.maven.artifact.version";
+        final String SPRING_VERSION_VARIABLE = "${" + SPRING_VERSION_PROPERTY + "}";
+
+        // Use property so it's easy to switch versions later on
+        pom.setProperty( SPRING_VERSION_PROPERTY, springVersion );
+
         if( junitVersion != null )
         {
             Dependency springTest = new Dependency();
             springTest.setGroupId( "org.springframework" );
             springTest.setArtifactId( "spring-test" );
-            springTest.setVersion( springVersion );
+            springTest.setVersion( SPRING_VERSION_VARIABLE );
             springTest.setScope( Artifact.SCOPE_TEST );
 
             pom.addDependency( springTest, canOverwrite() );
         }
 
         // mark as optional so we don't force deployment
-        Dependency springContext = new Dependency();
-        springContext.setGroupId( "org.springframework" );
-        springContext.setArtifactId( "spring-context" );
-        springContext.setVersion( springVersion );
-        springContext.setScope( Artifact.SCOPE_PROVIDED );
-        springContext.setOptional( true );
+        Dependency springBundle = new Dependency();
+        springBundle.setGroupId( "org.springframework" );
+        springBundle.setVersion( SPRING_VERSION_VARIABLE );
+        springBundle.setScope( Artifact.SCOPE_PROVIDED );
+        springBundle.setOptional( true );
 
-        pom.addDependency( springContext, canOverwrite() );
+        springBundle.setArtifactId( "spring-core" );
+        pom.addDependency( springBundle, canOverwrite() );
+        springBundle.setArtifactId( "spring-context" );
+        pom.addDependency( springBundle, canOverwrite() );
+        springBundle.setArtifactId( "spring-beans" );
+        pom.addDependency( springBundle, canOverwrite() );
     }
 
     /**
