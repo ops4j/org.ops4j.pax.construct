@@ -20,6 +20,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Properties;
 import java.util.jar.Attributes;
 import java.util.jar.JarFile;
 import java.util.jar.Manifest;
@@ -213,6 +214,17 @@ public final class PomUtils
          * @return true if dependency exclusion was removed from the project, otherwise false
          */
         boolean removeExclusion( String groupId, String artifactId );
+
+        /**
+         * @return properties defined by the current project
+         */
+        Properties getProperties();
+
+        /**
+         * @param key property key
+         * @param value property value
+         */
+        void setProperty( String key, String value );
 
         /**
          * @param groupId plugin group id

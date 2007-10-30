@@ -22,6 +22,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Properties;
 
 import org.apache.maven.model.Dependency;
 import org.apache.maven.model.Model;
@@ -650,6 +651,44 @@ public class XppPom
         updated = findChildren( xpath2, true ) || updated;
 
         return updated;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public Properties getProperties()
+    {
+        Properties properties = new Properties();
+
+        Xpp3Dom map = m_pom.getChild( "properties" );
+        if( null != map )
+        {
+            Xpp3Dom[] entries = map.getChildren();
+            for( int i = 0; i < entries.length; i++ )
+            {
+                properties.setProperty( entries[i].getName(), entries[i].getValue() );
+            }
+        }
+
+        return properties;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public void setProperty( String key, String value )
+    {
+        Xpp3Dom map = m_pom.getChild( "properties" );
+        if( null == map )
+        {
+            map = new Xpp3Dom( "properties" );
+            m_pom.addChild( map );
+        }
+
+        Xpp3Dom entry = new Xpp3Dom( key );
+        entry.setValue( value );
+
+        map.addChild( entry );
     }
 
     /**
