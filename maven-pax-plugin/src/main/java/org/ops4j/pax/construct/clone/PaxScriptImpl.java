@@ -300,6 +300,14 @@ public class PaxScriptImpl
 
         BufferedWriter writer = new BufferedWriter( WriterFactory.newPlatformWriter( scriptFile ) );
 
+        // standard UNIX shell script header
+        if( !scriptFile.getName().endsWith( ".bat" ) )
+        {
+            writer.write( "#!/bin/sh" );
+            writer.newLine();
+            writer.newLine();
+        }
+
         // Sort so projects are created before their bundles
         Collections.sort( m_commands, new ByTargetDir() );
 
