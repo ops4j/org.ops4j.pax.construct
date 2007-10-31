@@ -329,8 +329,8 @@ public class OSGiBundleArchetypeMojo extends AbstractPaxArchetypeMojo
         {
             osgiCore.setVersion( "1.0" );
             osgiCore.setScope( Artifact.SCOPE_PROVIDED );
-            osgiCore.setOptional( true );
         }
+        osgiCore.setOptional( true );
 
         pom.addDependency( osgiCore, canOverwrite() );
 
@@ -341,8 +341,8 @@ public class OSGiBundleArchetypeMojo extends AbstractPaxArchetypeMojo
         {
             osgiCompendium.setVersion( "1.0" );
             osgiCompendium.setScope( Artifact.SCOPE_PROVIDED );
-            osgiCompendium.setOptional( true );
         }
+        osgiCompendium.setOptional( true );
 
         pom.addDependency( osgiCompendium, canOverwrite() );
     }
