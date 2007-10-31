@@ -194,7 +194,14 @@ public class OSGiBundleArchetypeMojo extends AbstractPaxArchetypeMojo
      */
     public String getBundleSymbolicName()
     {
-        return getCompoundId( getInternalGroupId(), bundleName );
+        if( packageName.equals( bundleName ) )
+        {
+            return packageName;
+        }
+        else
+        {
+            return getCompoundId( getInternalGroupId(), bundleName );
+        }
     }
 
     /**
