@@ -46,7 +46,7 @@ import org.ops4j.pax.construct.util.PomUtils.Pom;
  * Clones an existing project and produces a script (plus archetypes) to mimic its structure using Pax-Construct
  * 
  * <code><pre>
- *   mvn pax:clone [-DunifyRoot]
+ *   mvn pax:clone
  * </pre></code>
  * 
  * @goal clone
@@ -119,13 +119,6 @@ public class CloneMojo extends AbstractMojo
      * @readonly
      */
     private File m_tempdir;
-
-    /**
-     * When true, ensures all projects are connected to the top-most project.
-     * 
-     * @parameter expression="${unifyRoot}"
-     */
-    private boolean unifyRoot;
 
     /**
      * The current Maven reactor.
@@ -311,11 +304,6 @@ public class CloneMojo extends AbstractMojo
         {
             // top-most project
             return true;
-        }
-        else if( unifyRoot )
-        {
-            // there can be only one!
-            return false;
         }
         else
         {
