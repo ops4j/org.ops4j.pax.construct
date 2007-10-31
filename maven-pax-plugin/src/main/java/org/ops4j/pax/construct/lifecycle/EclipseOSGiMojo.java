@@ -438,17 +438,18 @@ public class EclipseOSGiMojo extends EclipsePlugin
     private void addEmbeddedEntriesToEclipseClassPath( String bundleLocation, String bundleClassPath )
     {
         String[] classPath = bundleClassPath.split( "," );
+        File basedir = executedProject.getBasedir();
 
         try
         {
-            File classPathFile = new File( executedProject.getBasedir(), ".classpath" );
+            File classPathFile = new File( basedir, ".classpath" );
             XmlStreamReader reader = ReaderFactory.newXmlReader( classPathFile );
             Xpp3Dom classPathXML = Xpp3DomBuilder.build( reader );
             IOUtil.close( reader );
 
             for( int i = 0; i < classPath.length; i++ )
             {
-                if( !".".equals( classPath[i] ) && new File( classPath[i] ).exists() )
+                if( !".".equals( classPath[i] ) && new File( basedir, classPath[i] ).exists() )
                 {
                     // embedded jar/directory needs to be a 'lib' entry
                     Xpp3Dom classPathEntry = new Xpp3Dom( "classpathentry" );
