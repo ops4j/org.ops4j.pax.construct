@@ -277,7 +277,7 @@ public class XppPom
     public boolean isBundleProject()
     {
         // local project, so can use very simple test based on packaging type
-        return m_pom.getChild( "packaging" ).getValue().indexOf( "bundle" ) >= 0;
+        return getPackaging().indexOf( "bundle" ) >= 0;
     }
 
     /**

@@ -228,41 +228,45 @@ public class CloneMojo extends AbstractMojo
         PaxCommandBuilder command;
         String contents;
 
-        Dependency wrappee = findWrappee( project );
-        if( wrappee != null )
+        String namespace = findBundleNamespace( project );
+        if( null != namespace )
         {
-            command = script.call( PaxScript.WRAP_JAR );
-            command.option( 'g', wrappee.getGroupId() );
-            command.option( 'a', wrappee.getArtifactId() );
-            command.option( 'v', wrappee.getVersion() );
-
-            if( project.getArtifactId().endsWith( wrappee.getVersion() ) )
-            {
-                command.maven().flag( "addVersion" );
-            }
-
-            contents = createBundleArchetype( project, null );
-        }
-        else
-        {
-            String namespace = findBundleNamespace( project );
-
             command = script.call( PaxScript.CREATE_BUNDLE );
             command.option( 'p', namespace );
             command.option( 'n', project.getArtifactId() );
             command.option( 'v', project.getVersion() );
+        }
+        else
+        {
+            Dependency wrappee = findWrappee( project );
+            if( wrappee != null )
+            {
+                command = script.call( PaxScript.WRAP_JAR );
+                command.option( 'g', wrappee.getGroupId() );
+                command.option( 'a', wrappee.getArtifactId() );
+                command.option( 'v', wrappee.getVersion() );
 
-            contents = createBundleArchetype( project, namespace );
+                if( project.getArtifactId().endsWith( wrappee.getVersion() ) )
+                {
+                    command.maven().flag( "addVersion" );
+                }
+            }
+            else
+            {
+                getLog().warn( "Unable to clone bundle project " + project.getId() );
+                return;
+            }
         }
 
         // customized sources, POMs, Bnd instructions
+        contents = createBundleArchetype( project, namespace );
         command.maven().option( "contents", contents );
 
         // enable overwrite
         command.flag( 'o' );
 
         setTargetDirectory( command, project.getBasedir().getParentFile() );
-        m_handledProjectIds.add( project.getId() );
+        addHandledProject( project );
     }
 
     /**
@@ -290,7 +294,7 @@ public class CloneMojo extends AbstractMojo
 
             // imported bundles now in provision POM
             setTargetDirectory( command, m_basedir );
-            m_handledProjectIds.add( project.getId() );
+            addHandledProject( project );
         }
         // else handled by the major project
     }
@@ -587,7 +591,7 @@ public class CloneMojo extends AbstractMojo
                 resourcePaths.clear();
                 majorPom = pom;
             }
-            else if( !m_handledProjectIds.contains( pom.getId() ) )
+            else if( !m_handledProjectIds.contains( pom.getGroupId() + ':' + pom.getArtifactId() ) )
             {
                 if( "pom".equals( pom.getPackaging() ) )
                 {
@@ -660,5 +664,13 @@ public class CloneMojo extends AbstractMojo
         {
             throw new MojoExecutionException( "Unable to find Jar archiver", e );
         }
+    }
+
+    /**
+     * @param project Maven project that's been handled
+     */
+    private void addHandledProject( MavenProject project )
+    {
+        m_handledProjectIds.add( project.getGroupId() + ':' + project.getArtifactId() );
     }
 }
