@@ -53,7 +53,7 @@
 *---------------------------------------------------*---------------------------------------------------+
 | <<<-DrequireBundle=>>><directive>                 | Require-Bundle BND directive                      |
 *---------------------------------------------------*---------------------------------------------------+
-| <<<-DdynamicImportPackage=>>><directive>          | DynamicImport-Package BND directive               |
+| <<<-DdynamicImport=>>><directive>                 | DynamicImport-Package BND directive               |
 *---------------------------------------------------*---------------------------------------------------+
 | <<<-DtestMetadata=false>>>                        | disable exhaustive OSGi bundle detection          |
 *---------------------------------------------------*---------------------------------------------------+

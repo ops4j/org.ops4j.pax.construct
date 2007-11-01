@@ -194,9 +194,9 @@ public class OSGiWrapperArchetypeMojo extends AbstractPaxArchetypeMojo
     /**
      * The DynamicImport-Package directive, see <a href="http://aqute.biz/Code/Bnd#directives">Bnd docs</a>.
      * 
-     * @parameter expression="${dynamicImportPackage}"
+     * @parameter expression="${dynamicImport}"
      */
-    private String dynamicImportPackage;
+    private String dynamicImport;
 
     /**
      * When true, check dependency artifacts for OSGi metadata before wrapping them.
@@ -408,9 +408,9 @@ public class OSGiWrapperArchetypeMojo extends AbstractPaxArchetypeMojo
         {
             bnd.setInstruction( "Require-Bundle", requireBundle, canOverwrite() );
         }
-        if( dynamicImportPackage != null )
+        if( dynamicImport != null )
         {
-            bnd.setInstruction( "DynamicImport-Package", dynamicImportPackage, canOverwrite() );
+            bnd.setInstruction( "DynamicImport-Package", dynamicImport, canOverwrite() );
         }
     }
 
