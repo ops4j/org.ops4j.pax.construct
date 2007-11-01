@@ -68,9 +68,13 @@
   </repositories>
 
   <pluginRepositories>
-    <!--
-      just for the latest bundle plugin...
-    -->
+    <pluginRepository>
+      <id>ops4j-repository</id>
+      <url>http://repository.ops4j.org/maven2</url>
+      <snapshots>
+        <enabled>false</enabled>
+      </snapshots>
+    </pluginRepository>
     <pluginRepository>
       <id>ops4j-snapshots</id>
       <url>http://repository.ops4j.org/mvn-snapshots</url>

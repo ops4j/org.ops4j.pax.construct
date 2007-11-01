@@ -64,7 +64,7 @@ public class RemoveBundleMojo extends AbstractMojo
     private boolean repair;
 
     /**
-     * Standard Maven mojo entry-point
+     * {@inheritDoc}
      */
     public void execute()
         throws MojoExecutionException

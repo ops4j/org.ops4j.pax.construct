@@ -142,7 +142,7 @@ public class CloneMojo extends AbstractMojo
     private List m_handledProjectIds;
 
     /**
-     * Standard Maven mojo entry-point
+     * {@inheritDoc}
      */
     public void execute()
         throws MojoExecutionException

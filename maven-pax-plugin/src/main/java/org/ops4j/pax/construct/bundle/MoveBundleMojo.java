@@ -108,7 +108,7 @@ public class MoveBundleMojo extends AbstractMojo
     }
 
     /**
-     * Standard Maven mojo entry-point
+     * {@inheritDoc}
      */
     public void execute()
         throws MojoExecutionException

@@ -129,7 +129,7 @@ public class EmbedJarMojo extends AbstractMojo
     private boolean overwrite;
 
     /**
-     * Standard Maven mojo entry-point
+     * {@inheritDoc}
      */
     public void execute()
         throws MojoExecutionException

@@ -164,7 +164,7 @@ public class ProvisionMojo extends AbstractMojo
     private String[] provision;
 
     /**
-     * Standard Maven mojo entry-point
+     * {@inheritDoc}
      */
     public void execute()
         throws MojoExecutionException

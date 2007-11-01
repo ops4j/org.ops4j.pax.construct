@@ -16,8 +16,6 @@ package org.ops4j.pax.construct.archetype;
  * limitations under the License.
  */
 
-import java.io.File;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -30,7 +28,6 @@ import org.apache.maven.artifact.metadata.ArtifactMetadataSource;
 import org.apache.maven.artifact.repository.ArtifactRepository;
 import org.apache.maven.artifact.resolver.ArtifactResolver;
 import org.apache.maven.model.Dependency;
-import org.apache.maven.model.Repository;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.project.MavenProject;
 import org.apache.maven.project.MavenProjectBuilder;
@@ -349,7 +346,7 @@ public class OSGiWrapperArchetypeMojo extends AbstractPaxArchetypeMojo
     {
         if( null == pom.getParentId() )
         {
-            makeStandalone( pom );
+            OSGiBundleArchetypeMojo.makeStandalone( pom, "wrappers", getArchetypeVersion() );
         }
 
         updatePomDependencies( pom );
@@ -363,7 +360,6 @@ public class OSGiWrapperArchetypeMojo extends AbstractPaxArchetypeMojo
      * Add dependencies to the Maven project according to wrapper settings
      * 
      * @param pom Maven project model
-     * @throws MojoExecutionException
      */
     private void updatePomDependencies( Pom pom )
     {
@@ -426,7 +422,6 @@ public class OSGiWrapperArchetypeMojo extends AbstractPaxArchetypeMojo
      * Attempt to wrap direct dependencies of the wrapped artifact - in turn they will call this method, and so on...
      * 
      * @param pom Maven project model
-     * @throws IOException
      */
     private void wrapDirectDependencies( Pom pom )
     {
@@ -469,7 +464,6 @@ public class OSGiWrapperArchetypeMojo extends AbstractPaxArchetypeMojo
      * @param pom Maven project model
      * @param artifacts list of potential artifacts to be wrapped
      * @return list of POM artifacts discovered while processing
-     * @throws IOException
      */
     private List processDependencies( Pom pom, Set artifacts )
     {
@@ -636,43 +630,6 @@ public class OSGiWrapperArchetypeMojo extends AbstractPaxArchetypeMojo
     }
 
     /**
-     * Add additional POM elements to make it work standalone
-     * 
-     * @param pom Maven project model
-     */
-    private void makeStandalone( Pom pom )
-        throws MojoExecutionException
-    {
-        File baseDir = pom.getBasedir();
-        Pom wrapperSettings;
-        Pom pluginSettings;
-
-        try
-        {
-            wrapperSettings = PomUtils.readPom( new File( baseDir, "poms/wrappers" ) );
-            pluginSettings = PomUtils.readPom( new File( baseDir, "poms" ) );
-        }
-        catch( IOException e )
-        {
-            throw new MojoExecutionException( "Unable to find settings POM" );
-        }
-
-        // Must merge plugin fragment first, so child elements combine properly!
-        pom.mergeSection( pluginSettings, "build/pluginManagement/plugins", "build", false );
-        pom.mergeSection( wrapperSettings, "build/plugins", "build", false );
-
-        // always tie the pax-plugin to a specific version (helps with reproducible builds)
-        pom.updatePluginVersion( "org.ops4j", "maven-pax-plugin", getArchetypeVersion() );
-
-        // for latest bundle plugin
-        Repository repository = new Repository();
-        repository.setId( "ops4j-snapshots" );
-        repository.setUrl( "http://repository.ops4j.org/mvn-snapshots" );
-
-        pom.addRepository( repository, true, false, true, true );
-    }
-
-    /**
      * Explicitly exclude artifacts from the wrapping process
      * 
      * @param artifacts comma-separated list of artifacts to exclude from wrapping
@@ -706,7 +663,6 @@ public class OSGiWrapperArchetypeMojo extends AbstractPaxArchetypeMojo
      * Add explicit dependency exclusion list to the main POM dependency element
      * 
      * @param pom Maven project model
-     * @throws IOException
      */
     private void excludeDependencies( Pom pom )
     {

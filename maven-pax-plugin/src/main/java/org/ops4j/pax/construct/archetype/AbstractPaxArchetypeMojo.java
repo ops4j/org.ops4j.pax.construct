@@ -201,7 +201,7 @@ public abstract class AbstractPaxArchetypeMojo extends MavenArchetypeMojo
     }
 
     /**
-     * Standard Maven mojo entry-point
+     * {@inheritDoc}
      */
     public final void execute()
         throws MojoExecutionException

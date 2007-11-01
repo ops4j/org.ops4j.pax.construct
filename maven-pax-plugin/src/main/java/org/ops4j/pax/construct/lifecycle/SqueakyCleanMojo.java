@@ -46,7 +46,7 @@ public class SqueakyCleanMojo extends AbstractMojo
     private File m_basedir;
 
     /**
-     * Standard Maven mojo entry-point
+     * {@inheritDoc}
      */
     public void execute()
         throws MojoExecutionException

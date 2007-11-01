@@ -81,7 +81,6 @@ public final class DirUtils
      * @param baseDir directory in the project tree
      * @param pomId either artifactId or groupId:artifactId
      * @return a Maven POM with the given id, null if not found
-     * @throws IOException
      */
     public static Pom findPom( File baseDir, String pomId )
     {

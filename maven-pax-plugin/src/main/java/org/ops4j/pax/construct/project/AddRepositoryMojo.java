@@ -91,7 +91,7 @@ public class AddRepositoryMojo extends AbstractMojo
     private boolean pluginRepo;
 
     /**
-     * Standard Maven mojo entry-point
+     * {@inheritDoc}
      */
     public void execute()
         throws MojoExecutionException

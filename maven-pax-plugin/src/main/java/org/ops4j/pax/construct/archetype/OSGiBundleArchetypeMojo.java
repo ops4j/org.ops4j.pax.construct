@@ -212,7 +212,7 @@ public class OSGiBundleArchetypeMojo extends AbstractPaxArchetypeMojo
     {
         if( null == pom.getParentId() )
         {
-            makeStandalone( pom );
+            OSGiBundleArchetypeMojo.makeStandalone( pom, "compiled", getArchetypeVersion() );
         }
 
         markBogusFiles();
@@ -279,19 +279,24 @@ public class OSGiBundleArchetypeMojo extends AbstractPaxArchetypeMojo
      * Add additional POM elements to make it work standalone
      * 
      * @param pom Maven project model
+     * @param bundleType name of folder with settings specific to this bundle type
+     * @param archetypeVersion version of the current Pax-Construct archetype
      * @throws MojoExecutionException
      */
-    private void makeStandalone( Pom pom )
+    protected static void makeStandalone( Pom pom, String bundleType, String archetypeVersion )
         throws MojoExecutionException
     {
         File baseDir = pom.getBasedir();
-        Pom compiledSettings;
+        File pluginSettingsDir = new File( baseDir, "poms" );
+        File customSettingsDir = new File( pluginSettingsDir, bundleType );
+
         Pom pluginSettings;
+        Pom customSettings;
 
         try
         {
-            compiledSettings = PomUtils.readPom( new File( baseDir, "poms/compiled" ) );
-            pluginSettings = PomUtils.readPom( new File( baseDir, "poms" ) );
+            pluginSettings = PomUtils.readPom( pluginSettingsDir );
+            customSettings = PomUtils.readPom( customSettingsDir );
         }
         catch( IOException e )
         {
@@ -300,13 +305,19 @@ public class OSGiBundleArchetypeMojo extends AbstractPaxArchetypeMojo
 
         // Must merge plugin fragment first, so child elements combine properly!
         pom.mergeSection( pluginSettings, "build/pluginManagement/plugins", "build", false );
-        pom.mergeSection( compiledSettings, "build/plugins", "build", false );
+        pom.mergeSection( customSettings, "build/plugins", "build", false );
 
         // always tie the pax-plugin to a specific version (helps with reproducible builds)
-        pom.updatePluginVersion( "org.ops4j", "maven-pax-plugin", getArchetypeVersion() );
+        pom.updatePluginVersion( "org.ops4j", "maven-pax-plugin", archetypeVersion );
 
-        // for latest bundle plugin
+        // access to various OPS4J plugins
         Repository repository = new Repository();
+        repository.setId( "ops4j-repository" );
+        repository.setUrl( "http://repository.ops4j.org/maven2" );
+
+        pom.addRepository( repository, false, true, true, true );
+
+        // access to latest bundle plugin
         repository.setId( "ops4j-snapshots" );
         repository.setUrl( "http://repository.ops4j.org/mvn-snapshots" );
 

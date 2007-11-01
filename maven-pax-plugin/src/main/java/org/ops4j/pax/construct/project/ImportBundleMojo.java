@@ -209,7 +209,7 @@ public class ImportBundleMojo extends AbstractMojo
     private Set m_visitedIds;
 
     /**
-     * Standard Maven mojo entry-point
+     * {@inheritDoc}
      */
     public void execute()
         throws MojoExecutionException
