@@ -24,7 +24,6 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
@@ -63,7 +62,7 @@ public class ProvisionMojo extends AbstractMojo
     /**
      * Accumulated set of bundles to be deployed
      */
-    private static Set m_bundleIds;
+    private static List m_bundleIds;
 
     /**
      * Component factory for Maven artifacts
@@ -172,7 +171,7 @@ public class ProvisionMojo extends AbstractMojo
     {
         if( null == m_bundleIds )
         {
-            m_bundleIds = new HashSet();
+            m_bundleIds = new ArrayList();
 
             if( deployPoms != null )
             {
@@ -234,7 +233,11 @@ public class ProvisionMojo extends AbstractMojo
             if( PomUtils.isBundleArtifact( bundle, m_resolver, m_remoteRepos, m_localRepo, true ) )
             {
                 String version = PomUtils.getMetaVersion( bundle );
-                m_bundleIds.add( bundle.getGroupId() + ':' + bundle.getArtifactId() + ':' + version );
+                String bundleId = bundle.getGroupId() + ':' + bundle.getArtifactId() + ':' + version;
+                if( !m_bundleIds.contains( bundleId ) )
+                {
+                    m_bundleIds.add( bundleId );
+                }
             }
             else
             {
