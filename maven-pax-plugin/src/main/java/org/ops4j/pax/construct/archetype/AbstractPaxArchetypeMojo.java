@@ -130,6 +130,11 @@ public abstract class AbstractPaxArchetypeMojo extends MavenArchetypeMojo
     private List m_customArchetypeIds;
 
     /**
+     * Maven POM representing the project that contains the new module
+     */
+    private Pom m_modulesPom;
+
+    /**
      * Working copy of current Maven POM
      */
     private Pom m_pom;
@@ -160,9 +165,9 @@ public abstract class AbstractPaxArchetypeMojo extends MavenArchetypeMojo
      */
     protected final String getInternalGroupId()
     {
-        if( m_project.getFile() != null )
+        if( null != m_modulesPom )
         {
-            return getCompoundId( m_project.getGroupId(), m_project.getArtifactId() );
+            return getCompoundId( m_modulesPom.getGroupId(), m_modulesPom.getArtifactId() );
         }
         else
         {
@@ -177,14 +182,6 @@ public abstract class AbstractPaxArchetypeMojo extends MavenArchetypeMojo
     protected final String getArchetypeVersion()
     {
         return archetypeVersion;
-    }
-
-    /**
-     * @return the version of the new project
-     */
-    protected final String getProjectVersion()
-    {
-        return m_project.getVersion();
     }
 
     /**
@@ -213,6 +210,7 @@ public abstract class AbstractPaxArchetypeMojo extends MavenArchetypeMojo
         VelocityBridge.setMojo( this );
 
         updateFields();
+        createModuleTree();
 
         /*
          * support repeated creation of projects
@@ -282,6 +280,25 @@ public abstract class AbstractPaxArchetypeMojo extends MavenArchetypeMojo
         // setField( "artifactId", artifactId );
         // setField( "version", version );
         // setField( "packageName", packageName );
+    }
+
+    /**
+     * Fill-in any missing Maven POMs between the current project directory and the target location
+     */
+    private void createModuleTree()
+    {
+        if( attachPom )
+        {
+            try
+            {
+                // make sure we can reach the location of the new project from the current project
+                m_modulesPom = DirUtils.createModuleTree( m_project.getBasedir(), targetDirectory );
+            }
+            catch( IOException e )
+            {
+                getLog().warn( "Unable to create module tree" );
+            }
+        }
     }
 
     /**
@@ -362,37 +379,23 @@ public abstract class AbstractPaxArchetypeMojo extends MavenArchetypeMojo
                 throw new MojoExecutionException( "I/O error while protecting existing files from deletion", e );
             }
         }
-
-        if( attachPom )
+        else
         {
-            attachToContainingProject( pomDirectory );
+            pomDirectory.mkdirs();
         }
-    }
 
-    /**
-     * Attach this Maven project to the project that surrounds it, creating intermediate POMs when required
-     * 
-     * @param pomDirectory the project directory
-     * @throws MojoExecutionException
-     */
-    private void attachToContainingProject( File pomDirectory )
-        throws MojoExecutionException
-    {
-        try
+        if( null != m_modulesPom )
         {
-            // make sure we can reach the location of the new project from the current project
-            Pom modulesPom = DirUtils.createModuleTree( m_project.getBasedir(), targetDirectory );
-            if( null != modulesPom )
+            try
             {
                 // attach new project to its physical parent
-                pomDirectory.mkdirs();
-                modulesPom.addModule( pomDirectory.getName(), canOverwrite() );
-                modulesPom.write();
+                m_modulesPom.addModule( pomDirectory.getName(), canOverwrite() );
+                m_modulesPom.write();
             }
-        }
-        catch( IOException e )
-        {
-            getLog().info( "Unable to attach POM to existing project" );
+            catch( IOException e )
+            {
+                getLog().warn( "Unable to attach POM to existing project" );
+            }
         }
     }
 
@@ -406,8 +409,12 @@ public abstract class AbstractPaxArchetypeMojo extends MavenArchetypeMojo
     {
         try
         {
-            // before caching, search for logical parent in project tree
-            DirUtils.updateLogicalParent( m_pomFile, getParentId() );
+            if( null != m_modulesPom )
+            {
+                // before caching, search for logical parent in project tree
+                DirUtils.updateLogicalParent( m_pomFile, getParentId() );
+            }
+
             m_pom = PomUtils.readPom( m_pomFile );
             if( hasCustomContent() )
             {
