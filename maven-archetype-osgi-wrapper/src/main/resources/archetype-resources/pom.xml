@@ -31,9 +31,9 @@
   <groupId>${groupId}</groupId>
   <artifactId>${artifactId}</artifactId>
 #if( $mojo.projectNameHasVersion() )
-  <version>001</version>
+  <version>001-SNAPSHOT</version>
 #else
-  <version>${version}-001</version>
+  <version>${version}-001-SNAPSHOT</version>
 #end
 #literal()
 

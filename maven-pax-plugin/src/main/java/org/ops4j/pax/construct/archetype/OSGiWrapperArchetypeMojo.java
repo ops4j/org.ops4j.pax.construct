@@ -622,12 +622,12 @@ public class OSGiWrapperArchetypeMojo extends AbstractPaxArchetypeMojo
         if( addVersion )
         {
             dependency.setArtifactId( compoundWrapperId + '-' + metaVersion );
-            dependency.setVersion( "001" );
+            dependency.setVersion( "001-SNAPSHOT" );
         }
         else
         {
             dependency.setArtifactId( compoundWrapperId );
-            dependency.setVersion( metaVersion + "-001" );
+            dependency.setVersion( metaVersion + "-001-SNAPSHOT" );
         }
 
         dependency.setScope( Artifact.SCOPE_PROVIDED );
