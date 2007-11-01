@@ -203,18 +203,19 @@ public class RoundTripBndFile
 
             if( isWhitespaceOrComment( line ) )
             {
+                // check next line
                 skip = false;
-            }
-            else if( skip )
-            {
-                // continue skipping to end of line
-                skip = isLineContinuation( line );
             }
             else
             {
-                // check to see if we should update / remove / leave alone
-                echo = checkInstructionLine( instructions, bndWriter, line );
-                skip = true;
+                if( !skip )
+                {
+                    // check to see if we should update / remove / leave alone
+                    echo = checkInstructionLine( instructions, bndWriter, line );
+                }
+
+                // continue skipping to end of line
+                skip = isLineContinuation( line );
             }
 
             if( echo )

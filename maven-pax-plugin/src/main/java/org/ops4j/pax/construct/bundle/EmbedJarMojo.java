@@ -229,10 +229,9 @@ public class EmbedJarMojo extends AbstractMojo
         }
 
         final String embedKey = artifactId + ";groupId=" + groupId;
-        final String embedClause = embedKey + ";inline=" + unpack;
 
         String embedDependency = bnd.getInstruction( "Embed-Dependency" );
-        embedDependency = addEmbedClause( embedClause, embedDependency );
+        embedDependency = addEmbedClause( embedKey, embedDependency );
 
         bnd.setInstruction( "Embed-Dependency", embedDependency, true );
 
@@ -252,12 +251,14 @@ public class EmbedJarMojo extends AbstractMojo
     }
 
     /**
-     * @param embedClause clause that will embed the jarfile
+     * @param embedKey partial clause identifying jarfile to embed
      * @param embedDependency comma separated list of clauses
      * @return updated Embed-Dependency instruction
      */
-    private String addEmbedClause( String embedClause, String embedDependency )
+    private String addEmbedClause( String embedKey, String embedDependency )
     {
+        final String embedClause = embedKey + ";inline=" + unpack;
+
         if( null == embedDependency )
         {
             return embedClause;
@@ -271,7 +272,7 @@ public class EmbedJarMojo extends AbstractMojo
             final String c = clauses[i].trim();
 
             // remove any clauses matching the one we're adding
-            if( c.length() > 0 && !c.startsWith( embedClause ) )
+            if( c.length() > 0 && !c.startsWith( embedKey ) )
             {
                 buf.append( c );
                 buf.append( ',' );
