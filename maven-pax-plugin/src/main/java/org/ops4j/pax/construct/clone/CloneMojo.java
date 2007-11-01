@@ -19,8 +19,10 @@ package org.ops4j.pax.construct.clone;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.Properties;
 
 import org.apache.maven.artifact.Artifact;
@@ -130,6 +132,11 @@ public class CloneMojo extends AbstractMojo
     private List m_reactorProjects;
 
     /**
+     * Maps groupId:artifactId to major Maven projects
+     */
+    private Map m_majorProjectMap;
+
+    /**
      * Ids of Maven project that we've already handled
      */
     private List m_handledProjectIds;
@@ -144,7 +151,7 @@ public class CloneMojo extends AbstractMojo
         PaxScript buildScript = new PaxScriptImpl();
 
         m_handledProjectIds = new ArrayList();
-        List majorProjectIds = new ArrayList();
+        m_majorProjectMap = new HashMap();
 
         for( Iterator i = m_reactorProjects.iterator(); i.hasNext(); )
         {
@@ -160,7 +167,7 @@ public class CloneMojo extends AbstractMojo
             {
                 if( isMajorProject( project ) )
                 {
-                    majorProjectIds.add( project.getId() );
+                    markMajorProject( project );
                 }
                 else
                 {
@@ -171,7 +178,7 @@ public class CloneMojo extends AbstractMojo
         }
 
         // collect up all non-bundle projects and settings
-        archiveMajorProjects( buildScript, majorProjectIds );
+        archiveMajorProjects( buildScript );
         writePlatformScripts( buildScript );
     }
 
@@ -182,10 +189,15 @@ public class CloneMojo extends AbstractMojo
      */
     private void writePlatformScripts( PaxScript script )
     {
-        String scriptName = "pax-clone-" + PomUtils.getCompoundId( m_rootGroupId, m_rootArtifactId );
+        String cloneId = PomUtils.getCompoundId( m_rootGroupId, m_rootArtifactId );
+        String scriptName = "pax-clone-" + cloneId;
 
         File winScript = new File( m_tempdir, scriptName + ".bat" );
         File nixScript = new File( m_tempdir, scriptName );
+
+        getLog().info( "" );
+        getLog().info( "SUCCESSFULLY CLONED " + cloneId );
+        getLog().info( "" );
 
         try
         {
@@ -206,6 +218,9 @@ public class CloneMojo extends AbstractMojo
         {
             getLog().warn( "Unable to write " + winScript );
         }
+
+        getLog().info( "" );
+        getLog().info( "FRAGMENT DIRECTORY " + getFragmentDir() );
     }
 
     /**
@@ -512,7 +527,7 @@ public class CloneMojo extends AbstractMojo
     private String createBundleArchetype( MavenProject project, String namespace )
         throws MojoExecutionException
     {
-        ArchetypeFragment fragment = new ArchetypeFragment( m_tempdir, namespace );
+        ArchetypeFragment fragment = new ArchetypeFragment( getFragmentDir(), namespace );
 
         fragment.addPom( project.getBasedir() );
         fragment.addResources( project.getBasedir(), "osgi.bnd", false );
@@ -541,6 +556,9 @@ public class CloneMojo extends AbstractMojo
         Artifact artifact = m_factory.createBuildArtifact( groupId, artifactId, version, "jar" );
         fragment.install( artifact, newJarArchiver(), m_installer, m_localRepo );
 
+        // attach in case of later deployment
+        project.addAttachedArtifact( artifact );
+
         return groupId + ':' + artifactId + ':' + version;
     }
 
@@ -548,10 +566,9 @@ public class CloneMojo extends AbstractMojo
      * Go through local project tree looking for non-bundle files to archive
      * 
      * @param script build script
-     * @param majorProjectIds list of major projects
      * @throws MojoExecutionException
      */
-    private void archiveMajorProjects( PaxScript script, List majorProjectIds )
+    private void archiveMajorProjects( PaxScript script )
         throws MojoExecutionException
     {
         PaxCommandBuilder command = null;
@@ -561,7 +578,8 @@ public class CloneMojo extends AbstractMojo
         for( Iterator i = new PomIterator( m_basedir, true ); i.hasNext(); )
         {
             Pom pom = (Pom) i.next();
-            if( majorProjectIds.contains( pom.getId() ) )
+
+            if( m_majorProjectMap.containsKey( getCloneId( pom ) ) )
             {
                 // flush previous major archetype to local repo
                 createMajorArchetype( majorPom, command, resourcePaths );
@@ -579,7 +597,7 @@ public class CloneMojo extends AbstractMojo
                 resourcePaths.clear();
                 majorPom = pom;
             }
-            else if( !m_handledProjectIds.contains( pom.getGroupId() + ':' + pom.getArtifactId() ) )
+            else if( !m_handledProjectIds.contains( getCloneId( pom ) ) )
             {
                 if( "pom".equals( pom.getPackaging() ) )
                 {
@@ -615,7 +633,7 @@ public class CloneMojo extends AbstractMojo
             return;
         }
 
-        ArchetypeFragment fragment = new ArchetypeFragment( m_tempdir, null );
+        ArchetypeFragment fragment = new ArchetypeFragment( getFragmentDir(), null );
         fragment.addPom( majorPom.getBasedir() );
 
         for( Iterator i = resourcePaths.iterator(); i.hasNext(); )
@@ -635,6 +653,13 @@ public class CloneMojo extends AbstractMojo
 
         // customized POMs and non-bundle projects
         command.maven().option( "contents", fragmentId );
+
+        MavenProject project = (MavenProject) m_majorProjectMap.get( getCloneId( majorPom ) );
+        if( null != project )
+        {
+            // attach in case of later deployment
+            project.addAttachedArtifact( artifact );
+        }
     }
 
     /**
@@ -652,6 +677,31 @@ public class CloneMojo extends AbstractMojo
         {
             throw new MojoExecutionException( "Unable to find Jar archiver", e );
         }
+    }
+
+    /**
+     * @return temporary fragment directory
+     */
+    private File getFragmentDir()
+    {
+        return new File( m_tempdir, "fragments" );
+    }
+
+    /**
+     * @param pom Maven POM
+     * @return clone id for the POM
+     */
+    private static String getCloneId( Pom pom )
+    {
+        return pom.getGroupId() + ':' + pom.getArtifactId();
+    }
+
+    /**
+     * @param project Maven project which provides settings to other projects
+     */
+    private void markMajorProject( MavenProject project )
+    {
+        m_majorProjectMap.put( project.getGroupId() + ':' + project.getArtifactId(), project );
     }
 
     /**

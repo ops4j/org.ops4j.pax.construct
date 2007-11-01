@@ -280,7 +280,9 @@ public class ArchetypeFragment
             throw new MojoExecutionException( "I/O error saving archetype model", e );
         }
 
-        File jarFile = new File( m_tempDir.getParentFile(), m_tempDir.getName() + ".jar" );
+        // mimic directory structure in local repository
+        File jarFile = new File( m_tempDir.getParentFile(), repo.pathOf( artifact ) );
+        jarFile.getParentFile().mkdirs();
 
         try
         {
@@ -289,6 +291,9 @@ public class ArchetypeFragment
             archiver.setIncludeEmptyDirs( false );
             archiver.addDirectory( m_tempDir );
             archiver.createArchive();
+
+            // in case we want to deploy
+            artifact.setFile( jarFile );
         }
         catch( ArchiverException e )
         {
@@ -303,7 +308,6 @@ public class ArchetypeFragment
         {
             // install fragment to local repository
             installer.install( jarFile, artifact, repo );
-            jarFile.delete();
         }
         catch( ArtifactInstallationException e )
         {
