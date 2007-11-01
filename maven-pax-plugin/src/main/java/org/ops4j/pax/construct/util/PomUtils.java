@@ -272,6 +272,22 @@ public final class PomUtils
         {
             super( "Project already has a <" + element + "> which matches, use -Doverwrite or -o to replace it" );
         }
+
+        /**
+         * {@inheritDoc}
+         */
+        public synchronized Throwable fillInStackTrace()
+        {
+            return this;
+        }
+
+        /**
+         * {@inheritDoc}
+         */
+        public String toString()
+        {
+            return "[INFO] hidden";
+        }
     }
 
     /**
