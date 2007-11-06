@@ -330,16 +330,18 @@ public final class DirUtils
         StringBuffer rebasedPath = new StringBuffer();
         for( int i = 0; i < entries.length; i++ )
         {
+            String pathEntry = entries[i].trim();
+
             if( i > 0 )
             {
                 rebasedPath.append( pathSeparator );
             }
 
             rebasedPath.append( baseDir );
-            if( !".".equals( entries[i] ) )
+            if( !".".equals( pathEntry ) )
             {
                 rebasedPath.append( '/' );
-                rebasedPath.append( entries[i] );
+                rebasedPath.append( pathEntry );
             }
         }
 

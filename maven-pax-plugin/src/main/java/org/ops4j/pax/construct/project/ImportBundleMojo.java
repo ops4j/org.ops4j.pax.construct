@@ -529,7 +529,7 @@ public class ImportBundleMojo extends AbstractMojo
         String[] exclusionIds = artifacts.split( "," );
         for( int i = 0; i < exclusionIds.length; i++ )
         {
-            String id = exclusionIds[i];
+            String id = exclusionIds[i].trim();
             String[] fields = id.split( ":" );
             if( fields.length > 1 )
             {

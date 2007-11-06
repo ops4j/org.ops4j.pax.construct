@@ -266,7 +266,7 @@ public class ProvisionMojo extends AbstractMojo
         String[] pomPaths = deployPoms.split( "," );
         for( int i = 0; i < pomPaths.length; i++ )
         {
-            File pomFile = new File( pomPaths[i] );
+            File pomFile = new File( pomPaths[i].trim() );
             if( pomFile.exists() )
             {
                 try

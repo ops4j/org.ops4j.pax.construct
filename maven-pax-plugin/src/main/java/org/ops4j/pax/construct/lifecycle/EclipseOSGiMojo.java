@@ -449,16 +449,18 @@ public class EclipseOSGiMojo extends EclipsePlugin
 
             for( int i = 0; i < classPath.length; i++ )
             {
-                if( !".".equals( classPath[i] ) && new File( basedir, classPath[i] ).exists() )
+                String binaryPath = classPath[i].trim();
+
+                if( !".".equals( binaryPath ) && new File( basedir, binaryPath ).exists() )
                 {
                     // embedded jar/directory needs to be a 'lib' entry
                     Xpp3Dom classPathEntry = new Xpp3Dom( "classpathentry" );
                     classPathEntry.setAttribute( "exported", "true" );
                     classPathEntry.setAttribute( "kind", "lib" );
-                    classPathEntry.setAttribute( "path", classPath[i] );
+                    classPathEntry.setAttribute( "path", binaryPath );
 
                     // find attached sources using the previously cached IDE dependencies
-                    File sourcePath = findAttachedSource( bundleLocation, classPath[i] );
+                    File sourcePath = findAttachedSource( bundleLocation, binaryPath );
                     if( sourcePath != null )
                     {
                         classPathEntry.setAttribute( "sourcepath", sourcePath.getPath() );
