@@ -523,20 +523,17 @@ public class ProvisionMojo extends AbstractMojo
     {
         String[] deployAppCmds = provision;
 
-        if( m_bundleIds.size() > 0 )
+        String[] defaultCmds = new String[]
         {
-            String[] defaultCmds = new String[]
-            {
-                "--repositories=" + repositories, "--localRepository=" + m_localRepo.getBasedir(),
-                "--platform=" + framework, project.getFile().getAbsolutePath(), "--overwriteUserBundles"
-            };
+            "--repositories=" + repositories, "--localRepository=" + m_localRepo.getBasedir(),
+            "--platform=" + framework, project.getFile().getAbsolutePath(), "--overwriteUserBundles"
+        };
 
-            deployAppCmds = new String[provision.length + defaultCmds.length];
+        deployAppCmds = new String[provision.length + defaultCmds.length];
 
-            // combine both sets of Pax-Runner settings (put defaults last)
-            System.arraycopy( provision, 0, deployAppCmds, 0, provision.length );
-            System.arraycopy( defaultCmds, 0, deployAppCmds, provision.length, defaultCmds.length );
-        }
+        // combine both sets of Pax-Runner settings (put defaults last)
+        System.arraycopy( provision, 0, deployAppCmds, 0, provision.length );
+        System.arraycopy( defaultCmds, 0, deployAppCmds, provision.length, defaultCmds.length );
 
         invokePaxRunner( mainClass, deployAppCmds );
     }
