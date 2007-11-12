@@ -29,8 +29,6 @@ import java.util.Properties;
 import java.util.Set;
 
 import org.codehaus.plexus.util.IOUtil;
-import org.codehaus.plexus.util.ReaderFactory;
-import org.codehaus.plexus.util.WriterFactory;
 import org.ops4j.pax.construct.util.BndUtils.Bnd;
 import org.ops4j.pax.construct.util.BndUtils.ExistingInstructionException;
 
@@ -196,7 +194,7 @@ public class RoundTripBndFile
         Properties instructions = new Properties();
         instructions.putAll( m_newInstructions );
 
-        BufferedWriter bndWriter = new BufferedWriter( WriterFactory.newPlatformWriter( m_file ) );
+        BufferedWriter bndWriter = new BufferedWriter( StreamFactory.newPlatformWriter( m_file ) );
         for( Iterator i = lines.iterator(); i.hasNext(); )
         {
             String line = (String) i.next();
@@ -250,7 +248,7 @@ public class RoundTripBndFile
 
         if( m_file.exists() )
         {
-            BufferedReader bndReader = new BufferedReader( ReaderFactory.newPlatformReader( m_file ) );
+            BufferedReader bndReader = new BufferedReader( StreamFactory.newPlatformReader( m_file ) );
             while( bndReader.ready() )
             {
                 lines.add( bndReader.readLine() );

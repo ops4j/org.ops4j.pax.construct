@@ -20,6 +20,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.Writer;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -37,9 +38,8 @@ import org.codehaus.plexus.util.DirectoryScanner;
 import org.codehaus.plexus.util.FileUtils;
 import org.codehaus.plexus.util.IOUtil;
 import org.codehaus.plexus.util.StringUtils;
-import org.codehaus.plexus.util.WriterFactory;
-import org.codehaus.plexus.util.xml.XmlStreamWriter;
 import org.ops4j.pax.construct.util.DirUtils;
+import org.ops4j.pax.construct.util.StreamFactory;
 
 /**
  * Support creation of simple archetype fragments
@@ -269,7 +269,7 @@ public class ArchetypeFragment
         try
         {
             // write 'classic' archetype model
-            XmlStreamWriter writer = WriterFactory.newXmlWriter( modelFile );
+            Writer writer = StreamFactory.newXmlWriter( modelFile );
             new ArchetypeXpp3Writer().write( writer, m_model );
             IOUtil.close( writer );
 

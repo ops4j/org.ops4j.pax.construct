@@ -1,17 +1,5 @@
 package org.ops4j.pax.construct.clone;
 
-import java.io.BufferedWriter;
-import java.io.File;
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.Iterator;
-import java.util.List;
-
-import org.codehaus.plexus.util.IOUtil;
-import org.codehaus.plexus.util.WriterFactory;
-
 /*
  * Copyright 2007 Stuart McCulloch
  *
@@ -27,6 +15,18 @@ import org.codehaus.plexus.util.WriterFactory;
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.Iterator;
+import java.util.List;
+
+import org.codehaus.plexus.util.IOUtil;
+import org.ops4j.pax.construct.util.StreamFactory;
 
 /**
  * Builder implementation for Pax-Construct based build scripts
@@ -298,7 +298,7 @@ public class PaxScriptImpl
     {
         scriptFile.getParentFile().mkdirs();
 
-        BufferedWriter writer = new BufferedWriter( WriterFactory.newPlatformWriter( scriptFile ) );
+        BufferedWriter writer = new BufferedWriter( StreamFactory.newPlatformWriter( scriptFile ) );
 
         // standard UNIX shell script header
         if( !scriptFile.getName().endsWith( ".bat" ) )

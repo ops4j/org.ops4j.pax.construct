@@ -18,6 +18,8 @@ package org.ops4j.pax.construct.util;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.Reader;
+import java.io.Writer;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Iterator;
@@ -29,10 +31,6 @@ import org.apache.maven.model.Model;
 import org.apache.maven.model.Repository;
 import org.apache.maven.project.MavenProject;
 import org.codehaus.plexus.util.IOUtil;
-import org.codehaus.plexus.util.ReaderFactory;
-import org.codehaus.plexus.util.WriterFactory;
-import org.codehaus.plexus.util.xml.XmlStreamReader;
-import org.codehaus.plexus.util.xml.XmlStreamWriter;
 import org.codehaus.plexus.util.xml.Xpp3Dom;
 import org.codehaus.plexus.util.xml.Xpp3DomBuilder;
 import org.codehaus.plexus.util.xml.pull.XmlPullParser;
@@ -70,7 +68,7 @@ public class XppPom
         try
         {
             XmlPullParser parser = RoundTripXml.createParser();
-            XmlStreamReader reader = ReaderFactory.newXmlReader( m_file );
+            Reader reader = StreamFactory.newXmlReader( m_file );
             parser.setInput( reader );
 
             m_pom = Xpp3DomBuilder.build( parser, false );
@@ -850,12 +848,13 @@ public class XppPom
     public void write()
         throws IOException
     {
-        XmlStreamWriter writer = WriterFactory.newXmlWriter( m_file );
+        String encoding = StreamFactory.getXmlEncoding( m_file );
+        Writer writer = StreamFactory.newXmlWriter( m_file );
 
         XmlSerializer serializer = RoundTripXml.createSerializer();
 
         serializer.setOutput( writer );
-        serializer.startDocument( writer.getEncoding(), null );
+        serializer.startDocument( encoding, null );
         m_pom.writeToSerializer( null, serializer );
         serializer.endDocument();
 

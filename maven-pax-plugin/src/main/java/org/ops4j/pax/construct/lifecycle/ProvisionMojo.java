@@ -18,6 +18,7 @@ package org.ops4j.pax.construct.lifecycle;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.Writer;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.net.MalformedURLException;
@@ -44,9 +45,8 @@ import org.apache.maven.project.MavenProjectBuilder;
 import org.apache.maven.project.ProjectBuildingException;
 import org.apache.maven.project.artifact.InvalidDependencyVersionException;
 import org.codehaus.plexus.util.IOUtil;
-import org.codehaus.plexus.util.WriterFactory;
-import org.codehaus.plexus.util.xml.XmlStreamWriter;
 import org.ops4j.pax.construct.util.PomUtils;
+import org.ops4j.pax.construct.util.StreamFactory;
 
 /**
  * Provision all local and imported bundles onto the selected OSGi framework
@@ -387,7 +387,7 @@ public class ProvisionMojo extends AbstractMojo
 
         try
         {
-            XmlStreamWriter writer = WriterFactory.newXmlWriter( deployFile );
+            Writer writer = StreamFactory.newXmlWriter( deployFile );
             deployProject.writeModel( writer );
             IOUtil.close( writer );
         }

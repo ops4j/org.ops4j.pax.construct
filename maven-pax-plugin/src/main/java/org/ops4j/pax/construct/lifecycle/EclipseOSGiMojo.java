@@ -20,6 +20,8 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.Reader;
+import java.io.Writer;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Iterator;
@@ -48,11 +50,7 @@ import org.apache.maven.shared.osgi.Maven2OsgiConverter;
 import org.codehaus.plexus.archiver.manager.ArchiverManager;
 import org.codehaus.plexus.util.FileUtils;
 import org.codehaus.plexus.util.IOUtil;
-import org.codehaus.plexus.util.ReaderFactory;
-import org.codehaus.plexus.util.WriterFactory;
 import org.codehaus.plexus.util.xml.PrettyPrintXMLWriter;
-import org.codehaus.plexus.util.xml.XmlStreamReader;
-import org.codehaus.plexus.util.xml.XmlStreamWriter;
 import org.codehaus.plexus.util.xml.Xpp3Dom;
 import org.codehaus.plexus.util.xml.Xpp3DomBuilder;
 import org.codehaus.plexus.util.xml.Xpp3DomWriter;
@@ -60,6 +58,7 @@ import org.codehaus.plexus.util.xml.pull.XmlPullParserException;
 import org.ops4j.pax.construct.util.DirUtils;
 import org.ops4j.pax.construct.util.PomUtils;
 import org.ops4j.pax.construct.util.ReflectMojo;
+import org.ops4j.pax.construct.util.StreamFactory;
 
 /**
  * Extends <a href="http://maven.apache.org/plugins/maven-eclipse-plugin/eclipse-mojo.html">EclipsePlugin</a> to
@@ -443,7 +442,7 @@ public class EclipseOSGiMojo extends EclipsePlugin
         try
         {
             File classPathFile = new File( basedir, ".classpath" );
-            XmlStreamReader reader = ReaderFactory.newXmlReader( classPathFile );
+            Reader reader = StreamFactory.newXmlReader( classPathFile );
             Xpp3Dom classPathXML = Xpp3DomBuilder.build( reader );
             IOUtil.close( reader );
 
@@ -470,7 +469,7 @@ public class EclipseOSGiMojo extends EclipsePlugin
                 }
             }
 
-            XmlStreamWriter writer = WriterFactory.newXmlWriter( classPathFile );
+            Writer writer = StreamFactory.newXmlWriter( classPathFile );
             Xpp3DomWriter.write( new PrettyPrintXMLWriter( writer ), classPathXML );
             IOUtil.close( writer );
         }
@@ -600,7 +599,7 @@ public class EclipseOSGiMojo extends EclipsePlugin
 
             File pomFile = new File( localDir, "pom.xml" );
 
-            XmlStreamWriter writer = WriterFactory.newXmlWriter( pomFile );
+            Writer writer = StreamFactory.newXmlWriter( pomFile );
             pom.writeModel( writer );
             pom.setFile( pomFile );
             IOUtil.close( writer );
@@ -671,7 +670,7 @@ public class EclipseOSGiMojo extends EclipsePlugin
         try
         {
             File classPathFile = new File( executedProject.getBasedir(), ".classpath" );
-            XmlStreamReader reader = ReaderFactory.newXmlReader( classPathFile );
+            Reader reader = StreamFactory.newXmlReader( classPathFile );
             Xpp3Dom classPathXML = Xpp3DomBuilder.build( reader );
             IOUtil.close( reader );
 
@@ -682,7 +681,7 @@ public class EclipseOSGiMojo extends EclipsePlugin
             classPathEntry.setAttribute( "sourcepath", sourcePath );
             classPathXML.addChild( classPathEntry );
 
-            XmlStreamWriter writer = WriterFactory.newXmlWriter( classPathFile );
+            Writer writer = StreamFactory.newXmlWriter( classPathFile );
             Xpp3DomWriter.write( new PrettyPrintXMLWriter( writer ), classPathXML );
             IOUtil.close( writer );
         }
