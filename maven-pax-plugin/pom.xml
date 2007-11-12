@@ -57,9 +57,49 @@
 
   <dependencies>
     <dependency>
+      <groupId>org.apache.maven</groupId>
+      <artifactId>maven-project</artifactId>
+      <version>2.0.7</version>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.maven</groupId>
+      <artifactId>maven-plugin-api</artifactId>
+      <version>2.0.7</version>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.maven</groupId>
+      <artifactId>maven-model</artifactId>
+      <version>2.0.7</version>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.maven</groupId>
+      <artifactId>maven-artifact</artifactId>
+      <version>2.0.7</version>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.maven</groupId>
+      <artifactId>maven-artifact-manager</artifactId>
+      <version>2.0.7</version>
+    </dependency>
+    <dependency>
       <groupId>org.apache.maven.plugins</groupId>
       <artifactId>maven-archetype-plugin</artifactId>
       <type>maven-plugin</type>
+      <version>1.0-alpha-7</version>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.maven.archetype</groupId>
+      <artifactId>maven-archetype-core</artifactId>
+      <version>1.0-alpha-7</version>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.maven.archetype</groupId>
+      <artifactId>maven-archetype-model</artifactId>
+      <version>1.0-alpha-7</version>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.maven.archetype</groupId>
+      <artifactId>maven-archetype-creator</artifactId>
       <version>1.0-alpha-7</version>
     </dependency>
     <dependency>
@@ -67,6 +107,16 @@
       <artifactId>maven-compiler-plugin</artifactId>
       <type>maven-plugin</type>
       <version>2.0.2</version>
+    </dependency>
+    <dependency>
+      <groupId>org.codehaus.plexus</groupId>
+      <artifactId>plexus-compiler-api</artifactId>
+      <version>1.5.3</version>
+    </dependency>
+    <dependency>
+      <groupId>org.codehaus.plexus</groupId>
+      <artifactId>plexus-compiler-manager</artifactId>
+      <version>1.5.3</version>
     </dependency>
     <dependency>
       <groupId>org.apache.maven.plugins</groupId>
@@ -87,12 +137,32 @@
     <dependency>
       <groupId>org.codehaus.plexus</groupId>
       <artifactId>plexus-utils</artifactId>
-      <version>1.4.4</version>
+      <version>1.4.7</version>
     </dependency>
     <dependency>
       <groupId>org.codehaus.plexus</groupId>
       <artifactId>plexus-archiver</artifactId>
       <version>1.0-alpha-7</version>
+    </dependency>
+    <dependency>
+      <groupId>org.codehaus.plexus</groupId>
+      <artifactId>plexus-interactivity-api</artifactId>
+      <version>1.0-alpha-5</version>
+    </dependency>
+    <dependency>
+      <groupId>org.codehaus.plexus</groupId>
+      <artifactId>plexus-container-default</artifactId>
+      <version>1.0-alpha-9-stable-1</version>
+    </dependency>
+    <dependency>
+      <groupId>plexus</groupId>
+      <artifactId>plexus-utils</artifactId>
+      <version>1.0.2</version>
+    </dependency>
+    <dependency>
+      <groupId>biz.aQute</groupId>
+      <artifactId>bndlib</artifactId>
+      <version>0.0.208</version>
     </dependency>
   </dependencies>
 
