@@ -274,7 +274,7 @@ public class PaxScriptImpl
             {
                 if( rhs instanceof PaxCommand )
                 {
-                    return ( (PaxCommand) lhs ).getTargetDir().compareTo( ( (PaxCommand) rhs ).getTargetDir() );
+                    return compare( (PaxCommand) lhs, (PaxCommand) rhs );
                 }
                 else
                 {
@@ -287,6 +287,32 @@ public class PaxScriptImpl
             }
 
             return 0;
+        }
+
+        /**
+         * Compare two Pax commands to decide which should go first
+         * 
+         * @param lhsCommand Pax command
+         * @param rhsCommand Pax command
+         * @return -1 (lhs before rhs), 0 (lhs same time as rhs), or 1 (lhs after rhs)
+         */
+        private int compare( PaxCommand lhsCommand, PaxCommand rhsCommand )
+        {
+            boolean lhsIsImport = IMPORT_BUNDLE.equals( lhsCommand.m_name );
+            boolean rhsIsImport = IMPORT_BUNDLE.equals( rhsCommand.m_name );
+
+            if( lhsIsImport && !rhsIsImport )
+            {
+                return 1;
+            }
+            else if( !lhsIsImport && rhsIsImport )
+            {
+                return -1;
+            }
+            else
+            {
+                return lhsCommand.getTargetDir().compareTo( rhsCommand.getTargetDir() );
+            }
         }
     }
 
