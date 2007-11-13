@@ -19,11 +19,15 @@ package org.ops4j.pax.construct.lifecycle;
 import java.io.File;
 import java.util.List;
 
+import org.apache.maven.plugin.AbstractCompilerMojo;
 import org.apache.maven.plugin.CompilationFailureException;
 import org.apache.maven.plugin.CompilerMojo;
 import org.apache.maven.plugin.MojoExecutionException;
+import org.apache.maven.project.MavenProject;
 import org.codehaus.plexus.archiver.manager.ArchiverManager;
+import org.codehaus.plexus.util.xml.Xpp3Dom;
 import org.ops4j.pax.construct.util.DirUtils;
+import org.ops4j.pax.construct.util.ReflectMojo;
 
 /**
  * Extends <a href="http://maven.apache.org/plugins/maven-compiler-plugin/compile-mojo.html">CompilerMojo</a> to
@@ -37,6 +41,13 @@ import org.ops4j.pax.construct.util.DirUtils;
  */
 public class BundleCompilerMojo extends CompilerMojo
 {
+    /**
+     * @parameter expression="${project}"
+     * @required
+     * @readonly
+     */
+    private MavenProject m_project;
+
     /**
      * Component factory for archivers and unarchivers
      * 
@@ -63,6 +74,8 @@ public class BundleCompilerMojo extends CompilerMojo
         throws MojoExecutionException,
         CompilationFailureException
     {
+        BundleCompilerMojo.mergeCompilerConfiguration( this, m_project );
+
         try
         {
             super.execute();
@@ -73,6 +86,43 @@ public class BundleCompilerMojo extends CompilerMojo
             SqueakyCleanMojo.recoverMetaData( this );
 
             throw e;
+        }
+    }
+
+    /**
+     * Copy additional compiler settings from maven-compiler-plugin section (only handles simple configuration items)
+     * 
+     * @param mojo compiler mojo
+     * @param project maven project
+     */
+    protected static void mergeCompilerConfiguration( AbstractCompilerMojo mojo, MavenProject project )
+    {
+        String mavenPluginGroup = "org.apache.maven.plugins";
+        String paxPluginGroup = "org.ops4j";
+
+        Xpp3Dom mavenConfig = project.getGoalConfiguration( mavenPluginGroup, "maven-compiler-plugin", null, null );
+        Xpp3Dom paxConfig = project.getGoalConfiguration( paxPluginGroup, "maven-pax-plugin", null, null );
+
+        if( null != mavenConfig )
+        {
+            ReflectMojo baseMojo = new ReflectMojo( mojo, AbstractCompilerMojo.class );
+
+            Xpp3Dom[] configuration = mavenConfig.getChildren();
+            for( int i = 0; i < configuration.length; i++ )
+            {
+                // don't override pax settings
+                String name = configuration[i].getName();
+                if( ( null == paxConfig || null == paxConfig.getChild( name ) ) && baseMojo.hasField( name ) )
+                {
+                    // only use non-empty settings
+                    String value = configuration[i].getValue();
+                    if( null != value )
+                    {
+                        mojo.getLog().debug( "Using compiler setting: " + name + "=" + value );
+                        baseMojo.setField( name, value );
+                    }
+                }
+            }
         }
     }
 }

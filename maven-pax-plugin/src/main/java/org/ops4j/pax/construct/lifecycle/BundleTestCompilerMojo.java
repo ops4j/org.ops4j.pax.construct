@@ -22,6 +22,7 @@ import java.util.List;
 import org.apache.maven.plugin.CompilationFailureException;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.TestCompilerMojo;
+import org.apache.maven.project.MavenProject;
 import org.codehaus.plexus.archiver.manager.ArchiverManager;
 import org.ops4j.pax.construct.util.DirUtils;
 
@@ -37,6 +38,13 @@ import org.ops4j.pax.construct.util.DirUtils;
  */
 public class BundleTestCompilerMojo extends TestCompilerMojo
 {
+    /**
+     * @parameter expression="${project}"
+     * @required
+     * @readonly
+     */
+    private MavenProject m_project;
+
     /**
      * Component factory for archivers and unarchivers
      * 
@@ -63,6 +71,8 @@ public class BundleTestCompilerMojo extends TestCompilerMojo
         throws MojoExecutionException,
         CompilationFailureException
     {
+        BundleCompilerMojo.mergeCompilerConfiguration( this, m_project );
+
         try
         {
             super.execute();

@@ -49,6 +49,32 @@ public final class ReflectMojo
 
     /**
      * @param name name of the field member
+     * @return true if the field exists, otherwise false
+     */
+    public boolean hasField( final String name )
+    {
+        return null != AccessController.doPrivileged( new PrivilegedAction()
+        {
+            public Object run()
+            {
+                try
+                {
+                    return m_clazz.getDeclaredField( name );
+                }
+                catch( NoSuchFieldException e )
+                {
+                    return null;
+                }
+                catch( SecurityException e )
+                {
+                    return null;
+                }
+            }
+        } );
+    }
+
+    /**
+     * @param name name of the field member
      * @param value the new value for the field
      */
     public void setField( final String name, final Object value )
@@ -59,9 +85,20 @@ public final class ReflectMojo
             {
                 try
                 {
+                    final Object safeValue;
                     Field f = m_clazz.getDeclaredField( name );
+
+                    if( boolean.class.equals( f.getType() ) )
+                    {
+                        safeValue = Boolean.valueOf( value.toString() );
+                    }
+                    else
+                    {
+                        safeValue = value;
+                    }
+
                     f.setAccessible( true );
-                    f.set( m_mojo, value );
+                    f.set( m_mojo, safeValue );
                 }
                 catch( NoSuchFieldException e )
                 {
