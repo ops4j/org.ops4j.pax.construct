@@ -28,12 +28,8 @@
         <plugin>
           <groupId>org.ops4j</groupId>
           <artifactId>maven-pax-plugin</artifactId>
+          <!-- enable pax life-cycle (includes bundle) -->
           <extensions>true</extensions>
-          <configuration>
-          <!--
-            configure compilation settings here
-          -->
-          </configuration>
         </plugin>
         <plugin>
           <groupId>org.apache.felix</groupId>
