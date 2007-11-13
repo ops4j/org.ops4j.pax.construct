@@ -132,14 +132,21 @@ public class CloneMojo extends AbstractMojo
     private List m_reactorProjects;
 
     /**
+     * When true, replace any local bundle dependencies with pax-import-bundle commands.
+     * 
+     * @parameter expression="${repair}" default-value="true"
+     */
+    private boolean repair;
+
+    /**
      * Maps groupId:artifactId to major Maven projects
      */
     private Map m_majorProjectMap;
 
     /**
-     * Ids of Maven project that we've already handled
+     * Maps groupId:artifactId to local bundle names
      */
-    private List m_handledProjectIds;
+    private Map m_bundleProjectMap;
 
     /**
      * {@inheritDoc}
@@ -150,7 +157,7 @@ public class CloneMojo extends AbstractMojo
         // general purpose Pax-Construct script
         PaxScript buildScript = new PaxScriptImpl();
 
-        m_handledProjectIds = new ArrayList();
+        m_bundleProjectMap = new HashMap();
         m_majorProjectMap = new HashMap();
 
         for( Iterator i = m_reactorProjects.iterator(); i.hasNext(); )
@@ -234,14 +241,17 @@ public class CloneMojo extends AbstractMojo
         throws MojoExecutionException
     {
         PaxCommandBuilder command;
+        String bundleName;
         String contents;
 
         String namespace = findBundleNamespace( project );
         if( null != namespace )
         {
+            bundleName = project.getArtifactId();
+
             command = script.call( PaxScript.CREATE_BUNDLE );
             command.option( 'p', namespace );
-            command.option( 'n', project.getArtifactId() );
+            command.option( 'n', bundleName );
             command.option( 'v', project.getVersion() );
         }
         else
@@ -249,6 +259,8 @@ public class CloneMojo extends AbstractMojo
             Dependency wrappee = findWrappee( project );
             if( wrappee != null )
             {
+                bundleName = PomUtils.getCompoundId( wrappee.getGroupId(), wrappee.getArtifactId() );
+
                 command = script.call( PaxScript.WRAP_JAR );
                 command.option( 'g', wrappee.getGroupId() );
                 command.option( 'a', wrappee.getArtifactId() );
@@ -266,6 +278,12 @@ public class CloneMojo extends AbstractMojo
             }
         }
 
+        if( repair )
+        {
+            // fix references to local bundles
+            repairBundleImports( script, project );
+        }
+
         // customized sources, POMs, Bnd instructions
         contents = createBundleArchetype( project, namespace );
         command.maven().option( "contents", contents );
@@ -274,7 +292,7 @@ public class CloneMojo extends AbstractMojo
         command.flag( 'o' );
 
         setTargetDirectory( command, project.getBasedir().getParentFile() );
-        addHandledProject( project );
+        addHandledProject( project, bundleName );
     }
 
     /**
@@ -302,7 +320,7 @@ public class CloneMojo extends AbstractMojo
 
             // imported bundles now in provision POM
             setTargetDirectory( command, m_basedir );
-            addHandledProject( project );
+            addHandledProject( project, null );
         }
         // else handled by the major project
     }
@@ -563,6 +581,40 @@ public class CloneMojo extends AbstractMojo
     }
 
     /**
+     * Attempt to repair bundle imports by replacing them with pax-import-bundle commands
+     * 
+     * @param script build script
+     * @param project Maven project
+     */
+    private void repairBundleImports( PaxScript script, MavenProject project )
+    {
+        for( Iterator i = project.getDependencies().iterator(); i.hasNext(); )
+        {
+            Dependency dependency = (Dependency) i.next();
+
+            String bundleId = dependency.getGroupId() + ':' + dependency.getArtifactId();
+            String bundleName = (String) m_bundleProjectMap.get( bundleId );
+
+            // is this a local bundle project?
+            if( null != bundleName )
+            {
+                PaxCommandBuilder command;
+
+                command = script.call( PaxScript.IMPORT_BUNDLE );
+                command.option( 'a', bundleName );
+
+                // enable overwrite
+                command.flag( 'o' );
+
+                // only apply to the importing bundle project
+                setTargetDirectory( command, project.getBasedir() );
+
+                i.remove();
+            }
+        }
+    }
+
+    /**
      * Go through local project tree looking for non-bundle files to archive
      * 
      * @param script build script
@@ -597,7 +649,7 @@ public class CloneMojo extends AbstractMojo
                 resourcePaths.clear();
                 majorPom = pom;
             }
-            else if( !m_handledProjectIds.contains( getCloneId( pom ) ) )
+            else if( !m_bundleProjectMap.containsKey( getCloneId( pom ) ) )
             {
                 if( "pom".equals( pom.getPackaging() ) )
                 {
@@ -706,9 +758,10 @@ public class CloneMojo extends AbstractMojo
 
     /**
      * @param project Maven project that's been handled
+     * @param bundleName expected symbolic name of the bundle (null if imported)
      */
-    private void addHandledProject( MavenProject project )
+    private void addHandledProject( MavenProject project, String bundleName )
     {
-        m_handledProjectIds.add( project.getGroupId() + ':' + project.getArtifactId() );
+        m_bundleProjectMap.put( project.getGroupId() + ':' + project.getArtifactId(), bundleName );
     }
 }
