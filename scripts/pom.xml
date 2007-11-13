@@ -58,6 +58,11 @@
                   properties.options = options
                   properties.mojo = "${it.name}"
 
+                  if( options.recursive )
+                    properties.non_recursive = ""
+                  else
+                    properties.non_recursive = "-N"
+
                   nix = new File( pom.basedir, "src/groovy/pax-command" )
                   template = engine.createTemplate( nix ).make( properties )
                   new File( pom.build.directory, "bin/pax-${it.name}" ).write( template.toString() )
