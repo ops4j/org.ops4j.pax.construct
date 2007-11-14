@@ -27,7 +27,7 @@
 
  When run in the Pax-Construct scripts directory, updates the script files to the latest version.
 
- When run in an existing Pax-Construct project, will attempt to update it to use the latest plugin.
+ When run in an existing Pax-Construct project, will attempt to update it to use the latest plugin.\
  (unless it happens to be a pre-0.2.0 project, which should be migrated using the pax-clone script) 
 
 * Additional Maven options
