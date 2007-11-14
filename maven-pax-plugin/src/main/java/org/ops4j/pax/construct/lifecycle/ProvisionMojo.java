@@ -152,7 +152,7 @@ public class ProvisionMojo extends AbstractMojo
     /**
      * The version of Pax-Runner to use for provisioning.
      * 
-     * @parameter expression="${runner}" default-value="0.5.1"
+     * @parameter expression="${runner}" default-value="0.5.2"
      */
     private String runner;
 
