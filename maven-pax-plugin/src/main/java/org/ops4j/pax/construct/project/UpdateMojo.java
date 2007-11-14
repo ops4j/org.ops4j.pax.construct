@@ -189,16 +189,19 @@ public class UpdateMojo extends AbstractMojo
             for( Enumeration i = zip.entries(); i.hasMoreElements(); )
             {
                 ZipEntry entry = (ZipEntry) i.nextElement();
+
+                // only need shallow copying (no nested folders)
                 String name = new File( entry.getName() ).getName();
+                String path = new File( targetDirectory, name ).getPath();
 
                 if( !entry.isDirectory() )
                 {
                     // overwrite using data stored in the zip
                     InputStream in = zip.getInputStream( entry );
                     String data = IOUtil.toString( in );
-                    FileUtils.fileWrite( name, data );
+                    FileUtils.fileWrite( path, data );
 
-                    getLog().info( "... " + name );
+                    getLog().info( " => " + path );
                 }
             }
         }
@@ -235,7 +238,7 @@ public class UpdateMojo extends AbstractMojo
 
                 pom.write();
 
-                getLog().info( "... " + pom.getFile() );
+                getLog().info( " => " + pom.getFile() );
             }
             else
             {
