@@ -139,8 +139,8 @@ public class OSGiProjectArchetypeMojo extends AbstractPaxArchetypeMojo
 
         // for latest bundle plugin
         Repository repository = new Repository();
-        repository.setId( "ops4j-snapshots" );
-        repository.setUrl( "http://repository.ops4j.org/mvn-snapshots" );
+        repository.setId( OPS4J_SNAPSHOT_REPO_ID );
+        repository.setUrl( OPS4J_SNAPSHOT_REPO_URL );
 
         pom.addRepository( repository, true, false, true, true );
 

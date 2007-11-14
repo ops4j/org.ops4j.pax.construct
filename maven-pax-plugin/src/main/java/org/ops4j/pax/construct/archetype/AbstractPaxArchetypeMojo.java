@@ -52,7 +52,27 @@ public abstract class AbstractPaxArchetypeMojo extends MavenArchetypeMojo
     /**
      * Our local archetype group
      */
-    protected static final String PAX_ARCHETYPE_GROUP_ID = "org.ops4j.pax.construct";
+    public static final String PAX_CONSTRUCT_GROUP_ID = "org.ops4j.pax.construct";
+
+    /**
+     * OPS4J standard repository id
+     */
+    public static final String OPS4J_STANDARD_REPO_ID = "ops4j-repository";
+
+    /**
+     * OPS4J standard repository URL
+     */
+    public static final String OPS4J_STANDARD_REPO_URL = "http://repository.ops4j.org/maven2";
+
+    /**
+     * OPS4J snapshot repository id
+     */
+    public static final String OPS4J_SNAPSHOT_REPO_ID = "ops4j-snapshots";
+
+    /**
+     * OPS4J snapshot repository URL
+     */
+    public static final String OPS4J_SNAPSHOT_REPO_URL = "http://repository.ops4j.org/mvn-snapshots";
 
     /**
      * The archetype version to use, defaults to the plugin version.
@@ -240,13 +260,11 @@ public abstract class AbstractPaxArchetypeMojo extends MavenArchetypeMojo
         String ops4jRepo;
         if( archetypeVersion.indexOf( "SNAPSHOT" ) >= 0 )
         {
-            // OPS4J snapshot repository
-            ops4jRepo = "http://repository.ops4j.org/mvn-snapshots";
+            ops4jRepo = OPS4J_SNAPSHOT_REPO_URL;
         }
         else
         {
-            // OPS4J standard repository
-            ops4jRepo = "http://repository.ops4j.org/maven2";
+            ops4jRepo = OPS4J_STANDARD_REPO_URL;
         }
 
         // put OPS4J repository before others
@@ -263,7 +281,7 @@ public abstract class AbstractPaxArchetypeMojo extends MavenArchetypeMojo
          * common shared settings
          */
         m_archetypeMojo = new ReflectMojo( this, MavenArchetypeMojo.class );
-        m_archetypeMojo.setField( "archetypeGroupId", PAX_ARCHETYPE_GROUP_ID );
+        m_archetypeMojo.setField( "archetypeGroupId", PAX_CONSTRUCT_GROUP_ID );
         m_archetypeMojo.setField( "archetypeVersion", archetypeVersion );
         m_archetypeMojo.setField( "remoteRepositories", remoteArchetypeRepositories );
 
@@ -573,7 +591,7 @@ public abstract class AbstractPaxArchetypeMojo extends MavenArchetypeMojo
             else
             {
                 // internal Pax-Construct archetype (assume same version as archetype template)
-                scheduleArchetype( PAX_ARCHETYPE_GROUP_ID, fields[0], getArchetypeVersion() );
+                scheduleArchetype( PAX_CONSTRUCT_GROUP_ID, fields[0], getArchetypeVersion() );
             }
         }
     }

@@ -145,12 +145,12 @@ public class OSGiBundleArchetypeMojo extends AbstractPaxArchetypeMojo
             if( null == springVersion )
             {
                 // OSGi service + activator example
-                scheduleArchetype( PAX_ARCHETYPE_GROUP_ID, "maven-archetype-osgi-service", getArchetypeVersion() );
+                scheduleArchetype( PAX_CONSTRUCT_GROUP_ID, "maven-archetype-osgi-service", getArchetypeVersion() );
             }
             else
             {
                 // Spring Dynamic-Modules bean example
-                scheduleArchetype( PAX_ARCHETYPE_GROUP_ID, "maven-archetype-spring-bean", getArchetypeVersion() );
+                scheduleArchetype( PAX_CONSTRUCT_GROUP_ID, "maven-archetype-spring-bean", getArchetypeVersion() );
             }
         }
 
@@ -312,15 +312,15 @@ public class OSGiBundleArchetypeMojo extends AbstractPaxArchetypeMojo
 
         // access to various OPS4J plugins/artifacts
         Repository repository = new Repository();
-        repository.setId( "ops4j-repository" );
-        repository.setUrl( "http://repository.ops4j.org/maven2" );
+        repository.setId( OPS4J_STANDARD_REPO_ID );
+        repository.setUrl( OPS4J_STANDARD_REPO_URL );
 
         pom.addRepository( repository, false, true, true, false );
         pom.addRepository( repository, false, true, true, true );
 
         // access to latest bundle plugin
-        repository.setId( "ops4j-snapshots" );
-        repository.setUrl( "http://repository.ops4j.org/mvn-snapshots" );
+        repository.setId( OPS4J_SNAPSHOT_REPO_ID );
+        repository.setUrl( OPS4J_SNAPSHOT_REPO_URL );
 
         pom.addRepository( repository, true, false, true, true );
     }
