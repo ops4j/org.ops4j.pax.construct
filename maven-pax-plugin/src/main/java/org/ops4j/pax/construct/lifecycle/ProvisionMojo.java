@@ -33,6 +33,7 @@ import org.apache.maven.artifact.Artifact;
 import org.apache.maven.artifact.factory.ArtifactFactory;
 import org.apache.maven.artifact.installer.ArtifactInstallationException;
 import org.apache.maven.artifact.installer.ArtifactInstaller;
+import org.apache.maven.artifact.metadata.ArtifactMetadataSource;
 import org.apache.maven.artifact.repository.ArtifactRepository;
 import org.apache.maven.artifact.resolver.ArtifactNotFoundException;
 import org.apache.maven.artifact.resolver.ArtifactResolutionException;
@@ -60,9 +61,31 @@ import org.ops4j.pax.construct.util.StreamFactory;
 public class ProvisionMojo extends AbstractMojo
 {
     /**
+     * Maven groupId for the new Pax-Runner
+     */
+    private static final String PAX_RUNNER_GROUP = "org.ops4j.pax.runner";
+
+    /**
+     * Maven artifactId for the new Pax-Runner
+     */
+    private static final String PAX_RUNNER_ARTIFACT = "pax-runner";
+
+    /**
+     * Main entry-point for the new Pax-Runner
+     */
+    private static final String PAX_RUNNER_METHOD = "org.ops4j.pax.runner.Run";
+
+    /**
      * Accumulated set of bundles to be deployed
      */
     private static List m_bundleIds;
+
+    /**
+     * Component for resolving Maven metadata
+     * 
+     * @component
+     */
+    private ArtifactMetadataSource m_source;
 
     /**
      * Component factory for Maven artifacts
@@ -152,7 +175,7 @@ public class ProvisionMojo extends AbstractMojo
     /**
      * The version of Pax-Runner to use for provisioning.
      * 
-     * @parameter expression="${runner}" default-value="0.5.2"
+     * @parameter expression="${runner}" default-value="RELEASE"
      */
     private String runner;
 
@@ -317,17 +340,24 @@ public class ProvisionMojo extends AbstractMojo
             repoListBuilder.append( repo.getUrl() );
         }
 
+        if( PomUtils.needReleaseVersion( runner ) )
+        {
+            // find the latest release of Pax-Runner by querying the local and remote repos...
+            Artifact runnerProject = m_factory.createProjectArtifact( PAX_RUNNER_GROUP, PAX_RUNNER_ARTIFACT, runner );
+            runner = PomUtils.getReleaseVersion( runnerProject, m_source, m_remoteRepos, m_localRepo );
+        }
+
         /*
          * Dynamically load the correct Pax-Runner code
          */
         if( runner.compareTo( "0.5.0" ) < 0 )
         {
-            Class clazz = loadRunnerClass( "org.ops4j.pax", "runner", "org.ops4j.pax.runner.Run", false );
+            Class clazz = loadRunnerClass( "org.ops4j.pax", "runner", PAX_RUNNER_METHOD, false );
             deployRunnerClassic( clazz, deployProject, repoListBuilder.toString() );
         }
         else
         {
-            Class clazz = loadRunnerClass( "org.ops4j.pax.runner", "pax-runner", "org.ops4j.pax.runner.Run", true );
+            Class clazz = loadRunnerClass( PAX_RUNNER_GROUP, PAX_RUNNER_ARTIFACT, PAX_RUNNER_METHOD, true );
             deployRunnerNG( clazz, deployProject, repoListBuilder.toString() );
         }
     }

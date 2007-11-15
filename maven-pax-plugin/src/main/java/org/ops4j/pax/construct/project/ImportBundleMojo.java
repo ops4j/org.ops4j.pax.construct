@@ -285,7 +285,7 @@ public class ImportBundleMojo extends AbstractMojo
                 // use the groupId from the POM
                 groupId = localPom.getGroupId();
 
-                if( null == version || version.length() == 0 )
+                if( PomUtils.needReleaseVersion( version ) )
                 {
                     // also grab version if missing
                     version = localPom.getVersion();

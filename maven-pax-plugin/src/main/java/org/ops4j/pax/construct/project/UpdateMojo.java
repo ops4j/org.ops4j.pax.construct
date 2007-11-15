@@ -133,7 +133,7 @@ public class UpdateMojo extends AbstractMojo
 
         // find latest release if no explicit version is given
         Artifact scripts = m_factory.createBuildArtifact( groupId, "scripts", version, "zip" );
-        if( null == version || version.trim().length() == 0 )
+        if( PomUtils.needReleaseVersion( version ) )
         {
             version = PomUtils.getReleaseVersion( scripts, m_source, m_remoteRepos, m_localRepo );
             scripts.selectVersion( version );
