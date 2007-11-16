@@ -18,12 +18,10 @@ package org.ops4j.pax.construct.inherit;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.Reader;
+import java.io.Writer;
 
 import org.codehaus.plexus.util.IOUtil;
-import org.codehaus.plexus.util.ReaderFactory;
-import org.codehaus.plexus.util.WriterFactory;
-import org.codehaus.plexus.util.xml.XmlStreamReader;
-import org.codehaus.plexus.util.xml.XmlStreamWriter;
 import org.codehaus.plexus.util.xml.Xpp3Dom;
 import org.codehaus.plexus.util.xml.Xpp3DomBuilder;
 import org.codehaus.plexus.util.xml.pull.MXParser;
@@ -52,7 +50,7 @@ public class PluginXml
         m_file = file;
 
         XmlPullParser parser = new MXParser();
-        XmlStreamReader reader = ReaderFactory.newXmlReader( m_file );
+        Reader reader = StreamFactory.newXmlReader( m_file );
         parser.setInput( reader );
 
         m_xml = Xpp3DomBuilder.build( parser, false );
@@ -241,12 +239,13 @@ public class PluginXml
     public void write()
         throws IOException
     {
-        XmlStreamWriter writer = WriterFactory.newXmlWriter( m_file );
+        String encoding = StreamFactory.getXmlEncoding( m_file );
+        Writer writer = StreamFactory.newXmlWriter( m_file );
 
         XmlSerializer serializer = new PluginSerializer();
 
         serializer.setOutput( writer );
-        serializer.startDocument( writer.getEncoding(), null );
+        serializer.startDocument( encoding, null );
         m_xml.writeToSerializer( null, serializer );
         serializer.endDocument();
 

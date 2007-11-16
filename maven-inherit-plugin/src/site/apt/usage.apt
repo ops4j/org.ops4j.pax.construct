@@ -35,7 +35,7 @@ Maven 2 Inherit Plugin: Usage
       <plugin>
         <groupId>org.ops4j</groupId>
         <artifactId>maven-inherit-plugin</artifactId>
-        <version>0.2.0</version>
+        <version>0.6.1</version>
         <executions>
           <execution>
             <goals>
