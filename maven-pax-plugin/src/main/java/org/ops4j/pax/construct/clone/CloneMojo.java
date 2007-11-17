@@ -134,7 +134,7 @@ public class CloneMojo extends AbstractMojo
     /**
      * When true, replace any local bundle dependencies with pax-import-bundle commands.
      * 
-     * @parameter expression="${repair}" default-value="true"
+     * @parameter expression="${repair}" default-value="false"
      */
     private boolean repair;
 
@@ -259,16 +259,29 @@ public class CloneMojo extends AbstractMojo
             Dependency wrappee = findWrappee( project );
             if( wrappee != null )
             {
-                bundleName = PomUtils.getCompoundId( wrappee.getGroupId(), wrappee.getArtifactId() );
-
                 command = script.call( PaxScript.WRAP_JAR );
                 command.option( 'g', wrappee.getGroupId() );
                 command.option( 'a', wrappee.getArtifactId() );
                 command.option( 'v', wrappee.getVersion() );
 
-                if( project.getArtifactId().endsWith( wrappee.getVersion() ) )
+                if( repair )
                 {
-                    command.maven().flag( "addVersion" );
+                    // this is expected to be the generated bundle name
+                    bundleName = PomUtils.getCompoundId( wrappee.getGroupId(), wrappee.getArtifactId() );
+
+                    // detect if we need to add the version back later on...
+                    if( project.getArtifactId().endsWith( wrappee.getVersion() ) )
+                    {
+                        command.maven().flag( "addVersion" );
+                    }
+                }
+                else
+                {
+                    bundleName = project.getArtifactId();
+
+                    // need to retain the old name and version settings
+                    command.maven().option( "bundleName", bundleName );
+                    command.maven().option( "bundleVersion", project.getVersion() );
                 }
             }
             else
@@ -282,6 +295,11 @@ public class CloneMojo extends AbstractMojo
         {
             // fix references to local bundles
             repairBundleImports( script, project );
+        }
+        else
+        {
+            // need to keep old groupId intact (name is already retained)
+            command.maven().option( "bundleGroupId", project.getGroupId() );
         }
 
         // customized sources, POMs, Bnd instructions
