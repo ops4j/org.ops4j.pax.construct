@@ -27,14 +27,14 @@
     <wrapped.version>${version}</wrapped.version>
   </properties>
 
+#set( $bundleVersion = $mojo.getBundleVersion() )
+#if( !$bundleVersion )
+#set( $bundleVersion = $version )
+#end
   <modelVersion>4.0.0</modelVersion>
   <groupId>${groupId}</groupId>
   <artifactId>${artifactId}</artifactId>
-#if( $mojo.projectNameHasVersion() )
-  <version>001-SNAPSHOT</version>
-#else
-  <version>${version}-001-SNAPSHOT</version>
-#end
+  <version>${bundleVersion}</version>
 #literal()
 
   <name>${bundle.symbolicName} ${wrapped.version} [osgi]</name>
