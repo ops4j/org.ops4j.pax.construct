@@ -646,9 +646,6 @@ public class EclipseOSGiMojo extends EclipsePlugin
                 // check to see if we already have the source downloaded...
                 artifactResolver.resolve( sourceArtifact, Collections.EMPTY_LIST, localRepository );
             }
-
-            // attach source to the main classpath of the unpacked bundle
-            attachImportedSource( sourceArtifact.getFile().getPath() );
         }
         catch( ArtifactNotFoundException e )
         {
@@ -658,14 +655,17 @@ public class EclipseOSGiMojo extends EclipsePlugin
         {
             getLog().debug( "Unable to resolve source artifact " + sourceArtifact );
         }
+
+        // set PDE classpath to point to unpacked bundle
+        attachImportedContent( sourceArtifact.getFile() );
     }
 
     /**
-     * Add a classpath entry to attach the given source to the unpacked bundle
+     * Add a classpath entry for the unpacked imported bundle and attach it to the given source
      * 
-     * @param sourcePath path to the attached bundle source
+     * @param sources attached bundle sources
      */
-    private void attachImportedSource( String sourcePath )
+    private void attachImportedContent( File sources )
     {
         try
         {
@@ -678,7 +678,10 @@ public class EclipseOSGiMojo extends EclipsePlugin
             classPathEntry.setAttribute( "exported", "true" );
             classPathEntry.setAttribute( "kind", "lib" );
             classPathEntry.setAttribute( "path", "." );
-            classPathEntry.setAttribute( "sourcepath", sourcePath );
+            if( sources != null && sources.exists() )
+            {
+                classPathEntry.setAttribute( "sourcepath", sources.getPath() );
+            }
             classPathXML.addChild( classPathEntry );
 
             Writer writer = StreamFactory.newXmlWriter( classPathFile );
