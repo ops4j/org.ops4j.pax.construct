@@ -61,6 +61,13 @@ public class OSGiBundleArchetypeMojo extends AbstractPaxArchetypeMojo
     private String parentId;
 
     /**
+     * The groupId for the bundle (generated from project details if empty).
+     * 
+     * @parameter expression="${bundleGroupId}"
+     */
+    private String bundleGroupId;
+
+    /**
      * The key Java package contained inside the bundle.
      * 
      * @parameter expression="${package}"
@@ -156,7 +163,7 @@ public class OSGiBundleArchetypeMojo extends AbstractPaxArchetypeMojo
 
         getArchetypeMojo().setField( "archetypeArtifactId", "maven-archetype-osgi-bundle" );
 
-        getArchetypeMojo().setField( "groupId", getInternalGroupId() );
+        getArchetypeMojo().setField( "groupId", getInternalGroupId( bundleGroupId ) );
         getArchetypeMojo().setField( "artifactId", bundleName );
         getArchetypeMojo().setField( "version", version );
 
@@ -200,7 +207,7 @@ public class OSGiBundleArchetypeMojo extends AbstractPaxArchetypeMojo
         }
         else
         {
-            return getCompoundId( getInternalGroupId(), bundleName );
+            return getCompoundId( getInternalGroupId( bundleGroupId ), bundleName );
         }
     }
 

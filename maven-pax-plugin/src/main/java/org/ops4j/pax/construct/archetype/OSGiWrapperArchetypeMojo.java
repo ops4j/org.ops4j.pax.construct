@@ -58,6 +58,11 @@ import org.ops4j.pax.construct.util.PomUtils.Pom;
 public class OSGiWrapperArchetypeMojo extends AbstractPaxArchetypeMojo
 {
     /**
+     * Support POM versioning by using an additional version field
+     */
+    private static final String INITIAL_POM_VERSION = "001-SNAPSHOT";
+
+    /**
      * Component factory for Maven artifacts
      * 
      * @component
@@ -109,6 +114,27 @@ public class OSGiWrapperArchetypeMojo extends AbstractPaxArchetypeMojo
      * @parameter expression="${parentId}" default-value="wrapper-bundle-settings"
      */
     private String parentId;
+
+    /**
+     * The groupId for the bundle (generated from project details if empty).
+     * 
+     * @parameter expression="${bundleGroupId}"
+     */
+    private String bundleGroupId;
+
+    /**
+     * The symbolic-name for the bundle (generated from wrapped artifact if empty).
+     * 
+     * @parameter expression="${bundleName}"
+     */
+    private String bundleName;
+
+    /**
+     * The version for the bundle (generated from wrapped artifact if empty).
+     * 
+     * @parameter expression="${bundleVersion}"
+     */
+    private String bundleVersion;
 
     /**
      * The groupId of the artifact to be wrapped.
@@ -244,7 +270,7 @@ public class OSGiWrapperArchetypeMojo extends AbstractPaxArchetypeMojo
         {
             // only need to set these fields once
             getArchetypeMojo().setField( "archetypeArtifactId", "maven-archetype-osgi-wrapper" );
-            getArchetypeMojo().setField( "groupId", getInternalGroupId() );
+            getArchetypeMojo().setField( "groupId", getInternalGroupId( bundleGroupId ) );
 
             // bootstrap with the initial wrapper artifact
             String rootId = groupId + ':' + artifactId + ':' + version;
@@ -267,7 +293,7 @@ public class OSGiWrapperArchetypeMojo extends AbstractPaxArchetypeMojo
         artifactId = fields[1];
         version = fields[2];
 
-        String compoundWrapperId = getCompoundId( groupId, artifactId );
+        String compoundWrapperId = getBundleSymbolicName();
         if( addVersion )
         {
             compoundWrapperId += '-' + version;
@@ -286,7 +312,35 @@ public class OSGiWrapperArchetypeMojo extends AbstractPaxArchetypeMojo
      */
     public String getBundleSymbolicName()
     {
-        return getCompoundId( groupId, artifactId );
+        if( null != bundleName && bundleName.trim().length() > 0 )
+        {
+            return bundleName;
+        }
+        else
+        {
+            return getCompoundId( groupId, artifactId );
+        }
+    }
+
+    /**
+     * Provide Velocity template with customized bundle version
+     * 
+     * @return bundle version
+     */
+    public String getBundleVersion()
+    {
+        if( null != bundleVersion && bundleVersion.trim().length() > 0 )
+        {
+            return bundleVersion;
+        }
+        else if( addVersion )
+        {
+            return INITIAL_POM_VERSION;
+        }
+        else
+        {
+            return version + '-' + INITIAL_POM_VERSION;
+        }
     }
 
     /**
@@ -307,14 +361,6 @@ public class OSGiWrapperArchetypeMojo extends AbstractPaxArchetypeMojo
     public String getWrappedArtifactId()
     {
         return artifactId;
-    }
-
-    /**
-     * @return true if the final project name includes the wrapped version
-     */
-    public boolean projectNameHasVersion()
-    {
-        return addVersion;
     }
 
     /**
@@ -609,19 +655,19 @@ public class OSGiWrapperArchetypeMojo extends AbstractPaxArchetypeMojo
     {
         Dependency dependency = new Dependency();
 
-        dependency.setGroupId( getInternalGroupId() );
+        dependency.setGroupId( getInternalGroupId( bundleGroupId ) );
         String compoundWrapperId = getCompoundId( artifact.getGroupId(), artifact.getArtifactId() );
         String metaVersion = PomUtils.getMetaVersion( artifact );
 
         if( addVersion )
         {
             dependency.setArtifactId( compoundWrapperId + '-' + metaVersion );
-            dependency.setVersion( "001-SNAPSHOT" );
+            dependency.setVersion( INITIAL_POM_VERSION );
         }
         else
         {
             dependency.setArtifactId( compoundWrapperId );
-            dependency.setVersion( metaVersion + "-001-SNAPSHOT" );
+            dependency.setVersion( metaVersion + '-' + INITIAL_POM_VERSION );
         }
 
         dependency.setScope( Artifact.SCOPE_PROVIDED );
