@@ -35,8 +35,6 @@ import org.apache.maven.artifact.installer.ArtifactInstallationException;
 import org.apache.maven.artifact.installer.ArtifactInstaller;
 import org.apache.maven.artifact.metadata.ArtifactMetadataSource;
 import org.apache.maven.artifact.repository.ArtifactRepository;
-import org.apache.maven.artifact.resolver.ArtifactNotFoundException;
-import org.apache.maven.artifact.resolver.ArtifactResolutionException;
 import org.apache.maven.artifact.resolver.ArtifactResolver;
 import org.apache.maven.model.Dependency;
 import org.apache.maven.plugin.AbstractMojo;
@@ -245,39 +243,25 @@ public class ProvisionMojo extends AbstractMojo
      */
     private void provisionBundle( Artifact bundle )
     {
-        try
-        {
-            if( !bundle.isResolved() )
-            {
-                // some eager resolution to provide useful logging
-                m_resolver.resolve( bundle, m_remoteRepos, m_localRepo );
-            }
-
-            if( PomUtils.isBundleArtifact( bundle, m_resolver, m_remoteRepos, m_localRepo, true ) )
-            {
-                String version = PomUtils.getMetaVersion( bundle );
-                String bundleId = bundle.getGroupId() + ':' + bundle.getArtifactId() + ':' + version;
-                if( !m_bundleIds.contains( bundleId ) )
-                {
-                    m_bundleIds.add( bundleId );
-                }
-            }
-            else
-            {
-                getLog().warn( "Skipping non-bundle artifact " + bundle );
-            }
-        }
-        catch( ArtifactResolutionException e )
-        {
-            getLog().warn( "Skipping unresolved artifact " + bundle );
-        }
-        catch( ArtifactNotFoundException e )
+        // force download here, as next check tries to avoid downloading where possible
+        if( !PomUtils.downloadFile( bundle, m_resolver, m_remoteRepos, m_localRepo ) )
         {
             getLog().warn( "Skipping missing artifact " + bundle );
+            return;
         }
-        catch( NullPointerException e )
+
+        if( PomUtils.isBundleArtifact( bundle, m_resolver, m_remoteRepos, m_localRepo, true ) )
         {
-            getLog().warn( "Skipping unknown artifact " + bundle );
+            String version = PomUtils.getMetaVersion( bundle );
+            String bundleId = bundle.getGroupId() + ':' + bundle.getArtifactId() + ':' + version;
+            if( !m_bundleIds.contains( bundleId ) )
+            {
+                m_bundleIds.add( bundleId );
+            }
+        }
+        else
+        {
+            getLog().warn( "Skipping non-bundle artifact " + bundle );
         }
     }
 
@@ -473,30 +457,20 @@ public class ProvisionMojo extends AbstractMojo
             jdk = "jdk14";
         }
 
-        Artifact jar = m_factory.createArtifactWithClassifier( groupId, artifactId, runner, "jar", jdk );
-
-        try
+        Artifact jarArtifact = m_factory.createArtifactWithClassifier( groupId, artifactId, runner, "jar", jdk );
+        if( !PomUtils.downloadFile( jarArtifact, m_resolver, m_remoteRepos, m_localRepo ) )
         {
-            m_resolver.resolve( jar, m_remoteRepos, m_localRepo );
-        }
-        catch( ArtifactNotFoundException e )
-        {
-            throw new MojoExecutionException( "Unable to find Pax-Runner " + jar );
-        }
-        catch( ArtifactResolutionException e )
-        {
-            throw new MojoExecutionException( "Unable to resolve Pax-Runner " + jar );
+            throw new MojoExecutionException( "Unable to find Pax-Runner " + jarArtifact );
         }
 
         URL[] urls = new URL[1];
-
         try
         {
-            urls[0] = jar.getFile().toURI().toURL();
+            urls[0] = jarArtifact.getFile().toURI().toURL();
         }
         catch( MalformedURLException e )
         {
-            throw new MojoExecutionException( "Bad Jar location " + jar.getFile() );
+            throw new MojoExecutionException( "Bad Jar location " + jarArtifact.getFile() );
         }
 
         try
