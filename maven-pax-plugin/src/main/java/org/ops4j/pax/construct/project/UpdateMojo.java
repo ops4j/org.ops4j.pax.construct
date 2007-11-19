@@ -31,8 +31,6 @@ import org.apache.maven.artifact.repository.ArtifactRepository;
 import org.apache.maven.artifact.repository.ArtifactRepositoryFactory;
 import org.apache.maven.artifact.repository.ArtifactRepositoryPolicy;
 import org.apache.maven.artifact.repository.layout.ArtifactRepositoryLayout;
-import org.apache.maven.artifact.resolver.ArtifactNotFoundException;
-import org.apache.maven.artifact.resolver.ArtifactResolutionException;
 import org.apache.maven.artifact.resolver.ArtifactResolver;
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
@@ -179,12 +177,16 @@ public class UpdateMojo extends AbstractMojo
     private void updatePaxConstructScripts( Artifact scripts )
         throws MojoExecutionException
     {
+        // download to local repository if not already there
+        if( !PomUtils.downloadFile( scripts, m_resolver, m_remoteRepos, m_localRepo ) )
+        {
+            throw new MojoExecutionException( "Unable to download scripts " + scripts );
+        }
+
+        getLog().info( "Updating scripts to version " + version );
+
         try
         {
-            // download to local repository if not already there
-            m_resolver.resolve( scripts, m_remoteRepos, m_localRepo );
-            getLog().info( "Updating scripts to version " + version );
-
             ZipFile zip = new ZipFile( scripts.getFile() );
             for( Enumeration i = zip.entries(); i.hasMoreElements(); )
             {
@@ -204,14 +206,6 @@ public class UpdateMojo extends AbstractMojo
                     getLog().info( " => " + path );
                 }
             }
-        }
-        catch( ArtifactResolutionException e )
-        {
-            throw new MojoExecutionException( "Unable to resolve scripts attachment", e );
-        }
-        catch( ArtifactNotFoundException e )
-        {
-            throw new MojoExecutionException( "Unable to find scripts attachment", e );
         }
         catch( IOException e )
         {
