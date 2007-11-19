@@ -32,8 +32,6 @@ import java.util.jar.Manifest;
 import java.util.regex.Pattern;
 
 import org.apache.maven.artifact.Artifact;
-import org.apache.maven.artifact.resolver.ArtifactNotFoundException;
-import org.apache.maven.artifact.resolver.ArtifactResolutionException;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
 import org.apache.maven.plugin.eclipse.EclipsePlugin;
@@ -237,14 +235,25 @@ public class EclipseOSGiMojo extends EclipsePlugin
      * @param project bundle project
      * @return recently built bundle
      */
-    private static File getBundleFile( MavenProject project )
+    private File getBundleFile( MavenProject project )
     {
-        File bundleFile = project.getArtifact().getFile();
+        Artifact artifact = project.getArtifact();
+        File bundleFile = artifact.getFile();
+
         if( null == bundleFile || !bundleFile.exists() )
         {
+            // no file attached in this cycle, so check local build
             String name = project.getBuild().getFinalName() + ".jar";
             bundleFile = new File( project.getBuild().getDirectory(), name );
         }
+
+        if( !bundleFile.exists() )
+        {
+            // last chance: see if it exists remotely or is already cached locally
+            PomUtils.downloadFile( artifact, artifactResolver, remoteArtifactRepositories, localRepository );
+            bundleFile = artifact.getFile();
+        }
+
         return bundleFile;
     }
 
@@ -547,22 +556,19 @@ public class EclipseOSGiMojo extends EclipsePlugin
                 setBuildOutputDirectory( new File( baseDir, ".ignore" ) );
                 setEclipseProjectDir( baseDir );
 
+                // download and unpack the bundle
+                if( !PomUtils.downloadFile( artifact, artifactResolver, remoteArtifactRepositories, localRepository ) )
+                {
+                    getLog().warn( "Skipping missing bundle " + artifact );
+                    continue;
+                }
+
+                DirUtils.unpackBundle( m_archiverManager, artifact.getFile(), executedProject.getBasedir() );
+
                 try
                 {
-                    // download and unpack the bundle
-                    artifactResolver.resolve( artifact, remoteArtifactRepositories, localRepository );
-                    DirUtils.unpackBundle( m_archiverManager, artifact.getFile(), executedProject.getBasedir() );
-
                     // call the Eclipse plugin
                     execute();
-                }
-                catch( ArtifactNotFoundException e )
-                {
-                    getLog().warn( "Unable to find bundle artifact " + artifact );
-                }
-                catch( ArtifactResolutionException e )
-                {
-                    getLog().warn( "Unable to resolve bundle artifact " + artifact );
                 }
                 catch( MojoFailureException e )
                 {
@@ -635,25 +641,14 @@ public class EclipseOSGiMojo extends EclipsePlugin
         Artifact sourceArtifact = artifactFactory.createArtifactWithClassifier( executedProject.getGroupId(),
             executedProject.getArtifactId(), executedProject.getVersion(), "java-source", "sources" );
 
-        try
+        if( downloadSources )
         {
-            if( downloadSources )
-            {
-                artifactResolver.resolve( sourceArtifact, remoteArtifactRepositories, localRepository );
-            }
-            else
-            {
-                // check to see if we already have the source downloaded...
-                artifactResolver.resolve( sourceArtifact, Collections.EMPTY_LIST, localRepository );
-            }
+            PomUtils.downloadFile( sourceArtifact, artifactResolver, remoteArtifactRepositories, localRepository );
         }
-        catch( ArtifactNotFoundException e )
+        else
         {
-            getLog().debug( "Unable to find source artifact " + sourceArtifact );
-        }
-        catch( ArtifactResolutionException e )
-        {
-            getLog().debug( "Unable to resolve source artifact " + sourceArtifact );
+            // check to see if we already have the source downloaded...
+            PomUtils.downloadFile( sourceArtifact, artifactResolver, Collections.EMPTY_LIST, localRepository );
         }
 
         // set PDE classpath to point to unpacked bundle
