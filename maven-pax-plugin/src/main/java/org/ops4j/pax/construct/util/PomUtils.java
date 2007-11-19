@@ -377,7 +377,7 @@ public final class PomUtils
         {
             return true;
         }
-        else if( !testMetadata || !haveArtifactFile( artifact, resolver, remoteRepos, localRepo ) )
+        else if( !testMetadata || !downloadFile( artifact, resolver, remoteRepos, localRepo ) )
         {
             return false;
         }
@@ -408,7 +408,7 @@ public final class PomUtils
      * @param localRepo local Maven repository
      * @return true if the artifact is available, otherwise false
      */
-    private static boolean haveArtifactFile( Artifact artifact, ArtifactResolver resolver, List remoteRepos,
+    public static boolean downloadFile( Artifact artifact, ArtifactResolver resolver, List remoteRepos,
         ArtifactRepository localRepo )
     {
         if( artifact.getFile() == null || !artifact.getFile().exists() )
