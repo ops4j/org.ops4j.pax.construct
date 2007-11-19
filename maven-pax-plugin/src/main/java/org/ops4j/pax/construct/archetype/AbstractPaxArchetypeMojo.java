@@ -181,6 +181,7 @@ public abstract class AbstractPaxArchetypeMojo extends MavenArchetypeMojo
     }
 
     /**
+     * @param bundleGroupId customized bundle groupId (may be null)
      * @return the internal groupId for support artifacts belonging to the new project
      */
     protected final String getInternalGroupId( String bundleGroupId )
