@@ -526,7 +526,8 @@ public final class PomUtils
         try
         {
             List versions = source.retrieveAvailableVersions( artifact, localRepo, remoteRepos );
-            ArtifactVersion releaseVersion = new DefaultArtifactVersion( "0" );
+            final ArtifactVersion baselineVersion = new DefaultArtifactVersion( "0" );
+            ArtifactVersion releaseVersion = baselineVersion;
             for( Iterator i = versions.iterator(); i.hasNext(); )
             {
                 ArtifactVersion v = (ArtifactVersion) i.next();
@@ -534,6 +535,10 @@ public final class PomUtils
                 {
                     releaseVersion = v;
                 }
+            }
+            if( baselineVersion == releaseVersion )
+            {
+                throw new MojoExecutionException( "Unable to find release version for " + artifact );
             }
             return releaseVersion.toString();
         }
