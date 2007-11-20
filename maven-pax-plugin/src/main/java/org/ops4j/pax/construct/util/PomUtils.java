@@ -382,17 +382,23 @@ public final class PomUtils
             return false;
         }
 
-        Manifest manifest;
-
         try
         {
-            manifest = new JarFile( artifact.getFile() ).getManifest();
-            if( null == manifest )
-            {
-                return false;
-            }
+            return isBundleArtifact( new JarFile( artifact.getFile() ).getManifest() );
         }
         catch( IOException e )
+        {
+            return false;
+        }
+    }
+
+    /**
+     * @param manifest jar manifest, possibly null
+     * @return true if this is an OSGi bundle artifact, otherwise false
+     */
+    private static boolean isBundleArtifact( Manifest manifest )
+    {
+        if( null == manifest )
         {
             return false;
         }
