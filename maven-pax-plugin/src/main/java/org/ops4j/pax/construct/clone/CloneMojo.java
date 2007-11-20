@@ -19,6 +19,7 @@ package org.ops4j.pax.construct.clone;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -137,6 +138,13 @@ public class CloneMojo extends AbstractMojo
      * @parameter expression="${repair}" default-value="false"
      */
     private boolean repair;
+
+    /**
+     * Comma-separated list of additional non-Maven resources that should be captured.
+     * 
+     * @parameter expression="${includeResources}"
+     */
+    private String includeResources;
 
     /**
      * Maps groupId:artifactId to major Maven projects
@@ -563,26 +571,35 @@ public class CloneMojo extends AbstractMojo
     private String createBundleArchetype( MavenProject project, String namespace )
         throws MojoExecutionException
     {
+        File baseDir = project.getBasedir();
+
         ArchetypeFragment fragment = new ArchetypeFragment( getFragmentDir(), namespace );
 
-        fragment.addPom( project.getBasedir() );
-        fragment.addResources( project.getBasedir(), "osgi.bnd", false );
+        fragment.addPom( baseDir );
+        fragment.addResources( baseDir, "osgi.bnd", false );
 
         if( null != namespace )
         {
-            fragment.addSources( project.getBasedir(), project.getBuild().getSourceDirectory(), false );
-            fragment.addSources( project.getBasedir(), project.getBuild().getTestSourceDirectory(), true );
+            fragment.addSources( baseDir, project.getBuild().getSourceDirectory(), false );
+            fragment.addSources( baseDir, project.getBuild().getTestSourceDirectory(), true );
         }
 
         for( Iterator i = project.getResources().iterator(); i.hasNext(); )
         {
             Resource r = (Resource) i.next();
-            fragment.addResources( project.getBasedir(), r.getDirectory(), r.getIncludes(), r.getExcludes(), false );
+            fragment.addResources( baseDir, r.getDirectory(), r.getIncludes(), r.getExcludes(), false );
         }
         for( Iterator i = project.getTestResources().iterator(); i.hasNext(); )
         {
             Resource r = (Resource) i.next();
-            fragment.addResources( project.getBasedir(), r.getDirectory(), r.getIncludes(), r.getExcludes(), true );
+            fragment.addResources( baseDir, r.getDirectory(), r.getIncludes(), r.getExcludes(), true );
+        }
+
+        // should we look for additional non-Maven resources?
+        if( includeResources != null && includeResources.length() > 0 )
+        {
+            String[] includes = includeResources.split( "," );
+            fragment.addResources( baseDir, baseDir.getPath(), Arrays.asList( includes ), null, false );
         }
 
         // archetype must use different id
