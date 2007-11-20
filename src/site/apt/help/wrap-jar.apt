@@ -57,6 +57,12 @@
 *---------------------------------------------------*---------------------------------------------------+
 | <<<-DtestMetadata=false>>>                        | disable exhaustive OSGi bundle detection          |
 *---------------------------------------------------*---------------------------------------------------+
+| <<<-DbundleName=>>><name>                         | provide a customized name to the new bundle       |
+*---------------------------------------------------*---------------------------------------------------+
+| <<<-DbundleGroupId=>>><groupId>                   | provide a customized groupId to the new bundle    |
+*---------------------------------------------------*---------------------------------------------------+
+| <<<-DbundleVersion=>>><version>                   | provide a customized version to the new bundle    |
+*---------------------------------------------------*---------------------------------------------------+
 | <<<-DparentId=>>><groupId:artifactId>             | look for a different parent POM                   |
 *---------------------------------------------------*---------------------------------------------------+
 | <<<-DtargetDirectory=>>><path>                    | alternative location of the wrapper               |

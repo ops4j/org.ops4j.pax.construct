@@ -29,13 +29,15 @@
 
 * Additional Maven options
 
-*----------------------*----------------------------------------------------------------+
-| <<<-Drepair=false>>> | don't attempt to fix any dependencies to local bundle projects |
-*----------------------*----------------------------------------------------------------+
+*---------------------------------------------*-------------------------------------------------------------------+
+| <<<-DincludeResources=>>><filterstring,...> | additional (non-Maven) resources that should also be captured     |
+*---------------------------------------------*-------------------------------------------------------------------+
+| <<<-Drepair>>>                              | attempt to fix dependencies to local bundles by re-importing them |
+*---------------------------------------------*-------------------------------------------------------------------+
 
 * Examples
 
 +---+
-pax-clone
+pax-clone -- "-DincludeResources=icons/**,plugin.xml"
 +---+
 
