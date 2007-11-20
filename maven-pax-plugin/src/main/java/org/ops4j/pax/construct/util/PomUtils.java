@@ -387,6 +387,10 @@ public final class PomUtils
         try
         {
             manifest = new JarFile( artifact.getFile() ).getManifest();
+            if( null == manifest )
+            {
+                return false;
+            }
         }
         catch( IOException e )
         {

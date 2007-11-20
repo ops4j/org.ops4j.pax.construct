@@ -461,8 +461,11 @@ public final class DirUtils
         try
         {
             Manifest manifest = new JarFile( bundle ).getManifest();
-            Attributes mainAttributes = manifest.getMainAttributes();
-            bundleClassPath = mainAttributes.getValue( "Bundle-ClassPath" );
+            if( null != manifest )
+            {
+                Attributes mainAttributes = manifest.getMainAttributes();
+                bundleClassPath = mainAttributes.getValue( "Bundle-ClassPath" );
+            }
         }
         catch( IOException e )
         {
