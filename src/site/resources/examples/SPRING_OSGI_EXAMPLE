@@ -28,28 +28,13 @@ pax-import-bundle -g org.springframework.osgi -a spring-osgi-extender -v 1.0-rc1
 
 pax-import-bundle -g org.slf4j -a slf4j-simple -v 1.4.3
 
-#-----------------------------------------------------------------------------------
-# put wrapped jars in a subdirectory and add the wrapped version to each entry name
-#-----------------------------------------------------------------------------------
+#------------------------------------------------------------------------------------
+# wrapping examples: put in subdirectory and add wrapped version to the wrapper name
+#------------------------------------------------------------------------------------
 
-OLD_CONSTRUCT_OPTIONS="${PAX_CONSTRUCT_OPTIONS}"
-PAX_CONSTRUCT_OPTIONS="-DaddVersion -DtargetDirectory=wrappers ${OLD_CONSTRUCT_OPTIONS}"
-export PAX_CONSTRUCT_OPTIONS
-
-pax-wrap-jar -a backport-util-concurrent -v 3.0 -- "-DimportPackage=sun.misc;resolution:=optional,*"
-
-pax-wrap-jar -a aopalliance -v 1.0
-pax-wrap-jar -a asm -v 2.2.3
-pax-wrap-jar -a commons-collections -v 3.2
-pax-wrap-jar -g javax.servlet -a jsp-api -v 2.0
-pax-wrap-jar -g javax.servlet -a servlet-api -v 2.5
-pax-wrap-jar -a junit -v 3.8.2
-
-#---------------------------------
-# switch back to previous setting
-#---------------------------------
-
-PAX_CONSTRUCT_OPTIONS="${OLD_CONSTRUCT_OPTIONS}"
+pax-wrap-jar -a asm -v 2.2.3                        -- -DaddVersion "-DtargetDirectory=wrappers"
+pax-wrap-jar -g javax.servlet -a jsp-api -v 2.0     -- -DaddVersion "-DtargetDirectory=wrappers"
+pax-wrap-jar -g javax.servlet -a servlet-api -v 2.5 -- -DaddVersion "-DtargetDirectory=wrappers"
 
 #-------------------------------------
 # Spring Dynamic Modules sample beans

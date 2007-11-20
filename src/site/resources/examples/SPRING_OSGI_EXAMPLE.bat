@@ -27,27 +27,13 @@ REM -----------------------------------
 
 call pax-import-bundle -g org.slf4j -a slf4j-simple -v 1.4.3
 
-REM -----------------------------------------------------------------------------------
-REM  put wrapped jars in a subdirectory and add the wrapped version to each entry name
-REM -----------------------------------------------------------------------------------
+REM ------------------------------------------------------------------------------------
+REM  wrapping examples: put in subdirectory and add wrapped version to the wrapper name
+REM ------------------------------------------------------------------------------------
 
-set OLD_CONSTRUCT_OPTIONS=%PAX_CONSTRUCT_OPTIONS%
-set PAX_CONSTRUCT_OPTIONS=-DaddVersion -DtargetDirectory=wrappers %OLD_CONSTRUCT_OPTIONS%
-
-call pax-wrap-jar -a backport-util-concurrent -v 3.0 -- "-DimportPackage=sun.misc;resolution:=optional,*"
-
-call pax-wrap-jar -a aopalliance -v 1.0
-call pax-wrap-jar -a asm -v 2.2.3
-call pax-wrap-jar -a commons-collections -v 3.2
-call pax-wrap-jar -g javax.servlet -a jsp-api -v 2.0
-call pax-wrap-jar -g javax.servlet -a servlet-api -v 2.5
-call pax-wrap-jar -a junit -v 3.8.2
-
-REM ---------------------------------
-REM  switch back to previous setting
-REM ---------------------------------
-
-set PAX_CONSTRUCT_OPTIONS=%OLD_CONSTRUCT_OPTIONS%
+call pax-wrap-jar -a asm -v 2.2.3                        -- -DaddVersion "-DtargetDirectory=wrappers"
+call pax-wrap-jar -g javax.servlet -a jsp-api -v 2.0     -- -DaddVersion "-DtargetDirectory=wrappers"
+call pax-wrap-jar -g javax.servlet -a servlet-api -v 2.5 -- -DaddVersion "-DtargetDirectory=wrappers"
 
 REM -------------------------------------
 REM  Spring Dynamic Modules sample beans
