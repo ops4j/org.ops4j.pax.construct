@@ -203,38 +203,8 @@ public class ArchetypeFragment
     {
         DirectoryScanner scanner = new DirectoryScanner();
 
-        String[] pathExclude;
-        String[] pathInclude;
-
-        if( null == excludes || excludes.size() == 0 )
-        {
-            // exclude standard output dir
-            pathExclude = new String[1];
-            pathExclude[0] = path + "**/target/";
-        }
-        else
-        {
-            pathExclude = (String[]) excludes.toArray( new String[excludes.size()] );
-            for( int i = 0; i < pathExclude.length; i++ )
-            {
-                pathExclude[i] = path + pathExclude[i];
-            }
-        }
-
-        if( null == includes || includes.size() == 0 )
-        {
-            // include location files
-            pathInclude = new String[1];
-            pathInclude[0] = path + "**";
-        }
-        else
-        {
-            pathInclude = (String[]) includes.toArray( new String[includes.size()] );
-            for( int i = 0; i < pathInclude.length; i++ )
-            {
-                pathInclude[i] = path + pathInclude[i];
-            }
-        }
+        String[] pathExclude = parseFilter( path, excludes, "**/target/" );
+        String[] pathInclude = parseFilter( path, includes, "**" );
 
         scanner.setExcludes( pathExclude );
         scanner.setIncludes( pathInclude );
@@ -254,6 +224,33 @@ public class ArchetypeFragment
         }
 
         return filenames;
+    }
+
+    /**
+     * @param path directory path
+     * @param filters list of ant-style filters
+     * @param defaultFilter default filter
+     * @return array of filters for the directory path
+     */
+    private static String[] parseFilter( String path, List filters, String defaultFilter )
+    {
+        String[] filterArray;
+
+        if( null == filters || filters.size() == 0 )
+        {
+            filterArray = new String[1];
+            filterArray[0] = path + defaultFilter;
+        }
+        else
+        {
+            filterArray = (String[]) filters.toArray( new String[filters.size()] );
+            for( int i = 0; i < filterArray.length; i++ )
+            {
+                filterArray[i] = path + filterArray[i];
+            }
+        }
+
+        return filterArray;
     }
 
     /**
