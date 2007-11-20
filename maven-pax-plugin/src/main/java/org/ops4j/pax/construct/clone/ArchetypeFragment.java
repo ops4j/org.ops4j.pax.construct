@@ -39,6 +39,7 @@ import org.codehaus.plexus.util.FileUtils;
 import org.codehaus.plexus.util.IOUtil;
 import org.codehaus.plexus.util.StringUtils;
 import org.ops4j.pax.construct.util.DirUtils;
+import org.ops4j.pax.construct.util.PomUtils.Pom;
 import org.ops4j.pax.construct.util.StreamFactory;
 
 /**
@@ -89,13 +90,24 @@ public class ArchetypeFragment
      * Add primary Maven project POM
      * 
      * @param projectDir project directory
+     * @param pom customized Maven project model
      */
-    public void addPom( File projectDir )
+    public void addPom( File projectDir, Pom pom )
     {
         File to = new File( m_tempDir, "archetype-resources" );
 
+        File pomFile;
+        if( null == pom )
+        {
+            pomFile = new File( projectDir, "pom.xml" );
+        }
+        else
+        {
+            pomFile = pom.getFile();
+        }
+
         // relocate to 'classic' archetype location
-        translateFile( new File( projectDir, "pom.xml" ), new File( to, "pom.xml" ) );
+        translateFile( pomFile, new File( to, "pom.xml" ) );
     }
 
     /**

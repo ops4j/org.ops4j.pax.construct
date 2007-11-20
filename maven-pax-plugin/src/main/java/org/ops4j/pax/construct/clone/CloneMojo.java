@@ -39,6 +39,7 @@ import org.codehaus.plexus.archiver.Archiver;
 import org.codehaus.plexus.archiver.manager.ArchiverManager;
 import org.codehaus.plexus.archiver.manager.NoSuchArchiverException;
 import org.codehaus.plexus.util.DirectoryScanner;
+import org.codehaus.plexus.util.FileUtils;
 import org.codehaus.plexus.util.StringUtils;
 import org.ops4j.pax.construct.util.DirUtils;
 import org.ops4j.pax.construct.util.PomIterator;
@@ -299,10 +300,12 @@ public class CloneMojo extends AbstractMojo
             }
         }
 
+        Pom pom = null;
+
         if( repair )
         {
-            // fix references to local bundles
-            repairBundleImports( script, project );
+            // fix references to local bundles by re-importing
+            pom = repairBundleImports( script, project );
         }
         else
         {
@@ -311,7 +314,7 @@ public class CloneMojo extends AbstractMojo
         }
 
         // customized sources, POMs, Bnd instructions
-        contents = createBundleArchetype( project, namespace );
+        contents = createBundleArchetype( project, namespace, pom );
         command.maven().option( "contents", contents );
 
         // enable overwrite
@@ -565,17 +568,18 @@ public class CloneMojo extends AbstractMojo
      * 
      * @param project Maven project
      * @param namespace Java namespace, can be null
+     * @param pom customized Maven project model
      * @return clause identifying the archetype fragment
      * @throws MojoExecutionException
      */
-    private String createBundleArchetype( MavenProject project, String namespace )
+    private String createBundleArchetype( MavenProject project, String namespace, Pom pom )
         throws MojoExecutionException
     {
         File baseDir = project.getBasedir();
 
         ArchetypeFragment fragment = new ArchetypeFragment( getFragmentDir(), namespace );
 
-        fragment.addPom( baseDir );
+        fragment.addPom( baseDir, pom );
         fragment.addResources( baseDir, "osgi.bnd", false );
 
         if( null != namespace )
@@ -622,9 +626,23 @@ public class CloneMojo extends AbstractMojo
      * 
      * @param script build script
      * @param project Maven project
+     * @return customized Maven project model
      */
-    private void repairBundleImports( PaxScript script, MavenProject project )
+    private Pom repairBundleImports( PaxScript script, MavenProject project )
     {
+        Pom pom;
+        try
+        {
+            File tempFile = new File( m_tempdir, "pom.temp" );
+            FileUtils.copyFile( project.getFile(), tempFile );
+            pom = PomUtils.readPom( tempFile );
+            tempFile.deleteOnExit();
+        }
+        catch( IOException e )
+        {
+            pom = null;
+        }
+
         for( Iterator i = project.getDependencies().iterator(); i.hasNext(); )
         {
             Dependency dependency = (Dependency) i.next();
@@ -646,8 +664,21 @@ public class CloneMojo extends AbstractMojo
                 // only apply to the importing bundle project
                 setTargetDirectory( command, project.getBasedir() );
 
-                i.remove();
+                if( null != pom )
+                {
+                    pom.removeDependency( dependency );
+                }
             }
+        }
+
+        try
+        {
+            pom.write();
+            return pom;
+        }
+        catch( IOException e )
+        {
+            return null;
         }
     }
 
@@ -723,7 +754,7 @@ public class CloneMojo extends AbstractMojo
         }
 
         ArchetypeFragment fragment = new ArchetypeFragment( getFragmentDir(), null );
-        fragment.addPom( majorPom.getBasedir() );
+        fragment.addPom( majorPom.getBasedir(), null );
 
         for( Iterator i = resourcePaths.iterator(); i.hasNext(); )
         {
