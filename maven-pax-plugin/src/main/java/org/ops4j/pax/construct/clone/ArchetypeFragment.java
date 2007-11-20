@@ -107,19 +107,20 @@ public class ArchetypeFragment
      */
     public void addSources( File projectDir, String path, boolean isTest )
     {
-        // make relative to base
-        String sourcePath = path;
         String[] pivot = DirUtils.calculateRelativePath( projectDir, new File( path ) );
-        if( null != pivot )
+        if( null == pivot || pivot[2].length() == 0 )
         {
-            sourcePath = pivot[2];
+            return;
         }
+
+        // use relative path in search
+        String sourcePath = pivot[2];
 
         // primary source location
         String packagePath = sourcePath + m_namespace.replace( '.', '/' ) + '/';
 
         File to = new File( m_tempDir, "archetype-resources" );
-        for( Iterator i = getFilenames( projectDir, sourcePath ).iterator(); i.hasNext(); )
+        for( Iterator i = getFilenames( projectDir, sourcePath, null, null ).iterator(); i.hasNext(); )
         {
             String filename = (String) i.next();
 
@@ -148,16 +149,31 @@ public class ArchetypeFragment
      */
     public void addResources( File projectDir, String path, boolean isTest )
     {
-        // make relative to base
-        String resourcePath = path;
+        addResources( projectDir, path, null, null, isTest );
+    }
+
+    /**
+     * Add collection of resource files
+     * 
+     * @param projectDir project directory
+     * @param path resource location
+     * @param includes list of included names
+     * @param excludes list of excluded names
+     * @param isTest true if these are test resources, otherwise false
+     */
+    public void addResources( File projectDir, String path, List includes, List excludes, boolean isTest )
+    {
         String[] pivot = DirUtils.calculateRelativePath( projectDir, new File( path ) );
-        if( null != pivot )
+        if( null == pivot )
         {
-            resourcePath = pivot[2];
+            return;
         }
 
+        // use relative path in search
+        String resourcePath = pivot[2];
+
         File to = new File( m_tempDir, "archetype-resources" );
-        for( Iterator i = getFilenames( projectDir, resourcePath ).iterator(); i.hasNext(); )
+        for( Iterator i = getFilenames( projectDir, resourcePath, includes, excludes ).iterator(); i.hasNext(); )
         {
             String filename = (String) i.next();
 
@@ -179,20 +195,46 @@ public class ArchetypeFragment
      * 
      * @param dir project directory
      * @param path location in project
+     * @param includes list of included names
+     * @param excludes list of excluded names
      * @return list of filenames
      */
-    private static List getFilenames( File dir, String path )
+    private static List getFilenames( File dir, String path, List includes, List excludes )
     {
         DirectoryScanner scanner = new DirectoryScanner();
 
-        String[] pathExclude = new String[1];
-        String[] pathInclude = new String[1];
+        String[] pathExclude;
+        String[] pathInclude;
 
-        // exclude standard output dir
-        pathExclude[0] = "**/target/";
+        if( null == excludes || excludes.size() == 0 )
+        {
+            // exclude standard output dir
+            pathExclude = new String[1];
+            pathExclude[0] = path + "**/target/";
+        }
+        else
+        {
+            pathExclude = (String[]) excludes.toArray( new String[excludes.size()] );
+            for( int i = 0; i < pathExclude.length; i++ )
+            {
+                pathExclude[i] = path + pathExclude[i];
+            }
+        }
 
-        // include location files
-        pathInclude[0] = path + "**";
+        if( null == includes || includes.size() == 0 )
+        {
+            // include location files
+            pathInclude = new String[1];
+            pathInclude[0] = path + "**";
+        }
+        else
+        {
+            pathInclude = (String[]) includes.toArray( new String[includes.size()] );
+            for( int i = 0; i < pathInclude.length; i++ )
+            {
+                pathInclude[i] = path + pathInclude[i];
+            }
+        }
 
         scanner.setExcludes( pathExclude );
         scanner.setIncludes( pathInclude );

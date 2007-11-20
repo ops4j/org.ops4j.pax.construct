@@ -576,11 +576,13 @@ public class CloneMojo extends AbstractMojo
 
         for( Iterator i = project.getResources().iterator(); i.hasNext(); )
         {
-            fragment.addResources( project.getBasedir(), ( (Resource) i.next() ).getDirectory(), false );
+            Resource r = (Resource) i.next();
+            fragment.addResources( project.getBasedir(), r.getDirectory(), r.getIncludes(), r.getExcludes(), false );
         }
         for( Iterator i = project.getTestResources().iterator(); i.hasNext(); )
         {
-            fragment.addResources( project.getBasedir(), ( (Resource) i.next() ).getDirectory(), true );
+            Resource r = (Resource) i.next();
+            fragment.addResources( project.getBasedir(), r.getDirectory(), r.getIncludes(), r.getExcludes(), true );
         }
 
         // archetype must use different id
