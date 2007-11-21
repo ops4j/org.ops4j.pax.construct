@@ -69,5 +69,9 @@
       <item name="general@lists.ops4j.org" href="mailto:general@lists.ops4j.org"/>
     </menu>
 
+    <menu name="Issue Tracking">
+      <item name="http://issues.ops4j.org" href="http://issues.ops4j.org/jira/browse/PAXCONSTRUCT?report=com.atlassian.jira.plugin.system.project:changelog-panel"/>
+    </menu>
+
   </body>
 </project>
