@@ -36,15 +36,29 @@ Spring Dynamic Modules for OSGi(tm)
 
 * Download {{{SPRING_OSGI_EXAMPLE.bat}Windows}} batch file
 
+** Using the scripts:
+
+ If you have the Pax-Construct scripts installed and on your path, all you need to
+ do is go to a temporary/working directory and run the script - it will create a
+ new Maven project, populate it with various bundles and deploy them on the Felix
+ OSGi framework. You can deploy to other frameworks by using -Dframework=<name>
+
 ** Create Eclipse project files for the various imported, wrapped and compiled bundles:
 
 +---+
+cd spring
+
 mvn clean install pax:eclipse -DdownloadSources
 +---+
+
+ Use <"Import... Existing Projects into Workspace"> and point it to the top-most directory
+ to import the bundle projects into your Eclipse Workspace.
 
 ** Example output when provisioning (assumes 'mvn clean install' has already been run)
 
 +---+
+cd spring
+
 mvn pax:provision
 
 [INFO] Scanning for projects...
