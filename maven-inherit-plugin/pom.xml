@@ -3,12 +3,13 @@
   <parent>
     <groupId>org.ops4j.pax</groupId>
     <artifactId>construct</artifactId>
-    <version>0.6.2-SNAPSHOT</version>
+    <version>0.6.1</version>
   </parent>
 
   <modelVersion>4.0.0</modelVersion>
   <groupId>org.ops4j</groupId>
   <artifactId>maven-inherit-plugin</artifactId>
+  <version>0.6.2-SNAPSHOT</version>
 
   <name>OPS4J - Support Maven Mojo inheritance</name>
 
@@ -41,7 +42,7 @@
       <plugin>
         <artifactId>maven-checkstyle-plugin</artifactId>
         <configuration>
-          <configLocation>src/site/ops4j-format.xml</configLocation>
+          <configLocation>${pom.basedir}/src/site/ops4j-format.xml</configLocation>
         </configuration>
       </plugin>
     </plugins>
@@ -85,6 +86,11 @@
     </dependency>
   </dependencies>
 
+  <scm>
+    <connection>scm:svn:https://scm.ops4j.org/repos/ops4j/projects/pax/construct/maven-inherit-plugin</connection>
+    <developerConnection>scm:svn:https://scm.ops4j.org/repos/ops4j/projects/pax/construct/maven-inherit-plugin</developerConnection>
+  </scm>
+
   <repositories>
     <repository>
       <id>ops4j-repository</id>
@@ -93,14 +99,6 @@
       <snapshots>
         <enabled>false</enabled>
       </snapshots>
-    </repository>
-    <repository>
-      <id>ops4j-snapshots</id>
-      <name>The OPS4J Snapshot Repository</name>
-      <url>http://repository.ops4j.org/mvn-snapshots</url>
-      <releases>
-        <enabled>false</enabled>
-      </releases>
     </repository>
   </repositories>
 

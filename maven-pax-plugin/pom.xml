@@ -3,12 +3,13 @@
   <parent>
     <groupId>org.ops4j.pax</groupId>
     <artifactId>construct</artifactId>
-    <version>0.6.2-SNAPSHOT</version>
+    <version>0.6.1</version>
   </parent>
 
   <modelVersion>4.0.0</modelVersion>
   <groupId>org.ops4j</groupId>
   <artifactId>maven-pax-plugin</artifactId>
+  <version>0.6.2-SNAPSHOT</version>
 
   <name>OPS4J - Pax Mojos: OSGi project helpers</name>
 
@@ -26,7 +27,7 @@
       <plugin>
         <groupId>org.ops4j</groupId>
         <artifactId>maven-inherit-plugin</artifactId>
-        <version>0.6.2-SNAPSHOT</version>
+        <version>0.6.1</version>
         <executions>
           <execution>
             <goals>
@@ -49,7 +50,7 @@
       <plugin>
         <artifactId>maven-checkstyle-plugin</artifactId>
         <configuration>
-          <configLocation>src/site/ops4j-format.xml</configLocation>
+          <configLocation>${pom.basedir}/src/site/ops4j-format.xml</configLocation>
         </configuration>
       </plugin>
     </plugins>
@@ -162,9 +163,14 @@
     <dependency>
       <groupId>biz.aQute</groupId>
       <artifactId>bndlib</artifactId>
-      <version>0.0.208</version>
+      <version>0.0.212</version>
     </dependency>
   </dependencies>
+
+  <scm>
+    <connection>scm:svn:https://scm.ops4j.org/repos/ops4j/projects/pax/construct/maven-pax-plugin</connection>
+    <developerConnection>scm:svn:https://scm.ops4j.org/repos/ops4j/projects/pax/construct/maven-pax-plugin</developerConnection>
+  </scm>
 
   <repositories>
     <repository>
@@ -175,25 +181,6 @@
         <enabled>false</enabled>
       </snapshots>
     </repository>
-    <repository>
-      <id>ops4j-snapshots</id>
-      <name>The OPS4J Snapshot Repository</name>
-      <url>http://repository.ops4j.org/mvn-snapshots</url>
-      <releases>
-        <enabled>false</enabled>
-      </releases>
-    </repository>
   </repositories>
-
-  <pluginRepositories>
-    <pluginRepository>
-      <id>ops4j-snapshots</id>
-      <name>The OPS4J Snapshot Repository</name>
-      <url>http://repository.ops4j.org/mvn-snapshots</url>
-      <releases>
-        <enabled>false</enabled>
-      </releases>
-    </pluginRepository>
-  </pluginRepositories>
 
 </project>
