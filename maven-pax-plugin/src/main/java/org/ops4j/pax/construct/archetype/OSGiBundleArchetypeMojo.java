@@ -50,6 +50,10 @@ import org.ops4j.pax.construct.util.PomUtils.Pom;
  */
 public class OSGiBundleArchetypeMojo extends AbstractPaxArchetypeMojo
 {
+    private static final String OSGI_BUNDLE_ARCHETYPE_ID = "maven-archetype-osgi-bundle";
+    private static final String OSGI_SERVICE_ARCHETYPE_ID = "maven-archetype-osgi-service";
+    private static final String SPRING_BEAN_ARCHETYPE_ID = "maven-archetype-spring-bean";
+
     private static final String SPRING_VERSION_PROPERTY = "spring.maven.artifact.version";
     private static final String SPRING_VERSION_VARIABLE = "${" + SPRING_VERSION_PROPERTY + "}";
 
@@ -146,28 +150,28 @@ public class OSGiBundleArchetypeMojo extends AbstractPaxArchetypeMojo
     {
         populateMissingFields();
 
-        // should we provide code samples?
-        if( !hasCustomContent() && ( provideInterface || provideInternals ) )
-        {
-            if( null == springVersion )
-            {
-                // OSGi service + activator example
-                scheduleArchetype( PAX_CONSTRUCT_GROUP_ID, "maven-archetype-osgi-service", null );
-            }
-            else
-            {
-                // Spring Dynamic-Modules bean example
-                scheduleArchetype( PAX_CONSTRUCT_GROUP_ID, "maven-archetype-spring-bean", null );
-            }
-        }
-
-        getArchetypeMojo().setField( "archetypeArtifactId", "maven-archetype-osgi-bundle" );
+        setMainArchetype( OSGI_BUNDLE_ARCHETYPE_ID );
 
         getArchetypeMojo().setField( "groupId", getInternalGroupId( bundleGroupId ) );
         getArchetypeMojo().setField( "artifactId", bundleName );
         getArchetypeMojo().setField( "version", version );
 
         getArchetypeMojo().setField( "packageName", packageName );
+
+        // should we provide code samples?
+        if( !hasCustomContent() && ( provideInterface || provideInternals ) )
+        {
+            if( null == springVersion )
+            {
+                // OSGi service + activator example
+                scheduleArchetype( PAX_CONSTRUCT_GROUP_ID, OSGI_SERVICE_ARCHETYPE_ID, null );
+            }
+            else
+            {
+                // Spring Dynamic-Modules bean example
+                scheduleArchetype( PAX_CONSTRUCT_GROUP_ID, SPRING_BEAN_ARCHETYPE_ID, null );
+            }
+        }
     }
 
     /**

@@ -57,6 +57,8 @@ import org.ops4j.pax.construct.util.PomUtils.Pom;
  */
 public class OSGiWrapperArchetypeMojo extends AbstractPaxArchetypeMojo
 {
+    private static final String OSGI_WRAPPER_ARCHETYPE_ID = "maven-archetype-osgi-wrapper";
+
     /**
      * Support POM versioning by using an additional version field
      */
@@ -268,8 +270,9 @@ public class OSGiWrapperArchetypeMojo extends AbstractPaxArchetypeMojo
 
         if( null == m_candidateIds )
         {
-            // only need to set these fields once
-            getArchetypeMojo().setField( "archetypeArtifactId", "maven-archetype-osgi-wrapper" );
+            setMainArchetype( OSGI_WRAPPER_ARCHETYPE_ID );
+
+            // only need to set this once: the same groupId is used for extra wrappers
             getArchetypeMojo().setField( "groupId", getInternalGroupId( bundleGroupId ) );
 
             // bootstrap with the initial wrapper artifact

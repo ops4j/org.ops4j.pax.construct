@@ -42,6 +42,8 @@ import org.ops4j.pax.construct.util.PomUtils.Pom;
  */
 public class OSGiProjectArchetypeMojo extends AbstractPaxArchetypeMojo
 {
+    private static final String OSGI_PROJECT_ARCHETYPE_ID = "maven-archetype-osgi-project";
+
     /**
      * The logical parent of the new project (use artifactId or groupId:artifactId). Default is no parent.
      * 
@@ -82,7 +84,7 @@ public class OSGiProjectArchetypeMojo extends AbstractPaxArchetypeMojo
      */
     protected void updateExtensionFields()
     {
-        getArchetypeMojo().setField( "archetypeArtifactId", "maven-archetype-osgi-project" );
+        setMainArchetype( OSGI_PROJECT_ARCHETYPE_ID );
 
         getArchetypeMojo().setField( "groupId", groupId );
         getArchetypeMojo().setField( "artifactId", artifactId );

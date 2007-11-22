@@ -20,11 +20,22 @@ import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
+import org.apache.maven.artifact.Artifact;
+import org.apache.maven.artifact.factory.ArtifactFactory;
+import org.apache.maven.artifact.metadata.ArtifactMetadataSource;
+import org.apache.maven.artifact.repository.ArtifactRepository;
+import org.apache.maven.artifact.repository.ArtifactRepositoryPolicy;
+import org.apache.maven.artifact.resolver.ArtifactResolver;
+import org.apache.maven.artifact.versioning.ArtifactVersion;
+import org.apache.maven.artifact.versioning.DefaultArtifactVersion;
+import org.apache.maven.artifact.versioning.InvalidVersionSpecificationException;
+import org.apache.maven.artifact.versioning.VersionRange;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.archetype.MavenArchetypeMojo;
 import org.apache.maven.project.MavenProject;
@@ -75,16 +86,48 @@ public abstract class AbstractPaxArchetypeMojo extends MavenArchetypeMojo
     public static final String OPS4J_SNAPSHOT_REPO_URL = "http://repository.ops4j.org/mvn-snapshots";
 
     /**
-     * The plugin version to use in the generated project, defaults to the executing version.
+     * Component factory for Maven artifacts
      * 
-     * @parameter expression="${pluginVersion}" default-value="${plugin.version}"
+     * @component
+     */
+    private ArtifactFactory m_factory;
+
+    /**
+     * Component for resolving Maven artifacts
+     * 
+     * @component
+     */
+    private ArtifactResolver m_resolver;
+
+    /**
+     * Component for resolving Maven metadata
+     * 
+     * @component
+     */
+    private ArtifactMetadataSource m_source;
+
+    /**
+     * The local Maven repository for the containing project.
+     * 
+     * @parameter expression="${localRepository}"
+     * @required
+     * @readonly
+     */
+    private ArtifactRepository m_localRepo;
+
+    /**
+     * The version of the currently executing plugin.
+     * 
+     * @parameter default-value="${plugin.version}"
+     * @required
+     * @readonly
      */
     private String pluginVersion;
 
     /**
-     * The archetype version to use, defaults to the version closest to the plugin version.
+     * The archetype version to use, defaults to a version compatible with the current plugin.
      * 
-     * @parameter expression="${archetypeVersion}" default-value="${plugin.version}"
+     * @parameter expression="${archetypeVersion}"
      */
     private String archetypeVersion;
 
@@ -283,23 +326,21 @@ public abstract class AbstractPaxArchetypeMojo extends MavenArchetypeMojo
          * common shared settings
          */
         m_archetypeMojo = new ReflectMojo( this, MavenArchetypeMojo.class );
-        m_archetypeMojo.setField( "archetypeGroupId", PAX_CONSTRUCT_GROUP_ID );
-        m_archetypeMojo.setField( "archetypeVersion", archetypeVersion );
         m_archetypeMojo.setField( "remoteRepositories", remoteArchetypeRepositories );
-
         m_project = (MavenProject) m_archetypeMojo.getField( "project" );
         targetDirectory = DirUtils.resolveFile( targetDirectory, true );
-
         m_archetypeMojo.setField( "basedir", targetDirectory.getPath() );
 
         /*
          * these must be set by the various archetype sub-classes
          */
-        // setField( "archetypeArtifactId", archetypeArtifactId );
-        // setField( "groupId", groupId );
-        // setField( "artifactId", artifactId );
-        // setField( "version", version );
-        // setField( "packageName", packageName );
+        // setMainArchetype( archetypeArtifactId );
+        //
+        // getArchetypeMojo().setField( "groupId", groupId );
+        // getArchetypeMojo().setField( "artifactId", artifactId );
+        // getArchetypeMojo().setField( "version", version );
+        //
+        // getArchetypeMojo().setField( "packageName", packageName );
     }
 
     /**
@@ -363,6 +404,82 @@ public abstract class AbstractPaxArchetypeMojo extends MavenArchetypeMojo
     protected boolean createMoreArtifacts()
     {
         return false;
+    }
+
+    /**
+     * @return acceptable version range of Pax-Construct archetypes
+     */
+    private VersionRange getArchetypeVersionRange()
+    {
+        ArtifactVersion version = new DefaultArtifactVersion( pluginVersion );
+
+        int major = version.getMajorVersion();
+        int minor = version.getMinorVersion();
+
+        try
+        {
+            // limit version range to the same major.minor release as the current plugin
+            String spec = "[" + major + '.' + minor + ',' + major + '.' + ( 1 + minor ) + ')';
+            return VersionRange.createFromVersionSpec( spec );
+        }
+        catch( InvalidVersionSpecificationException e )
+        {
+            return null;
+        }
+    }
+
+    /**
+     * Attempts to find the latest released (or snapshot) archetype that's compatible with this plugin
+     * 
+     * @param groupId archetype group id
+     * @param artifactId archetype artifact id
+     * @return compatible archetype version
+     */
+    private String getArchetypeVersion( String groupId, String artifactId )
+    {
+        // special case when plugin is a snapshot - use the local archetype snapshot, if available
+        Artifact artifact = m_factory.createBuildArtifact( groupId, artifactId, pluginVersion, "jar" );
+        if( artifact.isSnapshot() && PomUtils.getFile( artifact, m_resolver, m_localRepo ) )
+        {
+            return pluginVersion;
+        }
+
+        // only check for newly released archetypes once a day
+        ArtifactRepository ops4jRepo = createRepository( OPS4J_STANDARD_REPO_URL, OPS4J_STANDARD_REPO_ID );
+        ops4jRepo.getReleases().setUpdatePolicy( ArtifactRepositoryPolicy.UPDATE_POLICY_DAILY );
+        ops4jRepo.getSnapshots().setEnabled( false );
+
+        List remoteRepos = Collections.singletonList( ops4jRepo );
+
+        // limit archetypes to same major and minor version
+        VersionRange range = getArchetypeVersionRange();
+
+        try
+        {
+            getLog().info( "Selecting latest archetype release within version range " + range );
+            return PomUtils.getReleaseVersion( artifact, m_source, remoteRepos, m_localRepo, range );
+        }
+        catch( MojoExecutionException e )
+        {
+            return pluginVersion;
+        }
+    }
+
+    /**
+     * Fill in archetype details for the selected Pax-Construct archetype
+     * 
+     * @param archetypeArtifactId selected OSGi archetype
+     */
+    protected final void setMainArchetype( String archetypeArtifactId )
+    {
+        if( null == archetypeVersion || archetypeVersion.length() == 0 )
+        {
+            archetypeVersion = getArchetypeVersion( PAX_CONSTRUCT_GROUP_ID, archetypeArtifactId );
+        }
+
+        m_archetypeMojo.setField( "archetypeGroupId", PAX_CONSTRUCT_GROUP_ID );
+        m_archetypeMojo.setField( "archetypeArtifactId", archetypeArtifactId );
+        m_archetypeMojo.setField( "archetypeVersion", archetypeVersion );
     }
 
     /**
@@ -480,9 +597,9 @@ public abstract class AbstractPaxArchetypeMojo extends MavenArchetypeMojo
         {
             String[] fields = ( (String) i.next() ).split( ":" );
 
-            getArchetypeMojo().setField( "archetypeGroupId", fields[0] );
-            getArchetypeMojo().setField( "archetypeArtifactId", fields[1] );
-            getArchetypeMojo().setField( "archetypeVersion", fields[2] );
+            m_archetypeMojo.setField( "archetypeGroupId", fields[0] );
+            m_archetypeMojo.setField( "archetypeArtifactId", fields[1] );
+            m_archetypeMojo.setField( "archetypeVersion", fields[2] );
 
             super.execute();
         }
