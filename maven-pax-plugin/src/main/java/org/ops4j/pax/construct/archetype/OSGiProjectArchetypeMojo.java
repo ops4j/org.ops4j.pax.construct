@@ -135,7 +135,7 @@ public class OSGiProjectArchetypeMojo extends AbstractPaxArchetypeMojo
         throws MojoExecutionException
     {
         // always tie the pax-plugin to a specific version (helps with reproducible builds)
-        pom.updatePluginVersion( "org.ops4j", "maven-pax-plugin", getArchetypeVersion() );
+        pom.updatePluginVersion( "org.ops4j", "maven-pax-plugin", getPluginVersion() );
 
         // for latest bundle plugin
         Repository repository = new Repository();

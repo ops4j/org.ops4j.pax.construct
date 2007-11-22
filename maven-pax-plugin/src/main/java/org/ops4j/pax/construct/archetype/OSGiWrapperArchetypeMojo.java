@@ -392,7 +392,7 @@ public class OSGiWrapperArchetypeMojo extends AbstractPaxArchetypeMojo
     {
         if( null == pom.getParentId() )
         {
-            OSGiBundleArchetypeMojo.makeStandalone( pom, "wrappers", getArchetypeVersion() );
+            OSGiBundleArchetypeMojo.makeStandalone( pom, "wrappers", getPluginVersion() );
         }
 
         updatePomDependencies( pom );

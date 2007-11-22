@@ -152,12 +152,12 @@ public class OSGiBundleArchetypeMojo extends AbstractPaxArchetypeMojo
             if( null == springVersion )
             {
                 // OSGi service + activator example
-                scheduleArchetype( PAX_CONSTRUCT_GROUP_ID, "maven-archetype-osgi-service", getArchetypeVersion() );
+                scheduleArchetype( PAX_CONSTRUCT_GROUP_ID, "maven-archetype-osgi-service", null );
             }
             else
             {
                 // Spring Dynamic-Modules bean example
-                scheduleArchetype( PAX_CONSTRUCT_GROUP_ID, "maven-archetype-spring-bean", getArchetypeVersion() );
+                scheduleArchetype( PAX_CONSTRUCT_GROUP_ID, "maven-archetype-spring-bean", null );
             }
         }
 
@@ -219,7 +219,7 @@ public class OSGiBundleArchetypeMojo extends AbstractPaxArchetypeMojo
     {
         if( null == pom.getParentId() )
         {
-            OSGiBundleArchetypeMojo.makeStandalone( pom, "compiled", getArchetypeVersion() );
+            OSGiBundleArchetypeMojo.makeStandalone( pom, "compiled", getPluginVersion() );
         }
 
         markBogusFiles();
@@ -287,10 +287,10 @@ public class OSGiBundleArchetypeMojo extends AbstractPaxArchetypeMojo
      * 
      * @param pom Maven project model
      * @param bundleType name of folder with settings specific to this bundle type
-     * @param archetypeVersion version of the current Pax-Construct archetype
+     * @param pluginVersion selected version of the Pax-Construct plugin
      * @throws MojoExecutionException
      */
-    protected static void makeStandalone( Pom pom, String bundleType, String archetypeVersion )
+    protected static void makeStandalone( Pom pom, String bundleType, String pluginVersion )
         throws MojoExecutionException
     {
         File baseDir = pom.getBasedir();
@@ -315,7 +315,7 @@ public class OSGiBundleArchetypeMojo extends AbstractPaxArchetypeMojo
         pom.mergeSection( customSettings, "build/plugins", "build", false );
 
         // always tie the pax-plugin to a specific version (helps with reproducible builds)
-        pom.updatePluginVersion( "org.ops4j", "maven-pax-plugin", archetypeVersion );
+        pom.updatePluginVersion( "org.ops4j", "maven-pax-plugin", pluginVersion );
 
         // access to various OPS4J plugins/artifacts
         Repository repository = new Repository();
