@@ -3,12 +3,13 @@
   <parent>
     <groupId>org.ops4j.pax</groupId>
     <artifactId>construct</artifactId>
-    <version>0.6.2-SNAPSHOT</version>
+    <version>0.6.1</version>
   </parent>
 
   <modelVersion>4.0.0</modelVersion>
   <groupId>org.ops4j.pax.construct</groupId>
   <artifactId>archetypes</artifactId>
+  <version>0.6.2-SNAPSHOT</version>
 
   <name>OPS4J - Archetypes for OSGi projects</name>
 
@@ -21,5 +22,21 @@
     <module>maven-archetype-osgi-service</module>
     <module>maven-archetype-spring-bean</module>
   </modules>
+
+  <scm>
+    <connection>scm:svn:https://scm.ops4j.org/repos/ops4j/projects/pax/construct/archetypes</connection>
+    <developerConnection>scm:svn:https://scm.ops4j.org/repos/ops4j/projects/pax/construct/archetypes</developerConnection>
+  </scm>
+
+  <repositories>
+    <repository>
+      <id>ops4j-repository</id>
+      <name>The OPS4J Standard Repository</name>
+      <url>http://repository.ops4j.org/maven2</url>
+      <snapshots>
+        <enabled>false</enabled>
+      </snapshots>
+    </repository>
+  </repositories>
 
 </project>
