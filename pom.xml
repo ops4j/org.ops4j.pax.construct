@@ -46,34 +46,31 @@ limitations under the License.
 
   <packaging>pom</packaging>
 
-  <modules>
-    <module>maven-inherit-plugin</module>
-    <module>maven-pax-plugin</module>
-  </modules>
-
   <profiles>
     <profile>
-      <id>build-archetypes</id>
+      <id>build</id>
       <activation>
-        <property>
-          <name>maven.site</name>
-          <value>!true</value>
-        </property>
+        <activeByDefault>true</activeByDefault>
       </activation>
       <modules>
-        <module>archetypes</module>
+        <module>maven-pax-plugin</module>
         <module>scripts</module>
       </modules>
     </profile>
     <profile>
-      <id>integration-tests</id>
-      <activation>
-        <property>
-          <name>maven.test.skip</name>
-          <value>!true</value>
-        </property>
-      </activation>
+      <id>site</id>
       <modules>
+        <module>maven-inherit-plugin</module>
+        <module>maven-pax-plugin</module>
+      </modules>
+    </profile>
+    <profile>
+      <id>dist</id>
+      <modules>
+        <module>maven-inherit-plugin</module>
+        <module>maven-pax-plugin</module>
+        <module>archetypes</module>
+        <module>scripts</module>
         <module>tests</module>
       </modules>
     </profile>
@@ -128,14 +125,6 @@ limitations under the License.
       <snapshots>
         <enabled>false</enabled>
       </snapshots>
-    </repository>
-    <repository>
-      <id>ops4j-snapshots</id>
-      <name>The OPS4J Snapshot Repository</name>
-      <url>http://repository.ops4j.org/mvn-snapshots</url>
-      <releases>
-        <enabled>false</enabled>
-      </releases>
     </repository>
   </repositories>
 
