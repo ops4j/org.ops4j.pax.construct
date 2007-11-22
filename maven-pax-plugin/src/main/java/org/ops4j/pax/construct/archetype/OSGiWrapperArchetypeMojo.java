@@ -23,10 +23,6 @@ import java.util.List;
 import java.util.Set;
 
 import org.apache.maven.artifact.Artifact;
-import org.apache.maven.artifact.factory.ArtifactFactory;
-import org.apache.maven.artifact.metadata.ArtifactMetadataSource;
-import org.apache.maven.artifact.repository.ArtifactRepository;
-import org.apache.maven.artifact.resolver.ArtifactResolver;
 import org.apache.maven.model.Dependency;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.project.MavenProject;
@@ -65,27 +61,6 @@ public class OSGiWrapperArchetypeMojo extends AbstractPaxArchetypeMojo
     private static final String INITIAL_POM_VERSION = "001-SNAPSHOT";
 
     /**
-     * Component factory for Maven artifacts
-     * 
-     * @component
-     */
-    private ArtifactFactory m_factory;
-
-    /**
-     * Component for resolving Maven artifacts
-     * 
-     * @component
-     */
-    private ArtifactResolver m_resolver;
-
-    /**
-     * Component for resolving Maven metadata
-     * 
-     * @component
-     */
-    private ArtifactMetadataSource m_source;
-
-    /**
      * Component factory for Maven projects
      * 
      * @component
@@ -100,15 +75,6 @@ public class OSGiWrapperArchetypeMojo extends AbstractPaxArchetypeMojo
      * @readonly
      */
     private List m_remoteRepos;
-
-    /**
-     * The local Maven repository for the containing project.
-     * 
-     * @parameter expression="${localRepository}"
-     * @required
-     * @readonly
-     */
-    private ArtifactRepository m_localRepo;
 
     /**
      * The logical parent of the new project (use artifactId or groupId:artifactId).

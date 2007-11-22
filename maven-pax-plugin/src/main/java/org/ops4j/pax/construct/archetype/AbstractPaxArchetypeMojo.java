@@ -90,21 +90,21 @@ public abstract class AbstractPaxArchetypeMojo extends MavenArchetypeMojo
      * 
      * @component
      */
-    private ArtifactFactory m_factory;
+    protected ArtifactFactory m_factory;
 
     /**
      * Component for resolving Maven artifacts
      * 
      * @component
      */
-    private ArtifactResolver m_resolver;
+    protected ArtifactResolver m_resolver;
 
     /**
      * Component for resolving Maven metadata
      * 
      * @component
      */
-    private ArtifactMetadataSource m_source;
+    protected ArtifactMetadataSource m_source;
 
     /**
      * The local Maven repository for the containing project.
@@ -113,7 +113,7 @@ public abstract class AbstractPaxArchetypeMojo extends MavenArchetypeMojo
      * @required
      * @readonly
      */
-    private ArtifactRepository m_localRepo;
+    protected ArtifactRepository m_localRepo;
 
     /**
      * The version of the currently executing plugin.
