@@ -174,4 +174,15 @@
     </plugins>
   </build>
 
+  <pluginRepositories>
+    <pluginRepository>
+      <id>ops4j-repository</id>
+      <name>The OPS4J Standard Repository</name>
+      <url>http://repository.ops4j.org/maven2</url>
+      <snapshots>
+        <enabled>false</enabled>
+      </snapshots>
+    </pluginRepository>
+  </pluginRepositories>
+
 </project>
