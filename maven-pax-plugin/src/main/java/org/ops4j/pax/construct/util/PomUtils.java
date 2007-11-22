@@ -18,6 +18,7 @@ package org.ops4j.pax.construct.util;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Properties;
@@ -30,8 +31,7 @@ import org.apache.maven.artifact.ArtifactUtils;
 import org.apache.maven.artifact.metadata.ArtifactMetadataRetrievalException;
 import org.apache.maven.artifact.metadata.ArtifactMetadataSource;
 import org.apache.maven.artifact.repository.ArtifactRepository;
-import org.apache.maven.artifact.resolver.ArtifactNotFoundException;
-import org.apache.maven.artifact.resolver.ArtifactResolutionException;
+import org.apache.maven.artifact.resolver.AbstractArtifactResolutionException;
 import org.apache.maven.artifact.resolver.ArtifactResolver;
 import org.apache.maven.artifact.versioning.ArtifactVersion;
 import org.apache.maven.artifact.versioning.DefaultArtifactVersion;
@@ -411,6 +411,19 @@ public final class PomUtils
     }
 
     /**
+     * Look for the artifact in local Maven repository
+     * 
+     * @param artifact Maven artifact
+     * @param resolver artifact resolver
+     * @param localRepo local Maven repository
+     * @return true if the artifact is available, otherwise false
+     */
+    public static boolean getFile( Artifact artifact, ArtifactResolver resolver, ArtifactRepository localRepo )
+    {
+        return downloadFile( artifact, resolver, Collections.EMPTY_LIST, localRepo );
+    }
+
+    /**
      * Look for the artifact in local and remote Maven repositories
      * 
      * @param artifact Maven artifact
@@ -428,11 +441,7 @@ public final class PomUtils
             {
                 resolver.resolve( artifact, remoteRepos, localRepo );
             }
-            catch( ArtifactResolutionException e )
-            {
-                return false;
-            }
-            catch( ArtifactNotFoundException e )
+            catch( AbstractArtifactResolutionException e )
             {
                 return false;
             }

@@ -648,7 +648,7 @@ public class EclipseOSGiMojo extends EclipsePlugin
         else
         {
             // check to see if we already have the source downloaded...
-            PomUtils.downloadFile( sourceArtifact, artifactResolver, Collections.EMPTY_LIST, localRepository );
+            PomUtils.getFile( sourceArtifact, artifactResolver, localRepository );
         }
 
         // set PDE classpath to point to unpacked bundle
