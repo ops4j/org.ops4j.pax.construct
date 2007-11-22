@@ -133,7 +133,7 @@ public class UpdateMojo extends AbstractMojo
         Artifact scripts = m_factory.createBuildArtifact( groupId, "scripts", version, "zip" );
         if( PomUtils.needReleaseVersion( version ) )
         {
-            version = PomUtils.getReleaseVersion( scripts, m_source, m_remoteRepos, m_localRepo );
+            version = PomUtils.getReleaseVersion( scripts, m_source, m_remoteRepos, m_localRepo, null );
             scripts.selectVersion( version );
         }
 

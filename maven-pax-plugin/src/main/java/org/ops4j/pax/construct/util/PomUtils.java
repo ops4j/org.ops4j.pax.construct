@@ -36,6 +36,7 @@ import org.apache.maven.artifact.resolver.ArtifactResolver;
 import org.apache.maven.artifact.versioning.ArtifactVersion;
 import org.apache.maven.artifact.versioning.DefaultArtifactVersion;
 import org.apache.maven.artifact.versioning.OverConstrainedVersionException;
+import org.apache.maven.artifact.versioning.VersionRange;
 import org.apache.maven.model.Dependency;
 import org.apache.maven.model.Repository;
 import org.apache.maven.plugin.MojoExecutionException;
@@ -526,11 +527,12 @@ public final class PomUtils
      * @param source metadata source
      * @param remoteRepos sequence of remote repositories
      * @param localRepo local Maven repository
+     * @param range acceptable versions
      * @return the release version if available, otherwise throws {@link MojoExecutionException}
      * @throws MojoExecutionException
      */
     public static String getReleaseVersion( Artifact artifact, ArtifactMetadataSource source, List remoteRepos,
-        ArtifactRepository localRepo )
+        ArtifactRepository localRepo, VersionRange range )
         throws MojoExecutionException
     {
         try
@@ -541,7 +543,11 @@ public final class PomUtils
             for( Iterator i = versions.iterator(); i.hasNext(); )
             {
                 ArtifactVersion v = (ArtifactVersion) i.next();
-                if( releaseVersion.compareTo( v ) <= 0 && !ArtifactUtils.isSnapshot( v.toString() ) )
+                if( range != null && !range.containsVersion( v ) )
+                {
+                    continue; // ignore this version
+                }
+                else if( releaseVersion.compareTo( v ) <= 0 && !ArtifactUtils.isSnapshot( v.toString() ) )
                 {
                     releaseVersion = v;
                 }

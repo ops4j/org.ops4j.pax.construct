@@ -380,7 +380,7 @@ public class OSGiWrapperArchetypeMojo extends AbstractPaxArchetypeMojo
         if( PomUtils.needReleaseVersion( version ) )
         {
             Artifact artifact = m_factory.createBuildArtifact( groupId, artifactId, "RELEASE", "jar" );
-            version = PomUtils.getReleaseVersion( artifact, m_source, m_remoteRepos, m_localRepo );
+            version = PomUtils.getReleaseVersion( artifact, m_source, m_remoteRepos, m_localRepo, null );
         }
     }
 

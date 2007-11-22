@@ -328,7 +328,7 @@ public class ProvisionMojo extends AbstractMojo
         {
             // find the latest release of Pax-Runner by querying the local and remote repos...
             Artifact runnerProject = m_factory.createProjectArtifact( PAX_RUNNER_GROUP, PAX_RUNNER_ARTIFACT, runner );
-            runner = PomUtils.getReleaseVersion( runnerProject, m_source, m_remoteRepos, m_localRepo );
+            runner = PomUtils.getReleaseVersion( runnerProject, m_source, m_remoteRepos, m_localRepo, null );
         }
 
         /*
