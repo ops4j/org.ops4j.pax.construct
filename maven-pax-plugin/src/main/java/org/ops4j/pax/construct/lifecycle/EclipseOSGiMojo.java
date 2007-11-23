@@ -45,7 +45,6 @@ import org.apache.maven.project.MavenProjectBuilder;
 import org.apache.maven.project.ProjectBuildingException;
 import org.apache.maven.project.artifact.InvalidDependencyVersionException;
 import org.apache.maven.shared.osgi.Maven2OsgiConverter;
-import org.codehaus.plexus.archiver.manager.ArchiverManager;
 import org.codehaus.plexus.util.FileUtils;
 import org.codehaus.plexus.util.IOUtil;
 import org.codehaus.plexus.util.xml.PrettyPrintXMLWriter;
@@ -69,13 +68,6 @@ import org.ops4j.pax.construct.util.StreamFactory;
  */
 public class EclipseOSGiMojo extends EclipsePlugin
 {
-    /**
-     * Component factory for archivers and unarchivers
-     * 
-     * @component
-     */
-    private ArchiverManager m_archiverManager;
-
     /**
      * Component factory for Maven projects
      * 
@@ -333,7 +325,7 @@ public class EclipseOSGiMojo extends EclipsePlugin
         }
         else
         {
-            DirUtils.unpackBundle( m_archiverManager, bundleFile, unpackDir );
+            DirUtils.unpackBundle( bundleFile, unpackDir );
 
             copyMetadata( unpackDir, "META-INF", baseDir );
             copyMetadata( unpackDir, "OSGI-INF", baseDir );
@@ -563,7 +555,7 @@ public class EclipseOSGiMojo extends EclipsePlugin
                     continue;
                 }
 
-                DirUtils.unpackBundle( m_archiverManager, artifact.getFile(), executedProject.getBasedir() );
+                DirUtils.unpackBundle( artifact.getFile(), executedProject.getBasedir() );
 
                 try
                 {

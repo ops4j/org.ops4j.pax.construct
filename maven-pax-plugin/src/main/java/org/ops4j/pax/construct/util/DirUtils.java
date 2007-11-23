@@ -17,20 +17,24 @@ package org.ops4j.pax.construct.util;
  */
 
 import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.Enumeration;
 import java.util.Iterator;
 import java.util.List;
 import java.util.jar.Attributes;
 import java.util.jar.JarFile;
 import java.util.jar.Manifest;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipFile;
 
-import org.codehaus.plexus.archiver.ArchiverException;
-import org.codehaus.plexus.archiver.UnArchiver;
-import org.codehaus.plexus.archiver.manager.ArchiverManager;
-import org.codehaus.plexus.archiver.manager.NoSuchArchiverException;
+import org.codehaus.plexus.util.FileUtils;
+import org.codehaus.plexus.util.IOUtil;
 import org.ops4j.pax.construct.util.PomUtils.Pom;
 
 /**
@@ -353,11 +357,10 @@ public final class DirUtils
      * 
      * @param outputDir current output directory
      * @param path list of classpath elements
-     * @param archiverManager creates unarchiver objects
      * @param tempDir temporary directory for unpacking
      * @return expanded classpath
      */
-    public static List expandOSGiClassPath( File outputDir, List path, ArchiverManager archiverManager, File tempDir )
+    public static List expandOSGiClassPath( File outputDir, List path, File tempDir )
     {
         List expandedPath = new ArrayList();
 
@@ -371,7 +374,7 @@ public final class DirUtils
             }
             else
             {
-                expandedPath.addAll( expandBundleClassPath( element, archiverManager, tempDir ) );
+                expandedPath.addAll( expandBundleClassPath( element, tempDir ) );
             }
         }
 
@@ -382,33 +385,18 @@ public final class DirUtils
      * Expand compilatation classpath element to include extra entries for compiling against OSGi bundles
      * 
      * @param element compilatation classpath element
-     * @param archiverManager creates unarchiver objects
      * @param tempDir temporary directory for unpacking
      * @return expanded classpath elements
      */
-    private static List expandBundleClassPath( File element, ArchiverManager archiverManager, File tempDir )
+    private static List expandBundleClassPath( File element, File tempDir )
     {
         File bundle = locateBundle( element );
-
-        if( bundle != null && bundle.getName().endsWith( ".jar" ) )
+        if( bundle != null && bundle.isFile() )
         {
             String bundleClassPath = extractBundleClassPath( bundle );
-            if( !".".equals( bundleClassPath ) )
-            {
-                File here = new File( tempDir, bundle.getName() );
+            File unpackDir = new File( tempDir, bundle.getName() );
 
-                if( unpackBundle( archiverManager, bundle, here ) )
-                {
-                    // refactor bundle classpath to point to the recently unpacked contents and append it
-                    String rebasedClassPath = DirUtils.rebasePaths( bundleClassPath, here.getPath(), ',' );
-                    return Arrays.asList( rebasedClassPath.split( "," ) );
-                }
-            }
-            else
-            {
-                // no need to unpack, but should use packaged bundle
-                return Collections.singletonList( bundle.getPath() );
-            }
+            return unpackEmbeddedEntries( bundle, unpackDir, bundleClassPath );
         }
 
         return Collections.singletonList( element.getPath() );
@@ -422,23 +410,22 @@ public final class DirUtils
      */
     private static File locateBundle( File classpathElement )
     {
-        // for now just assume the output directory is target/classes
+        // assume standard output directory, ie. target/classes
         String outputDir = "target" + File.separator + "classes";
         String path = classpathElement.getPath();
 
         if( path.endsWith( outputDir ) )
         {
             // we need the final bundle, not the output directory, so load up the project POM
-            File projectDir = classpathElement.getParentFile().getParentFile();
+            File projectDir = new File( path.substring( 0, path.length() - outputDir.length() ) );
 
             try
             {
                 Pom reactorPom = PomUtils.readPom( projectDir );
-                if( reactorPom.isBundleProject() )
-                {
-                    // assumes standard artifact name
-                    return reactorPom.getFinalBundle();
-                }
+                String artifactId = reactorPom.getArtifactId();
+                String version = reactorPom.getVersion();
+
+                return new File( projectDir, "target/" + artifactId + '-' + version + ".jar" );
             }
             catch( IOException e )
             {
@@ -483,36 +470,125 @@ public final class DirUtils
     }
 
     /**
-     * @param archiverManager creates unarchiver objects
      * @param bundle jarfile
      * @param here unpack directory
      * @return true if bundle was successfully unpacked
      */
-    public static boolean unpackBundle( ArchiverManager archiverManager, File bundle, File here )
+    public static boolean unpackBundle( File bundle, File here )
     {
         try
         {
-            UnArchiver unArchiver = archiverManager.getUnArchiver( bundle );
-
-            here.mkdirs();
-            unArchiver.setDestDirectory( here );
-            unArchiver.setSourceFile( bundle );
-            unArchiver.extract();
+            // improves unpacking performance
+            FileUtils.deleteDirectory( here );
+            unpackZip( bundle, here, null );
 
             return true;
-        }
-        catch( NoSuchArchiverException e )
-        {
-            return false;
-        }
-        catch( ArchiverException e )
-        {
-            return false;
         }
         catch( IOException e )
         {
             return false;
         }
+    }
+
+    /**
+     * Simple Zip unpacking code, supports selected extraction of entries
+     * 
+     * @param bundle zipfile
+     * @param here unpack directory
+     * @param prefix unpack entries that start with the prefix
+     * @throws IOException
+     */
+    private static void unpackZip( File bundle, File here, String prefix )
+        throws IOException
+    {
+        ZipFile zipFile = new ZipFile( bundle );
+
+        try
+        {
+            for( Enumeration e = zipFile.entries(); e.hasMoreElements(); )
+            {
+                ZipEntry entry = (ZipEntry) e.nextElement();
+                String name = entry.getName();
+
+                // don't bother with plain folders, as we always create them on-demand
+                if( !entry.isDirectory() && ( prefix == null || name.startsWith( prefix ) ) )
+                {
+                    // place unpacked file underneath target folder
+                    File file = FileUtils.resolveFile( here, name );
+                    file.getParentFile().mkdirs();
+
+                    InputStream in = zipFile.getInputStream( entry );
+                    OutputStream out = new FileOutputStream( file );
+
+                    try
+                    {
+                        // unpack contents
+                        IOUtil.copy( in, out );
+                    }
+                    finally
+                    {
+                        IOUtil.close( out );
+                        IOUtil.close( in );
+                    }
+                }
+            }
+        }
+        finally
+        {
+            zipFile.close();
+        }
+    }
+
+    /**
+     * @param bundle jarfile
+     * @param here unpack directory
+     * @param bundleClassPath Bundle-ClassPath attribute
+     * @return list of paths pointing to unpacked entries
+     */
+    private static List unpackEmbeddedEntries( File bundle, File here, String bundleClassPath )
+    {
+        try
+        {
+            // improves unpacking performance
+            FileUtils.deleteDirectory( here );
+        }
+        catch( IOException e )
+        {
+            return Collections.singletonList( bundle.getPath() );
+        }
+
+        List pathList = new ArrayList();
+        String pathPrefix = here.getPath();
+
+        String[] entries = bundleClassPath.split( "," );
+        for( int i = 0; i < entries.length; i++ )
+        {
+            String path = entries[i].trim();
+            if( path.length() == 0 )
+            {
+                continue;
+            }
+            else if( ".".equals( path ) )
+            {
+                // no need to unpack, just use jar
+                pathList.add( bundle.getPath() );
+            }
+            else
+            {
+                try
+                {
+                    // unpack embedded folder/jar
+                    unpackZip( bundle, here, path );
+                    pathList.add( pathPrefix + '/' + path );
+                }
+                catch( IOException e )
+                {
+                    continue;
+                }
+            }
+        }
+
+        return pathList;
     }
 
     /**

@@ -126,11 +126,6 @@ public final class PomUtils
         String getBundleSymbolicName();
 
         /**
-         * @return the final bundle produced by this Maven project, null if not yet built
-         */
-        File getFinalBundle();
-
-        /**
          * @param pom the new logical parent project
          * @param relativePath the relative path from this POM to its new parent
          * @param overwrite overwrite element if true, otherwise throw {@link ExistingElementException}

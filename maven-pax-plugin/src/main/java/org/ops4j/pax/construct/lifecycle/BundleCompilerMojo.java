@@ -24,7 +24,6 @@ import org.apache.maven.plugin.CompilationFailureException;
 import org.apache.maven.plugin.CompilerMojo;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.project.MavenProject;
-import org.codehaus.plexus.archiver.manager.ArchiverManager;
 import org.codehaus.plexus.util.xml.Xpp3Dom;
 import org.ops4j.pax.construct.util.DirUtils;
 import org.ops4j.pax.construct.util.ReflectMojo;
@@ -49,13 +48,6 @@ public class BundleCompilerMojo extends CompilerMojo
     private MavenProject m_project;
 
     /**
-     * Component factory for archivers and unarchivers
-     * 
-     * @component
-     */
-    private ArchiverManager m_archiverManager;
-
-    /**
      * {@inheritDoc}
      */
     protected List getClasspathElements()
@@ -64,7 +56,7 @@ public class BundleCompilerMojo extends CompilerMojo
         List classpath = super.getClasspathElements();
         File tempDir = new File( outputDir.getParent(), "dependencies" );
 
-        return DirUtils.expandOSGiClassPath( outputDir, classpath, m_archiverManager, tempDir );
+        return DirUtils.expandOSGiClassPath( outputDir, classpath, tempDir );
     }
 
     /**

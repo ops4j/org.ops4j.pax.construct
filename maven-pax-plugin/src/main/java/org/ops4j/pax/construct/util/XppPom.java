@@ -298,25 +298,6 @@ public class XppPom
     /**
      * {@inheritDoc}
      */
-    public File getFinalBundle()
-    {
-        // assume standard output location for now - finding real output folder and final name is non-trivial
-        File bundle = new File( getBasedir(), "target/" + getArtifactId() + '-' + getVersion() + ".jar" );
-
-        // has it been built?
-        if( bundle.exists() )
-        {
-            return bundle;
-        }
-        else
-        {
-            return null;
-        }
-    }
-
-    /**
-     * {@inheritDoc}
-     */
     public void setParent( Pom pom, String relativePath, boolean overwrite )
         throws ExistingElementException
     {
