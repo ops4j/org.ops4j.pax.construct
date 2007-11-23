@@ -54,7 +54,7 @@ public class BundleCompilerMojo extends CompilerMojo
     {
         File outputDir = getOutputDirectory();
         List classpath = super.getClasspathElements();
-        File tempDir = new File( outputDir.getParent(), "dependencies" );
+        File tempDir = new File( outputDir.getParent(), "pax-compiler" );
 
         return DirUtils.expandOSGiClassPath( outputDir, classpath, tempDir );
     }
