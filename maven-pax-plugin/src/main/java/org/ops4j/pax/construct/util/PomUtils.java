@@ -282,7 +282,7 @@ public final class PomUtils
          */
         public String toString()
         {
-            return "[INFO] hidden";
+            return "[INFO] not available";
         }
     }
 

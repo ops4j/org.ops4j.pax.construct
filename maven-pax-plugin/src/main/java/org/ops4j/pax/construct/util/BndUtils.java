@@ -115,7 +115,7 @@ public final class BndUtils
          */
         public String toString()
         {
-            return "[INFO] hidden";
+            return "[INFO] not available";
         }
     }
 
