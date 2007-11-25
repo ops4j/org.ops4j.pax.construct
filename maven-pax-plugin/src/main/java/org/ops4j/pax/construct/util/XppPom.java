@@ -187,7 +187,12 @@ public class XppPom
      */
     public String getPackaging()
     {
-        return m_pom.getChild( "packaging" ).getValue();
+        Xpp3Dom packaging = m_pom.getChild( "packaging" );
+        if( null == packaging )
+        {
+            return "jar";
+        }
+        return packaging.getValue();
     }
 
     /**
