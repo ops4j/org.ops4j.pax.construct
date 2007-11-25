@@ -220,6 +220,12 @@ public class ImportBundleMojo extends AbstractMojo
         m_provisionPom = DirUtils.findPom( targetDirectory, provisionId );
         m_localBundlePom = readBundlePom( targetDirectory );
 
+        if( null == m_provisionPom && null == m_localBundlePom )
+        {
+            throw new MojoExecutionException( "Cannot execute command."
+                + " It requires a project with an existing pom.xml, but the build is not using one." );
+        }
+
         String rootId = groupId + ':' + artifactId + ':' + version;
 
         m_candidateIds = new ArrayList();

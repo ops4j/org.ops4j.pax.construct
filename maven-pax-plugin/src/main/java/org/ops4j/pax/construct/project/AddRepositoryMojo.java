@@ -104,7 +104,8 @@ public class AddRepositoryMojo extends AbstractMojo
         }
         catch( IOException e )
         {
-            throw new MojoExecutionException( "Problem reading Maven POM: " + targetDirectory );
+            throw new MojoExecutionException( "Cannot execute command."
+                + " It requires a project with an existing pom.xml, but the build is not using one." );
         }
 
         Repository repository = new Repository();
