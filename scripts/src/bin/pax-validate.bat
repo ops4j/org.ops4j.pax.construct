@@ -4,7 +4,11 @@ set _SCRIPTS_=%~dp0
 
 if ""=="%PAX_CONSTRUCT_VERSION%" set PAX_CONSTRUCT_VERSION=${project.version}
 
-call mvn -o -npu -N -f "%_SCRIPTS_%\pax-bootstrap-pom.xml" -DPAX_CONSTRUCT_VERSION=%PAX_CONSTRUCT_VERSION% validate | find "ERROR" >NUL
+set _FIND_="find.exe"
+if exist "%SystemRoot%\system32\find.exe" set _FIND_="%SystemRoot%\system32\find.exe"
+if exist "%SystemRoot%\command\find.exe" set _FIND_="%SystemRoot%\command\find.exe"
+
+call mvn -o -npu -N -f "%_SCRIPTS_%\pax-bootstrap-pom.xml" -DPAX_CONSTRUCT_VERSION=%PAX_CONSTRUCT_VERSION% validate | _FIND_ "ERROR" >NUL
 goto answer%ERRORLEVEL%
 
 :answer1
