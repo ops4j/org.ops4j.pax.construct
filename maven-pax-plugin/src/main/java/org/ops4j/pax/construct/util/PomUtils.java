@@ -552,21 +552,8 @@ public final class PomUtils
         try
         {
             List versions = source.retrieveAvailableVersions( artifact, localRepo, remoteRepos );
-            final ArtifactVersion baselineVersion = new DefaultArtifactVersion( "0" );
-            ArtifactVersion releaseVersion = baselineVersion;
-            for( Iterator i = versions.iterator(); i.hasNext(); )
-            {
-                ArtifactVersion v = (ArtifactVersion) i.next();
-                if( range != null && !range.containsVersion( v ) )
-                {
-                    continue; // ignore this version
-                }
-                else if( releaseVersion.compareTo( v ) <= 0 && !ArtifactUtils.isSnapshot( v.toString() ) )
-                {
-                    releaseVersion = v;
-                }
-            }
-            if( baselineVersion == releaseVersion )
+            ArtifactVersion releaseVersion = getLatestReleaseInRange( versions, range );
+            if( null == releaseVersion )
             {
                 throw new MojoExecutionException( "Unable to find release version for " + artifact );
             }
@@ -576,5 +563,35 @@ public final class PomUtils
         {
             throw new MojoExecutionException( "Unable to find artifact " + artifact );
         }
+    }
+
+    /**
+     * @param versions list of available versions
+     * @param range acceptable range of versions
+     * @return latest acceptable release, otherwise null
+     */
+    private static ArtifactVersion getLatestReleaseInRange( List versions, VersionRange range )
+    {
+        final ArtifactVersion baseline = new DefaultArtifactVersion( "0" );
+
+        ArtifactVersion releaseVersion = baseline;
+        for( Iterator i = versions.iterator(); i.hasNext(); )
+        {
+            ArtifactVersion v = (ArtifactVersion) i.next();
+            if( range != null && !range.containsVersion( v ) )
+            {
+                continue; // ignore this version
+            }
+            else if( releaseVersion.compareTo( v ) <= 0 && !ArtifactUtils.isSnapshot( v.toString() ) )
+            {
+                releaseVersion = v;
+            }
+        }
+
+        if( baseline == releaseVersion )
+        {
+            return null;
+        }
+        return releaseVersion;
     }
 }

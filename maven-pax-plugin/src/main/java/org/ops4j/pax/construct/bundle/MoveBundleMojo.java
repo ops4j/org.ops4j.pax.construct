@@ -188,6 +188,17 @@ public class MoveBundleMojo extends AbstractMojo
             }
         }
 
+        updateParentDetails( bundlePom, newBundleDir );
+
+        return newModulesPom;
+    }
+
+    /**
+     * @param bundlePom current Maven POM for the bundle
+     * @param newBundleDir new location for the bundle
+     */
+    private void updateParentDetails( Pom bundlePom, File newBundleDir )
+    {
         String parentId = bundlePom.getParentId();
         if( null != parentId )
         {
@@ -201,8 +212,6 @@ public class MoveBundleMojo extends AbstractMojo
                 getLog().warn( "Unable to update logical parent " + parentId );
             }
         }
-
-        return newModulesPom;
     }
 
     /**

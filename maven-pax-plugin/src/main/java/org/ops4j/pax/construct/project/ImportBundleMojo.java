@@ -234,7 +234,20 @@ public class ImportBundleMojo extends AbstractMojo
         // kickstart the import
         excludeCandidates( exclusions );
         scheduleCandidate( rootId );
+        importBundles( rootId );
 
+        // save any dependency updates
+        writeUpdatedPom( m_localBundlePom );
+        writeUpdatedPom( m_provisionPom );
+    }
+
+    /**
+     * @param rootId initial import
+     * @throws MojoExecutionException
+     */
+    private void importBundles( String rootId )
+        throws MojoExecutionException
+    {
         while( !m_candidateIds.isEmpty() )
         {
             String id = (String) m_candidateIds.remove( 0 );
@@ -269,10 +282,6 @@ public class ImportBundleMojo extends AbstractMojo
                 getLog().info( "Ignoring non-bundle dependency " + p.getId() );
             }
         }
-
-        // save any dependency updates
-        writeUpdatedPom( m_localBundlePom );
-        writeUpdatedPom( m_provisionPom );
     }
 
     /**
