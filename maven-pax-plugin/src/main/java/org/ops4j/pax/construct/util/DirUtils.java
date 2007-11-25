@@ -189,7 +189,7 @@ public final class DirUtils
             {
                 // no such pom, need to create new module pom
                 String module = descentPath.substring( i, j );
-                childPom = createMissingPom( parentPom, module, pomFile );
+                childPom = createMissingModulePom( parentPom, module, pomFile );
             }
             else
             {
@@ -217,7 +217,7 @@ public final class DirUtils
      * @return the new Maven POM
      * @throws IOException
      */
-    private static Pom createMissingPom( Pom parentPom, String module, File pomFile )
+    private static Pom createMissingModulePom( Pom parentPom, String module, File pomFile )
         throws IOException
     {
         // link parent to new module pom
@@ -231,7 +231,7 @@ public final class DirUtils
         }
 
         // create missing module pom and link back to parent
-        Pom childPom = PomUtils.createPom( pomFile, groupId, module );
+        Pom childPom = PomUtils.createModulePom( pomFile, groupId, module );
         childPom.setParent( parentPom, null, true );
         childPom.write();
 

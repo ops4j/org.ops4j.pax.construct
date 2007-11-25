@@ -56,6 +56,8 @@ public class XppPom
     private Xpp3Dom m_pom;
 
     /**
+     * Read Maven project details from existing file
+     * 
      * @param pomFile XML file containing Maven project model
      * @throws IOException
      */
@@ -82,6 +84,8 @@ public class XppPom
     }
 
     /**
+     * Create blank Maven project module
+     * 
      * @param pomFile XML file, may or may not exist
      * @param groupId project group id
      * @param artifactId project artifact id

@@ -319,7 +319,7 @@ public final class PomUtils
      * @return simple Maven project editor
      * @throws IOException
      */
-    public static Pom createPom( File here, String groupId, String artifactId )
+    public static Pom createModulePom( File here, String groupId, String artifactId )
         throws IOException
     {
         File candidate = here;
