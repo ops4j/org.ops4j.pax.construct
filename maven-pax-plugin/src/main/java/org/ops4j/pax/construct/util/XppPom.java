@@ -63,7 +63,7 @@ public class XppPom
         throws IOException
     {
         // protect against changes in working directory
-        m_file = pomFile.getAbsoluteFile();
+        m_file = DirUtils.resolveFile( pomFile, true );
 
         try
         {
@@ -89,7 +89,7 @@ public class XppPom
     public XppPom( File pomFile, String groupId, String artifactId )
     {
         // protect against changes in working directory
-        m_file = pomFile.getAbsoluteFile();
+        m_file = DirUtils.resolveFile( pomFile, true );
 
         m_pom = new Xpp3Dom( "project" );
 

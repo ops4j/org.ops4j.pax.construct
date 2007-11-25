@@ -61,7 +61,7 @@ public class RoundTripBndFile
         throws IOException
     {
         // protect against changes in working directory
-        m_file = bndFile.getAbsoluteFile();
+        m_file = DirUtils.resolveFile( bndFile, true );
 
         m_oldInstructions = new Properties();
         m_newInstructions = new Properties();
