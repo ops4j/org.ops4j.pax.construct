@@ -345,8 +345,11 @@ public abstract class AbstractPaxArchetypeMojo extends MavenArchetypeMojo
 
     /**
      * Fill-in any missing Maven POMs between the current project directory and the target location
+     * 
+     * @throws MojoExecutionException
      */
     private void createModuleTree()
+        throws MojoExecutionException
     {
         if( attachPom )
         {
@@ -354,6 +357,10 @@ public abstract class AbstractPaxArchetypeMojo extends MavenArchetypeMojo
             {
                 // make sure we can reach the location of the new project from the current project
                 m_modulesPom = DirUtils.createModuleTree( m_project.getBasedir(), targetDirectory );
+                if( null != m_modulesPom && !"pom".equals( m_modulesPom.getPackaging() ) )
+                {
+                    throw new MojoExecutionException( "Containing project does not have packaging type 'pom'" );
+                }
             }
             catch( IOException e )
             {
