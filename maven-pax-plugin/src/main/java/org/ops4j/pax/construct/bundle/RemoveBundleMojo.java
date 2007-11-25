@@ -106,8 +106,11 @@ public class RemoveBundleMojo extends AbstractMojo
         try
         {
             Pom modulesPom = bundlePom.getContainingPom();
-            modulesPom.removeModule( moduleName );
-            modulesPom.write();
+            if( null != modulesPom )
+            {
+                modulesPom.removeModule( moduleName );
+                modulesPom.write();
+            }
         }
         catch( IOException e )
         {
