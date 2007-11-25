@@ -349,7 +349,7 @@ public class OSGiWrapperArchetypeMojo extends AbstractPaxArchetypeMojo
         if( PomUtils.needReleaseVersion( version ) )
         {
             Artifact artifact = m_factory.createBuildArtifact( groupId, artifactId, "RELEASE", "jar" );
-            version = PomUtils.getReleaseVersion( artifact, m_source, m_remoteRepos, m_localRepo, null );
+            version = PomUtils.getReleaseVersion( artifact, getSource(), m_remoteRepos, getLocalRepo(), null );
         }
     }
 
@@ -456,7 +456,7 @@ public class OSGiWrapperArchetypeMojo extends AbstractPaxArchetypeMojo
             try
             {
                 // Standard Maven code to get direct dependencies for a given POM
-                MavenProject p = m_projectBuilder.buildFromRepository( pomArtifact, m_remoteRepos, m_localRepo );
+                MavenProject p = m_projectBuilder.buildFromRepository( pomArtifact, m_remoteRepos, getLocalRepo() );
                 Set artifacts = p.createArtifacts( m_factory, null, null );
 
                 // look for new artifacts to wrap
@@ -578,7 +578,7 @@ public class OSGiWrapperArchetypeMojo extends AbstractPaxArchetypeMojo
             pom.addExclusion( artifact.getGroupId(), artifact.getArtifactId(), true );
             return false;
         }
-        else if( PomUtils.isBundleArtifact( artifact, m_resolver, m_remoteRepos, m_localRepo, testMetadata ) )
+        else if( PomUtils.isBundleArtifact( artifact, getResolver(), m_remoteRepos, getLocalRepo(), testMetadata ) )
         {
             pom.addDependency( getBundleDependency( artifact ), true );
             return false;

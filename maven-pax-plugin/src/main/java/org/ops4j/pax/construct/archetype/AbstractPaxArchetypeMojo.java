@@ -97,14 +97,14 @@ public abstract class AbstractPaxArchetypeMojo extends MavenArchetypeMojo
      * 
      * @component
      */
-    protected ArtifactResolver m_resolver;
+    private ArtifactResolver m_resolver;
 
     /**
      * Component for resolving Maven metadata
      * 
      * @component
      */
-    protected ArtifactMetadataSource m_source;
+    private ArtifactMetadataSource m_source;
 
     /**
      * The local Maven repository for the containing project.
@@ -113,7 +113,7 @@ public abstract class AbstractPaxArchetypeMojo extends MavenArchetypeMojo
      * @required
      * @readonly
      */
-    protected ArtifactRepository m_localRepo;
+    private ArtifactRepository m_localRepo;
 
     /**
      * The version of the currently executing plugin.
@@ -213,6 +213,30 @@ public abstract class AbstractPaxArchetypeMojo extends MavenArchetypeMojo
      * Working copy of current Bnd instructions
      */
     private Bnd m_bnd;
+
+    /**
+     * @return component for resolving Maven artifacts
+     */
+    public ArtifactResolver getResolver()
+    {
+        return m_resolver;
+    }
+
+    /**
+     * @return component for resolving Maven metadata
+     */
+    public ArtifactMetadataSource getSource()
+    {
+        return m_source;
+    }
+
+    /**
+     * @return local Maven repository
+     */
+    public ArtifactRepository getLocalRepo()
+    {
+        return m_localRepo;
+    }
 
     /**
      * @return true if existing files can be overwritten, otherwise false
