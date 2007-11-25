@@ -131,7 +131,11 @@ public final class BndUtils
     {
         File candidate = here;
 
-        if( here.isDirectory() )
+        if( null == here )
+        {
+            throw new IOException( "null location" );
+        }
+        else if( here.isDirectory() )
         {
             candidate = new File( here, "osgi.bnd" );
         }

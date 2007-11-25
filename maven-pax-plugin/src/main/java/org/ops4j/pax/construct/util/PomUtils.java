@@ -298,7 +298,11 @@ public final class PomUtils
     {
         File candidate = here;
 
-        if( here.isDirectory() )
+        if( null == here )
+        {
+            throw new IOException( "null location" );
+        }
+        else if( here.isDirectory() )
         {
             candidate = new File( here, "pom.xml" );
         }
@@ -313,12 +317,18 @@ public final class PomUtils
      * @param groupId project group id
      * @param artifactId project artifact id
      * @return simple Maven project editor
+     * @throws IOException
      */
     public static Pom createPom( File here, String groupId, String artifactId )
+        throws IOException
     {
         File candidate = here;
 
-        if( here.isDirectory() )
+        if( null == here )
+        {
+            throw new IOException( "null location" );
+        }
+        else if( here.isDirectory() )
         {
             candidate = new File( here, "pom.xml" );
         }
