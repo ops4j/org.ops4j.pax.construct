@@ -185,11 +185,15 @@ public final class DirUtils
                 // existing pom, follow it along...
                 childPom = PomUtils.readPom( pomFile );
             }
-            else if( parentPom != null )
+            else if( parentPom != null && "pom".equals( parentPom.getPackaging() ) )
             {
                 // no such pom, need to create new module pom
                 String module = descentPath.substring( i, j );
                 childPom = createMissingPom( parentPom, module, pomFile );
+            }
+            else
+            {
+                return null; // bad project structure: cannot add interim module
             }
 
             // descend to next pom
