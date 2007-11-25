@@ -99,7 +99,7 @@ public class MoveBundleMojo extends AbstractMojo
             }
         }
 
-        if( null == bundlePom )
+        if( null == bundlePom || !bundlePom.isBundleProject() )
         {
             throw new MojoExecutionException( "Cannot find bundle " + pathOrName );
         }
@@ -161,6 +161,10 @@ public class MoveBundleMojo extends AbstractMojo
         {
             throw new MojoExecutionException( "targetDirectory is outside of this project" );
         }
+        else if( !"pom".equals( newModulesPom.getPackaging() ) )
+        {
+            throw new MojoExecutionException( "targetDirectory is not a modules directory" );
+        }
 
         File oldBundleDir = bundlePom.getBasedir();
         File newBundleDir = new File( newModulesPom.getBasedir(), oldBundleDir.getName() );
@@ -184,14 +188,18 @@ public class MoveBundleMojo extends AbstractMojo
             }
         }
 
-        try
+        String parentId = bundlePom.getParentId();
+        if( null != parentId )
         {
-            // update the relative path, as it's probably changed
-            DirUtils.updateLogicalParent( newBundleDir, bundlePom.getParentId() );
-        }
-        catch( IOException e )
-        {
-            getLog().warn( "Unable to update logical parent " + bundlePom.getParentId() );
+            try
+            {
+                // update the relative path, as it's probably changed
+                DirUtils.updateLogicalParent( newBundleDir, parentId );
+            }
+            catch( IOException e )
+            {
+                getLog().warn( "Unable to update logical parent " + parentId );
+            }
         }
 
         return newModulesPom;
@@ -202,10 +210,8 @@ public class MoveBundleMojo extends AbstractMojo
      * 
      * @param oldBundleDir previous location of the bundle
      * @param newModulesPom modules POM directly above the new bundle directory
-     * @throws MojoExecutionException
      */
     private void transferBundleOwnership( File oldBundleDir, Pom newModulesPom )
-        throws MojoExecutionException
     {
         String moduleName = oldBundleDir.getName();
 
@@ -222,7 +228,7 @@ public class MoveBundleMojo extends AbstractMojo
         }
         catch( IOException e )
         {
-            throw new MojoExecutionException( "Problem transferring bundle ownership" );
+            getLog().warn( "Problem transferring bundle ownership" );
         }
     }
 
