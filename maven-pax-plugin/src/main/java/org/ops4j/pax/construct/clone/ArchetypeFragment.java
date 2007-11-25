@@ -390,9 +390,12 @@ public class ArchetypeFragment
             String content = IOUtil.toString( in );
             IOUtil.close( in );
 
-            // protect existing variables from accidental replacement
+            // protect special content from accidental replacement
             content = StringUtils.replace( content, "$", "${dollar}" );
+            content = StringUtils.replace( content, "#", "${hash}" );
+
             content = "#set( $dollar = '$' )" + System.getProperty( "line.separator" ) + content;
+            content = "#set( $hash = '#' )" + System.getProperty( "line.separator" ) + content;
 
             // standard archetype translation
             content = StringUtils.replace( content, m_namespace, "${package}" );
