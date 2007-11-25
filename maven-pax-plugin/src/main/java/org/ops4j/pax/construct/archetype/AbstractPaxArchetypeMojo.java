@@ -90,7 +90,7 @@ public abstract class AbstractPaxArchetypeMojo extends MavenArchetypeMojo
      * 
      * @component
      */
-    protected ArtifactFactory m_factory;
+    private ArtifactFactory m_factory;
 
     /**
      * Component for resolving Maven artifacts
@@ -215,9 +215,17 @@ public abstract class AbstractPaxArchetypeMojo extends MavenArchetypeMojo
     private Bnd m_bnd;
 
     /**
+     * @return component factory for Maven artifacts
+     */
+    protected final ArtifactFactory getFactory()
+    {
+        return m_factory;
+    }
+
+    /**
      * @return component for resolving Maven artifacts
      */
-    public ArtifactResolver getResolver()
+    protected final ArtifactResolver getResolver()
     {
         return m_resolver;
     }
@@ -225,7 +233,7 @@ public abstract class AbstractPaxArchetypeMojo extends MavenArchetypeMojo
     /**
      * @return component for resolving Maven metadata
      */
-    public ArtifactMetadataSource getSource()
+    protected final ArtifactMetadataSource getSource()
     {
         return m_source;
     }
@@ -233,7 +241,7 @@ public abstract class AbstractPaxArchetypeMojo extends MavenArchetypeMojo
     /**
      * @return local Maven repository
      */
-    public ArtifactRepository getLocalRepo()
+    protected final ArtifactRepository getLocalRepo()
     {
         return m_localRepo;
     }
