@@ -9,7 +9,7 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>org.ops4j.pax.construct</groupId>
   <artifactId>archetypes</artifactId>
-  <version>0.6.2-SNAPSHOT</version>
+  <version>0.6.2</version>
 
   <name>OPS4J - Archetypes for OSGi projects</name>
 
@@ -24,8 +24,8 @@
   </modules>
 
   <scm>
-    <connection>scm:svn:https://scm.ops4j.org/repos/ops4j/projects/pax/construct/archetypes</connection>
-    <developerConnection>scm:svn:https://scm.ops4j.org/repos/ops4j/projects/pax/construct/archetypes</developerConnection>
+    <connection>scm:svn:https://scm.ops4j.org/repos/ops4j/qa/pax/archetypes-0.6.2</connection>
+    <developerConnection>scm:svn:https://scm.ops4j.org/repos/ops4j/qa/pax/archetypes-0.6.2</developerConnection>
   </scm>
 
   <repositories>
