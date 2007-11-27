@@ -27,7 +27,7 @@ Quickstart
 
  To use Pax-Construct you need a Java runtime (preferably 1.4 or above) and Maven2 installed and on your path.
 
-* {{http://repository.ops4j.org/maven2/org/ops4j/pax/construct/scripts/0.6.1/scripts-0.6.1.zip}}
+* {{http://repository.ops4j.org/maven2/org/ops4j/pax/construct/scripts/0.6.2/scripts-0.6.2.zip}}
 
  [[1]] Unzip the Pax-Construct scripts
 
@@ -36,13 +36,13 @@ Quickstart
  Linux / UNIX / Mac
 
 -----
-PATH=/tmp/pax-construct-0.6.1/bin:$PATH; export PATH
+PATH=/tmp/pax-construct-0.6.2/bin:$PATH; export PATH
 -----
 
  Windows
 
 -----
-set PATH=C:\Temp\pax-construct-0.6.1\bin;%PATH%
+set PATH=C:\Temp\pax-construct-0.6.2\bin;%PATH%
 -----
 
  [[3]] Create a new OSGi project
