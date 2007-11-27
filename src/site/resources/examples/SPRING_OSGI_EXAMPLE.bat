@@ -19,7 +19,7 @@ REM  importTransitive also imports any bundles spring-osgi-extender depends on
 REM    (use widenScope to also consider non-provided dependencies)
 REM ---------------------------------------------------------------------------
 
-call pax-import-bundle -g org.springframework.osgi -a spring-osgi-extender -v 1.0-rc1-SNAPSHOT -- -DwidenScope -DimportTransitive
+call pax-import-bundle -g org.springframework.osgi -a spring-osgi-extender -v 1.0-rc1 -- -DwidenScope -DimportTransitive
 
 REM -----------------------------------
 REM  basic SLF4J implementation bundle

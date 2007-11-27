@@ -20,7 +20,7 @@ pax-add-repository -i spring-snapshots -u http://static.springframework.org/mave
 #   (use widenScope to also consider non-provided dependencies)
 #---------------------------------------------------------------------------
 
-pax-import-bundle -g org.springframework.osgi -a spring-osgi-extender -v 1.0-rc1-SNAPSHOT -- -DwidenScope -DimportTransitive
+pax-import-bundle -g org.springframework.osgi -a spring-osgi-extender -v 1.0-rc1 -- -DwidenScope -DimportTransitive
 
 #-----------------------------------
 # basic SLF4J implementation bundle
