@@ -23,6 +23,17 @@
     <module>maven-archetype-spring-bean</module>
   </modules>
 
+  <build>
+    <plugins>
+      <plugin>
+        <artifactId>maven-source-plugin</artifactId>
+        <configuration>
+          <attach>false</attach>
+        </configuration>
+      </plugin>
+    </plugins>
+  </build>
+
   <scm>
     <connection>scm:svn:https://scm.ops4j.org/repos/ops4j/projects/pax/construct/archetypes</connection>
     <developerConnection>scm:svn:https://scm.ops4j.org/repos/ops4j/projects/pax/construct/archetypes</developerConnection>
