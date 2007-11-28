@@ -95,11 +95,6 @@
     </dependency>
     <dependency>
       <groupId>org.apache.maven.archetype</groupId>
-      <artifactId>maven-archetype-model</artifactId>
-      <version>1.0-alpha-7</version>
-    </dependency>
-    <dependency>
-      <groupId>org.apache.maven.archetype</groupId>
       <artifactId>maven-archetype-creator</artifactId>
       <version>1.0-alpha-7</version>
     </dependency>
