@@ -533,20 +533,9 @@ public class EclipseOSGiMojo extends EclipsePlugin
             // assume provided dependencies are OSGi bundles
             if( Artifact.SCOPE_PROVIDED.equals( artifact.getScope() ) )
             {
-                // download the bundle POM and store locally
-                MavenProject dependencyProject = writeProjectPom( artifact );
-                if( null == dependencyProject )
-                {
-                    continue;
-                }
-
-                setExecutedProject( dependencyProject );
-                setProject( dependencyProject );
-
-                // trick Eclipse plugin to do the right thing
-                File baseDir = dependencyProject.getBasedir();
-                setBuildOutputDirectory( new File( baseDir, ".ignore" ) );
-                setEclipseProjectDir( baseDir );
+                // store project locally underneath the provisioning POM's directory
+                File groupDir = new File( m_provisionProject.getBasedir(), "target/" + artifact.getGroupId() );
+                File baseDir = new File( groupDir, artifact.getArtifactId() + '-' + artifact.getVersion() );
 
                 // download and unpack the bundle
                 if( !PomUtils.downloadFile( artifact, artifactResolver, remoteArtifactRepositories, localRepository ) )
@@ -555,11 +544,27 @@ public class EclipseOSGiMojo extends EclipsePlugin
                     continue;
                 }
 
-                DirUtils.unpackBundle( artifact.getFile(), executedProject.getBasedir() );
+                DirUtils.unpackBundle( artifact.getFile(), baseDir );
+
+                // download the bundle POM and store locally
+                MavenProject dependencyProject = writeProjectPom( baseDir, artifact );
+                if( null == dependencyProject )
+                {
+                    getLog().warn( "Skipping missing bundle " + artifact );
+                    continue;
+                }
+
+                setExecutedProject( dependencyProject );
+                setProject( dependencyProject );
+
+                // trick Eclipse plugin to do the right thing
+                setBuildOutputDirectory( new File( baseDir, ".ignore" ) );
+                setEclipseProjectDir( baseDir );
 
                 try
                 {
                     // call the Eclipse plugin
+                    getLog().info( "Generating Eclipse project for bundle " + artifact );
                     execute();
                 }
                 catch( MojoFailureException e )
@@ -573,10 +578,11 @@ public class EclipseOSGiMojo extends EclipsePlugin
     /**
      * Download and save the Maven POM for the given artifact
      * 
+     * @param baseDir base directory
      * @param artifact Maven artifact
      * @return the downloaded project
      */
-    private MavenProject writeProjectPom( Artifact artifact )
+    private MavenProject writeProjectPom( File baseDir, Artifact artifact )
     {
         MavenProject pom = null;
 
@@ -590,12 +596,7 @@ public class EclipseOSGiMojo extends EclipsePlugin
         {
             pom = m_mavenProjectBuilder.buildFromRepository( pomArtifact, remoteArtifactRepositories, localRepository );
 
-            // store project locally underneath the provisioning POM's directory
-            File projectDir = new File( m_provisionProject.getBasedir(), "target/" + groupId );
-            File localDir = new File( projectDir, artifactId + '/' + version );
-            localDir.mkdirs();
-
-            File pomFile = new File( localDir, "pom.xml" );
+            File pomFile = new File( baseDir, "pom.xml" );
 
             Writer writer = StreamFactory.newXmlWriter( pomFile );
             pom.writeModel( writer );
