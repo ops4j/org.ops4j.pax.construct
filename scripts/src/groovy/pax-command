@@ -1,6 +1,6 @@
 #!/bin/sh
-SCRIPTS=`dirname \$0`
-. \${SCRIPTS}/pax-validate
+SCRIPTS=`dirname "\$0"`
+. "\${SCRIPTS}/pax-validate"
 
 if [ -z "\${PAX_CONSTRUCT_VERSION}" ]
 then
@@ -81,6 +81,6 @@ ${pad}fi
 mvn ${non_recursive} \${PAX_PLUGIN}:${mojo} \\<%
   options.order.each {
 %>
-  -D${options[it].name}=\${${options[it].name.toUpperCase()}:=${options[it].example}} \\<% } %>
+  "-D${options[it].name}=\${${options[it].name.toUpperCase()}:=${options[it].example}}" \\<% } %>
   \${PAX_CONSTRUCT_OPTIONS} \${OVERWRITE} "\$@"
 
