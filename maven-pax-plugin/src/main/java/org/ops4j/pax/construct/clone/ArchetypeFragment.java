@@ -428,7 +428,16 @@ public class ArchetypeFragment
             byte[] raw = IOUtil.toByteArray( in );
             IOUtil.close( in );
 
-            String text = IOUtil.toString( raw );
+            String text;
+            try
+            {
+                text = IOUtil.toString( raw );
+            }
+            catch( IOException e )
+            {
+                text = "";
+            }
+
             if( Arrays.equals( text.getBytes(), raw ) )
             {
                 // text files can be mapped to new paths
