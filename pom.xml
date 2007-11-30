@@ -25,12 +25,6 @@ limitations under the License.
     </license>
   </licenses>
 
-  <parent>
-    <groupId>org.ops4j.pax</groupId>
-    <artifactId>project</artifactId>
-    <version>1.9</version>
-  </parent>
-
   <modelVersion>4.0.0</modelVersion>
   <groupId>org.ops4j.pax</groupId>
   <artifactId>construct</artifactId>
@@ -95,6 +89,27 @@ limitations under the License.
     <url>http://issues.ops4j.org/jira/browse/PAXCONSTRUCT</url>
   </issueManagement>
 
+  <ciManagement>
+    <system>bamboo</system>
+    <url>http://ci.ops4j.org/bamboo/browse/PAXCONSTRUCT</url>
+    <notifiers>
+      <notifier>
+        <type>email</type>
+        <sendOnSuccess>false</sendOnSuccess>
+      </notifier>
+    </notifiers>
+  </ciManagement>
+
+  <mailingLists>
+    <mailingList>
+      <name>General OPS4J</name>
+      <subscribe>general-subscribe@lists.ops4j.org</subscribe>
+      <unsubscribe>general-unsubscribe@lists.ops4j.org</unsubscribe>
+      <post>general@lists.ops4j.org</post>
+      <archive>http://lists.ops4j.org/pipermail/general</archive>
+    </mailingList>
+  </mailingLists>
+
   <developers>
     <developer>
       <id>mcculls</id>
@@ -117,22 +132,47 @@ limitations under the License.
     </developer>
   </developers>
 
-  <repositories>
+  <distributionManagement>
     <repository>
       <id>ops4j-repository</id>
-      <name>The OPS4J Standard Repository</name>
-      <url>http://repository.ops4j.org/maven2</url>
-      <snapshots>
-        <enabled>false</enabled>
-      </snapshots>
+      <url>scpexe://repository.ops4j.org/var/http/repository.ops4j.org/maven2</url>
     </repository>
-  </repositories>
-
-  <distributionManagement>
+    <snapshotRepository>
+      <id>ops4j-snapshots</id>
+      <url>scpexe://repository.ops4j.org/var/http/repository.ops4j.org/mvn-snapshots</url>
+    </snapshotRepository>
     <site>
-      <id>website</id>
+      <id>pax-construct-website</id>
       <url>scpexe://www.ops4j.org/var/http/www.ops4j.org/projects/pax/construct</url>
     </site>
   </distributionManagement>
+
+  <build>
+    <plugins>
+      <plugin>
+        <artifactId>maven-release-plugin</artifactId>
+        <version>2.0-beta-6</version>
+        <configuration>
+          <tagBase>https://scm.ops4j.org/repos/ops4j/qa/pax/construct</tagBase>
+          <preparationGoals>clean install</preparationGoals>
+        </configuration>
+      </plugin>
+    </plugins>
+    <extensions>
+      <extension>
+        <groupId>org.apache.maven.wagon</groupId>
+        <artifactId>wagon-ssh-external</artifactId>
+        <version>1.0-alpha-6</version>
+      </extension>
+    </extensions>
+  </build>
+
+  <reporting>
+    <plugins>
+      <plugin>
+        <artifactId>maven-project-info-reports-plugin</artifactId>
+      </plugin>
+    </plugins>
+  </reporting>
 
 </project>
