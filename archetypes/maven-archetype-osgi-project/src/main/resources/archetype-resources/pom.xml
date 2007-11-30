@@ -74,6 +74,9 @@
       <snapshots>
         <enabled>false</enabled>
       </snapshots>
+      <releases>
+        <updatePolicy>never</updatePolicy>
+      </releases>
     </pluginRepository>
     <pluginRepository>
       <id>ops4j-snapshots</id>
