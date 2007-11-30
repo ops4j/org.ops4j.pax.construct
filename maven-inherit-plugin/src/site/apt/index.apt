@@ -63,7 +63,7 @@ Maven Inherit Plugin
 +---+
   <pluginRepositories>
     <pluginRepository>
-      <id>ops4j-standard</id>
+      <id>ops4j-repository</id>
       <url>http://repository.ops4j.org/maven2</url>
       <snapshots>
         <enabled>false</enabled>
