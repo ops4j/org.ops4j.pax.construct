@@ -24,7 +24,7 @@
       <id>ops4j-repository</id>
       <url>http://repository.ops4j.org/maven2</url>
       <releases>
-        <updatePolicy>always</updatePolicy>
+        <updatePolicy>never</updatePolicy>
       </releases>
       <snapshots>
         <enabled>false</enabled>
