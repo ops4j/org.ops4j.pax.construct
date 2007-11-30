@@ -9,7 +9,7 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>org.ops4j</groupId>
   <artifactId>maven-inherit-plugin</artifactId>
-  <version>0.6.3-SNAPSHOT</version>
+  <version>0.6.3</version>
 
   <name>OPS4J - Support Maven Mojo inheritance</name>
 
@@ -102,8 +102,8 @@
   </dependencies>
 
   <scm>
-    <connection>scm:svn:https://scm.ops4j.org/repos/ops4j/projects/pax/construct/maven-inherit-plugin</connection>
-    <developerConnection>scm:svn:https://scm.ops4j.org/repos/ops4j/projects/pax/construct/maven-inherit-plugin</developerConnection>
+    <connection>scm:svn:https://scm.ops4j.org/repos/ops4j/qa/pax/construct/maven-inherit-plugin-0.6.3</connection>
+    <developerConnection>scm:svn:https://scm.ops4j.org/repos/ops4j/qa/pax/construct/maven-inherit-plugin-0.6.3</developerConnection>
   </scm>
 
   <repositories>
