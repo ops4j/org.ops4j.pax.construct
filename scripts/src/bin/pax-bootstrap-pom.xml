@@ -21,9 +21,8 @@
 
   <pluginRepositories>
     <pluginRepository>
-      <id>standard</id>
-      <name>The OPS4J Standard Repository</name>
-      <url>http://repository.ops4j.org/maven2/</url>
+      <id>ops4j-repository</id>
+      <url>http://repository.ops4j.org/maven2</url>
       <releases>
         <updatePolicy>always</updatePolicy>
       </releases>
@@ -32,9 +31,8 @@
       </snapshots>
     </pluginRepository>
     <pluginRepository>
-      <id>snapshots</id>
-      <name>The OPS4J Snapshot Repository</name>
-      <url>http://repository.ops4j.org/mvn-snapshots/</url>
+      <id>ops4j-snapshots</id>
+      <url>http://repository.ops4j.org/mvn-snapshots</url>
       <releases>
         <enabled>false</enabled>
       </releases>
