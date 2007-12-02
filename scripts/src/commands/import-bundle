@@ -11,7 +11,7 @@ a {
 
 v {
   name = 'version'
-  example = ''
+  example = 'RELEASE'
   optional = true
 }
 
