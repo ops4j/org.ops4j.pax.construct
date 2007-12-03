@@ -65,6 +65,8 @@ import org.ops4j.pax.construct.util.StreamFactory;
  * @extendsPlugin eclipse
  * @goal eclipse
  * @phase package
+ * 
+ * @execute phase="none"
  */
 public class EclipseOSGiMojo extends EclipsePlugin
 {
@@ -105,6 +107,9 @@ public class EclipseOSGiMojo extends EclipsePlugin
     {
         if( null == m_eclipseMojo )
         {
+            // set here as we now don't fork a separate execute phase
+            setExecutedProject( project );
+
             // by default enable creation of PDE project files for OSGi
             m_eclipseMojo = new ReflectMojo( this, EclipsePlugin.class );
             m_eclipseMojo.setField( "pde", Boolean.TRUE );
@@ -241,8 +246,8 @@ public class EclipseOSGiMojo extends EclipsePlugin
 
         if( !bundleFile.exists() )
         {
-            // last chance: see if it exists remotely or is already cached locally
-            PomUtils.downloadFile( artifact, artifactResolver, remoteArtifactRepositories, localRepository );
+            // last chance: see if it is already has been installed locally
+            PomUtils.getFile( artifact, artifactResolver, localRepository );
             bundleFile = artifact.getFile();
         }
 
@@ -322,6 +327,7 @@ public class EclipseOSGiMojo extends EclipsePlugin
         if( bundleFile == null || !bundleFile.exists() )
         {
             getLog().warn( "Bundle has not been built, reverting to basic behaviour" );
+            unpackDir.mkdirs();
         }
         else
         {

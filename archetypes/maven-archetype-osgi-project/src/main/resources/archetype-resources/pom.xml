@@ -53,6 +53,17 @@
         <groupId>org.ops4j</groupId>
         <artifactId>maven-pax-plugin</artifactId>
         <version>RELEASE</version>
+        <executions>
+          <!-- generate IDE files on mvn install -->
+          <execution>
+            <id>ide-support</id>
+            <goals>
+              <!--
+              <goal>eclipse</goal>
+              -->
+            </goals>
+          </execution>
+        </executions>
       </plugin>
     </plugins>
   </build>
