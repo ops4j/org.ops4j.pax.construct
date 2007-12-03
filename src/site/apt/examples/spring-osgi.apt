@@ -141,27 +141,21 @@ Pax Runner from OPS4J - http://www.ops4j.org
 --------------------------------------------
 
  -> Using config [classpath:META-INF/runner.properties]
- -> Protocol [mvn] handler started
- -> Protocol [wrap] handler started
- -> Scanner for schema [scan-bundle] started
- -> Scanner for schema [scan-dir] started
- -> Scanner for schema [scan-file] started
- -> Scanner for schema [scan-pom] started
  -> Provision from [/tmp/spring/target/deployment/pom.xml]
  -> Provision from [scan-pom:file:/tmp/spring/target/deployment/pom.xml]
  -> Using property [org.osgi.service.http.port=8080]
  -> Using property [org.osgi.service.http.port.secure=8443]
- -> Installing bundle [{location=mvn:org.springframework.osgi/spring-osgi-extender/1.0-rc1-SNAPSHOT,startlevel=null,shouldStart=true}]
+ -> Installing bundle [{location=mvn:org.springframework.osgi/spring-osgi-extender/1.0-rc1,startlevel=null,shouldStart=true}]
  -> Installing bundle [{location=mvn:org.slf4j/slf4j-api/1.4.3,startlevel=null,shouldStart=true}]
  -> Installing bundle [{location=mvn:org.slf4j/jcl104-over-slf4j/1.4.3,startlevel=null,shouldStart=true}]
- -> Installing bundle [{location=mvn:org.springframework.osgi/spring-osgi-core/1.0-rc1-SNAPSHOT,startlevel=null,shouldStart=true}]
- -> Installing bundle [{location=mvn:org.springframework.osgi/spring-osgi-io/1.0-rc1-SNAPSHOT,startlevel=null,shouldStart=true}]
- -> Installing bundle [{location=mvn:org.springframework/spring-aop/2.5-rc2,startlevel=null,shouldStart=true}]
- -> Installing bundle [{location=mvn:org.springframework/spring-beans/2.5-rc2,startlevel=null,shouldStart=true}]
- -> Installing bundle [{location=mvn:org.springframework/spring-context/2.5-rc2,startlevel=null,shouldStart=true}]
- -> Installing bundle [{location=mvn:org.springframework/spring-core/2.5-rc2,startlevel=null,shouldStart=true}]
- -> Installing bundle [{location=mvn:org.springframework/spring-web/2.5-rc2,startlevel=null,shouldStart=true}]
- -> Installing bundle [{location=mvn:org.springframework/spring-test/2.5-rc2,startlevel=null,shouldStart=true}]
+ -> Installing bundle [{location=mvn:org.springframework.osgi/spring-osgi-core/1.0-rc1,startlevel=null,shouldStart=true}]
+ -> Installing bundle [{location=mvn:org.springframework.osgi/spring-osgi-io/1.0-rc1,startlevel=null,shouldStart=true}]
+ -> Installing bundle [{location=mvn:org.springframework/spring-aop/2.5,startlevel=null,shouldStart=true}]
+ -> Installing bundle [{location=mvn:org.springframework/spring-beans/2.5,startlevel=null,shouldStart=true}]
+ -> Installing bundle [{location=mvn:org.springframework/spring-context/2.5,startlevel=null,shouldStart=true}]
+ -> Installing bundle [{location=mvn:org.springframework/spring-core/2.5,startlevel=null,shouldStart=true}]
+ -> Installing bundle [{location=mvn:org.springframework/spring-web/2.5,startlevel=null,shouldStart=true}]
+ -> Installing bundle [{location=mvn:org.springframework/spring-test/2.5,startlevel=null,shouldStart=true}]
  -> Installing bundle [{location=mvn:org.springframework.osgi/aopalliance.osgi/1.0-SNAPSHOT,startlevel=null,shouldStart=true}]
  -> Installing bundle [{location=mvn:org.springframework.osgi/backport-util-concurrent.osgi/3.0-SNAPSHOT,startlevel=null,shouldStart=true}]
  -> Installing bundle [{location=mvn:org.slf4j/slf4j-simple/1.4.3,startlevel=null,shouldStart=true}]
@@ -173,57 +167,57 @@ Pax Runner from OPS4J - http://www.ops4j.org
  -> Installing bundle [{location=mvn:examples.spring/org.example.service/1.0-SNAPSHOT,startlevel=null,shouldStart=true}]
  -> Installing bundle [{location=mvn:examples.spring/org.example.bean/1.0-SNAPSHOT,startlevel=null,shouldStart=true}]
  -> Downloading bundles...
- -> mvn:org.springframework.osgi/spring-osgi-extender/1.0-rc1-SNAPSHOT : 61439 bytes @ [ 1807kBps ]
- -> mvn:org.slf4j/slf4j-api/1.4.3 : 14335 bytes @ [ 597kBps ]
- -> mvn:org.slf4j/jcl104-over-slf4j/1.4.3 : 15359 bytes @ [ 614kBps ]]
- -> mvn:org.springframework.osgi/spring-osgi-core/1.0-rc1-SNAPSHOT : 236543 bytes @ [ 3112kBps ]
- -> mvn:org.springframework.osgi/spring-osgi-io/1.0-rc1-SNAPSHOT : 12287 bytes @ [ 12287kBps ]
- -> mvn:org.springframework/spring-aop/2.5-rc2 : 322559 bytes @ [ 5864kBps ]
- -> mvn:org.springframework/spring-beans/2.5-rc2 : 460799 bytes @ [ 6227kBps ]
- -> mvn:org.springframework/spring-context/2.5-rc2 : 441343 bytes @ [ 5731kBps ]
- -> mvn:org.springframework/spring-core/2.5-rc2 : 270335 bytes @ [ 4360kBps ]
- -> mvn:org.springframework/spring-web/2.5-rc2 : 220159 bytes @ [ 2786kBps ]
- -> mvn:org.springframework/spring-test/2.5-rc2 : 177151 bytes @ [ 2725kBps ]
- -> mvn:org.springframework.osgi/aopalliance.osgi/1.0-SNAPSHOT : 6143 bytes @ [ 3071kBps ]
- -> mvn:org.springframework.osgi/backport-util-concurrent.osgi/3.0-SNAPSHOT : 333823 bytes @ [ 2853kBps ]
- -> mvn:org.slf4j/slf4j-simple/1.4.3 : 7167 bytes @ [ 7167kBps ]
- -> mvn:org.springframework.osgi.samples/weather-dao/1.0-rc1-SNAPSHOT : 5119 bytes @ [ 5119kBps ]
- -> mvn:org.springframework.osgi.samples/weather-service/1.0-rc1-SNAPSHOT : 5119 bytes @ [ 5119kBps ]
- -> mvn:examples.spring.wrappers/asm-2.2.3/001-SNAPSHOT : 36863 bytes @ [ 5266kBps ]
- -> mvn:examples.spring.wrappers/javax.servlet.jsp-api-2.0/001-SNAPSHOT : 53247 bytes @ [ 5324kBps ]]
- -> mvn:examples.spring.wrappers/javax.servlet.api-2.5/001-SNAPSHOT : 107519 bytes @ [ 1535kBps ]
- -> mvn:examples.spring/org.example.service/1.0-SNAPSHOT : 4095 bytes @ [ 4095kBps ]
- -> mvn:examples.spring/org.example.bean/1.0-SNAPSHOT : 4095 bytes @ [ 4095kBps ]
+ -> mvn:org.springframework.osgi/spring-osgi-extender/1.0-rc1 : 62384 bytes @ [ 1327kBps ]
+ -> mvn:org.slf4j/slf4j-api/1.4.3 : 15345 bytes @ [ 5115kBps ]
+ -> mvn:org.slf4j/jcl104-over-slf4j/1.4.3 : 15435 bytes @ [ 5145kBps ]
+ -> mvn:org.springframework.osgi/spring-osgi-core/1.0-rc1 : 237833 bytes @ [ 2936kBps ]
+ -> mvn:org.springframework.osgi/spring-osgi-io/1.0-rc1 : 12946 bytes @ [ 12946kBps ]
+ -> mvn:org.springframework/spring-aop/2.5 : 322942 bytes @ [ 6727kBps ]]
+ -> mvn:org.springframework/spring-beans/2.5 : 461339 bytes @ [ 7208kBps ]]
+ -> mvn:org.springframework/spring-context/2.5 : 442210 bytes @ [ 6909kBps ]
+ -> mvn:org.springframework/spring-core/2.5 : 270968 bytes @ [ 9677kBps ]
+ -> mvn:org.springframework/spring-web/2.5 : 221465 bytes @ [ 10545kBps ]
+ -> mvn:org.springframework/spring-test/2.5 : 177484 bytes @ [ 4550kBps ]]
+ -> mvn:org.springframework.osgi/aopalliance.osgi/1.0-SNAPSHOT : 6427 bytes @ [ 6427kBps ]
+ -> mvn:org.springframework.osgi/backport-util-concurrent.osgi/3.0-SNAPSHOT : 334030 bytes @ [ 5860kBps ]
+ -> mvn:org.slf4j/slf4j-simple/1.4.3 : 7449 bytes @ [ 7449kBps ]
+ -> mvn:org.springframework.osgi.samples/weather-dao/1.0-rc1-SNAPSHOT : 5882 bytes @ [ 5882kBps ]
+ -> mvn:org.springframework.osgi.samples/weather-service/1.0-rc1-SNAPSHOT : 5193 bytes @ [ 5193kBps ]
+ -> mvn:examples.spring.wrappers/asm-2.2.3/001-SNAPSHOT : 37667 bytes @ [ 9416kBps ]]
+ -> mvn:examples.spring.wrappers/javax.servlet.jsp-api-2.0/001-SNAPSHOT : 53418 bytes @ [ 8903kBps ]]
+ -> mvn:examples.spring.wrappers/javax.servlet.api-2.5/001-SNAPSHOT : 108158 bytes @ [ 10815kBps ]
+ -> mvn:examples.spring/org.example.service/1.0-SNAPSHOT : 4904 bytes @ [ 4904kBps ]
+ -> mvn:examples.spring/org.example.bean/1.0-SNAPSHOT : 4642 bytes @ [ 221kBps ]]
  -> Execution environment [J2SE-1.5]
  -> Starting platform [Felix 1.0.1]. Runner has succesfully finished his job!
 
 Welcome to Felix.
 =================
 
-317 [FelixStartLevel] INFO org.springframework.osgi.extender.internal.ContextLoaderListener - Starting org.springframework.osgi.extender bundle v.[1.0.0.rc1_SNAPSHOT]
-482 [FelixStartLevel] INFO org.springframework.osgi.extender.internal.ContextLoaderListener - disabled automatic Spring-DM annotation processing; [ org.springframework.osgi.extender.annotation.auto.processing=null]
-488 [FelixStartLevel] INFO org.springframework.osgi.extender.internal.ContextLoaderListener - disabled automatic Spring-DM annotation processing; [ org.springframework.osgi.extender.annotation.auto.processing=null]
--> STARTING org.example.service
+-> 57 [FelixStartLevel] INFO org.springframework.osgi.extender.internal.ContextLoaderListener - Starting org.springframework.osgi.extender bundle v.[1.0.0.rc1]
+206 [FelixStartLevel] INFO org.springframework.osgi.extender.internal.ContextLoaderListener - disabled automatic Spring-DM annotation processing; [ org.springframework.osgi.extender.annotation.auto.processing=null]
+212 [FelixStartLevel] INFO org.springframework.osgi.extender.internal.ContextLoaderListener - disabled automatic Spring-DM annotation processing; [ org.springframework.osgi.extender.annotation.auto.processing=null]
+STARTING org.example.service
 REGISTER org.example.service.ExampleService
-498 [FelixStartLevel] INFO org.springframework.osgi.extender.internal.ContextLoaderListener - disabled automatic Spring-DM annotation processing; [ org.springframework.osgi.extender.annotation.auto.processing=null]
-569 [SpringOsgiExtenderThread-1] INFO org.springframework.osgi.context.support.OsgiBundleXmlApplicationContext - Refreshing org.springframework.osgi.context.support.OsgiBundleXmlApplicationContext@3cc03cc0: display name [OsgiBundleXmlApplicationContext(bundle=org.springframework.osgi.samples.weather-dao, config=osgibundlejar:/META-INF/spring/*.xml)]; startup date [Tue Nov 20 17:09:32 GMT+08:00 2007]; root of context hierarchy
-591 [SpringOsgiExtenderThread-2] INFO org.springframework.osgi.context.support.OsgiBundleXmlApplicationContext - Refreshing org.springframework.osgi.context.support.OsgiBundleXmlApplicationContext@17dc17dc: display name [OsgiBundleXmlApplicationContext(bundle=org.springframework.osgi.samples.weather.service, config=osgibundlejar:/META-INF/spring/*.xml)]; startup date [Tue Nov 20 17:09:32 GMT+08:00 2007]; root of context hierarchy
-591 [SpringOsgiExtenderThread-3] INFO org.springframework.osgi.context.support.OsgiBundleXmlApplicationContext - Refreshing org.springframework.osgi.context.support.OsgiBundleXmlApplicationContext@1a6e1a6e: display name [OsgiBundleXmlApplicationContext(bundle=org.example.bean, config=osgibundlejar:/META-INF/spring/*.xml)]; startup date [Tue Nov 20 17:09:32 GMT+08:00 2007]; root of context hierarchy
-771 [SpringOsgiExtenderThread-3] INFO org.springframework.beans.factory.xml.XmlBeanDefinitionReader - Loading XML bean definitions from OSGi res[/META-INF/spring/bundle-context-osgi.xml|24|symName=org.example.bean]
-773 [SpringOsgiExtenderThread-2] INFO org.springframework.beans.factory.xml.XmlBeanDefinitionReader - Loading XML bean definitions from OSGi res[/META-INF/spring/weather-service-context.xml|19|symName=org.springframework.osgi.samples.weather.service]
-826 [SpringOsgiExtenderThread-1] INFO org.springframework.beans.factory.xml.XmlBeanDefinitionReader - Loading XML bean definitions from OSGi res[/META-INF/spring/weather-dao-context.xml|18|symName=org.springframework.osgi.samples.weather-dao]
-1184 [SpringOsgiExtenderThread-3] INFO org.springframework.beans.factory.xml.XmlBeanDefinitionReader - Loading XML bean definitions from OSGi res[/META-INF/spring/bundle-context.xml|24|symName=org.example.bean]
-1285 [SpringOsgiExtenderThread-3] INFO org.springframework.osgi.context.support.OsgiBundleXmlApplicationContext - Bean factory for application context [org.springframework.osgi.context.support.OsgiBundleXmlApplicationContext@1a6e1a6e]: org.springframework.beans.factory.support.DefaultListableBeanFactory@49ca49ca
-1343 [SpringOsgiExtenderThread-1] INFO org.springframework.osgi.context.support.OsgiBundleXmlApplicationContext - Bean factory for application context [org.springframework.osgi.context.support.OsgiBundleXmlApplicationContext@3cc03cc0]: org.springframework.beans.factory.support.DefaultListableBeanFactory@4a864a86
-1348 [SpringOsgiExtenderThread-2] INFO org.springframework.osgi.context.support.OsgiBundleXmlApplicationContext - Bean factory for application context [org.springframework.osgi.context.support.OsgiBundleXmlApplicationContext@17dc17dc]: org.springframework.beans.factory.support.DefaultListableBeanFactory@a0a0a0a
-1385 [SpringOsgiExtenderThread-4] INFO org.springframework.beans.factory.support.DefaultListableBeanFactory - Pre-instantiating singletons in org.springframework.beans.factory.support.DefaultListableBeanFactory@4a864a86: defining beans [weatherDao,org.springframework.osgi.service.exporter.support.OsgiServiceFactoryBean#0]; root of factory hierarchy
-1411 [SpringOsgiExtenderThread-5] INFO org.springframework.beans.factory.support.DefaultListableBeanFactory - Pre-instantiating singletons in org.springframework.beans.factory.support.DefaultListableBeanFactory@49ca49ca: defining beans [myExampleBean]; root of factory hierarchy
-1418 [SpringOsgiExtenderThread-5] INFO org.springframework.osgi.context.support.OsgiBundleXmlApplicationContext - Publishing application context with properties (org.springframework.context.service.name=org.example.bean)
-1622 [SpringOsgiExtenderThread-4] INFO org.springframework.osgi.service.exporter.support.OsgiServiceFactoryBean - Publishing service under classes [{org.springframework.osgi.samples.weather.dao.WeatherDao}]
-1624 [SpringOsgiExtenderThread-4] INFO org.springframework.osgi.context.support.OsgiBundleXmlApplicationContext - Publishing application context with properties (org.springframework.context.service.name=org.springframework.osgi.samples.weather-dao)
-1625 [SpringOsgiExtenderThread-6] INFO org.springframework.beans.factory.support.DefaultListableBeanFactory - Pre-instantiating singletons in org.springframework.beans.factory.support.DefaultListableBeanFactory@a0a0a0a: defining beans [org.springframework.osgi.service.importer.support.OsgiServiceProxyFactoryBean#0,weatherService,org.springframework.osgi.service.exporter.support.OsgiServiceFactoryBean#0]; root of factory hierarchy
-1756 [SpringOsgiExtenderThread-6] INFO org.springframework.osgi.service.exporter.support.OsgiServiceFactoryBean - Publishing service under classes [{org.springframework.osgi.samples.weather.service.WeatherService}]
-1757 [SpringOsgiExtenderThread-6] INFO org.springframework.osgi.context.support.OsgiBundleXmlApplicationContext - Publishing application context with properties (org.springframework.context.service.name=org.springframework.osgi.samples.weather.service)
+221 [FelixStartLevel] INFO org.springframework.osgi.extender.internal.ContextLoaderListener - disabled automatic Spring-DM annotation processing; [ org.springframework.osgi.extender.annotation.auto.processing=null]
+255 [SpringOsgiExtenderThread-1] INFO org.springframework.osgi.context.support.OsgiBundleXmlApplicationContext - Refreshing org.springframework.osgi.context.support.OsgiBundleXmlApplicationContext@1b001b00: display name [OsgiBundleXmlApplicationContext(bundle=org.springframework.osgi.samples.weather-dao, config=osgibundlejar:/META-INF/spring/*.xml)]; startup date [Mon Dec 03 15:35:58 GMT+08:00 2007]; root of context hierarchy
+257 [SpringOsgiExtenderThread-2] INFO org.springframework.osgi.context.support.OsgiBundleXmlApplicationContext - Refreshing org.springframework.osgi.context.support.OsgiBundleXmlApplicationContext@32423242: display name [OsgiBundleXmlApplicationContext(bundle=org.springframework.osgi.samples.weather.service, config=osgibundlejar:/META-INF/spring/*.xml)]; startup date [Mon Dec 03 15:35:58 GMT+08:00 2007]; root of context hierarchy
+293 [SpringOsgiExtenderThread-3] INFO org.springframework.osgi.context.support.OsgiBundleXmlApplicationContext - Refreshing org.springframework.osgi.context.support.OsgiBundleXmlApplicationContext@7f1c7f1c: display name [OsgiBundleXmlApplicationContext(bundle=org.example.bean, config=osgibundlejar:/META-INF/spring/*.xml)]; startup date [Mon Dec 03 15:35:58 GMT+08:00 2007]; root of context hierarchy
+498 [SpringOsgiExtenderThread-3] INFO org.springframework.beans.factory.xml.XmlBeanDefinitionReader - Loading XML bean definitions from OSGi res[/META-INF/spring/bundle-context-osgi.xml|24|symName=org.example.bean]
+506 [SpringOsgiExtenderThread-2] INFO org.springframework.beans.factory.xml.XmlBeanDefinitionReader - Loading XML bean definitions from OSGi res[/META-INF/spring/weather-service-context.xml|19|symName=org.springframework.osgi.samples.weather.service]
+515 [SpringOsgiExtenderThread-1] INFO org.springframework.beans.factory.xml.XmlBeanDefinitionReader - Loading XML bean definitions from OSGi res[/META-INF/spring/weather-dao-context.xml|18|symName=org.springframework.osgi.samples.weather-dao]
+900 [SpringOsgiExtenderThread-3] INFO org.springframework.beans.factory.xml.XmlBeanDefinitionReader - Loading XML bean definitions from OSGi res[/META-INF/spring/bundle-context.xml|24|symName=org.example.bean]
+968 [SpringOsgiExtenderThread-1] INFO org.springframework.osgi.context.support.OsgiBundleXmlApplicationContext - Bean factory for application context [org.springframework.osgi.context.support.OsgiBundleXmlApplicationContext@1b001b00]: org.springframework.beans.factory.support.DefaultListableBeanFactory@43484348
+971 [SpringOsgiExtenderThread-2] INFO org.springframework.osgi.context.support.OsgiBundleXmlApplicationContext - Bean factory for application context [org.springframework.osgi.context.support.OsgiBundleXmlApplicationContext@32423242]: org.springframework.beans.factory.support.DefaultListableBeanFactory@4bb64bb6
+996 [SpringOsgiExtenderThread-3] INFO org.springframework.osgi.context.support.OsgiBundleXmlApplicationContext - Bean factory for application context [org.springframework.osgi.context.support.OsgiBundleXmlApplicationContext@7f1c7f1c]: org.springframework.beans.factory.support.DefaultListableBeanFactory@78b878b8
+1108 [SpringOsgiExtenderThread-5] INFO org.springframework.beans.factory.support.DefaultListableBeanFactory - Pre-instantiating singletons in org.springframework.beans.factory.support.DefaultListableBeanFactory@78b878b8: defining beans [myExampleBean]; root of factory hierarchy
+1111 [SpringOsgiExtenderThread-4] INFO org.springframework.beans.factory.support.DefaultListableBeanFactory - Pre-instantiating singletons in org.springframework.beans.factory.support.DefaultListableBeanFactory@43484348: defining beans [weatherDao,org.springframework.osgi.service.exporter.support.OsgiServiceFactoryBean#0]; root of factory hierarchy
+1182 [SpringOsgiExtenderThread-5] INFO org.springframework.osgi.context.support.OsgiBundleXmlApplicationContext - Publishing application context with properties (org.springframework.context.service.name=org.example.bean)
+1339 [SpringOsgiExtenderThread-4] INFO org.springframework.osgi.service.exporter.support.OsgiServiceFactoryBean - Publishing service under classes [{org.springframework.osgi.samples.weather.dao.WeatherDao}]
+1341 [SpringOsgiExtenderThread-4] INFO org.springframework.osgi.context.support.OsgiBundleXmlApplicationContext - Publishing application context with properties (org.springframework.context.service.name=org.springframework.osgi.samples.weather-dao)
+1342 [SpringOsgiExtenderThread-6] INFO org.springframework.beans.factory.support.DefaultListableBeanFactory - Pre-instantiating singletons in org.springframework.beans.factory.support.DefaultListableBeanFactory@4bb64bb6: defining beans [org.springframework.osgi.service.importer.support.OsgiServiceProxyFactoryBean#0,weatherService,org.springframework.osgi.service.exporter.support.OsgiServiceFactoryBean#0]; root of factory hierarchy
+1452 [SpringOsgiExtenderThread-6] INFO org.springframework.osgi.service.exporter.support.OsgiServiceFactoryBean - Publishing service under classes [{org.springframework.osgi.samples.weather.service.WeatherService}]
+1452 [SpringOsgiExtenderThread-6] INFO org.springframework.osgi.context.support.OsgiBundleXmlApplicationContext - Publishing application context with properties (org.springframework.context.service.name=org.springframework.osgi.samples.weather.service)
 
 -> ps
 
@@ -233,17 +227,17 @@ START LEVEL 6
 [   1] [Active     ] [    1] org.osgi.r4.compendium (1.0.0)
 [   2] [Active     ] [    1] Apache Felix Shell Service (1.0.0)
 [   3] [Active     ] [    1] Apache Felix Shell TUI (1.0.0)
-[   4] [Active     ] [    5] spring-osgi-extender (1.0.0.rc1_SNAPSHOT)
+[   4] [Active     ] [    5] spring-osgi-extender (1.0.0.rc1)
 [   5] [Active     ] [    5] slf4j-api (1.4.3)
 [   6] [Active     ] [    5] jcl104-over-slf4j (1.4.3)
-[   7] [Active     ] [    5] spring-osgi-core (1.0.0.rc1_SNAPSHOT)
-[   8] [Active     ] [    5] spring-osgi-io (1.0.0.rc1_SNAPSHOT)
-[   9] [Active     ] [    5] spring-aop (2.5.0.rc2)
-[  10] [Active     ] [    5] spring-beans (2.5.0.rc2)
-[  11] [Active     ] [    5] spring-context (2.5.0.rc2)
-[  12] [Active     ] [    5] spring-core (2.5.0.rc2)
-[  13] [Active     ] [    5] spring-web (2.5.0.rc2)
-[  14] [Active     ] [    5] spring-test (2.5.0.rc2)
+[   7] [Active     ] [    5] spring-osgi-core (1.0.0.rc1)
+[   8] [Active     ] [    5] spring-osgi-io (1.0.0.rc1)
+[   9] [Active     ] [    5] spring-aop (2.5.0)
+[  10] [Active     ] [    5] spring-beans (2.5.0)
+[  11] [Active     ] [    5] spring-context (2.5.0)
+[  12] [Active     ] [    5] spring-core (2.5.0)
+[  13] [Active     ] [    5] spring-web (2.5.0)
+[  14] [Active     ] [    5] spring-test (2.5.0)
 [  15] [Active     ] [    5] aopalliance.osgi (1.0.0.SNAPSHOT)
 [  16] [Active     ] [    5] backport-util-concurrent.osgi (3.0.0.SNAPSHOT)
 [  17] [Active     ] [    5] slf4j-simple (1.4.3)
@@ -289,41 +283,41 @@ org.example.bean (24) provides:
 -------------------------------
 org.springframework.osgi.context.support.OsgiBundleXmlApplicationContext, org.springframework.osgi.context.support.AbstractDelegatedExecutionApplicationContext, org.springframework.osgi.context.DelegatedExecutionOsgiBundleApplicationContext, org.springframework.osgi.context.ConfigurableOsgiBundleApplicationContext, org.springframework.context.ConfigurableApplicationContext, org.springframework.context.ApplicationContext, org.springframework.context.Lifecycle, org.springframework.beans.factory.ListableBeanFactory, org.springframework.beans.factory.HierarchicalBeanFactory, org.springframework.context.MessageSource, org.springframework.context.ApplicationEventPublisher, org.springframework.core.io.support.ResourcePatternResolver, org.springframework.beans.factory.BeanFactory, org.springframework.core.io.ResourceLoader, org.springframework.osgi.context.support.AbstractOsgiBundleApplicationContext, org.springframework.context.support.AbstractRefreshableApplicationContext, org.springframework.context.support.AbstractApplicationContext, org.springframework.beans.factory.DisposableBean, org.springframework.core.io.DefaultResourceLoader
 
--> stop 0
+-> stop 0 
 
-11662 [Felix Shell TUI] INFO org.springframework.osgi.extender.internal.ContextLoaderListener - Stopping org.springframework.osgi.extender bundle
-11670 [Thread-2] INFO org.springframework.osgi.context.support.OsgiBundleXmlApplicationContext - Closing org.springframework.osgi.context.support.OsgiBundleXmlApplicationContext@1a6e1a6e: display name [OsgiBundleXmlApplicationContext(bundle=org.example.bean, config=osgibundlejar:/META-INF/spring/*.xml)]; startup date [Tue Nov 20 17:09:32 GMT+08:00 2007]; root of context hierarchy
-11671 [Thread-2] INFO org.springframework.beans.factory.support.DefaultListableBeanFactory - Destroying singletons in org.springframework.beans.factory.support.DefaultListableBeanFactory@49ca49ca: defining beans [myExampleBean]; root of factory hierarchy
-11675 [Thread-3] INFO org.springframework.osgi.context.support.OsgiBundleXmlApplicationContext - Closing org.springframework.osgi.context.support.OsgiBundleXmlApplicationContext@17dc17dc: display name [OsgiBundleXmlApplicationContext(bundle=org.springframework.osgi.samples.weather.service, config=osgibundlejar:/META-INF/spring/*.xml)]; startup date [Tue Nov 20 17:09:32 GMT+08:00 2007]; root of context hierarchy
-11676 [Thread-3] INFO org.springframework.beans.factory.support.DefaultListableBeanFactory - Destroying singletons in org.springframework.beans.factory.support.DefaultListableBeanFactory@a0a0a0a: defining beans [org.springframework.osgi.service.importer.support.OsgiServiceProxyFactoryBean#0,weatherService,org.springframework.osgi.service.exporter.support.OsgiServiceFactoryBean#0]; root of factory hierarchy
-11677 [Thread-3] INFO org.springframework.osgi.service.exporter.support.OsgiServiceFactoryBean - Unregistered service [ServiceWrapper for org.apache.felix.framework.ServiceRegistrationImpl@75767576]
-11680 [Thread-4] INFO org.springframework.osgi.context.support.OsgiBundleXmlApplicationContext - Closing org.springframework.osgi.context.support.OsgiBundleXmlApplicationContext@3cc03cc0: display name [OsgiBundleXmlApplicationContext(bundle=org.springframework.osgi.samples.weather-dao, config=osgibundlejar:/META-INF/spring/*.xml)]; startup date [Tue Nov 20 17:09:32 GMT+08:00 2007]; root of context hierarchy
-11680 [Thread-4] INFO org.springframework.beans.factory.support.DefaultListableBeanFactory - Destroying singletons in org.springframework.beans.factory.support.DefaultListableBeanFactory@4a864a86: defining beans [weatherDao,org.springframework.osgi.service.exporter.support.OsgiServiceFactoryBean#0]; root of factory hierarchy
-11681 [Thread-4] INFO org.springframework.osgi.service.exporter.support.OsgiServiceFactoryBean - Unregistered service [ServiceWrapper for org.apache.felix.framework.ServiceRegistrationImpl@42f842f8]
+27421 [Felix Shell TUI] INFO org.springframework.osgi.extender.internal.ContextLoaderListener - Stopping org.springframework.osgi.extender bundle
+27429 [Thread-2] INFO org.springframework.osgi.context.support.OsgiBundleXmlApplicationContext - Closing org.springframework.osgi.context.support.OsgiBundleXmlApplicationContext@7f1c7f1c: display name [OsgiBundleXmlApplicationContext(bundle=org.example.bean, config=osgibundlejar:/META-INF/spring/*.xml)]; startup date [Mon Dec 03 15:35:58 GMT+08:00 2007]; root of context hierarchy
+27431 [Thread-2] INFO org.springframework.beans.factory.support.DefaultListableBeanFactory - Destroying singletons in org.springframework.beans.factory.support.DefaultListableBeanFactory@78b878b8: defining beans [myExampleBean]; root of factory hierarchy
+27435 [Thread-3] INFO org.springframework.osgi.context.support.OsgiBundleXmlApplicationContext - Closing org.springframework.osgi.context.support.OsgiBundleXmlApplicationContext@32423242: display name [OsgiBundleXmlApplicationContext(bundle=org.springframework.osgi.samples.weather.service, config=osgibundlejar:/META-INF/spring/*.xml)]; startup date [Mon Dec 03 15:35:58 GMT+08:00 2007]; root of context hierarchy
+27436 [Thread-3] INFO org.springframework.beans.factory.support.DefaultListableBeanFactory - Destroying singletons in org.springframework.beans.factory.support.DefaultListableBeanFactory@4bb64bb6: defining beans [org.springframework.osgi.service.importer.support.OsgiServiceProxyFactoryBean#0,weatherService,org.springframework.osgi.service.exporter.support.OsgiServiceFactoryBean#0]; root of factory hierarchy
+27437 [Thread-3] INFO org.springframework.osgi.service.exporter.support.OsgiServiceFactoryBean - Unregistered service [ServiceWrapper for org.apache.felix.framework.ServiceRegistrationImpl@158e158e]
+27439 [Thread-4] INFO org.springframework.osgi.context.support.OsgiBundleXmlApplicationContext - Closing org.springframework.osgi.context.support.OsgiBundleXmlApplicationContext@1b001b00: display name [OsgiBundleXmlApplicationContext(bundle=org.springframework.osgi.samples.weather-dao, config=osgibundlejar:/META-INF/spring/*.xml)]; startup date [Mon Dec 03 15:35:58 GMT+08:00 2007]; root of context hierarchy
+27440 [Thread-4] INFO org.springframework.beans.factory.support.DefaultListableBeanFactory - Destroying singletons in org.springframework.beans.factory.support.DefaultListableBeanFactory@43484348: defining beans [weatherDao,org.springframework.osgi.service.exporter.support.OsgiServiceFactoryBean#0]; root of factory hierarchy
+27441 [Thread-4] INFO org.springframework.osgi.service.exporter.support.OsgiServiceFactoryBean - Unregistered service [ServiceWrapper for org.apache.felix.framework.ServiceRegistrationImpl@412e412e]
 -> STOPPING org.example.service
 [INFO] 
 [INFO] 
 [INFO] ------------------------------------------------------------------------
 [INFO] Reactor Summary:
 [INFO] ------------------------------------------------------------------------
-[INFO] examples.spring (OSGi project) ........................ SUCCESS [3.031s]
+[INFO] examples.spring (OSGi project) ........................ SUCCESS [3.244s]
 [INFO] spring - plugin configuration ......................... SUCCESS [0.002s]
 [INFO] spring - wrapper instructions ......................... SUCCESS [0.001s]
-[INFO] spring - bundle instructions .......................... SUCCESS [0.004s]
-[INFO] spring - imported bundles ............................. SUCCESS [0.034s]
-[INFO] asm 2.2.3 [osgi] ...................................... SUCCESS [0.003s]
-[INFO] javax.servlet.jsp-api 2.0 [osgi] ...................... SUCCESS [0.122s]
-[INFO] javax.servlet.api 2.5 [osgi] .......................... SUCCESS [0.003s]
-[INFO]  ...................................................... SUCCESS [0.001s]
-[INFO] org.example.service ................................... SUCCESS [0.003s]
-[INFO] org.example.bean ...................................... SUCCESS [14.395s]
+[INFO] spring - bundle instructions .......................... SUCCESS [0.002s]
+[INFO] spring - imported bundles ............................. SUCCESS [0.036s]
+[INFO] asm 2.2.3 [osgi] ...................................... SUCCESS [1.083s]
+[INFO] javax.servlet.jsp-api 2.0 [osgi] ...................... SUCCESS [0.615s]
+[INFO] javax.servlet.api 2.5 [osgi] .......................... SUCCESS [0.629s]
+[INFO]  ...................................................... SUCCESS [0.007s]
+[INFO] org.example.service ................................... SUCCESS [0.587s]
+[INFO] org.example.bean ...................................... SUCCESS [32.218s]
 [INFO] ------------------------------------------------------------------------
 [INFO] ------------------------------------------------------------------------
 [INFO] BUILD SUCCESSFUL
 [INFO] ------------------------------------------------------------------------
-[INFO] Total time: 18 seconds
-[INFO] Finished at: Tue Nov 20 17:09:43 GMT+08:00 2007
-[INFO] Final Memory: 9M/40M
+[INFO] Total time: 38 seconds
+[INFO] Finished at: Mon Dec 03 15:36:26 GMT+08:00 2007
+[INFO] Final Memory: 9M/35M
 [INFO] ------------------------------------------------------------------------
  -> Shuting down platform...
  -> Destroying platform process...
