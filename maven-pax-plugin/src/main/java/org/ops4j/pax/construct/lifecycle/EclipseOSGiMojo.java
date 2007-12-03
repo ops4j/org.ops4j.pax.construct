@@ -199,18 +199,26 @@ public class EclipseOSGiMojo extends EclipsePlugin
         m_resolvedDependencies = new ArrayList();
         for( int i = 0; i < deps.length; i++ )
         {
-            /*
-             * remove compile/runtime scope dependencies as they will be embedded and need custom classpath entries
-             */
-            if( deps[i].isAddedToClasspath() && !deps[i].isTestDependency() && !deps[i].isProvided() )
+            if( deps[i].isAddedToClasspath() )
             {
-                // cache them so we can still access the sources/javadocs later on
-                m_resolvedDependencies.add( deps[i] );
-                deps[i].setAddedToClasspath( false );
-            }
-            else if( deps[i].isTestDependency() )
-            {
-                deps[i] = fixOSGiTestDependency( deps[i] );
+                /*
+                 * remove compile/runtime dependencies as we expect them to be embedded
+                 */
+                if( !deps[i].isTestDependency() && !deps[i].isProvided() )
+                {
+                    // cache details so we can access sources/javadocs later
+                    m_resolvedDependencies.add( deps[i] );
+                    deps[i].setAddedToClasspath( false );
+                }
+                else
+                {
+                    /*
+                     * Change both test and provided dependencies to non-OSGi types otherwise they won't appear as
+                     * required libraries. We include provided dependencies here because PDE might not add them to
+                     * plugin dependencies, it all depends on the manifest which doesn't include test requirements
+                     */
+                    deps[i] = fixOSGiTestDependency( deps[i] );
+                }
             }
         }
 
