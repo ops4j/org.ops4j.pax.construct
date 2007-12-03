@@ -34,6 +34,9 @@ import org.codehaus.plexus.util.xml.pull.XmlSerializer;
  */
 public class PluginXml
 {
+    private static final String EXECUTE_GOAL = "executeGoal";
+    private static final String EXECUTE_PHASE = "executePhase";
+
     private final File m_file;
     private Xpp3Dom m_xml;
 
@@ -107,6 +110,8 @@ public class PluginXml
         removeDuplicates( mojo, tempMojo, "parameters", "name/", true );
         removeDuplicates( mojo, tempMojo, "configuration", null, false );
         removeDuplicates( mojo, tempMojo, "requirements", "field-name/", true );
+
+        removeDuplicateExecuteTags( mojo, tempMojo );
 
         // now we can safely append these sections
         setAppendMode( mojo.getChild( "parameters" ) );
@@ -216,6 +221,55 @@ public class PluginXml
         }
 
         return idElement;
+    }
+
+    /**
+     * Special check for duplicate execute tags, as there are two discrete types (goal vs phase)
+     * 
+     * @param mojo dominant mojo
+     * @param tempMojo temporary mojo
+     */
+    private static void removeDuplicateExecuteTags( Xpp3Dom mojo, Xpp3Dom tempMojo )
+    {
+        Xpp3Dom executeNode = mojo.getChild( EXECUTE_PHASE );
+        if( null == executeNode )
+        {
+            executeNode = mojo.getChild( EXECUTE_GOAL );
+        }
+
+        if( executeNode != null )
+        {
+            removeChild( tempMojo, tempMojo.getChild( EXECUTE_PHASE ) );
+            removeChild( tempMojo, tempMojo.getChild( EXECUTE_GOAL ) );
+
+            if( "none".equals( executeNode.getValue() ) )
+            {
+                // allow removal of execute tags
+                removeChild( mojo, executeNode );
+            }
+        }
+    }
+
+    /**
+     * Remove the child from the XML fragment
+     * 
+     * @param xml xml fragment
+     * @param child child node
+     * @return true if node was removed, otherwise false
+     */
+    private static boolean removeChild( Xpp3Dom xml, Xpp3Dom child )
+    {
+        for( int i = xml.getChildCount() - 1; i >= 0; i-- )
+        {
+            // reference equality test is ok
+            if( xml.getChild( i ) == child )
+            {
+                xml.removeChild( i );
+                return true;
+            }
+        }
+
+        return false;
     }
 
     /**
