@@ -25,7 +25,8 @@
 
 Quickstart
 
- To use Pax-Construct you need a Java runtime (preferably 1.4 or above) and Maven2 installed and on your path.
+ To use Pax-Construct you need a Java runtime (preferably 1.4 or above) and Maven2 installed and on your path.\
+ NOTE: if you have an old copy of the scripts installed, you can update them using the {{{help/update.html}pax-update}} command.
 
 * {{http://repository.ops4j.org/maven2/org/ops4j/pax/construct/scripts/0.6.2/scripts-0.6.2.zip}}
 

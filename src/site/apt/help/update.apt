@@ -28,7 +28,21 @@
  When run in the Pax-Construct scripts directory, updates the script files to the latest version.
 
  When run in an existing Pax-Construct project, will attempt to update it to use the latest plugin.\
- (unless it happens to be a pre-0.2.0 project, which should be migrated using the pax-clone script) 
+ (unless it happens to be a pre-0.2.0 project, which should be migrated using the pax-clone script)
+
+ NOTE: you may need to make the scripts writable, as pax-update won't overwrite read-only files.
+
+ Linux / UNIX / Mac
+
+-----
+chmod u+w bin/pax*
+-----
+
+ Windows
+
+-----
+Select files in explorer, right-click -> Properties... deselect the Read Only checkbox, press ok
+-----
 
 * Additional Maven options
 
