@@ -2,6 +2,9 @@
   <id>maven-archetype-osgi-project</id>
   <allowPartial>true</allowPartial>
   <resources>
+    <!--
+      Pax-Construct Infrastructure
+    -->
     <resource>poms/pom.xml</resource>
     <resource>poms/compiled/pom.xml</resource>
     <resource>poms/wrappers/pom.xml</resource>

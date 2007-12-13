@@ -13,4 +13,7 @@
     <resource>src/main/resources/META-INF/spring/bundle-context-osgi.xml</resource>
     <resource>src/main/resources/META-INF/spring/bundle-context.xml</resource>
   </resources>
+  <testResources>
+    <resource>src/test/resources/readme.txt</resource>
+  </testResources>
 </archetype>
