@@ -183,6 +183,7 @@ public class RoundTripBndFile
         throws IOException
     {
         List lines = readLines();
+        List block = new ArrayList();
 
         boolean skip = false;
         boolean echo = true;
@@ -190,34 +191,30 @@ public class RoundTripBndFile
         Properties instructions = new Properties();
         instructions.putAll( m_newInstructions );
 
-        BufferedWriter bndWriter = new BufferedWriter( StreamFactory.newPlatformWriter( m_file ) );
         for( Iterator i = lines.iterator(); i.hasNext(); )
         {
             String line = (String) i.next();
 
             if( isWhitespaceOrComment( line ) )
             {
-                // check next line
+                block.add( line );
                 skip = false;
-                echo = true;
             }
             else
             {
                 if( !skip )
                 {
                     // check to see if we should update / remove / leave alone
-                    echo = checkInstructionLine( instructions, bndWriter, line );
+                    echo = checkInstructionLine( block, line, instructions );
+                }
+
+                if( echo )
+                {
+                    block.add( line );
                 }
 
                 // continue skipping to end of line
                 skip = isLineContinuation( line );
-            }
-
-            if( echo )
-            {
-                // preserve existing line
-                bndWriter.write( line );
-                bndWriter.newLine();
             }
         }
 
@@ -225,20 +222,47 @@ public class RoundTripBndFile
         for( Enumeration e = instructions.keys(); e.hasMoreElements(); )
         {
             String key = (String) e.nextElement();
+            String value = instructions.getProperty( key );
+            writeInstruction( block, key, value );
+        }
 
-            if( !echo )
+        // finally write updated text back to the file
+        BufferedWriter writer = new BufferedWriter( StreamFactory.newPlatformWriter( m_file ) );
+        writeInstructionBlock( writer, block );
+        IOUtil.close( writer );
+    }
+
+    /**
+     * Write a block of comments and instructions to the Bnd file
+     * 
+     * @param bndWriter writer for the Bnd file
+     * @param block comment block
+     * @throws IOException
+     */
+    private static void writeInstructionBlock( BufferedWriter bndWriter, List block )
+        throws IOException
+    {
+        boolean needSpace = false;
+        for( Iterator i = block.iterator(); i.hasNext(); )
+        {
+            String line = (String) i.next();
+
+            if( isWhitespaceOrComment( line ) )
             {
-                echo = true; // previous line was deleted, so can skip first new line
+                needSpace = false;
             }
-            else
+            else if( needSpace )
             {
                 bndWriter.newLine();
             }
+            else if( !isLineContinuation( line ) )
+            {
+                needSpace = true;
+            }
 
-            writeInstruction( bndWriter, key, instructions.getProperty( key ) );
+            bndWriter.write( line );
+            bndWriter.newLine();
         }
-
-        IOUtil.close( bndWriter );
     }
 
     /**
@@ -268,13 +292,13 @@ public class RoundTripBndFile
     /**
      * Check existing line against instructions and update if necessary
      * 
-     * @param instructions the instructions to write to disk
-     * @param writer line writer
+     * @param block comment block
      * @param line existing line
+     * @param instructions the instructions to write to disk
      * @return true if existing line should be echoed unchanged, otherwise false
      * @throws IOException
      */
-    private boolean checkInstructionLine( Properties instructions, BufferedWriter writer, String line )
+    private boolean checkInstructionLine( List block, String line, Properties instructions )
         throws IOException
     {
         String[] keyAndValue = line.split( "[=: \t\r\n\f]", 2 );
@@ -288,14 +312,36 @@ public class RoundTripBndFile
                 // no change
                 return true;
             }
-            else
-            {
-                writeInstruction( writer, key, newValue );
-            }
+
+            // old instruction has been altered
+            writeInstruction( block, key, newValue );
+            return false;
         }
 
-        // instruction has been updated or removed
+        // remove old instruction comment
+        removeInstructionComment( block );
         return false;
+    }
+
+    /**
+     * Remove the comment that's directly attached to the current instruction
+     * 
+     * @param block comment block
+     */
+    private static void removeInstructionComment( List block )
+    {
+        while( !block.isEmpty() )
+        {
+            // remove lines in reverse
+            String line = (String) block.remove( block.size() - 1 );
+
+            // assume comment ends once we see an empty line or a non-comment
+            if( line.trim().length() == 0 || !isWhitespaceOrComment( line ) )
+            {
+                block.add( line );
+                return;
+            }
+        }
     }
 
     /**
@@ -368,39 +414,39 @@ public class RoundTripBndFile
     /**
      * Write instruction as a standard property, with continuation markers at every comma
      * 
-     * @param writer line writer
+     * @param block comment block
      * @param key property key
      * @param value property value
      * @throws IOException
      */
-    private static void writeInstruction( BufferedWriter writer, String key, String value )
+    private static void writeInstruction( List block, String key, String value )
         throws IOException
     {
-        String buf = markInstructionClauses( value );
+        StringBuffer buf = new StringBuffer( key + ':' );
+        String instruction = markInstructionClauses( value );
 
         // heuristic: only wrap long instructions
-        boolean multiLine = ( buf.length() > 80 );
-
-        writer.write( key + ':' );
+        boolean multiLine = ( instruction.length() > 80 );
 
         // output clauses on single or multiple lines
-        String[] clauses = buf.toString().split( "\\\\" );
+        String[] clauses = instruction.toString().split( "\\\\" );
         for( int i = 0; i < clauses.length; i++ )
         {
             if( multiLine )
             {
-                writer.write( '\\' );
-                writer.newLine();
-                writer.write( ' ' );
+                buf.append( '\\' );
+                block.add( buf.toString() );
+                buf.setLength( 0 );
+                buf.append( ' ' );
             }
             else if( i == 0 )
             {
-                writer.write( ' ' );
+                buf.append( ' ' );
             }
 
-            writer.write( clauses[i].trim() );
+            buf.append( clauses[i].trim() );
         }
 
-        writer.newLine();
+        block.add( buf.toString() );
     }
 }
