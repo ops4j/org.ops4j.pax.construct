@@ -548,7 +548,12 @@ public abstract class AbstractPaxArchetypeMojo extends MavenArchetypeMojo
             try
             {
                 // exclude any already existing files, so we don't accidentally trash modified files
-                m_tempFiles.setExcludes( FileUtils.getFileNames( pomDirectory, null, null, false ) );
+                List excludes = FileUtils.getFileNames( pomDirectory, null, null, false );
+                for( Iterator i = excludes.iterator(); i.hasNext(); )
+                {
+                    getLog().debug( "Preserving " + i.next() );
+                }
+                m_tempFiles.setExcludes( excludes );
             }
             catch( IOException e )
             {
@@ -814,7 +819,9 @@ public abstract class AbstractPaxArchetypeMojo extends MavenArchetypeMojo
         String[] discardedFiles = scanner.getIncludedFiles();
         for( int i = 0; i < discardedFiles.length; i++ )
         {
-            new File( scanner.getBasedir(), discardedFiles[i] ).delete();
+            String filename = discardedFiles[i];
+            getLog().debug( "Discarding " + filename );
+            new File( scanner.getBasedir(), filename ).delete();
         }
 
         // remove any empty directories after the cleanup
