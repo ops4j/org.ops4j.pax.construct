@@ -199,6 +199,7 @@ public class RoundTripBndFile
             {
                 // check next line
                 skip = false;
+                echo = true;
             }
             else
             {
@@ -224,6 +225,15 @@ public class RoundTripBndFile
         for( Enumeration e = instructions.keys(); e.hasMoreElements(); )
         {
             String key = (String) e.nextElement();
+
+            if( !echo )
+            {
+                echo = true; // previous line was deleted, so can skip first new line
+            }
+            else
+            {
+                bndWriter.newLine();
+            }
 
             writeInstruction( bndWriter, key, instructions.getProperty( key ) );
         }
@@ -348,7 +358,6 @@ public class RoundTripBndFile
 
         writer.write( ' ' + value.substring( i ) );
 
-        writer.newLine();
         writer.newLine();
     }
 }
