@@ -165,11 +165,7 @@ public class RoundTripBndFile
     public void write()
         throws IOException
     {
-        if( m_newInstructions.isEmpty() )
-        {
-            m_file.delete();
-        }
-        else if( !m_newInstructions.equals( m_oldInstructions ) || !m_file.exists() )
+        if( !m_newInstructions.equals( m_oldInstructions ) || !m_file.exists() )
         {
             writeUpdatedInstructions();
         }
