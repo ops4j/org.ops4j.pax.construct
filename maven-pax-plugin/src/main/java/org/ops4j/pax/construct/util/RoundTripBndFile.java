@@ -329,6 +329,43 @@ public class RoundTripBndFile
     }
 
     /**
+     * Mark instruction clauses with line-continuation markers
+     * 
+     * @param instruction Bnd instruction
+     * @return marked instruction
+     */
+    private static String markInstructionClauses( String instruction )
+    {
+        StringBuffer buf = new StringBuffer();
+        boolean inQuotes = false;
+
+        // add \\ markers between clauses
+        char[] text = instruction.toCharArray();
+        for( int i = 0; i < text.length; i++ )
+        {
+            char c = text[i];
+            buf.append( c );
+
+            switch( c ) {
+            case '\'':
+            case '\"':
+                inQuotes = !inQuotes;
+                break;
+            case ',':
+                if( !inQuotes )
+                {
+                    buf.append( '\\' );
+                }
+                break;
+            default:
+                break;
+            }
+        }
+
+        return buf.toString();
+    }
+
+    /**
      * Write instruction as a standard property, with continuation markers at every comma
      * 
      * @param writer line writer
@@ -339,24 +376,30 @@ public class RoundTripBndFile
     private static void writeInstruction( BufferedWriter writer, String key, String value )
         throws IOException
     {
+        String buf = markInstructionClauses( value );
+
+        // heuristic: only wrap long instructions
+        boolean multiLine = ( buf.length() > 80 );
+
         writer.write( key + ':' );
 
-        int i = 0;
-        for( int j = value.indexOf( ',' ); j >= 0; i = j + 1, j = value.indexOf( ',', i ) )
+        // output clauses on single or multiple lines
+        String[] clauses = buf.toString().split( "\\\\" );
+        for( int i = 0; i < clauses.length; i++ )
         {
-            writer.write( '\\' );
-            writer.newLine();
+            if( multiLine )
+            {
+                writer.write( '\\' );
+                writer.newLine();
+                writer.write( ' ' );
+            }
+            else if( i == 0 )
+            {
+                writer.write( ' ' );
+            }
 
-            writer.write( ' ' + value.substring( i, j ) + ',' );
+            writer.write( clauses[i].trim() );
         }
-
-        if( i > 0 )
-        {
-            writer.write( '\\' );
-            writer.newLine();
-        }
-
-        writer.write( ' ' + value.substring( i ) );
 
         writer.newLine();
     }
