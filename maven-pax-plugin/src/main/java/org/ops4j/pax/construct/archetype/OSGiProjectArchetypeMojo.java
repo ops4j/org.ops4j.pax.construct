@@ -22,7 +22,6 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
-import org.apache.maven.archetype.FileUtils;
 import org.apache.maven.model.Repository;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.ops4j.pax.construct.util.BndUtils.Bnd;
@@ -146,6 +145,10 @@ public class OSGiProjectArchetypeMojo extends AbstractPaxArchetypeMojo
 
         pom.addRepository( repository, true, false, true, true );
 
+        // clear away some bogus files
+        addTempFiles( "poms/imported/" );
+        addTempFiles( "osgi.bnd" );
+
         // are there any customized POM settings that need merging?
         if( null == m_settingPoms || m_settingPoms.size() == 0 )
         {
@@ -168,17 +171,6 @@ public class OSGiProjectArchetypeMojo extends AbstractPaxArchetypeMojo
             {
                 getLog().warn( "Unable to merge project settings " + settingsPom );
             }
-        }
-
-        File importedSettingsDir = new File( pom.getBasedir(), "poms/imported" );
-        try
-        {
-            // imported settings are no longer used in v2
-            FileUtils.deleteDirectory( importedSettingsDir );
-        }
-        catch( IOException e )
-        {
-            getLog().warn( "Unable to remove redundant directory " + importedSettingsDir );
         }
     }
 }
