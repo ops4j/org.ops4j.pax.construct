@@ -53,6 +53,7 @@ import org.codehaus.plexus.util.xml.Xpp3DomBuilder;
 import org.codehaus.plexus.util.xml.Xpp3DomWriter;
 import org.codehaus.plexus.util.xml.pull.XmlPullParserException;
 import org.ops4j.pax.construct.util.DirUtils;
+import org.ops4j.pax.construct.util.DirUtils.EntryFilter;
 import org.ops4j.pax.construct.util.PomUtils;
 import org.ops4j.pax.construct.util.ReflectMojo;
 import org.ops4j.pax.construct.util.StreamFactory;
@@ -317,6 +318,31 @@ public class EclipseOSGiMojo extends EclipsePlugin
     }
 
     /**
+     * Select files for unpacking that don't exist locally under target/classes
+     */
+    private class IncludedContentFilter
+        implements EntryFilter
+    {
+        /**
+         * {@inheritDoc}
+         */
+        public boolean accept( String name )
+        {
+            // always select metadata folders as we may need to refactor them
+            if( name.startsWith( "META-INF" ) || name.startsWith( "OSGI-INF" ) )
+            {
+                return true;
+            }
+            else
+            {
+                // do we already have this file locally?
+                File outputDir = getBuildOutputDirectory();
+                return new File( outputDir, name ).exists() == false;
+            }
+        }
+    }
+
+    /**
      * Copy OSGi metadata to where Eclipse PDE expects it, but adjust the Bundle-ClassPath so Eclipse can find any
      * embedded jars or directories in the unpacked bundle contents under the temporary directory
      * 
@@ -325,7 +351,7 @@ public class EclipseOSGiMojo extends EclipsePlugin
     private void refactorForEclipse( File bundleFile )
     {
         // temporary location in the output folder
-        String tempPath = "target/contents";
+        String tempPath = "target/pax-eclipse";
         boolean refactorManifest = false;
 
         // make relative to the provisioning POM
@@ -335,16 +361,18 @@ public class EclipseOSGiMojo extends EclipsePlugin
         if( bundleFile == null || !bundleFile.exists() )
         {
             getLog().warn( "Bundle has not been built, reverting to basic behaviour" );
-            unpackDir.mkdirs();
         }
         else
         {
-            DirUtils.unpackBundle( bundleFile, unpackDir );
+            DirUtils.unpackBundle( bundleFile, unpackDir, new IncludedContentFilter() );
 
-            copyMetadata( unpackDir, "META-INF", baseDir );
-            copyMetadata( unpackDir, "OSGI-INF", baseDir );
+            moveMetadata( unpackDir, "META-INF", baseDir );
+            moveMetadata( unpackDir, "OSGI-INF", baseDir );
 
-            refactorManifest = true;
+            // test to see if it's empty
+            unpackDir.delete();
+
+            refactorManifest = unpackDir.exists();
         }
 
         File manifestFile = new File( baseDir, "META-INF/MANIFEST.MF" );
@@ -368,12 +396,12 @@ public class EclipseOSGiMojo extends EclipsePlugin
         {
             bundleClassPath = ".," + DirUtils.rebasePaths( bundleClassPath, tempPath, ',' );
             mainAttributes.putValue( "Bundle-ClassPath", bundleClassPath );
-        }
 
-        // add the embedded entries back to the Eclipse classpath
-        if( bundleClassPath != null )
-        {
-            addEmbeddedEntriesToEclipseClassPath( tempPath, bundleClassPath );
+            if( bundleClassPath != null )
+            {
+                // add the embedded entries back to the Eclipse classpath
+                addEmbeddedEntriesToEclipseClassPath( tempPath, bundleClassPath );
+            }
         }
 
         try
@@ -427,7 +455,7 @@ public class EclipseOSGiMojo extends EclipsePlugin
      * @param metadata metadata folder
      * @param toDir target directory
      */
-    private void copyMetadata( File fromDir, String metadata, File toDir )
+    private void moveMetadata( File fromDir, String metadata, File toDir )
     {
         File metadataDir = new File( fromDir, metadata );
         if( metadataDir.exists() )
@@ -435,6 +463,7 @@ public class EclipseOSGiMojo extends EclipsePlugin
             try
             {
                 FileUtils.copyDirectoryStructure( metadataDir, new File( toDir, metadata ) );
+                FileUtils.deleteDirectory( metadataDir );
             }
             catch( IOException e )
             {
@@ -558,7 +587,7 @@ public class EclipseOSGiMojo extends EclipsePlugin
                     continue;
                 }
 
-                DirUtils.unpackBundle( artifact.getFile(), baseDir );
+                DirUtils.unpackBundle( artifact.getFile(), baseDir, null );
 
                 // download the bundle POM and store locally
                 MavenProject dependencyProject = writeProjectPom( baseDir, artifact );

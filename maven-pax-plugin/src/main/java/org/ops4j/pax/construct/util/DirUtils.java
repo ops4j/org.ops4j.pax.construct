@@ -474,17 +474,30 @@ public final class DirUtils
     }
 
     /**
+     * Simple API to allow selected unpacking of content from bundles
+     */
+    public interface EntryFilter
+    {
+        /**
+         * @param entryName name of a file entry inside the bundle
+         * @return true if it should be unpacked, otherwise false
+         */
+        boolean accept( String entryName );
+    }
+
+    /**
      * @param bundle jarfile
      * @param here unpack directory
+     * @param filter selection filter
      * @return true if bundle was successfully unpacked
      */
-    public static boolean unpackBundle( File bundle, File here )
+    public static boolean unpackBundle( File bundle, File here, EntryFilter filter )
     {
         try
         {
             // improves unpacking performance
             FileUtils.deleteDirectory( here );
-            unpackZip( bundle, here, null );
+            unpack( bundle, here, filter );
 
             return true;
         }
@@ -499,10 +512,10 @@ public final class DirUtils
      * 
      * @param bundle zipfile
      * @param here unpack directory
-     * @param prefix unpack entries that start with the prefix
+     * @param filter selection filter
      * @throws IOException
      */
-    private static void unpackZip( File bundle, File here, String prefix )
+    private static void unpack( File bundle, File here, EntryFilter filter )
         throws IOException
     {
         ZipFile zipFile = new ZipFile( bundle );
@@ -515,7 +528,7 @@ public final class DirUtils
                 String name = entry.getName();
 
                 // don't bother with plain folders, as we always create them on-demand
-                if( !entry.isDirectory() && ( prefix == null || name.startsWith( prefix ) ) )
+                if( !entry.isDirectory() && ( null == filter || filter.accept( name ) ) )
                 {
                     // place unpacked file underneath target folder
                     File file = FileUtils.resolveFile( here, name );
@@ -567,7 +580,7 @@ public final class DirUtils
         String[] entries = bundleClassPath.split( "," );
         for( int i = 0; i < entries.length; i++ )
         {
-            String path = entries[i].trim();
+            final String path = entries[i].trim();
             if( path.length() == 0 )
             {
                 continue;
@@ -581,8 +594,15 @@ public final class DirUtils
             {
                 try
                 {
-                    // unpack embedded folder/jar
-                    unpackZip( bundle, here, path );
+                    unpack( bundle, here, new EntryFilter()
+                    {
+                        // just unpack the embedded folder/jar
+                        public boolean accept( String entryName )
+                        {
+                            return entryName.startsWith( path );
+                        }
+                    } );
+
                     pathList.add( pathPrefix + '/' + path );
                 }
                 catch( IOException e )
