@@ -545,20 +545,7 @@ public abstract class AbstractPaxArchetypeMojo extends MavenArchetypeMojo
 
         if( pomDirectory.exists() )
         {
-            try
-            {
-                // exclude any already existing files, so we don't accidentally trash modified files
-                List excludes = FileUtils.getFileNames( pomDirectory, null, null, false );
-                for( Iterator i = excludes.iterator(); i.hasNext(); )
-                {
-                    getLog().debug( "Preserving " + i.next() );
-                }
-                m_tempFiles.setExcludes( excludes );
-            }
-            catch( IOException e )
-            {
-                throw new MojoExecutionException( "I/O error while protecting existing files from deletion", e );
-            }
+            preserveExistingFiles( pomDirectory );
         }
         else
         {
@@ -577,6 +564,29 @@ public abstract class AbstractPaxArchetypeMojo extends MavenArchetypeMojo
             {
                 getLog().warn( "Unable to attach POM to existing project" );
             }
+        }
+    }
+
+    /**
+     * @param baseDir project base directory
+     * @throws MojoExecutionException
+     */
+    private void preserveExistingFiles( File baseDir )
+        throws MojoExecutionException
+    {
+        try
+        {
+            // exclude existing files, so we don't accidentally trash them later
+            List excludes = FileUtils.getFileNames( baseDir, null, null, false );
+            for( Iterator i = excludes.iterator(); i.hasNext(); )
+            {
+                getLog().debug( "Preserving " + i.next() );
+            }
+            m_tempFiles.setExcludes( excludes );
+        }
+        catch( IOException e )
+        {
+            throw new MojoExecutionException( "I/O error while protecting existing files from deletion", e );
         }
     }
 
