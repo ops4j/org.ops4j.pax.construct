@@ -392,19 +392,20 @@ public class RoundTripBndFile
             char c = text[i];
             buf.append( c );
 
-            switch( c ) {
-            case '\'':
-            case '\"':
-                inQuotes = !inQuotes;
-                break;
-            case ',':
-                if( !inQuotes )
-                {
-                    buf.append( '\\' );
-                }
-                break;
-            default:
-                break;
+            switch( c )
+            {
+                case '\'':
+                case '\"':
+                    inQuotes = !inQuotes;
+                    break;
+                case ',':
+                    if( !inQuotes )
+                    {
+                        buf.append( '\\' );
+                    }
+                    break;
+                default:
+                    break;
             }
         }
 
