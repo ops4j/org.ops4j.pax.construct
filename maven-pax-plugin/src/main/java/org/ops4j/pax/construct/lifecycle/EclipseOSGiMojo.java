@@ -35,6 +35,7 @@ import org.apache.maven.artifact.Artifact;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
 import org.apache.maven.plugin.eclipse.EclipsePlugin;
+import org.apache.maven.plugin.eclipse.EclipseSourceDir;
 import org.apache.maven.plugin.eclipse.writers.EclipseClasspathWriter;
 import org.apache.maven.plugin.eclipse.writers.EclipseProjectWriter;
 import org.apache.maven.plugin.eclipse.writers.EclipseSettingsWriter;
@@ -669,6 +670,7 @@ public class EclipseOSGiMojo extends EclipsePlugin
         EclipseWriterConfig config = createEclipseWriterConfig( new IdeDependency[0] );
         config.setEclipseProjectName( getEclipseProjectName( executedProject, true ) );
         config.setClasspathContainers( Collections.EMPTY_LIST );
+        config.setSourceDirs( new EclipseSourceDir[0] );
 
         // not compiling, so just need project and classpath files
         new EclipseClasspathWriter().init( getLog(), config ).write();
