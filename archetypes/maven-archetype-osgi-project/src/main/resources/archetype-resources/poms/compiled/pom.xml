@@ -31,8 +31,8 @@
             <!--
               assume public classes are in the top package, and private classes are under ".internal"
             -->
-            <Export-Package>${bundle.namespace};version="${pom.version}"</Export-Package>
-            <Private-Package>${bundle.namespace}.internal</Private-Package>
+            <Export-Package>!${bundle.namespace}.internal.*,${bundle.namespace}.*;version="${pom.version}"</Export-Package>
+            <Private-Package>${bundle.namespace}.internal.*</Private-Package>
             <!--
               each module can override these defaults in their osgi.bnd file
             -->
