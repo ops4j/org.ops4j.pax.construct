@@ -177,6 +177,8 @@ public class EclipseOSGiMojo extends EclipsePlugin
     public void writeConfiguration( IdeDependency[] deps )
         throws MojoExecutionException
     {
+        m_resolvedDependencies = new ArrayList();
+
         if( null == m_provisionProject )
         {
             // compiled OSGi bundle / wrapper
@@ -198,7 +200,6 @@ public class EclipseOSGiMojo extends EclipsePlugin
     private void writeBundleConfiguration( IdeDependency[] deps )
         throws MojoExecutionException
     {
-        m_resolvedDependencies = new ArrayList();
         for( int i = 0; i < deps.length; i++ )
         {
             if( deps[i].isAddedToClasspath() )
@@ -398,11 +399,8 @@ public class EclipseOSGiMojo extends EclipsePlugin
             bundleClassPath = ".," + DirUtils.rebasePaths( bundleClassPath, tempPath, ',' );
             mainAttributes.putValue( "Bundle-ClassPath", bundleClassPath );
 
-            if( bundleClassPath != null )
-            {
-                // add the embedded entries back to the Eclipse classpath
-                addEmbeddedEntriesToEclipseClassPath( tempPath, bundleClassPath );
-            }
+            // add the embedded entries back to the Eclipse classpath
+            addEmbeddedEntriesToEclipseClassPath( tempPath, bundleClassPath );
         }
 
         try
@@ -691,6 +689,19 @@ public class EclipseOSGiMojo extends EclipsePlugin
 
         // set PDE classpath to point to unpacked bundle
         attachImportedContent( sourceArtifact.getFile() );
+
+        String baseDir = executedProject.getBasedir().getPath();
+        File manifestFile = new File( baseDir, "META-INF/MANIFEST.MF" );
+
+        Manifest manifest = getBundleManifest( manifestFile );
+        Attributes mainAttributes = manifest.getMainAttributes();
+
+        String bundleClassPath = mainAttributes.getValue( "Bundle-ClassPath" );
+        if( null != bundleClassPath )
+        {
+            // add any embedded entries to the default Eclipse classpath
+            addEmbeddedEntriesToEclipseClassPath( baseDir, bundleClassPath );
+        }
     }
 
     /**
