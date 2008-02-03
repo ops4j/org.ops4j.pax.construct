@@ -43,6 +43,8 @@ import org.apache.maven.project.MavenProject;
 import org.apache.maven.project.MavenProjectBuilder;
 import org.apache.maven.project.ProjectBuildingException;
 import org.apache.maven.project.artifact.InvalidDependencyVersionException;
+import org.apache.maven.settings.Mirror;
+import org.apache.maven.settings.Settings;
 import org.codehaus.plexus.util.IOUtil;
 import org.ops4j.pax.construct.util.PomUtils;
 import org.ops4j.pax.construct.util.StreamFactory;
@@ -112,6 +114,15 @@ public class ProvisionMojo extends AbstractMojo
      * @component
      */
     private MavenProjectBuilder m_projectBuilder;
+
+    /**
+     * The local Maven settings.
+     * 
+     * @parameter expression="${settings}"
+     * @required
+     * @readonly
+     */
+    private Settings m_settings;
 
     /**
      * List of remote Maven repositories for the containing project.
@@ -313,15 +324,24 @@ public class ProvisionMojo extends AbstractMojo
             return;
         }
 
+        String delim = "";
         StringBuffer repoListBuilder = new StringBuffer();
         for( Iterator i = m_remoteRepos.iterator(); i.hasNext(); )
         {
+            repoListBuilder.append( delim );
+
             ArtifactRepository repo = (ArtifactRepository) i.next();
-            if( repoListBuilder.length() > 0 )
+            Mirror mirror = getRepositoryMirror( repo );
+            if( null == mirror )
             {
-                repoListBuilder.append( ',' );
+                repoListBuilder.append( repo.getUrl() );
             }
-            repoListBuilder.append( repo.getUrl() );
+            else
+            {
+                repoListBuilder.append( mirror.getUrl() );
+            }
+
+            delim = ",";
         }
 
         if( PomUtils.needReleaseVersion( runner ) )
@@ -344,6 +364,20 @@ public class ProvisionMojo extends AbstractMojo
             Class clazz = loadRunnerClass( PAX_RUNNER_GROUP, PAX_RUNNER_ARTIFACT, PAX_RUNNER_METHOD, true );
             deployRunnerNG( clazz, deployProject, repoListBuilder.toString() );
         }
+    }
+
+    /**
+     * @param repo remote Maven repository
+     * @return repository mirror, or null if it doesn't have one
+     */
+    private Mirror getRepositoryMirror( ArtifactRepository repo )
+    {
+        Mirror mirror = m_settings.getMirrorOf( repo.getId() );
+        if( null == mirror )
+        {
+            mirror = m_settings.getMirrorOf( "*" );
+        }
+        return mirror;
     }
 
     /**
