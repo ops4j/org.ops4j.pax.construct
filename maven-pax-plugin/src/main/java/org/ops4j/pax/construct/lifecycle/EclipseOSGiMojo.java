@@ -240,19 +240,19 @@ public class EclipseOSGiMojo extends EclipsePlugin
     }
 
     /**
-     * @param project bundle project
+     * @param bundleProject bundle project
      * @return recently built bundle
      */
-    private File getBundleFile( MavenProject project )
+    private File getBundleFile( MavenProject bundleProject )
     {
-        Artifact artifact = project.getArtifact();
+        Artifact artifact = bundleProject.getArtifact();
         File bundleFile = artifact.getFile();
 
         if( null == bundleFile || !bundleFile.exists() )
         {
             // no file attached in this cycle, so check local build
-            String name = project.getBuild().getFinalName() + ".jar";
-            bundleFile = new File( project.getBuild().getDirectory(), name );
+            String name = bundleProject.getBuild().getFinalName() + ".jar";
+            bundleFile = new File( bundleProject.getBuild().getDirectory(), name );
         }
 
         if( !bundleFile.exists() )
@@ -313,18 +313,26 @@ public class EclipseOSGiMojo extends EclipsePlugin
 
             return projectName + " [" + projectVersion + ']';
         }
-        else
-        {
-            return projectName;
-        }
+
+        return projectName;
     }
 
     /**
      * Select files for unpacking that don't exist locally under target/classes
      */
-    private class IncludedContentFilter
+    private static class IncludedContentFilter
         implements EntryFilter
     {
+        private final File m_outputDir;
+
+        /**
+         * @param outputDir build output directory
+         */
+        public IncludedContentFilter( File outputDir )
+        {
+            m_outputDir = outputDir;
+        }
+
         /**
          * {@inheritDoc}
          */
@@ -335,12 +343,9 @@ public class EclipseOSGiMojo extends EclipsePlugin
             {
                 return true;
             }
-            else
-            {
-                // do we already have this file locally?
-                File outputDir = getBuildOutputDirectory();
-                return new File( outputDir, name ).exists() == false;
-            }
+
+            // do we already have this file locally?
+            return new File( m_outputDir, name ).exists() == false;
         }
     }
 
@@ -366,7 +371,7 @@ public class EclipseOSGiMojo extends EclipsePlugin
         }
         else
         {
-            DirUtils.unpackBundle( bundleFile, unpackDir, new IncludedContentFilter() );
+            DirUtils.unpackBundle( bundleFile, unpackDir, new IncludedContentFilter( getBuildOutputDirectory() ) );
 
             moveMetadata( unpackDir, "META-INF", baseDir );
             moveMetadata( unpackDir, "OSGI-INF", baseDir );
