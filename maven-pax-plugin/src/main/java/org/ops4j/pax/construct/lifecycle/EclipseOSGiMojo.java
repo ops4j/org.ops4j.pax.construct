@@ -107,18 +107,18 @@ public class EclipseOSGiMojo extends EclipsePlugin
     public boolean setup()
         throws MojoExecutionException
     {
-        if( null == m_eclipseMojo )
+        // we don't fork eclipse goal
+        setExecutedProject( project );
+
+        if( null != m_provisionProject )
         {
-            // set here as we now don't fork a separate execute phase
-            setExecutedProject( project );
-
-            // by default enable creation of PDE project files for OSGi
-            m_eclipseMojo = new ReflectMojo( this, EclipsePlugin.class );
-            m_eclipseMojo.setField( "pde", Boolean.TRUE );
-            setWtpversion( "none" );
+            enablePDE(); // imported OSGi bundle
         }
-
-        if( null == m_provisionProject && isProvisioningPom() )
+        else if( PomUtils.isBundleProject( executedProject ) )
+        {
+            enablePDE(); // compiled OSGi bundle
+        }
+        else if( isProvisioningPom() )
         {
             try
             {
@@ -140,6 +140,21 @@ public class EclipseOSGiMojo extends EclipsePlugin
 
         // default to normal behaviour
         return super.setup();
+    }
+
+    /**
+     * Enable PDE support
+     */
+    private void enablePDE()
+    {
+        if( null == m_eclipseMojo )
+        {
+            // by default enable creation of PDE project files for OSGi
+            m_eclipseMojo = new ReflectMojo( this, EclipsePlugin.class );
+        }
+
+        m_eclipseMojo.setField( "pde", Boolean.TRUE );
+        setWtpversion( "none" );
     }
 
     /**
@@ -177,17 +192,25 @@ public class EclipseOSGiMojo extends EclipsePlugin
     public void writeConfiguration( IdeDependency[] deps )
         throws MojoExecutionException
     {
-        m_resolvedDependencies = new ArrayList();
-
-        if( null == m_provisionProject )
+        if( !isPdeProject() )
         {
-            // compiled OSGi bundle / wrapper
-            writeBundleConfiguration( deps );
+            // non-OSGi project
+            super.writeConfiguration( deps );
         }
         else
         {
-            // imported (external) OSGi bundle
-            writeImportedConfiguration();
+            m_resolvedDependencies = new ArrayList();
+
+            if( null == m_provisionProject )
+            {
+                // compiled OSGi bundle / wrapper
+                writeBundleConfiguration( deps );
+            }
+            else
+            {
+                // imported (external) OSGi bundle
+                writeImportedConfiguration();
+            }
         }
     }
 
