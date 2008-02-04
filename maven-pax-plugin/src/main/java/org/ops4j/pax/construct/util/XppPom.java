@@ -339,7 +339,7 @@ public class XppPom
         Xpp3Dom newPom = new Xpp3Dom( "project" );
         newPom.addChild( parent );
 
-        m_pom = Xpp3Dom.mergeXpp3Dom( newPom, m_pom );
+        m_pom = Xpp3DomHelper.mergeXpp3Dom( newPom, m_pom );
     }
 
     /**
@@ -412,7 +412,7 @@ public class XppPom
         Xpp3Dom newPom = new Xpp3Dom( "project" );
         newPom.addChild( list );
 
-        Xpp3Dom.mergeXpp3Dom( m_pom, newPom );
+        Xpp3DomHelper.mergeXpp3Dom( m_pom, newPom );
     }
 
     /**
@@ -438,7 +438,7 @@ public class XppPom
         Xpp3Dom newPom = new Xpp3Dom( "project" );
         newPom.addChild( list );
 
-        Xpp3Dom.mergeXpp3Dom( m_pom, newPom );
+        Xpp3DomHelper.mergeXpp3Dom( m_pom, newPom );
     }
 
     /**
@@ -492,7 +492,7 @@ public class XppPom
         Xpp3Dom newPom = new Xpp3Dom( "project" );
         newPom.addChild( list );
 
-        Xpp3Dom.mergeXpp3Dom( m_pom, newPom );
+        Xpp3DomHelper.mergeXpp3Dom( m_pom, newPom );
     }
 
     /**
@@ -620,7 +620,7 @@ public class XppPom
         newDependency.addChild( list );
 
         // add exclusion to top-most dependency
-        Xpp3Dom.mergeXpp3Dom( dependencies.getChild( 0 ), newDependency );
+        Xpp3DomHelper.mergeXpp3Dom( dependencies.getChild( 0 ), newDependency );
     }
 
     /**
@@ -753,7 +753,7 @@ public class XppPom
         // add source to template
         skeleton.addChild( source );
 
-        m_pom = Xpp3Dom.mergeXpp3Dom( m_pom, project );
+        m_pom = Xpp3DomHelper.mergeXpp3Dom( m_pom, project );
     }
 
     /**
@@ -786,7 +786,7 @@ public class XppPom
         }
 
         Xpp3Dom originalPom = new Xpp3Dom( m_pom );
-        m_pom = Xpp3Dom.mergeXpp3Dom( project, overlay );
+        m_pom = Xpp3DomHelper.mergeXpp3Dom( project, overlay );
 
         // we want to keep these plugins exactly as they were in the original Pax-Construct v2 POMs
         String plugins = "plugins/plugin[artifactId='maven-bundle-plugin' or artifactId='maven-pax-plugin']";

@@ -51,6 +51,7 @@
         <artifactId>maven-checkstyle-plugin</artifactId>
         <configuration>
           <configLocation>${pom.basedir}/src/site/ops4j-format.xml</configLocation>
+          <excludes>org/ops4j/pax/construct/util/Xpp3DomHelper.java</excludes>
         </configuration>
       </plugin>
       <plugin>
