@@ -426,7 +426,7 @@ public class RoundTripBndFile
         boolean multiLine = ( instruction.length() > 80 );
 
         // output clauses on single or multiple lines
-        String[] clauses = instruction.toString().split( "\\\\" );
+        String[] clauses = instruction.split( "\\\\" );
         for( int i = 0; i < clauses.length; i++ )
         {
             if( multiLine )

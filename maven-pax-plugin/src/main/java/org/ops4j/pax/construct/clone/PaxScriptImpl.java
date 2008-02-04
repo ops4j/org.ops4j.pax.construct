@@ -37,7 +37,7 @@ public class PaxScriptImpl
     /**
      * Sequence of Pax-Construct commands
      */
-    final List m_commands;
+    private final List m_commands;
 
     /**
      * Create a new Pax-Construct script builder
@@ -45,6 +45,14 @@ public class PaxScriptImpl
     public PaxScriptImpl()
     {
         m_commands = new ArrayList();
+    }
+
+    /**
+     * @return sequence of pax commands
+     */
+    List getCommands()
+    {
+        return m_commands;
     }
 
     /**
@@ -134,7 +142,7 @@ public class PaxScriptImpl
         /**
          * Name of the Pax-Construct script
          */
-        final String m_name;
+        private final String m_name;
 
         /**
          * Sequence of Pax-Construct options
@@ -144,12 +152,12 @@ public class PaxScriptImpl
         /**
          * Sequence of Maven specific options
          */
-        final List m_mvnOptions;
+        private final List m_mvnOptions;
 
         /**
          * Target directory where the command should be run
          */
-        String m_targetDir;
+        private String m_targetDir;
 
         /**
          * @param command name of the Pax-Construct command
@@ -161,7 +169,31 @@ public class PaxScriptImpl
             m_paxOptions = new ArrayList();
             m_targetDir = "";
 
-            m_commands.add( this );
+            getCommands().add( this );
+        }
+
+        /**
+         * @return command name
+         */
+        String getName()
+        {
+            return m_name;
+        }
+
+        /**
+         * @return sequence of maven options
+         */
+        List getMvnOptions()
+        {
+            return m_mvnOptions;
+        }
+
+        /**
+         * @return sequence of pax options
+         */
+        List getPaxOptions()
+        {
+            return m_paxOptions;
         }
 
         /**
@@ -170,6 +202,14 @@ public class PaxScriptImpl
         String getTargetDir()
         {
             return m_targetDir;
+        }
+
+        /**
+         * @param targetDir new target directory
+         */
+        void setTargetDir( String targetDir )
+        {
+            m_targetDir = targetDir;
         }
 
         /**
@@ -209,7 +249,7 @@ public class PaxScriptImpl
              */
             public MavenOptionBuilder flag( String flag )
             {
-                m_mvnOptions.add( new Flag( 'D' + flag ) );
+                getMvnOptions().add( new Flag( 'D' + flag ) );
                 return this;
             }
 
@@ -220,10 +260,10 @@ public class PaxScriptImpl
             {
                 if( "targetDirectory".equals( option ) )
                 {
-                    m_targetDir = value;
+                    setTargetDir( value );
                 }
 
-                m_mvnOptions.add( new Option( 'D' + option, '=', value ) );
+                getMvnOptions().add( new Option( 'D' + option, '=', value ) );
                 return this;
             }
         }
@@ -294,8 +334,8 @@ public class PaxScriptImpl
          */
         private int compare( PaxCommand lhsCommand, PaxCommand rhsCommand )
         {
-            boolean lhsIsImport = IMPORT_BUNDLE.equals( lhsCommand.m_name );
-            boolean rhsIsImport = IMPORT_BUNDLE.equals( rhsCommand.m_name );
+            boolean lhsIsImport = IMPORT_BUNDLE.equals( lhsCommand.getName() );
+            boolean rhsIsImport = IMPORT_BUNDLE.equals( rhsCommand.getName() );
 
             if( lhsIsImport && !rhsIsImport )
             {

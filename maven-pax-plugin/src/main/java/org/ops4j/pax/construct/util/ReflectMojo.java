@@ -21,6 +21,7 @@ import java.security.AccessController;
 import java.security.PrivilegedAction;
 
 import org.apache.maven.plugin.AbstractMojo;
+import org.apache.maven.plugin.logging.Log;
 
 /**
  * Provide access to private inherited mojo fields
@@ -30,12 +31,12 @@ public final class ReflectMojo
     /**
      * Maven mojo instance
      */
-    final AbstractMojo m_mojo;
+    private final AbstractMojo m_mojo;
 
     /**
      * Inherited super-mojo
      */
-    final Class m_clazz;
+    private final Class m_clazz;
 
     /**
      * @param mojo maven mojo instance
@@ -45,6 +46,33 @@ public final class ReflectMojo
     {
         m_mojo = mojo;
         m_clazz = clazz;
+    }
+
+    /**
+     * @param name field name
+     * @return reflected field
+     * @throws NoSuchFieldException
+     */
+    Field getMojoField( String name )
+        throws NoSuchFieldException
+    {
+        return m_clazz.getDeclaredField( name );
+    }
+
+    /**
+     * @return mojo instance
+     */
+    AbstractMojo getMojoInstance()
+    {
+        return m_mojo;
+    }
+
+    /**
+     * @return mojo logger
+     */
+    Log getMojoLogger()
+    {
+        return m_mojo.getLog();
     }
 
     /**
@@ -59,7 +87,7 @@ public final class ReflectMojo
             {
                 try
                 {
-                    return m_clazz.getDeclaredField( name );
+                    return getMojoField( name );
                 }
                 catch( NoSuchFieldException e )
                 {
@@ -86,7 +114,7 @@ public final class ReflectMojo
                 try
                 {
                     final Object safeValue;
-                    Field f = m_clazz.getDeclaredField( name );
+                    Field f = getMojoField( name );
 
                     if( boolean.class.equals( f.getType() ) )
                     {
@@ -98,15 +126,15 @@ public final class ReflectMojo
                     }
 
                     f.setAccessible( true );
-                    f.set( m_mojo, safeValue );
+                    f.set( getMojoInstance(), safeValue );
                 }
                 catch( NoSuchFieldException e )
                 {
-                    m_mojo.getLog().error( "Unknown field " + name, e );
+                    getMojoLogger().error( "Unknown field " + name, e );
                 }
                 catch( IllegalAccessException e )
                 {
-                    m_mojo.getLog().error( "Cannot set field " + name, e );
+                    getMojoLogger().error( "Cannot set field " + name, e );
                 }
 
                 return null;
@@ -126,17 +154,17 @@ public final class ReflectMojo
             {
                 try
                 {
-                    Field f = m_clazz.getDeclaredField( name );
+                    Field f = getMojoField( name );
                     f.setAccessible( true );
-                    return f.get( m_mojo );
+                    return f.get( getMojoInstance() );
                 }
                 catch( NoSuchFieldException e )
                 {
-                    m_mojo.getLog().error( "Unknown field " + name, e );
+                    getMojoLogger().error( "Unknown field " + name, e );
                 }
                 catch( IllegalAccessException e )
                 {
-                    m_mojo.getLog().error( "Cannot get field " + name, e );
+                    getMojoLogger().error( "Cannot get field " + name, e );
                 }
 
                 return null;
