@@ -38,6 +38,9 @@ final class StreamFactory
      */
     private StreamFactory()
     {
+        /*
+         * nothing to do
+         */
     }
 
     /**
@@ -50,6 +53,9 @@ final class StreamFactory
          */
         private XmlStreamFactory()
         {
+            /*
+             * nothing to do
+             */
         }
 
         /**
@@ -57,7 +63,7 @@ final class StreamFactory
          * @return reader with correct XML encoding
          * @throws IOException
          */
-        private static Reader newXmlReader( File xmlFile )
+        static Reader newXmlReader( File xmlFile )
             throws IOException
         {
             return ReaderFactory.newXmlReader( xmlFile );
@@ -68,7 +74,7 @@ final class StreamFactory
          * @return writer with correct XML encoding
          * @throws IOException
          */
-        private static Writer newXmlWriter( File xmlFile )
+        static Writer newXmlWriter( File xmlFile )
             throws IOException
         {
             return WriterFactory.newXmlWriter( xmlFile );
