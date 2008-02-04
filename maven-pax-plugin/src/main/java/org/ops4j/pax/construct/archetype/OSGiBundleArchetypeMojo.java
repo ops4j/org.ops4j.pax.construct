@@ -209,10 +209,8 @@ public class OSGiBundleArchetypeMojo extends AbstractPaxArchetypeMojo
         {
             return packageName;
         }
-        else
-        {
-            return getCompoundId( getInternalGroupId( bundleGroupId ), bundleName );
-        }
+
+        return getCompoundId( getInternalGroupId( bundleGroupId ), bundleName );
     }
 
     /**
@@ -236,10 +234,8 @@ public class OSGiBundleArchetypeMojo extends AbstractPaxArchetypeMojo
      * Add various dependencies to the Maven project to allow out-of-the-box compilation
      * 
      * @param pom Maven project model
-     * @throws MojoExecutionException
      */
     private void updatePomDependencies( Pom pom )
-        throws MojoExecutionException
     {
         if( !noDependencies )
         {
@@ -340,10 +336,8 @@ public class OSGiBundleArchetypeMojo extends AbstractPaxArchetypeMojo
      * Adds the standard R4 OSGi API to the build path
      * 
      * @param pom Maven project model
-     * @throws MojoExecutionException
      */
     private void addCoreOSGiSupport( Pom pom )
-        throws MojoExecutionException
     {
         Dependency osgiCore = new Dependency();
         osgiCore.setGroupId( "org.osgi" );
@@ -374,10 +368,8 @@ public class OSGiBundleArchetypeMojo extends AbstractPaxArchetypeMojo
      * Add additional POM elements to support testing Spring beans
      * 
      * @param pom Maven project model
-     * @throws MojoExecutionException
      */
     private void addSpringBeanSupport( Pom pom )
-        throws MojoExecutionException
     {
         // Spring milestone repository
         Repository repository = new Repository();
@@ -419,10 +411,8 @@ public class OSGiBundleArchetypeMojo extends AbstractPaxArchetypeMojo
      * Add additional POM elements to support testing with JUnit
      * 
      * @param pom Maven project model
-     * @throws MojoExecutionException
      */
     private void addJUnitTestSupport( Pom pom )
-        throws MojoExecutionException
     {
         Dependency junit = new Dependency();
         junit.setGroupId( "junit" );
@@ -437,10 +427,8 @@ public class OSGiBundleArchetypeMojo extends AbstractPaxArchetypeMojo
      * Updates the default BND instructions to match the remaining contents
      * 
      * @param bnd Bnd instructions
-     * @throws MojoExecutionException
      */
     private void updateBndInstructions( Bnd bnd )
-        throws MojoExecutionException
     {
         boolean haveActivator = false;
         boolean haveInternals = false;
@@ -488,10 +476,8 @@ public class OSGiBundleArchetypeMojo extends AbstractPaxArchetypeMojo
      * @param haveActivator true if there is an Activator file
      * @param haveInternals true if there are internal packages
      * @param haveInterface true if there are non-internal packages
-     * @throws MojoExecutionException
      */
     private void applyBndInstructions( Bnd bnd, boolean haveActivator, boolean haveInternals, boolean haveInterface )
-        throws MojoExecutionException
     {
         if( !haveActivator )
         {

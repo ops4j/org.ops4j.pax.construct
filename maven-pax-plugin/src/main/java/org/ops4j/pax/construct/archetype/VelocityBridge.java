@@ -31,6 +31,9 @@ public final class VelocityBridge
      */
     public VelocityBridge()
     {
+        /*
+         * nothing to do
+         */
     }
 
     /**

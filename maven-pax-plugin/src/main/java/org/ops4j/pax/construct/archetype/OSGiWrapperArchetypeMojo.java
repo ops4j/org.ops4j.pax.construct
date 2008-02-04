@@ -285,10 +285,8 @@ public class OSGiWrapperArchetypeMojo extends AbstractPaxArchetypeMojo
         {
             return bundleName;
         }
-        else
-        {
-            return getCompoundId( groupId, artifactId );
-        }
+
+        return getCompoundId( groupId, artifactId );
     }
 
     /**
@@ -394,10 +392,8 @@ public class OSGiWrapperArchetypeMojo extends AbstractPaxArchetypeMojo
      * Updates the default Bnd instructions with custom settings
      * 
      * @param bnd Bnd instructions
-     * @throws MojoExecutionException
      */
     private void updateBndInstructions( Bnd bnd )
-        throws MojoExecutionException
     {
         if( embedTransitive )
         {

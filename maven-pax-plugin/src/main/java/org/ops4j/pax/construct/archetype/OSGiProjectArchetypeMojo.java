@@ -23,7 +23,6 @@ import java.util.Iterator;
 import java.util.List;
 
 import org.apache.maven.model.Repository;
-import org.apache.maven.plugin.MojoExecutionException;
 import org.ops4j.pax.construct.util.BndUtils.Bnd;
 import org.ops4j.pax.construct.util.PomUtils;
 import org.ops4j.pax.construct.util.PomUtils.Pom;
@@ -133,7 +132,6 @@ public class OSGiProjectArchetypeMojo extends AbstractPaxArchetypeMojo
      * {@inheritDoc}
      */
     protected void postProcess( Pom pom, Bnd bnd )
-        throws MojoExecutionException
     {
         // always tie the pax-plugin to a specific version (helps with reproducible builds)
         pom.updatePluginVersion( "org.ops4j", "maven-pax-plugin", getPluginVersion() );
