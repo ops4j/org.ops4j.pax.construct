@@ -859,22 +859,22 @@ public class XppPom
         /**
          * Create a new map fragment
          * 
-         * @param name name of the map element
+         * @param elementName name of the map element
          */
-        public Xpp3DomMap( String name )
+        public Xpp3DomMap( String elementName )
         {
-            super( name );
+            super( elementName );
         }
 
         /**
          * Add a mapping to the map
          * 
-         * @param name element name
-         * @param value element value
+         * @param elementName element name
+         * @param elementValue element value
          */
-        public void putValue( String name, String value )
+        public void putValue( String elementName, String elementValue )
         {
-            putValue( this, name, value );
+            putValue( this, elementName, elementValue );
         }
 
         /**
@@ -882,7 +882,7 @@ public class XppPom
          * @param name element name
          * @param value element value
          */
-        private static void putValue( Xpp3Dom map, String name, String value )
+        static void putValue( Xpp3Dom map, String name, String value )
         {
             if( null != value )
             {
@@ -902,11 +902,11 @@ public class XppPom
         /**
          * Create a new list fragment
          * 
-         * @param name name of the list element
+         * @param elementName name of the list element
          */
-        public Xpp3DomList( String name )
+        public Xpp3DomList( String elementName )
         {
-            super( name );
+            super( elementName );
             makeIntoList( this );
         }
 

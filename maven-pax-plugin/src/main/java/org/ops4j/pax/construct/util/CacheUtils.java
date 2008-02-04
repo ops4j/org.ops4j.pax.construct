@@ -34,6 +34,9 @@ public final class CacheUtils
      */
     private CacheUtils()
     {
+        /*
+         * nothing to do
+         */
     }
 
     /**

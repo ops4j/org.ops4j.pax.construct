@@ -38,6 +38,9 @@ public final class RoundTripXml
      */
     private RoundTripXml()
     {
+        /*
+         * nothing to do
+         */
     }
 
     /**
@@ -69,7 +72,7 @@ public final class RoundTripXml
         /**
          * Use default config
          */
-        private RoundTripParser()
+        RoundTripParser()
         {
             super();
         }
@@ -157,7 +160,7 @@ public final class RoundTripXml
         /**
          * Tweak config to use standard Maven layout
          */
-        private RoundTripSerializer()
+        RoundTripSerializer()
         {
             super();
 
@@ -187,25 +190,23 @@ public final class RoundTripXml
                 comment( name.substring( 3 ) );
                 return this;
             }
-            else
+
+            List stickyTags = Arrays.asList( new String[]
             {
-                List stickyTags = Arrays.asList( new String[]
-                {
-                    "groupId", "artifactId", "version"
-                } );
-                if( getDepth() <= 1 && !stickyTags.contains( name ) )
-                {
-                    // newline before top-level groups
-                    closeStartTag();
-                    out.write( lineSeparator );
-                }
-                if( m_handleComment )
-                {
-                    m_handleComment = false;
-                    writeIndent();
-                }
-                return super.startTag( namespace, name );
+                "groupId", "artifactId", "version"
+            } );
+            if( getDepth() <= 1 && !stickyTags.contains( name ) )
+            {
+                // newline before top-level groups
+                closeStartTag();
+                out.write( lineSeparator );
             }
+            if( m_handleComment )
+            {
+                m_handleComment = false;
+                writeIndent();
+            }
+            return super.startTag( namespace, name );
         }
 
         /**

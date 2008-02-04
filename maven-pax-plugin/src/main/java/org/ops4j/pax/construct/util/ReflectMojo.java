@@ -30,12 +30,12 @@ public final class ReflectMojo
     /**
      * Maven mojo instance
      */
-    private final AbstractMojo m_mojo;
+    final AbstractMojo m_mojo;
 
     /**
      * Inherited super-mojo
      */
-    private final Class m_clazz;
+    final Class m_clazz;
 
     /**
      * @param mojo maven mojo instance

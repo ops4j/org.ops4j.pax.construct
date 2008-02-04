@@ -296,10 +296,8 @@ public class RoundTripBndFile
      * @param line existing line
      * @param instructions the instructions to write to disk
      * @return true if existing line should be echoed unchanged, otherwise false
-     * @throws IOException
      */
     private boolean checkInstructionLine( List block, String line, Properties instructions )
-        throws IOException
     {
         String[] keyAndValue = line.split( "[=: \t\r\n\f]", 2 );
         String key = keyAndValue[0].trim();
@@ -418,10 +416,8 @@ public class RoundTripBndFile
      * @param block comment block
      * @param key property key
      * @param value property value
-     * @throws IOException
      */
     private static void writeInstruction( List block, String key, String value )
-        throws IOException
     {
         StringBuffer buf = new StringBuffer( key + ':' );
         String instruction = markInstructionClauses( value );

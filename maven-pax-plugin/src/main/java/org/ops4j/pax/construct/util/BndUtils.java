@@ -30,6 +30,9 @@ public final class BndUtils
      */
     private BndUtils()
     {
+        /*
+         * nothing to do
+         */
     }
 
     /**

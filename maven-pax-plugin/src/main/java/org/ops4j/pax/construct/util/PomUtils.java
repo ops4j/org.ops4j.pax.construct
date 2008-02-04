@@ -52,6 +52,9 @@ public final class PomUtils
      */
     private PomUtils()
     {
+        /*
+         * nothing to do
+         */
     }
 
     /**
@@ -361,10 +364,8 @@ public final class PomUtils
         {
             return true;
         }
-        else
-        {
-            return isBundleArtifact( project.getArtifact(), resolver, remoteRepos, localRepo, testMetadata );
-        }
+
+        return isBundleArtifact( project.getArtifact(), resolver, remoteRepos, localRepo, testMetadata );
     }
 
     /**
@@ -489,10 +490,8 @@ public final class PomUtils
                 {
                     return groupId;
                 }
-                else
-                {
-                    return groupId + '.' + artifactId.substring( i );
-                }
+
+                return groupId + '.' + artifactId.substring( i );
             }
         }
 

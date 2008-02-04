@@ -47,6 +47,9 @@ public final class DirUtils
      */
     private DirUtils()
     {
+        /*
+         * nothing to do
+         */
     }
 
     /**
@@ -467,10 +470,8 @@ public final class DirUtils
         {
             return bundleClassPath;
         }
-        else
-        {
-            return ".";
-        }
+
+        return ".";
     }
 
     /**
