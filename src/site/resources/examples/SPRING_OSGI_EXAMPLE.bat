@@ -7,19 +7,12 @@ call pax-create-project -g examples -a spring
 
 cd spring
 
-REM ---------------------------------------------------------------------
-REM  basic Spring repositories, so we can import existing Spring bundles
-REM ---------------------------------------------------------------------
-
-call pax-add-repository -i spring-milestones -u http://s3.amazonaws.com/maven.springframework.org/milestone
-call pax-add-repository -i spring-snapshots -u http://static.springframework.org/maven2-snapshots -- -Dsnapshots "-Dreleases=false"
-
 REM ---------------------------------------------------------------------------
 REM  importTransitive also imports any bundles spring-osgi-extender depends on
 REM    (use widenScope to also consider non-provided dependencies)
 REM ---------------------------------------------------------------------------
 
-call pax-import-bundle -g org.springframework.osgi -a spring-osgi-extender -v 1.0-rc1 -- -DwidenScope -DimportTransitive
+call pax-import-bundle -g org.springframework.osgi -a spring-osgi-extender -v 1.0 -- -DwidenScope -DimportTransitive
 
 REM -----------------------------------
 REM  basic SLF4J implementation bundle
@@ -34,13 +27,6 @@ REM ----------------------------------------------------------------------------
 call pax-wrap-jar -a asm -v 2.2.3                        -- -DaddVersion "-DtargetDirectory=wrappers"
 call pax-wrap-jar -g javax.servlet -a jsp-api -v 2.0     -- -DaddVersion "-DtargetDirectory=wrappers"
 call pax-wrap-jar -g javax.servlet -a servlet-api -v 2.5 -- -DaddVersion "-DtargetDirectory=wrappers"
-
-REM -------------------------------------
-REM  Spring Dynamic Modules sample beans
-REM -------------------------------------
-
-call pax-import-bundle -g org.springframework.osgi.samples -a weather-dao -v 1.0-rc1-SNAPSHOT
-call pax-import-bundle -g org.springframework.osgi.samples -a weather-service -v 1.0-rc1-SNAPSHOT
 
 REM ------------------------------------------------------------
 REM  create new OSGi service bundle with example code and tests

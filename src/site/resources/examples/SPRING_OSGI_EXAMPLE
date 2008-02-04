@@ -8,19 +8,12 @@ pax-create-project -g examples -a spring
 
 cd spring
 
-#---------------------------------------------------------------------
-# basic Spring repositories, so we can import existing Spring bundles
-#---------------------------------------------------------------------
-
-pax-add-repository -i spring-milestones -u http://s3.amazonaws.com/maven.springframework.org/milestone
-pax-add-repository -i spring-snapshots -u http://static.springframework.org/maven2-snapshots -- -Dsnapshots "-Dreleases=false"
-
 #---------------------------------------------------------------------------
 # importTransitive also imports any bundles spring-osgi-extender depends on
 #   (use widenScope to also consider non-provided dependencies)
 #---------------------------------------------------------------------------
 
-pax-import-bundle -g org.springframework.osgi -a spring-osgi-extender -v 1.0-rc1 -- -DwidenScope -DimportTransitive
+pax-import-bundle -g org.springframework.osgi -a spring-osgi-extender -v 1.0 -- -DwidenScope -DimportTransitive
 
 #-----------------------------------
 # basic SLF4J implementation bundle
@@ -35,13 +28,6 @@ pax-import-bundle -g org.slf4j -a slf4j-simple -v 1.4.3
 pax-wrap-jar -a asm -v 2.2.3                        -- -DaddVersion "-DtargetDirectory=wrappers"
 pax-wrap-jar -g javax.servlet -a jsp-api -v 2.0     -- -DaddVersion "-DtargetDirectory=wrappers"
 pax-wrap-jar -g javax.servlet -a servlet-api -v 2.5 -- -DaddVersion "-DtargetDirectory=wrappers"
-
-#-------------------------------------
-# Spring Dynamic Modules sample beans
-#-------------------------------------
-
-pax-import-bundle -g org.springframework.osgi.samples -a weather-dao -v 1.0-rc1-SNAPSHOT
-pax-import-bundle -g org.springframework.osgi.samples -a weather-service -v 1.0-rc1-SNAPSHOT
 
 #------------------------------------------------------------
 # create new OSGi service bundle with example code and tests
