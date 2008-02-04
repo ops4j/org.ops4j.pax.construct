@@ -37,7 +37,7 @@ public class PaxScriptImpl
     /**
      * Sequence of Pax-Construct commands
      */
-    private final List m_commands;
+    final List m_commands;
 
     /**
      * Create a new Pax-Construct script builder
@@ -119,24 +119,22 @@ public class PaxScriptImpl
                 // just protect the value (works on Windows and UNIX)
                 return super.toString() + m_separator + '\"' + m_value + '\"';
             }
-            else
-            {
-                // protect entire option (works on Windows and UNIX)
-                return '\"' + super.toString() + m_separator + m_value + '\"';
-            }
+
+            // protect entire option (works on Windows and UNIX)
+            return '\"' + super.toString() + m_separator + m_value + '\"';
         }
     }
 
     /**
      * Builder implementation for Pax-Construct commands
      */
-    private class PaxCommand
+    class PaxCommand
         implements PaxCommandBuilder
     {
         /**
          * Name of the Pax-Construct script
          */
-        private final String m_name;
+        final String m_name;
 
         /**
          * Sequence of Pax-Construct options
@@ -146,12 +144,12 @@ public class PaxScriptImpl
         /**
          * Sequence of Maven specific options
          */
-        private final List m_mvnOptions;
+        final List m_mvnOptions;
 
         /**
          * Target directory where the command should be run
          */
-        private String m_targetDir;
+        String m_targetDir;
 
         /**
          * @param command name of the Pax-Construct command
@@ -169,7 +167,7 @@ public class PaxScriptImpl
         /**
          * @return target directory for this command
          */
-        private String getTargetDir()
+        String getTargetDir()
         {
             return m_targetDir;
         }
@@ -203,7 +201,7 @@ public class PaxScriptImpl
         /**
          * Builder implementation for Maven specific options
          */
-        private class MavenOption
+        class MavenOption
             implements MavenOptionBuilder
         {
             /**
@@ -262,7 +260,7 @@ public class PaxScriptImpl
     /**
      * Sort Pax-Construct commands by their target directory, so projects are created before they are used
      */
-    private static class ByTargetDir
+    static class ByTargetDir
         implements Comparator
     {
         /**
@@ -276,10 +274,8 @@ public class PaxScriptImpl
                 {
                     return compare( (PaxCommand) lhs, (PaxCommand) rhs );
                 }
-                else
-                {
-                    return 1;
-                }
+
+                return 1;
             }
             else if( rhs instanceof PaxCommand )
             {

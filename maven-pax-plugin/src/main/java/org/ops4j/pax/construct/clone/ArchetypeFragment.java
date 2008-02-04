@@ -449,17 +449,15 @@ public class ArchetypeFragment
 
                 return TEXT_FILE;
             }
-            else
-            {
-                // binary files cannot be mapped to new paths
-                File file = new File( toDir, originalPath );
-                file.getParentFile().mkdirs();
 
-                out = new FileOutputStream( file );
-                IOUtil.copy( raw, out );
+            // binary files cannot be mapped to new paths
+            File file = new File( toDir, originalPath );
+            file.getParentFile().mkdirs();
 
-                return BINARY_FILE;
-            }
+            out = new FileOutputStream( file );
+            IOUtil.copy( raw, out );
+
+            return BINARY_FILE;
         }
         catch( IOException e )
         {

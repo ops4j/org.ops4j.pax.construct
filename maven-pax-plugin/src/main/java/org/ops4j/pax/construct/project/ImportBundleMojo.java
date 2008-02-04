@@ -243,10 +243,8 @@ public class ImportBundleMojo extends AbstractMojo
 
     /**
      * @param rootId initial import
-     * @throws MojoExecutionException
      */
     private void importBundles( String rootId )
-        throws MojoExecutionException
     {
         while( !m_candidateIds.isEmpty() )
         {
@@ -351,10 +349,8 @@ public class ImportBundleMojo extends AbstractMojo
             {
                 return bundlePom;
             }
-            else
-            {
-                return null;
-            }
+
+            return null;
         }
         catch( IOException e )
         {
@@ -501,10 +497,8 @@ public class ImportBundleMojo extends AbstractMojo
      * Add bundle as a dependency to the provisioning POM and the local bundle POM, as appropriate
      * 
      * @param project bundle project
-     * @throws MojoExecutionException
      */
     private void importBundle( MavenProject project )
-        throws MojoExecutionException
     {
         Dependency dependency = new Dependency();
 

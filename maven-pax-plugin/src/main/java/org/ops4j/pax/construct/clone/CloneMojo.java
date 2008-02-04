@@ -329,10 +329,8 @@ public class CloneMojo extends AbstractMojo
      * 
      * @param script build script
      * @param project Maven POM project
-     * @throws MojoExecutionException
      */
     private void handleBundleImport( PaxScript script, MavenProject project )
-        throws MojoExecutionException
     {
         Dependency importee = findImportee( project );
         if( importee != null )
@@ -367,11 +365,9 @@ public class CloneMojo extends AbstractMojo
             // top-most project
             return true;
         }
-        else
-        {
-            // disconnected project, or project with its own set of "poms" where settings can be customized
-            return ( null == project.getParent() || new File( project.getBasedir(), "poms" ).isDirectory() );
-        }
+
+        // disconnected project, or project with its own set of "poms" where settings can be customized
+        return ( null == project.getParent() || new File( project.getBasedir(), "poms" ).isDirectory() );
     }
 
     /**
@@ -447,10 +443,8 @@ public class CloneMojo extends AbstractMojo
         {
             return importee;
         }
-        else
-        {
-            return null;
-        }
+
+        return null;
     }
 
     /**
@@ -673,7 +667,10 @@ public class CloneMojo extends AbstractMojo
 
         try
         {
-            pom.write();
+            if( null != pom )
+            {
+                pom.write();
+            }
             return pom;
         }
         catch( IOException e )
