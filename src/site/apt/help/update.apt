@@ -59,6 +59,6 @@ pax-update
 +---+
 
 +---+
-pax-update -v 0.6.3 -- "-DtargetDirectory=/tmp/myProject"
+pax-update -v 0.6.4 -- "-DtargetDirectory=/tmp/myProject"
 +---+
 
