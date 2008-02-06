@@ -25,6 +25,7 @@ REM  wrapping examples: put in subdirectory and add wrapped version to the wrapp
 REM ------------------------------------------------------------------------------------
 
 call pax-wrap-jar -a asm -v 2.2.3                        -- -DaddVersion "-DtargetDirectory=wrappers"
+call pax-wrap-jar -a aopalliance -v 1.0                  -- -DaddVersion "-DtargetDirectory=wrappers"
 call pax-wrap-jar -g javax.servlet -a jsp-api -v 2.0     -- -DaddVersion "-DtargetDirectory=wrappers"
 call pax-wrap-jar -g javax.servlet -a servlet-api -v 2.5 -- -DaddVersion "-DtargetDirectory=wrappers"
 

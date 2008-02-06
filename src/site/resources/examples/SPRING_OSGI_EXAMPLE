@@ -26,6 +26,7 @@ pax-import-bundle -g org.slf4j -a slf4j-simple -v 1.4.3
 #------------------------------------------------------------------------------------
 
 pax-wrap-jar -a asm -v 2.2.3                        -- -DaddVersion "-DtargetDirectory=wrappers"
+pax-wrap-jar -a aopalliance -v 1.0                  -- -DaddVersion "-DtargetDirectory=wrappers"
 pax-wrap-jar -g javax.servlet -a jsp-api -v 2.0     -- -DaddVersion "-DtargetDirectory=wrappers"
 pax-wrap-jar -g javax.servlet -a servlet-api -v 2.5 -- -DaddVersion "-DtargetDirectory=wrappers"
 
