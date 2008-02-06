@@ -44,7 +44,7 @@
       <item name="Refactoring" href="examples/refactor.html"/>
       <item name="Using Eclipse" href="examples/eclipse.html"/>
 -->
-      <item name="Spring DM rc1" href="examples/spring-osgi.html"/>
+      <item name="Spring DM" href="examples/spring-osgi.html"/>
     </menu>
 
     <menu name="Script Help">
