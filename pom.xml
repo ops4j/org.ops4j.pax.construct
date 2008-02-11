@@ -47,7 +47,9 @@ limitations under the License.
         <activeByDefault>true</activeByDefault>
       </activation>
       <modules>
+        <module>maven-inherit-plugin</module>
         <module>maven-pax-plugin</module>
+        <module>archetypes</module>
         <module>scripts</module>
       </modules>
     </profile>

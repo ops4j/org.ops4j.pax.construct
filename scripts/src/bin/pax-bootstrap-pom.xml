@@ -4,7 +4,7 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>org.ops4j</groupId>
   <artifactId>bootstrap</artifactId>
-  <version>0.2.0</version>
+  <version>1.0</version>
 
   <name>OPS4J - bootstrap POM to download initial plugin binary</name>
 
@@ -18,28 +18,5 @@
       </plugin>
     </plugins>
   </build>
-
-  <pluginRepositories>
-    <pluginRepository>
-      <id>ops4j-repository</id>
-      <url>http://repository.ops4j.org/maven2</url>
-      <releases>
-        <updatePolicy>never</updatePolicy>
-      </releases>
-      <snapshots>
-        <enabled>false</enabled>
-      </snapshots>
-    </pluginRepository>
-    <pluginRepository>
-      <id>ops4j-snapshots</id>
-      <url>http://repository.ops4j.org/mvn-snapshots</url>
-      <releases>
-        <enabled>false</enabled>
-      </releases>
-      <snapshots>
-        <updatePolicy>always</updatePolicy>
-      </snapshots>
-    </pluginRepository>
-  </pluginRepositories>
 
 </project>

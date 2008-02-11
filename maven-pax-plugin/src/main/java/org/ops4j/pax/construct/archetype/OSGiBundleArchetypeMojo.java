@@ -316,20 +316,6 @@ public class OSGiBundleArchetypeMojo extends AbstractPaxArchetypeMojo
 
         // always tie the pax-plugin to a specific version (helps with reproducible builds)
         pom.updatePluginVersion( "org.ops4j", "maven-pax-plugin", pluginVersion );
-
-        // access to various OPS4J plugins/artifacts
-        Repository repository = new Repository();
-        repository.setId( OPS4J_STANDARD_REPO_ID );
-        repository.setUrl( OPS4J_STANDARD_REPO_URL );
-
-        pom.addRepository( repository, false, true, true, false );
-        pom.addRepository( repository, false, true, true, true );
-
-        // access to latest bundle plugin
-        repository.setId( OPS4J_SNAPSHOT_REPO_ID );
-        repository.setUrl( OPS4J_SNAPSHOT_REPO_URL );
-
-        pom.addRepository( repository, true, false, true, true );
     }
 
     /**

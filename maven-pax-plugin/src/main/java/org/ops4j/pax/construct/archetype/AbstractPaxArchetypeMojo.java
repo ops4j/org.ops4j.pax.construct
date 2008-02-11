@@ -66,26 +66,6 @@ public abstract class AbstractPaxArchetypeMojo extends MavenArchetypeMojo
     public static final String PAX_CONSTRUCT_GROUP_ID = "org.ops4j.pax.construct";
 
     /**
-     * OPS4J standard repository id
-     */
-    public static final String OPS4J_STANDARD_REPO_ID = "ops4j-repository";
-
-    /**
-     * OPS4J standard repository URL
-     */
-    public static final String OPS4J_STANDARD_REPO_URL = "http://repository.ops4j.org/maven2";
-
-    /**
-     * OPS4J snapshot repository id
-     */
-    public static final String OPS4J_SNAPSHOT_REPO_ID = "ops4j-snapshots";
-
-    /**
-     * OPS4J snapshot repository URL
-     */
-    public static final String OPS4J_SNAPSHOT_REPO_URL = "http://repository.ops4j.org/mvn-snapshots";
-
-    /**
      * Component factory for Maven artifacts
      * 
      * @component
@@ -344,16 +324,6 @@ public abstract class AbstractPaxArchetypeMojo extends MavenArchetypeMojo
      */
     private void updateFields()
     {
-        // put OPS4J repository before others
-        if( null == remoteArchetypeRepositories )
-        {
-            remoteArchetypeRepositories = OPS4J_STANDARD_REPO_URL;
-        }
-        else
-        {
-            remoteArchetypeRepositories = OPS4J_STANDARD_REPO_URL + ',' + remoteArchetypeRepositories;
-        }
-
         /*
          * common shared settings
          */
@@ -483,20 +453,13 @@ public abstract class AbstractPaxArchetypeMojo extends MavenArchetypeMojo
             return pluginVersion;
         }
 
-        // only check for newly released archetypes once a day
-        ArtifactRepository ops4jRepo = createRepository( OPS4J_STANDARD_REPO_URL, OPS4J_STANDARD_REPO_ID );
-        ops4jRepo.getReleases().setUpdatePolicy( ArtifactRepositoryPolicy.UPDATE_POLICY_DAILY );
-        ops4jRepo.getSnapshots().setEnabled( false );
-
-        List remoteRepos = Collections.singletonList( ops4jRepo );
-
         // limit archetypes to same major and minor version
         VersionRange range = getArchetypeVersionRange();
 
         try
         {
             getLog().info( "Selecting latest archetype release within version range " + range );
-            return PomUtils.getReleaseVersion( artifact, m_source, remoteRepos, m_localRepo, range );
+            return PomUtils.getReleaseVersion( artifact, m_source, Collections.EMPTY_LIST, m_localRepo, range );
         }
         catch( MojoExecutionException e )
         {

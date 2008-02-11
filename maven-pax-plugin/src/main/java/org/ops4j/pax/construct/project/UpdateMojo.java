@@ -127,8 +127,6 @@ public class UpdateMojo extends AbstractMojo
     {
         String groupId = AbstractPaxArchetypeMojo.PAX_CONSTRUCT_GROUP_ID;
 
-        addPaxRepositories();
-
         // find latest release if no explicit version is given
         Artifact scripts = m_factory.createBuildArtifact( groupId, "scripts", version, "zip" );
         if( PomUtils.needReleaseVersion( version ) )
@@ -149,23 +147,6 @@ public class UpdateMojo extends AbstractMojo
         {
             getLog().warn( "pax-update should be run from the scripts directory, or from a Pax-Construct project" );
         }
-    }
-
-    /**
-     * Add OPS4J standard and snapshot repositories to the remote repository list
-     */
-    private void addPaxRepositories()
-    {
-        m_remoteRepos.clear();
-
-        ArtifactRepositoryPolicy enabled = new ArtifactRepositoryPolicy( true,
-            ArtifactRepositoryPolicy.UPDATE_POLICY_ALWAYS, ArtifactRepositoryPolicy.CHECKSUM_POLICY_FAIL );
-        ArtifactRepositoryPolicy disabled = new ArtifactRepositoryPolicy( false, null, null );
-
-        m_remoteRepos.add( m_repoFactory.createArtifactRepository( AbstractPaxArchetypeMojo.OPS4J_STANDARD_REPO_ID,
-            AbstractPaxArchetypeMojo.OPS4J_STANDARD_REPO_URL, m_defaultLayout, disabled, enabled ) );
-        m_remoteRepos.add( m_repoFactory.createArtifactRepository( AbstractPaxArchetypeMojo.OPS4J_SNAPSHOT_REPO_ID,
-            AbstractPaxArchetypeMojo.OPS4J_SNAPSHOT_REPO_URL, m_defaultLayout, enabled, disabled ) );
     }
 
     /**
