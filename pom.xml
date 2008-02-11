@@ -116,6 +116,7 @@ limitations under the License.
       <name>Stuart McCulloch</name>
       <email>stuart.mcculloch@jayway.net</email>
       <organization>Jayway Malaysia Sdn Bhd</organization>
+      <organizationUrl>http://malaysia.jayway.net</organizationUrl>
       <roles>
         <role>Developer</role>
       </roles>
@@ -125,10 +126,12 @@ limitations under the License.
       <id>adreghiciu</id>
       <name>Alin Dreghiciu</name>
       <email>adreghiciu@gmail.com</email>
+      <organization>Jayway Malaysia Sdn Bhd</organization>
+      <organizationUrl>http://malaysia.jayway.net</organizationUrl>
       <roles>
         <role>Developer</role>
       </roles>
-      <timezone>UTC+2</timezone>
+      <timezone>UTC+8</timezone>
     </developer>
   </developers>
 
