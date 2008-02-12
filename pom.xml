@@ -63,12 +63,42 @@ limitations under the License.
     <profile>
       <id>test</id>
       <modules>
-        <module>maven-inherit-plugin</module>
-        <module>maven-pax-plugin</module>
-        <module>archetypes</module>
-        <module>scripts</module>
         <module>tests</module>
       </modules>
+    </profile>
+    <profile>
+      <id>local</id>
+      <distributionManagement>
+        <repository>
+          <id>ops4j-releases</id>
+          <url>file:/tmp/REPO/m2release</url>
+        </repository>
+        <snapshotRepository>
+          <id>ops4j-snapshots</id>
+          <url>file:/tmp/REPO/mvn-snapshots</url>
+        </snapshotRepository>
+        <site>
+          <id>pax-construct-website</id>
+          <url>file:/tmp/SITE/projects/pax/construct</url>
+        </site>
+      </distributionManagement>
+    </profile>
+    <profile>
+      <id>server</id>
+      <distributionManagement>
+        <repository>
+          <id>ops4j-releases</id>
+          <url>file:/var/http/repository.ops4j.org/m2release</url>
+        </repository>
+        <snapshotRepository>
+          <id>ops4j-snapshots</id>
+          <url>file:/var/http/repository.ops4j.org/mvn-snapshots</url>
+        </snapshotRepository>
+        <site>
+          <id>pax-construct-website</id>
+          <url>file:/var/http/www.ops4j.org/projects/pax/construct</url>
+        </site>
+      </distributionManagement>
     </profile>
   </profiles>
 
