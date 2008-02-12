@@ -1,0 +1,209 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+
+
+
+
+
+
+
+
+<html>
+  <head>
+    <title>Pax Construct - Reactor Dependency Convergence</title>
+    <style type="text/css" media="all">
+      @import url("./css/maven-base.css");
+      @import url("./css/maven-theme.css");
+      @import url("./css/site.css");
+    </style>
+    <link rel="stylesheet" href="./css/print.css" type="text/css" media="print" />
+        <meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1" />
+                            <?xml version="1.0" encoding="UTF-8"?>
+<script type="text/javascript" src="http://www.google-analytics.com/urchin.js"></script>
+                                <?xml version="1.0" encoding="UTF-8"?>
+<script type="text/javascript">_uacct = "UA-2623231-3";
+        urchinTracker();</script>
+                    </head>
+  <body class="composite">
+    <div id="banner">
+                  <a href="http://www.ops4j.org/index.html" id="bannerLeft">
+    
+                                            <img src="images/logos/ops4j.png" alt="" />
+    
+            </a>
+                        <a href="index.html" id="bannerRight">
+    
+            Pax-Construct
+    
+            </a>
+            <div class="clear">
+        <hr/>
+      </div>
+    </div>
+    <div id="breadcrumbs">
+          
+  
+
+  
+    
+  
+  
+            <div class="xleft">
+        Last Published: 02/12/2008
+                      </div>
+            <div class="xright">      <a href="http://wiki.ops4j.org/confluence/display/ops4j/Pax">Pax</a>
+          |
+          <a href="http://www.osgi.org/">OSGi</a>
+          |
+          <a href="http://maven.apache.org/">Maven 2</a>
+          
+  
+
+  
+    
+  
+  
+  </div>
+      <div class="clear">
+        <hr/>
+      </div>
+    </div>
+    <div id="leftColumn">
+      <div id="navcolumn">
+           
+  
+
+  
+    
+  
+  
+                   <h5>Getting Started</h5>
+        <ul>
+              
+    <li class="none">
+              <a href="index.html">Quickstart</a>
+        </li>
+              
+    <li class="none">
+              <a href="settings.html">Settings</a>
+        </li>
+              
+    <li class="none">
+              <a href="http://wiki.ops4j.org/confluence/x/8Q">Wiki/FAQ</a>
+        </li>
+          </ul>
+          <h5>Examples</h5>
+        <ul>
+              
+    <li class="none">
+              <a href="examples/spring-osgi.html">Spring DM</a>
+        </li>
+          </ul>
+          <h5>Script Help</h5>
+        <ul>
+              
+    <li class="none">
+              <a href="help/create-project.html">pax-create-project</a>
+        </li>
+              
+    <li class="none">
+              <a href="help/add-repository.html">pax-add-repository</a>
+        </li>
+              
+    <li class="none">
+              <a href="help/create-bundle.html">pax-create-bundle</a>
+        </li>
+              
+    <li class="none">
+              <a href="help/import-bundle.html">pax-import-bundle</a>
+        </li>
+              
+    <li class="none">
+              <a href="help/embed-jar.html">pax-embed-jar</a>
+        </li>
+              
+    <li class="none">
+              <a href="help/wrap-jar.html">pax-wrap-jar</a>
+        </li>
+              
+    <li class="none">
+              <a href="help/move-bundle.html">pax-move-bundle</a>
+        </li>
+              
+    <li class="none">
+              <a href="help/remove-bundle.html">pax-remove-bundle</a>
+        </li>
+              
+    <li class="none">
+              <a href="help/update.html">pax-update</a>
+        </li>
+              
+    <li class="none">
+              <a href="help/clone.html">pax-clone</a>
+        </li>
+          </ul>
+          <h5>M2 Plugins</h5>
+        <ul>
+              
+    <li class="none">
+              <a href="maven-pax-plugin/index.html">maven-pax-plugin</a>
+        </li>
+              
+    <li class="none">
+              <a href="maven-inherit-plugin/index.html">maven-inherit-plugin</a>
+        </li>
+          </ul>
+          <h5>Mailing List</h5>
+        <ul>
+              
+    <li class="none">
+              <a href="mailto:general@lists.ops4j.org">general@lists.ops4j.org</a>
+        </li>
+          </ul>
+          <h5>Issue Tracking</h5>
+        <ul>
+              
+    <li class="none">
+              <a href="http://issues.ops4j.org/jira/browse/PAXCONSTRUCT?report=com.atlassian.jira.plugin.system.project:changelog-panel">http://issues.ops4j.org</a>
+        </li>
+          </ul>
+                                       <a href="http://maven.apache.org/" title="Built by Maven" id="poweredBy">
+            <img alt="Built by Maven" src="./images/logos/maven-feather.png"></img>
+          </a>
+                       
+  
+
+  
+    
+  
+  
+        </div>
+    </div>
+    <div id="bodyColumn">
+      <div id="contentBox">
+        <div class="section"><h2>Reactor Dependency Convergence</h2><table class="bodyTable"><caption>Legend:</caption><tr class="a"><td><img alt="success" src="images/icon_success_sml.gif" /></td><td>All projects share one version of the dependency.</td></tr><tr class="b"><td><img alt="error" src="images/icon_error_sml.gif" /></td><td>At least one project has a differing version of the dependency.</td></tr></table><table class="bodyTable"><caption>Statistics</caption><tr class="a"><th>Number of sub-projects:</th><td>3</td></tr><tr class="b"><th>Number of dependencies (NOD):</th><td>21</td></tr><tr class="a"><th>Number of unique artifacts (NOA):</th><td>21</td></tr><tr class="b"><th>Number of SNAPSHOT artifacts (NOS):</th><td>0</td></tr><tr class="a"><th>Convergence (NOD/NOA):</th><td><img alt="success" src="images/icon_success_sml.gif" />&#160;<b>100%</b></td></tr><tr class="b"><th>Ready for Release (100% Convergence and no SNAPSHOTS):</th><td><img alt="success" src="images/icon_success_sml.gif" />&#160;<b>Success</b></td></tr></table>Dependencies used in sub-projects<div class="section"><h3>biz.aQute:bndlib</h3><table class="bodyTable"><tr class="a"><td><img alt="success" src="images/icon_success_sml.gif" /></td><td><table class="bodyTable"><tr class="b"><td>0.0.236</td><td><ol type="a"><li><a href="http://www.ops4j.org/projects/pax/construct/maven-pax-plugin">org.ops4j:maven-pax-plugin</a></li></ol></td></tr></table></td></tr></table></div><div class="section"><h3>org.apache.maven.archetype:maven-archetype-core</h3><table class="bodyTable"><tr class="a"><td><img alt="success" src="images/icon_success_sml.gif" /></td><td><table class="bodyTable"><tr class="b"><td>1.0-alpha-7</td><td><ol type="a"><li><a href="http://www.ops4j.org/projects/pax/construct/maven-pax-plugin">org.ops4j:maven-pax-plugin</a></li></ol></td></tr></table></td></tr></table></div><div class="section"><h3>org.apache.maven.archetype:maven-archetype-creator</h3><table class="bodyTable"><tr class="a"><td><img alt="success" src="images/icon_success_sml.gif" /></td><td><table class="bodyTable"><tr class="b"><td>1.0-alpha-7</td><td><ol type="a"><li><a href="http://www.ops4j.org/projects/pax/construct/maven-pax-plugin">org.ops4j:maven-pax-plugin</a></li></ol></td></tr></table></td></tr></table></div><div class="section"><h3>org.apache.maven.plugins:maven-archetype-plugin</h3><table class="bodyTable"><tr class="a"><td><img alt="success" src="images/icon_success_sml.gif" /></td><td><table class="bodyTable"><tr class="b"><td>1.0-alpha-7</td><td><ol type="a"><li><a href="http://www.ops4j.org/projects/pax/construct/maven-pax-plugin">org.ops4j:maven-pax-plugin</a></li></ol></td></tr></table></td></tr></table></div><div class="section"><h3>org.apache.maven.plugins:maven-compiler-plugin</h3><table class="bodyTable"><tr class="a"><td><img alt="success" src="images/icon_success_sml.gif" /></td><td><table class="bodyTable"><tr class="b"><td>2.0.2</td><td><ol type="a"><li><a href="http://www.ops4j.org/projects/pax/construct/maven-pax-plugin">org.ops4j:maven-pax-plugin</a></li></ol></td></tr></table></td></tr></table></div><div class="section"><h3>org.apache.maven.plugins:maven-eclipse-plugin</h3><table class="bodyTable"><tr class="a"><td><img alt="success" src="images/icon_success_sml.gif" /></td><td><table class="bodyTable"><tr class="b"><td>2.4</td><td><ol type="a"><li><a href="http://www.ops4j.org/projects/pax/construct/maven-pax-plugin">org.ops4j:maven-pax-plugin</a></li></ol></td></tr></table></td></tr></table></div><div class="section"><h3>org.apache.maven.shared:file-management</h3><table class="bodyTable"><tr class="a"><td><img alt="success" src="images/icon_success_sml.gif" /></td><td><table class="bodyTable"><tr class="b"><td>1.2</td><td><ol type="a"><li><a href="http://www.ops4j.org/projects/pax/construct/maven-pax-plugin">org.ops4j:maven-pax-plugin</a></li></ol></td></tr></table></td></tr></table></div><div class="section"><h3>org.apache.maven.shared:maven-osgi</h3><table class="bodyTable"><tr class="a"><td><img alt="success" src="images/icon_success_sml.gif" /></td><td><table class="bodyTable"><tr class="b"><td>0.2.0</td><td><ol type="a"><li><a href="http://www.ops4j.org/projects/pax/construct/maven-pax-plugin">org.ops4j:maven-pax-plugin</a></li></ol></td></tr></table></td></tr></table></div><div class="section"><h3>org.apache.maven:maven-artifact</h3><table class="bodyTable"><tr class="a"><td><img alt="success" src="images/icon_success_sml.gif" /></td><td><table class="bodyTable"><tr class="b"><td>2.0.7</td><td><ol type="a"><li><a href="http://www.ops4j.org/projects/pax/construct/maven-inherit-plugin">org.ops4j:maven-inherit-plugin</a></li><li><a href="http://www.ops4j.org/projects/pax/construct/maven-pax-plugin">org.ops4j:maven-pax-plugin</a></li></ol></td></tr></table></td></tr></table></div><div class="section"><h3>org.apache.maven:maven-artifact-manager</h3><table class="bodyTable"><tr class="a"><td><img alt="success" src="images/icon_success_sml.gif" /></td><td><table class="bodyTable"><tr class="b"><td>2.0.7</td><td><ol type="a"><li><a href="http://www.ops4j.org/projects/pax/construct/maven-pax-plugin">org.ops4j:maven-pax-plugin</a></li></ol></td></tr></table></td></tr></table></div><div class="section"><h3>org.apache.maven:maven-model</h3><table class="bodyTable"><tr class="a"><td><img alt="success" src="images/icon_success_sml.gif" /></td><td><table class="bodyTable"><tr class="b"><td>2.0.7</td><td><ol type="a"><li><a href="http://www.ops4j.org/projects/pax/construct/maven-inherit-plugin">org.ops4j:maven-inherit-plugin</a></li><li><a href="http://www.ops4j.org/projects/pax/construct/maven-pax-plugin">org.ops4j:maven-pax-plugin</a></li></ol></td></tr></table></td></tr></table></div><div class="section"><h3>org.apache.maven:maven-plugin-api</h3><table class="bodyTable"><tr class="a"><td><img alt="success" src="images/icon_success_sml.gif" /></td><td><table class="bodyTable"><tr class="b"><td>2.0.7</td><td><ol type="a"><li><a href="http://www.ops4j.org/projects/pax/construct/maven-inherit-plugin">org.ops4j:maven-inherit-plugin</a></li><li><a href="http://www.ops4j.org/projects/pax/construct/maven-pax-plugin">org.ops4j:maven-pax-plugin</a></li></ol></td></tr></table></td></tr></table></div><div class="section"><h3>org.apache.maven:maven-project</h3><table class="bodyTable"><tr class="a"><td><img alt="success" src="images/icon_success_sml.gif" /></td><td><table class="bodyTable"><tr class="b"><td>2.0.7</td><td><ol type="a"><li><a href="http://www.ops4j.org/projects/pax/construct/maven-inherit-plugin">org.ops4j:maven-inherit-plugin</a></li><li><a href="http://www.ops4j.org/projects/pax/construct/maven-pax-plugin">org.ops4j:maven-pax-plugin</a></li></ol></td></tr></table></td></tr></table></div><div class="section"><h3>org.codehaus.plexus:plexus-archiver</h3><table class="bodyTable"><tr class="a"><td><img alt="success" src="images/icon_success_sml.gif" /></td><td><table class="bodyTable"><tr class="b"><td>1.0-alpha-7</td><td><ol type="a"><li><a href="http://www.ops4j.org/projects/pax/construct/maven-inherit-plugin">org.ops4j:maven-inherit-plugin</a></li><li><a href="http://www.ops4j.org/projects/pax/construct/maven-pax-plugin">org.ops4j:maven-pax-plugin</a></li></ol></td></tr></table></td></tr></table></div><div class="section"><h3>org.codehaus.plexus:plexus-compiler-api</h3><table class="bodyTable"><tr class="a"><td><img alt="success" src="images/icon_success_sml.gif" /></td><td><table class="bodyTable"><tr class="b"><td>1.5.3</td><td><ol type="a"><li><a href="http://www.ops4j.org/projects/pax/construct/maven-pax-plugin">org.ops4j:maven-pax-plugin</a></li></ol></td></tr></table></td></tr></table></div><div class="section"><h3>org.codehaus.plexus:plexus-compiler-manager</h3><table class="bodyTable"><tr class="a"><td><img alt="success" src="images/icon_success_sml.gif" /></td><td><table class="bodyTable"><tr class="b"><td>1.5.3</td><td><ol type="a"><li><a href="http://www.ops4j.org/projects/pax/construct/maven-pax-plugin">org.ops4j:maven-pax-plugin</a></li></ol></td></tr></table></td></tr></table></div><div class="section"><h3>org.codehaus.plexus:plexus-container-default</h3><table class="bodyTable"><tr class="a"><td><img alt="success" src="images/icon_success_sml.gif" /></td><td><table class="bodyTable"><tr class="b"><td>1.0-alpha-9-stable-1</td><td><ol type="a"><li><a href="http://www.ops4j.org/projects/pax/construct/maven-pax-plugin">org.ops4j:maven-pax-plugin</a></li></ol></td></tr></table></td></tr></table></div><div class="section"><h3>org.codehaus.plexus:plexus-interactivity-api</h3><table class="bodyTable"><tr class="a"><td><img alt="success" src="images/icon_success_sml.gif" /></td><td><table class="bodyTable"><tr class="b"><td>1.0-alpha-5</td><td><ol type="a"><li><a href="http://www.ops4j.org/projects/pax/construct/maven-pax-plugin">org.ops4j:maven-pax-plugin</a></li></ol></td></tr></table></td></tr></table></div><div class="section"><h3>org.codehaus.plexus:plexus-utils</h3><table class="bodyTable"><tr class="a"><td><img alt="success" src="images/icon_success_sml.gif" /></td><td><table class="bodyTable"><tr class="b"><td>1.4.7</td><td><ol type="a"><li><a href="http://www.ops4j.org/projects/pax/construct/maven-inherit-plugin">org.ops4j:maven-inherit-plugin</a></li><li><a href="http://www.ops4j.org/projects/pax/construct/maven-pax-plugin">org.ops4j:maven-pax-plugin</a></li></ol></td></tr></table></td></tr></table></div><div class="section"><h3>plexus:plexus-utils</h3><table class="bodyTable"><tr class="a"><td><img alt="success" src="images/icon_success_sml.gif" /></td><td><table class="bodyTable"><tr class="b"><td>1.0.2</td><td><ol type="a"><li><a href="http://www.ops4j.org/projects/pax/construct/maven-pax-plugin">org.ops4j:maven-pax-plugin</a></li></ol></td></tr></table></td></tr></table></div><div class="section"><h3>qdox:qdox</h3><table class="bodyTable"><tr class="a"><td><img alt="success" src="images/icon_success_sml.gif" /></td><td><table class="bodyTable"><tr class="b"><td>1.6.1</td><td><ol type="a"><li><a href="http://www.ops4j.org/projects/pax/construct/maven-inherit-plugin">org.ops4j:maven-inherit-plugin</a></li></ol></td></tr></table></td></tr></table></div></div>
+      </div>
+    </div>
+    <div class="clear">
+      <hr/>
+    </div>
+    <div id="footer">
+      <div class="xright">&#169;  
+          2007-2008
+    
+          OPS4J
+          
+  
+
+  
+    
+  
+  
+  </div>
+      <div class="clear">
+        <hr/>
+      </div>
+    </div>
+  </body>
+</html>

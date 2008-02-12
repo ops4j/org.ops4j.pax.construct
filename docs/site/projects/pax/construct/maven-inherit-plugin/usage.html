@@ -1,0 +1,243 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+
+
+
+
+
+
+
+
+<html>
+  <head>
+    <title>maven-inherit-plugin - Usage</title>
+    <style type="text/css" media="all">
+      @import url("./css/maven-base.css");
+      @import url("./css/maven-theme.css");
+      @import url("./css/site.css");
+    </style>
+    <link rel="stylesheet" href="./css/print.css" type="text/css" media="print" />
+          <meta name="author" content="Stuart McCulloch" />
+        <meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1" />
+                            <?xml version="1.0" encoding="UTF-8"?>
+<script type="text/javascript" src="http://www.google-analytics.com/urchin.js"></script>
+                                <?xml version="1.0" encoding="UTF-8"?>
+<script type="text/javascript" src="http://www.google-analytics.com/urchin.js">_uacct = "UA-2623231-3";
+        urchinTracker();</script>
+                    </head>
+  <body class="composite">
+    <div id="banner">
+                  <a href="http://www.ops4j.org/index.html" id="bannerLeft">
+    
+                                            <img src="../images/logos/ops4j.png" alt="" />
+    
+            </a>
+                        <a href="../index.html" id="bannerRight">
+    
+            Pax-Construct
+    
+            </a>
+            <div class="clear">
+        <hr/>
+      </div>
+    </div>
+    <div id="breadcrumbs">
+          
+  
+
+  
+    
+  
+  
+            <div class="xleft">
+        Last Published: 02/12/2008
+                      </div>
+            <div class="xright">      <a href="http://wiki.ops4j.org/confluence/display/ops4j/Pax">Pax</a>
+          |
+          <a href="http://www.osgi.org/">OSGi</a>
+          |
+          <a href="http://maven.apache.org/">Maven 2</a>
+          
+  
+
+  
+    
+  
+  
+  </div>
+      <div class="clear">
+        <hr/>
+      </div>
+    </div>
+    <div id="leftColumn">
+      <div id="navcolumn">
+           
+  
+
+  
+    
+  
+  
+                   <h5>Pax Construct</h5>
+        <ul>
+              
+    <li class="none">
+              <a href="../index.html">Getting Started</a>
+        </li>
+          </ul>
+          <h5>Documentation</h5>
+        <ul>
+              
+    <li class="none">
+              <a href="index.html">Introduction</a>
+        </li>
+              
+    <li class="none">
+              <a href="plugin-info.html">Goals</a>
+        </li>
+              
+    <li class="none">
+              <strong>Usage</strong>
+        </li>
+          </ul>
+          <h5>Status</h5>
+        <ul>
+              
+                
+              
+      
+            
+      
+            
+      
+            
+      
+            
+      
+            
+      
+            
+      
+            
+      
+            
+      
+              
+        <li class="collapsed">
+              <a href="project-info.html">Project Information</a>
+              </li>
+              
+                
+              
+      
+            
+      
+            
+      
+            
+      
+            
+      
+            
+      
+              
+        <li class="collapsed">
+              <a href="project-reports.html">Project Reports</a>
+              </li>
+          </ul>
+          <h5>Mailing List</h5>
+        <ul>
+              
+    <li class="none">
+              <a href="mailto:general@lists.ops4j.org">general@lists.ops4j.org</a>
+        </li>
+          </ul>
+          <h5>Issue Tracking</h5>
+        <ul>
+              
+    <li class="none">
+              <a href="http://issues.ops4j.org/jira/browse/PAXCONSTRUCT">http://issues.ops4j.org</a>
+        </li>
+          </ul>
+                                       <a href="http://maven.apache.org/" title="Built by Maven" id="poweredBy">
+            <img alt="Built by Maven" src="./images/logos/maven-feather.png"></img>
+          </a>
+                       
+  
+
+  
+    
+  
+  
+        </div>
+    </div>
+    <div id="bodyColumn">
+      <div id="contentBox">
+        <div class="section"><h2>Maven 2 Inherit Plugin: Usage</h2><div class="section"><h3>Adding the Inherit Plugin to your build</h3><p>To use the current release in your plugin project, all you need to add is:</p><div class="source"><pre>  &lt;build&gt;
+    &lt;plugins&gt;
+      &lt;plugin&gt;
+        &lt;groupId&gt;org.ops4j&lt;/groupId&gt;
+        &lt;artifactId&gt;maven-inherit-plugin&lt;/artifactId&gt;
+        &lt;version&gt;0.6.4&lt;/version&gt;
+        &lt;executions&gt;
+          &lt;execution&gt;
+            &lt;goals&gt;
+              &lt;goal&gt;inherit&lt;/goal&gt;
+            &lt;/goals&gt;
+          &lt;/execution&gt;
+        &lt;/executions&gt;
+      &lt;/plugin&gt;
+    &lt;/plugins&gt;
+  &lt;/build&gt;
+
+  &lt;pluginRepositories&gt;
+    &lt;pluginRepository&gt;
+      &lt;id&gt;ops4j-repository&lt;/id&gt;
+      &lt;url&gt;http://repository.ops4j.org/maven2&lt;/url&gt;
+      &lt;snapshots&gt;
+        &lt;enabled&gt;false&lt;/enabled&gt;
+      &lt;/snapshots&gt;
+    &lt;/pluginRepository&gt;
+  &lt;/pluginRepositories&gt;</pre></div></div><div class="section"><h3>Extending a goal from an existing plugin</h3><div class="source"><pre>/**
+ * @extendsPlugin eclipse
+ * @goal eclipse
+ * @phase package
+ */
+public class EclipseOSGiMojo extends EclipsePlugin
+{
+   // if you override member fields, remember to propagate the values using reflection
+}</pre></div></div><div class="section"><h3>Extending a different goal from an existing plugin</h3><div class="source"><pre>/**
+ * @extendsPlugin archetype
+ * @extendsGoal create
+ * @goal create-project
+ * @requiresProject false
+ */
+public class OSGiProjectArchetypeMojo extends MavenArchetypeMojo
+{
+   // if you override member fields, remember to propagate the values using reflection
+}</pre></div></div></div>
+      </div>
+    </div>
+    <div class="clear">
+      <hr/>
+    </div>
+    <div id="footer">
+      <div class="xright">&#169;  
+          2007-2008
+    
+          OPS4J
+          
+  
+
+  
+    
+  
+  
+  </div>
+      <div class="clear">
+        <hr/>
+      </div>
+    </div>
+  </body>
+</html>

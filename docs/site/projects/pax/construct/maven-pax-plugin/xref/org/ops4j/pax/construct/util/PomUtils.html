@@ -1,0 +1,610 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="content-type" content="text/html; charset=ISO-8859-1" />
+<title>PomUtils xref</title>
+<link type="text/css" rel="stylesheet" href="../../../../../stylesheet.css" />
+</head>
+<body>
+<div id="overview"><a href="../../../../../../apidocs/org/ops4j/pax/construct/util/PomUtils.html">View Javadoc</a></div><pre>
+
+<a name="1" href="#1">1</a>   <strong class="jxr_keyword">package</strong> org.ops4j.pax.construct.util;
+<a name="2" href="#2">2</a>   
+<a name="3" href="#3">3</a>   <em class="jxr_comment">/*</em>
+<a name="4" href="#4">4</a>   <em class="jxr_comment"> * Copyright 2007 Stuart McCulloch, Alin Dreghiciu</em>
+<a name="5" href="#5">5</a>   <em class="jxr_comment"> *</em>
+<a name="6" href="#6">6</a>   <em class="jxr_comment"> * Licensed under the Apache License, Version 2.0 (the "License");</em>
+<a name="7" href="#7">7</a>   <em class="jxr_comment"> * you may not use this file except in compliance with the License.</em>
+<a name="8" href="#8">8</a>   <em class="jxr_comment"> * You may obtain a copy of the License at</em>
+<a name="9" href="#9">9</a>   <em class="jxr_comment"> *</em>
+<a name="10" href="#10">10</a>  <em class="jxr_comment"> *      <a href="http://www.apache.org/licenses/LICENSE-2.0" target="alexandria_uri">http://www.apache.org/licenses/LICENSE-2.0</a></em>
+<a name="11" href="#11">11</a>  <em class="jxr_comment"> *</em>
+<a name="12" href="#12">12</a>  <em class="jxr_comment"> * Unless required by applicable law or agreed to in writing, software</em>
+<a name="13" href="#13">13</a>  <em class="jxr_comment"> * distributed under the License is distributed on an "AS IS" BASIS,</em>
+<a name="14" href="#14">14</a>  <em class="jxr_comment"> * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.</em>
+<a name="15" href="#15">15</a>  <em class="jxr_comment"> * See the License for the specific language governing permissions and</em>
+<a name="16" href="#16">16</a>  <em class="jxr_comment"> * limitations under the License.</em>
+<a name="17" href="#17">17</a>  <em class="jxr_comment"> */</em>
+<a name="18" href="#18">18</a>  
+<a name="19" href="#19">19</a>  <strong class="jxr_keyword">import</strong> java.io.File;
+<a name="20" href="#20">20</a>  <strong class="jxr_keyword">import</strong> java.io.IOException;
+<a name="21" href="#21">21</a>  <strong class="jxr_keyword">import</strong> java.util.Collections;
+<a name="22" href="#22">22</a>  <strong class="jxr_keyword">import</strong> java.util.Iterator;
+<a name="23" href="#23">23</a>  <strong class="jxr_keyword">import</strong> java.util.List;
+<a name="24" href="#24">24</a>  <strong class="jxr_keyword">import</strong> java.util.Properties;
+<a name="25" href="#25">25</a>  <strong class="jxr_keyword">import</strong> java.util.jar.Attributes;
+<a name="26" href="#26">26</a>  <strong class="jxr_keyword">import</strong> java.util.jar.JarFile;
+<a name="27" href="#27">27</a>  <strong class="jxr_keyword">import</strong> java.util.jar.Manifest;
+<a name="28" href="#28">28</a>  
+<a name="29" href="#29">29</a>  <strong class="jxr_keyword">import</strong> org.apache.maven.artifact.Artifact;
+<a name="30" href="#30">30</a>  <strong class="jxr_keyword">import</strong> org.apache.maven.artifact.ArtifactUtils;
+<a name="31" href="#31">31</a>  <strong class="jxr_keyword">import</strong> org.apache.maven.artifact.metadata.ArtifactMetadataRetrievalException;
+<a name="32" href="#32">32</a>  <strong class="jxr_keyword">import</strong> org.apache.maven.artifact.metadata.ArtifactMetadataSource;
+<a name="33" href="#33">33</a>  <strong class="jxr_keyword">import</strong> org.apache.maven.artifact.repository.ArtifactRepository;
+<a name="34" href="#34">34</a>  <strong class="jxr_keyword">import</strong> org.apache.maven.artifact.resolver.AbstractArtifactResolutionException;
+<a name="35" href="#35">35</a>  <strong class="jxr_keyword">import</strong> org.apache.maven.artifact.resolver.ArtifactResolver;
+<a name="36" href="#36">36</a>  <strong class="jxr_keyword">import</strong> org.apache.maven.artifact.versioning.ArtifactVersion;
+<a name="37" href="#37">37</a>  <strong class="jxr_keyword">import</strong> org.apache.maven.artifact.versioning.DefaultArtifactVersion;
+<a name="38" href="#38">38</a>  <strong class="jxr_keyword">import</strong> org.apache.maven.artifact.versioning.OverConstrainedVersionException;
+<a name="39" href="#39">39</a>  <strong class="jxr_keyword">import</strong> org.apache.maven.artifact.versioning.VersionRange;
+<a name="40" href="#40">40</a>  <strong class="jxr_keyword">import</strong> org.apache.maven.model.Dependency;
+<a name="41" href="#41">41</a>  <strong class="jxr_keyword">import</strong> org.apache.maven.model.Repository;
+<a name="42" href="#42">42</a>  <strong class="jxr_keyword">import</strong> org.apache.maven.plugin.MojoExecutionException;
+<a name="43" href="#43">43</a>  <strong class="jxr_keyword">import</strong> org.apache.maven.project.MavenProject;
+<a name="44" href="#44">44</a>  
+<a name="45" href="#45">45</a>  <em class="jxr_javadoccomment">/**</em>
+<a name="46" href="#46">46</a>  <em class="jxr_javadoccomment"> * Provide API {@link Pom} and factory for editing Maven project files</em>
+<a name="47" href="#47">47</a>  <em class="jxr_javadoccomment"> */</em>
+<a name="48" href="#48">48</a>  <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">class</strong> <a href="../../../../../org/ops4j/pax/construct/util/PomUtils.html">PomUtils</a>
+<a name="49" href="#49">49</a>  {
+<a name="50" href="#50">50</a>      <em class="jxr_javadoccomment">/**</em>
+<a name="51" href="#51">51</a>  <em class="jxr_javadoccomment">     * Hide constructor for utility class</em>
+<a name="52" href="#52">52</a>  <em class="jxr_javadoccomment">     */</em>
+<a name="53" href="#53">53</a>      <strong class="jxr_keyword">private</strong> <a href="../../../../../org/ops4j/pax/construct/util/PomUtils.html">PomUtils</a>()
+<a name="54" href="#54">54</a>      {
+<a name="55" href="#55">55</a>          <em class="jxr_comment">/*</em>
+<a name="56" href="#56">56</a>  <em class="jxr_comment">         * nothing to do</em>
+<a name="57" href="#57">57</a>  <em class="jxr_comment">         */</em>
+<a name="58" href="#58">58</a>      }
+<a name="59" href="#59">59</a>  
+<a name="60" href="#60">60</a>      <em class="jxr_javadoccomment">/**</em>
+<a name="61" href="#61">61</a>  <em class="jxr_javadoccomment">     * API for editing Maven project files</em>
+<a name="62" href="#62">62</a>  <em class="jxr_javadoccomment">     */</em>
+<a name="63" href="#63">63</a>      <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">interface</strong> <a href="../../../../../org/ops4j/pax/construct/util/PomUtils.html">Pom</a>
+<a name="64" href="#64">64</a>      {
+<a name="65" href="#65">65</a>          <em class="jxr_javadoccomment">/**</em>
+<a name="66" href="#66">66</a>  <em class="jxr_javadoccomment">         * @return unique project identifier</em>
+<a name="67" href="#67">67</a>  <em class="jxr_javadoccomment">         */</em>
+<a name="68" href="#68">68</a>          String getId();
+<a name="69" href="#69">69</a>  
+<a name="70" href="#70">70</a>          <em class="jxr_javadoccomment">/**</em>
+<a name="71" href="#71">71</a>  <em class="jxr_javadoccomment">         * @return parents' unique project identifier</em>
+<a name="72" href="#72">72</a>  <em class="jxr_javadoccomment">         */</em>
+<a name="73" href="#73">73</a>          String getParentId();
+<a name="74" href="#74">74</a>  
+<a name="75" href="#75">75</a>          <em class="jxr_javadoccomment">/**</em>
+<a name="76" href="#76">76</a>  <em class="jxr_javadoccomment">         * @return project group id</em>
+<a name="77" href="#77">77</a>  <em class="jxr_javadoccomment">         */</em>
+<a name="78" href="#78">78</a>          String getGroupId();
+<a name="79" href="#79">79</a>  
+<a name="80" href="#80">80</a>          <em class="jxr_javadoccomment">/**</em>
+<a name="81" href="#81">81</a>  <em class="jxr_javadoccomment">         * @return project artifact id</em>
+<a name="82" href="#82">82</a>  <em class="jxr_javadoccomment">         */</em>
+<a name="83" href="#83">83</a>          String getArtifactId();
+<a name="84" href="#84">84</a>  
+<a name="85" href="#85">85</a>          <em class="jxr_javadoccomment">/**</em>
+<a name="86" href="#86">86</a>  <em class="jxr_javadoccomment">         * @return project version</em>
+<a name="87" href="#87">87</a>  <em class="jxr_javadoccomment">         */</em>
+<a name="88" href="#88">88</a>          String getVersion();
+<a name="89" href="#89">89</a>  
+<a name="90" href="#90">90</a>          <em class="jxr_javadoccomment">/**</em>
+<a name="91" href="#91">91</a>  <em class="jxr_javadoccomment">         * @return project packaging</em>
+<a name="92" href="#92">92</a>  <em class="jxr_javadoccomment">         */</em>
+<a name="93" href="#93">93</a>          String getPackaging();
+<a name="94" href="#94">94</a>  
+<a name="95" href="#95">95</a>          <em class="jxr_javadoccomment">/**</em>
+<a name="96" href="#96">96</a>  <em class="jxr_javadoccomment">         * @return names of modules contained in this project</em>
+<a name="97" href="#97">97</a>  <em class="jxr_javadoccomment">         */</em>
+<a name="98" href="#98">98</a>          List getModuleNames();
+<a name="99" href="#99">99</a>  
+<a name="100" href="#100">100</a>         <em class="jxr_javadoccomment">/**</em>
+<a name="101" href="#101">101</a> <em class="jxr_javadoccomment">         * @return the physical parent project</em>
+<a name="102" href="#102">102</a> <em class="jxr_javadoccomment">         */</em>
+<a name="103" href="#103">103</a>         <a href="../../../../../org/ops4j/pax/construct/util/PomUtils.html">Pom</a> getContainingPom();
+<a name="104" href="#104">104</a> 
+<a name="105" href="#105">105</a>         <em class="jxr_javadoccomment">/**</em>
+<a name="106" href="#106">106</a> <em class="jxr_javadoccomment">         * @param module name of a module in this project</em>
+<a name="107" href="#107">107</a> <em class="jxr_javadoccomment">         * @return the module POM, null if it doesn't exist</em>
+<a name="108" href="#108">108</a> <em class="jxr_javadoccomment">         */</em>
+<a name="109" href="#109">109</a>         <a href="../../../../../org/ops4j/pax/construct/util/PomUtils.html">Pom</a> getModulePom( String module );
+<a name="110" href="#110">110</a> 
+<a name="111" href="#111">111</a>         <em class="jxr_javadoccomment">/**</em>
+<a name="112" href="#112">112</a> <em class="jxr_javadoccomment">         * @return the underlying Maven POM file</em>
+<a name="113" href="#113">113</a> <em class="jxr_javadoccomment">         */</em>
+<a name="114" href="#114">114</a>         File getFile();
+<a name="115" href="#115">115</a> 
+<a name="116" href="#116">116</a>         <em class="jxr_javadoccomment">/**</em>
+<a name="117" href="#117">117</a> <em class="jxr_javadoccomment">         * @return the directory containing this Maven project</em>
+<a name="118" href="#118">118</a> <em class="jxr_javadoccomment">         */</em>
+<a name="119" href="#119">119</a>         File getBasedir();
+<a name="120" href="#120">120</a> 
+<a name="121" href="#121">121</a>         <em class="jxr_javadoccomment">/**</em>
+<a name="122" href="#122">122</a> <em class="jxr_javadoccomment">         * @return true if this is an OSGi bundle project, otherwise false</em>
+<a name="123" href="#123">123</a> <em class="jxr_javadoccomment">         */</em>
+<a name="124" href="#124">124</a>         <strong class="jxr_keyword">boolean</strong> isBundleProject();
+<a name="125" href="#125">125</a> 
+<a name="126" href="#126">126</a>         <em class="jxr_javadoccomment">/**</em>
+<a name="127" href="#127">127</a> <em class="jxr_javadoccomment">         * @return the symbolic name for this project, null if it doesn't define one</em>
+<a name="128" href="#128">128</a> <em class="jxr_javadoccomment">         */</em>
+<a name="129" href="#129">129</a>         String getBundleSymbolicName();
+<a name="130" href="#130">130</a> 
+<a name="131" href="#131">131</a>         <em class="jxr_javadoccomment">/**</em>
+<a name="132" href="#132">132</a> <em class="jxr_javadoccomment">         * @param pom the new logical parent project</em>
+<a name="133" href="#133">133</a> <em class="jxr_javadoccomment">         * @param relativePath the relative path from this POM to its new parent</em>
+<a name="134" href="#134">134</a> <em class="jxr_javadoccomment">         * @param overwrite overwrite element if true, otherwise throw {@link ExistingElementException}</em>
+<a name="135" href="#135">135</a> <em class="jxr_javadoccomment">         * @throws ExistingElementException</em>
+<a name="136" href="#136">136</a> <em class="jxr_javadoccomment">         */</em>
+<a name="137" href="#137">137</a>         <strong class="jxr_keyword">void</strong> setParent( Pom pom, String relativePath, <strong class="jxr_keyword">boolean</strong> overwrite )
+<a name="138" href="#138">138</a>             <strong class="jxr_keyword">throws</strong> ExistingElementException;
+<a name="139" href="#139">139</a> 
+<a name="140" href="#140">140</a>         <em class="jxr_javadoccomment">/**</em>
+<a name="141" href="#141">141</a> <em class="jxr_javadoccomment">         * @param project the new logical parent project</em>
+<a name="142" href="#142">142</a> <em class="jxr_javadoccomment">         * @param relativePath the relative path from this POM to the parent</em>
+<a name="143" href="#143">143</a> <em class="jxr_javadoccomment">         * @param overwrite overwrite element if true, otherwise throw {@link ExistingElementException}</em>
+<a name="144" href="#144">144</a> <em class="jxr_javadoccomment">         * @throws ExistingElementException</em>
+<a name="145" href="#145">145</a> <em class="jxr_javadoccomment">         */</em>
+<a name="146" href="#146">146</a>         <strong class="jxr_keyword">void</strong> setParent( MavenProject project, String relativePath, <strong class="jxr_keyword">boolean</strong> overwrite )
+<a name="147" href="#147">147</a>             <strong class="jxr_keyword">throws</strong> ExistingElementException;
+<a name="148" href="#148">148</a> 
+<a name="149" href="#149">149</a>         <em class="jxr_javadoccomment">/**</em>
+<a name="150" href="#150">150</a> <em class="jxr_javadoccomment">         * @param newGroupId the new project group id</em>
+<a name="151" href="#151">151</a> <em class="jxr_javadoccomment">         */</em>
+<a name="152" href="#152">152</a>         <strong class="jxr_keyword">void</strong> setGroupId( String newGroupId );
+<a name="153" href="#153">153</a> 
+<a name="154" href="#154">154</a>         <em class="jxr_javadoccomment">/**</em>
+<a name="155" href="#155">155</a> <em class="jxr_javadoccomment">         * @param repository a Maven repository</em>
+<a name="156" href="#156">156</a> <em class="jxr_javadoccomment">         * @param snapshots enable snapshots for this repository</em>
+<a name="157" href="#157">157</a> <em class="jxr_javadoccomment">         * @param releases enable releases for this repository</em>
+<a name="158" href="#158">158</a> <em class="jxr_javadoccomment">         * @param overwrite overwrite element if true, otherwise throw {@link ExistingElementException}</em>
+<a name="159" href="#159">159</a> <em class="jxr_javadoccomment">         * @param pluginRepo treat as plugin repository if true, otherwise assume normal repository</em>
+<a name="160" href="#160">160</a> <em class="jxr_javadoccomment">         * @throws ExistingElementException</em>
+<a name="161" href="#161">161</a> <em class="jxr_javadoccomment">         */</em>
+<a name="162" href="#162">162</a>         <strong class="jxr_keyword">void</strong> addRepository( Repository repository, <strong class="jxr_keyword">boolean</strong> snapshots, <strong class="jxr_keyword">boolean</strong> releases, <strong class="jxr_keyword">boolean</strong> overwrite,
+<a name="163" href="#163">163</a>             <strong class="jxr_keyword">boolean</strong> pluginRepo )
+<a name="164" href="#164">164</a>             <strong class="jxr_keyword">throws</strong> ExistingElementException;
+<a name="165" href="#165">165</a> 
+<a name="166" href="#166">166</a>         <em class="jxr_javadoccomment">/**</em>
+<a name="167" href="#167">167</a> <em class="jxr_javadoccomment">         * @param module module name</em>
+<a name="168" href="#168">168</a> <em class="jxr_javadoccomment">         * @param overwrite overwrite element if true, otherwise throw {@link ExistingElementException}</em>
+<a name="169" href="#169">169</a> <em class="jxr_javadoccomment">         * @throws ExistingElementException</em>
+<a name="170" href="#170">170</a> <em class="jxr_javadoccomment">         */</em>
+<a name="171" href="#171">171</a>         <strong class="jxr_keyword">void</strong> addModule( String module, <strong class="jxr_keyword">boolean</strong> overwrite )
+<a name="172" href="#172">172</a>             <strong class="jxr_keyword">throws</strong> ExistingElementException;
+<a name="173" href="#173">173</a> 
+<a name="174" href="#174">174</a>         <em class="jxr_javadoccomment">/**</em>
+<a name="175" href="#175">175</a> <em class="jxr_javadoccomment">         * @param module module name</em>
+<a name="176" href="#176">176</a> <em class="jxr_javadoccomment">         * @return true if module was removed from the project, otherwise false</em>
+<a name="177" href="#177">177</a> <em class="jxr_javadoccomment">         */</em>
+<a name="178" href="#178">178</a>         <strong class="jxr_keyword">boolean</strong> removeModule( String module );
+<a name="179" href="#179">179</a> 
+<a name="180" href="#180">180</a>         <em class="jxr_javadoccomment">/**</em>
+<a name="181" href="#181">181</a> <em class="jxr_javadoccomment">         * @param dependency project dependency</em>
+<a name="182" href="#182">182</a> <em class="jxr_javadoccomment">         * @param overwrite overwrite element if true, otherwise throw {@link ExistingElementException}</em>
+<a name="183" href="#183">183</a> <em class="jxr_javadoccomment">         * @throws ExistingElementException</em>
+<a name="184" href="#184">184</a> <em class="jxr_javadoccomment">         */</em>
+<a name="185" href="#185">185</a>         <strong class="jxr_keyword">void</strong> addDependency( Dependency dependency, <strong class="jxr_keyword">boolean</strong> overwrite )
+<a name="186" href="#186">186</a>             <strong class="jxr_keyword">throws</strong> ExistingElementException;
+<a name="187" href="#187">187</a> 
+<a name="188" href="#188">188</a>         <em class="jxr_javadoccomment">/**</em>
+<a name="189" href="#189">189</a> <em class="jxr_javadoccomment">         * @param dependency project dependency</em>
+<a name="190" href="#190">190</a> <em class="jxr_javadoccomment">         * @param newGroupId updated dependency group id</em>
+<a name="191" href="#191">191</a> <em class="jxr_javadoccomment">         * @return true if the dependency was updated</em>
+<a name="192" href="#192">192</a> <em class="jxr_javadoccomment">         */</em>
+<a name="193" href="#193">193</a>         <strong class="jxr_keyword">boolean</strong> updateDependencyGroup( Dependency dependency, String newGroupId );
+<a name="194" href="#194">194</a> 
+<a name="195" href="#195">195</a>         <em class="jxr_javadoccomment">/**</em>
+<a name="196" href="#196">196</a> <em class="jxr_javadoccomment">         * @param dependency project dependency</em>
+<a name="197" href="#197">197</a> <em class="jxr_javadoccomment">         * @return true if dependency was removed from the project, otherwise false</em>
+<a name="198" href="#198">198</a> <em class="jxr_javadoccomment">         */</em>
+<a name="199" href="#199">199</a>         <strong class="jxr_keyword">boolean</strong> removeDependency( Dependency dependency );
+<a name="200" href="#200">200</a> 
+<a name="201" href="#201">201</a>         <em class="jxr_javadoccomment">/**</em>
+<a name="202" href="#202">202</a> <em class="jxr_javadoccomment">         * @param groupId dependency exclusion group id</em>
+<a name="203" href="#203">203</a> <em class="jxr_javadoccomment">         * @param artifactId dependency exclusion artifact id</em>
+<a name="204" href="#204">204</a> <em class="jxr_javadoccomment">         * @param overwrite overwrite element if true, otherwise throw {@link ExistingElementException}</em>
+<a name="205" href="#205">205</a> <em class="jxr_javadoccomment">         * @throws ExistingElementException</em>
+<a name="206" href="#206">206</a> <em class="jxr_javadoccomment">         */</em>
+<a name="207" href="#207">207</a>         <strong class="jxr_keyword">void</strong> addExclusion( String groupId, String artifactId, <strong class="jxr_keyword">boolean</strong> overwrite )
+<a name="208" href="#208">208</a>             <strong class="jxr_keyword">throws</strong> ExistingElementException;
+<a name="209" href="#209">209</a> 
+<a name="210" href="#210">210</a>         <em class="jxr_javadoccomment">/**</em>
+<a name="211" href="#211">211</a> <em class="jxr_javadoccomment">         * @param groupId dependency exclusion group id</em>
+<a name="212" href="#212">212</a> <em class="jxr_javadoccomment">         * @param artifactId dependency exclusion artifact id</em>
+<a name="213" href="#213">213</a> <em class="jxr_javadoccomment">         * @return true if dependency exclusion was removed from the project, otherwise false</em>
+<a name="214" href="#214">214</a> <em class="jxr_javadoccomment">         */</em>
+<a name="215" href="#215">215</a>         <strong class="jxr_keyword">boolean</strong> removeExclusion( String groupId, String artifactId );
+<a name="216" href="#216">216</a> 
+<a name="217" href="#217">217</a>         <em class="jxr_javadoccomment">/**</em>
+<a name="218" href="#218">218</a> <em class="jxr_javadoccomment">         * @return properties defined by the current project</em>
+<a name="219" href="#219">219</a> <em class="jxr_javadoccomment">         */</em>
+<a name="220" href="#220">220</a>         Properties getProperties();
+<a name="221" href="#221">221</a> 
+<a name="222" href="#222">222</a>         <em class="jxr_javadoccomment">/**</em>
+<a name="223" href="#223">223</a> <em class="jxr_javadoccomment">         * @param key property key</em>
+<a name="224" href="#224">224</a> <em class="jxr_javadoccomment">         * @param value property value</em>
+<a name="225" href="#225">225</a> <em class="jxr_javadoccomment">         */</em>
+<a name="226" href="#226">226</a>         <strong class="jxr_keyword">void</strong> setProperty( String key, String value );
+<a name="227" href="#227">227</a> 
+<a name="228" href="#228">228</a>         <em class="jxr_javadoccomment">/**</em>
+<a name="229" href="#229">229</a> <em class="jxr_javadoccomment">         * @param groupId plugin group id</em>
+<a name="230" href="#230">230</a> <em class="jxr_javadoccomment">         * @param artifactId plugin artifact id</em>
+<a name="231" href="#231">231</a> <em class="jxr_javadoccomment">         * @param newVersion new plugin version</em>
+<a name="232" href="#232">232</a> <em class="jxr_javadoccomment">         * @return true if the plugin was updated</em>
+<a name="233" href="#233">233</a> <em class="jxr_javadoccomment">         */</em>
+<a name="234" href="#234">234</a>         <strong class="jxr_keyword">boolean</strong> updatePluginVersion( String groupId, String artifactId, String newVersion );
+<a name="235" href="#235">235</a> 
+<a name="236" href="#236">236</a>         <em class="jxr_javadoccomment">/**</em>
+<a name="237" href="#237">237</a> <em class="jxr_javadoccomment">         * Merge a section of XML from another Maven project POM</em>
+<a name="238" href="#238">238</a> <em class="jxr_javadoccomment">         * </em>
+<a name="239" href="#239">239</a> <em class="jxr_javadoccomment">         * @param pom another Maven project</em>
+<a name="240" href="#240">240</a> <em class="jxr_javadoccomment">         * @param fromSection path to XML section to merge from</em>
+<a name="241" href="#241">241</a> <em class="jxr_javadoccomment">         * @param toSection path to XML section to merge into</em>
+<a name="242" href="#242">242</a> <em class="jxr_javadoccomment">         * @param append when true, append instead of merging</em>
+<a name="243" href="#243">243</a> <em class="jxr_javadoccomment">         */</em>
+<a name="244" href="#244">244</a>         <strong class="jxr_keyword">void</strong> mergeSection( Pom pom, String fromSection, String toSection, <strong class="jxr_keyword">boolean</strong> append );
+<a name="245" href="#245">245</a> 
+<a name="246" href="#246">246</a>         <em class="jxr_javadoccomment">/**</em>
+<a name="247" href="#247">247</a> <em class="jxr_javadoccomment">         * Overlay POM template with detail from another Maven project POM</em>
+<a name="248" href="#248">248</a> <em class="jxr_javadoccomment">         * </em>
+<a name="249" href="#249">249</a> <em class="jxr_javadoccomment">         * @param pom another Maven project</em>
+<a name="250" href="#250">250</a> <em class="jxr_javadoccomment">         */</em>
+<a name="251" href="#251">251</a>         <strong class="jxr_keyword">void</strong> overlayDetails( Pom pom );
+<a name="252" href="#252">252</a> 
+<a name="253" href="#253">253</a>         <em class="jxr_javadoccomment">/**</em>
+<a name="254" href="#254">254</a> <em class="jxr_javadoccomment">         * @throws IOException</em>
+<a name="255" href="#255">255</a> <em class="jxr_javadoccomment">         */</em>
+<a name="256" href="#256">256</a>         <strong class="jxr_keyword">void</strong> write()
+<a name="257" href="#257">257</a>             <strong class="jxr_keyword">throws</strong> IOException;
+<a name="258" href="#258">258</a>     }
+<a name="259" href="#259">259</a> 
+<a name="260" href="#260">260</a>     <em class="jxr_javadoccomment">/**</em>
+<a name="261" href="#261">261</a> <em class="jxr_javadoccomment">     * Thrown when a POM element already exists and can't be overwritten {@link Pom}</em>
+<a name="262" href="#262">262</a> <em class="jxr_javadoccomment">     */</em>
+<a name="263" href="#263">263</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">class</strong> <a href="../../../../../org/ops4j/pax/construct/util/PomUtils.html">ExistingElementException</a> <strong class="jxr_keyword">extends</strong> RuntimeException
+<a name="264" href="#264">264</a>     {
+<a name="265" href="#265">265</a>         <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">long</strong> serialVersionUID = 1L;
+<a name="266" href="#266">266</a> 
+<a name="267" href="#267">267</a>         <em class="jxr_javadoccomment">/**</em>
+<a name="268" href="#268">268</a> <em class="jxr_javadoccomment">         * @param element name of the existing POM element</em>
+<a name="269" href="#269">269</a> <em class="jxr_javadoccomment">         */</em>
+<a name="270" href="#270">270</a>         <strong class="jxr_keyword">public</strong> <a href="../../../../../org/ops4j/pax/construct/util/PomUtils.html">ExistingElementException</a>( String element )
+<a name="271" href="#271">271</a>         {
+<a name="272" href="#272">272</a>             <strong class="jxr_keyword">super</strong>( <span class="jxr_string">"Project already has a &lt;"</span> + element + <span class="jxr_string">"&gt; which matches, use -Doverwrite or -o to replace it"</span> );
+<a name="273" href="#273">273</a>         }
+<a name="274" href="#274">274</a> 
+<a name="275" href="#275">275</a>         <em class="jxr_javadoccomment">/**</em>
+<a name="276" href="#276">276</a> <em class="jxr_javadoccomment">         * {@inheritDoc}</em>
+<a name="277" href="#277">277</a> <em class="jxr_javadoccomment">         */</em>
+<a name="278" href="#278">278</a>         <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">synchronized</strong> Throwable fillInStackTrace()
+<a name="279" href="#279">279</a>         {
+<a name="280" href="#280">280</a>             <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">this</strong>;
+<a name="281" href="#281">281</a>         }
+<a name="282" href="#282">282</a> 
+<a name="283" href="#283">283</a>         <em class="jxr_javadoccomment">/**</em>
+<a name="284" href="#284">284</a> <em class="jxr_javadoccomment">         * {@inheritDoc}</em>
+<a name="285" href="#285">285</a> <em class="jxr_javadoccomment">         */</em>
+<a name="286" href="#286">286</a>         <strong class="jxr_keyword">public</strong> String toString()
+<a name="287" href="#287">287</a>         {
+<a name="288" href="#288">288</a>             <strong class="jxr_keyword">return</strong> <span class="jxr_string">"[INFO] not available"</span>;
+<a name="289" href="#289">289</a>         }
+<a name="290" href="#290">290</a>     }
+<a name="291" href="#291">291</a> 
+<a name="292" href="#292">292</a>     <em class="jxr_javadoccomment">/**</em>
+<a name="293" href="#293">293</a> <em class="jxr_javadoccomment">     * Factory method that provides an editor for an existing Maven project file</em>
+<a name="294" href="#294">294</a> <em class="jxr_javadoccomment">     * </em>
+<a name="295" href="#295">295</a> <em class="jxr_javadoccomment">     * @param here a Maven POM, or a directory containing a file named 'pom.xml'</em>
+<a name="296" href="#296">296</a> <em class="jxr_javadoccomment">     * @return simple Maven project editor</em>
+<a name="297" href="#297">297</a> <em class="jxr_javadoccomment">     * @throws IOException</em>
+<a name="298" href="#298">298</a> <em class="jxr_javadoccomment">     */</em>
+<a name="299" href="#299">299</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <a href="../../../../../org/ops4j/pax/construct/util/PomUtils.html">Pom</a> readPom( File here )
+<a name="300" href="#300">300</a>         <strong class="jxr_keyword">throws</strong> IOException
+<a name="301" href="#301">301</a>     {
+<a name="302" href="#302">302</a>         File candidate = here;
+<a name="303" href="#303">303</a> 
+<a name="304" href="#304">304</a>         <strong class="jxr_keyword">if</strong>( <strong class="jxr_keyword">null</strong> == here )
+<a name="305" href="#305">305</a>         {
+<a name="306" href="#306">306</a>             <strong class="jxr_keyword">throw</strong> <strong class="jxr_keyword">new</strong> IOException( <span class="jxr_string">"null location"</span> );
+<a name="307" href="#307">307</a>         }
+<a name="308" href="#308">308</a>         <strong class="jxr_keyword">else</strong> <strong class="jxr_keyword">if</strong>( here.isDirectory() )
+<a name="309" href="#309">309</a>         {
+<a name="310" href="#310">310</a>             candidate = <strong class="jxr_keyword">new</strong> File( here, <span class="jxr_string">"pom.xml"</span> );
+<a name="311" href="#311">311</a>         }
+<a name="312" href="#312">312</a> 
+<a name="313" href="#313">313</a>         <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">new</strong> <a href="../../../../../org/ops4j/pax/construct/util/XppPom.html">XppPom</a>( candidate );
+<a name="314" href="#314">314</a>     }
+<a name="315" href="#315">315</a> 
+<a name="316" href="#316">316</a>     <em class="jxr_javadoccomment">/**</em>
+<a name="317" href="#317">317</a> <em class="jxr_javadoccomment">     * Factory method that provides an editor for a new Maven project file</em>
+<a name="318" href="#318">318</a> <em class="jxr_javadoccomment">     * </em>
+<a name="319" href="#319">319</a> <em class="jxr_javadoccomment">     * @param here the file, or directory for the new Maven project</em>
+<a name="320" href="#320">320</a> <em class="jxr_javadoccomment">     * @param groupId project group id</em>
+<a name="321" href="#321">321</a> <em class="jxr_javadoccomment">     * @param artifactId project artifact id</em>
+<a name="322" href="#322">322</a> <em class="jxr_javadoccomment">     * @return simple Maven project editor</em>
+<a name="323" href="#323">323</a> <em class="jxr_javadoccomment">     * @throws IOException</em>
+<a name="324" href="#324">324</a> <em class="jxr_javadoccomment">     */</em>
+<a name="325" href="#325">325</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <a href="../../../../../org/ops4j/pax/construct/util/PomUtils.html">Pom</a> createModulePom( File here, String groupId, String artifactId )
+<a name="326" href="#326">326</a>         <strong class="jxr_keyword">throws</strong> IOException
+<a name="327" href="#327">327</a>     {
+<a name="328" href="#328">328</a>         File candidate = here;
+<a name="329" href="#329">329</a> 
+<a name="330" href="#330">330</a>         <strong class="jxr_keyword">if</strong>( <strong class="jxr_keyword">null</strong> == here )
+<a name="331" href="#331">331</a>         {
+<a name="332" href="#332">332</a>             <strong class="jxr_keyword">throw</strong> <strong class="jxr_keyword">new</strong> IOException( <span class="jxr_string">"null location"</span> );
+<a name="333" href="#333">333</a>         }
+<a name="334" href="#334">334</a>         <strong class="jxr_keyword">else</strong> <strong class="jxr_keyword">if</strong>( here.isDirectory() )
+<a name="335" href="#335">335</a>         {
+<a name="336" href="#336">336</a>             candidate = <strong class="jxr_keyword">new</strong> File( here, <span class="jxr_string">"pom.xml"</span> );
+<a name="337" href="#337">337</a>         }
+<a name="338" href="#338">338</a> 
+<a name="339" href="#339">339</a>         <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">new</strong> <a href="../../../../../org/ops4j/pax/construct/util/XppPom.html">XppPom</a>( candidate, groupId, artifactId );
+<a name="340" href="#340">340</a>     }
+<a name="341" href="#341">341</a> 
+<a name="342" href="#342">342</a>     <em class="jxr_javadoccomment">/**</em>
+<a name="343" href="#343">343</a> <em class="jxr_javadoccomment">     * @param project Maven project</em>
+<a name="344" href="#344">344</a> <em class="jxr_javadoccomment">     * @return true if this is an OSGi bundle project, otherwise false</em>
+<a name="345" href="#345">345</a> <em class="jxr_javadoccomment">     */</em>
+<a name="346" href="#346">346</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">boolean</strong> isBundleProject( MavenProject project )
+<a name="347" href="#347">347</a>     {
+<a name="348" href="#348">348</a>         <strong class="jxr_keyword">return</strong> isBundleProject( project, <strong class="jxr_keyword">null</strong>, <strong class="jxr_keyword">null</strong>, <strong class="jxr_keyword">null</strong>, false );
+<a name="349" href="#349">349</a>     }
+<a name="350" href="#350">350</a> 
+<a name="351" href="#351">351</a>     <em class="jxr_javadoccomment">/**</em>
+<a name="352" href="#352">352</a> <em class="jxr_javadoccomment">     * @param project Maven project</em>
+<a name="353" href="#353">353</a> <em class="jxr_javadoccomment">     * @param resolver artifact resolver</em>
+<a name="354" href="#354">354</a> <em class="jxr_javadoccomment">     * @param remoteRepos sequence of remote repositories</em>
+<a name="355" href="#355">355</a> <em class="jxr_javadoccomment">     * @param localRepo local Maven repository</em>
+<a name="356" href="#356">356</a> <em class="jxr_javadoccomment">     * @param testMetadata check jar manifest for OSGi attributes if true</em>
+<a name="357" href="#357">357</a> <em class="jxr_javadoccomment">     * @return true if this is an OSGi bundle project, otherwise false</em>
+<a name="358" href="#358">358</a> <em class="jxr_javadoccomment">     */</em>
+<a name="359" href="#359">359</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">boolean</strong> isBundleProject( MavenProject project, ArtifactResolver resolver, List remoteRepos,
+<a name="360" href="#360">360</a>         ArtifactRepository localRepo, <strong class="jxr_keyword">boolean</strong> testMetadata )
+<a name="361" href="#361">361</a>     {
+<a name="362" href="#362">362</a>         String packaging = project.getPackaging();
+<a name="363" href="#363">363</a>         <strong class="jxr_keyword">if</strong>( packaging != <strong class="jxr_keyword">null</strong> &amp;&amp; packaging.indexOf( <span class="jxr_string">"bundle"</span> ) &gt;= 0 )
+<a name="364" href="#364">364</a>         {
+<a name="365" href="#365">365</a>             <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">true</strong>;
+<a name="366" href="#366">366</a>         }
+<a name="367" href="#367">367</a> 
+<a name="368" href="#368">368</a>         <strong class="jxr_keyword">return</strong> isBundleArtifact( project.getArtifact(), resolver, remoteRepos, localRepo, testMetadata );
+<a name="369" href="#369">369</a>     }
+<a name="370" href="#370">370</a> 
+<a name="371" href="#371">371</a>     <em class="jxr_javadoccomment">/**</em>
+<a name="372" href="#372">372</a> <em class="jxr_javadoccomment">     * @param artifact Maven artifact</em>
+<a name="373" href="#373">373</a> <em class="jxr_javadoccomment">     * @param resolver artifact resolver</em>
+<a name="374" href="#374">374</a> <em class="jxr_javadoccomment">     * @param remoteRepos sequence of remote repositories</em>
+<a name="375" href="#375">375</a> <em class="jxr_javadoccomment">     * @param localRepo local Maven repository</em>
+<a name="376" href="#376">376</a> <em class="jxr_javadoccomment">     * @param testMetadata check jar manifest for OSGi attributes if true</em>
+<a name="377" href="#377">377</a> <em class="jxr_javadoccomment">     * @return true if this is an OSGi bundle artifact, otherwise false</em>
+<a name="378" href="#378">378</a> <em class="jxr_javadoccomment">     */</em>
+<a name="379" href="#379">379</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">boolean</strong> isBundleArtifact( Artifact artifact, ArtifactResolver resolver, List remoteRepos,
+<a name="380" href="#380">380</a>         ArtifactRepository localRepo, <strong class="jxr_keyword">boolean</strong> testMetadata )
+<a name="381" href="#381">381</a>     {
+<a name="382" href="#382">382</a>         String type = artifact.getType();
+<a name="383" href="#383">383</a>         <strong class="jxr_keyword">if</strong>( <strong class="jxr_keyword">null</strong> != type &amp;&amp; type.indexOf( <span class="jxr_string">"bundle"</span> ) &gt;= 0 )
+<a name="384" href="#384">384</a>         {
+<a name="385" href="#385">385</a>             <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">true</strong>;
+<a name="386" href="#386">386</a>         }
+<a name="387" href="#387">387</a>         <strong class="jxr_keyword">else</strong> <strong class="jxr_keyword">if</strong>( !testMetadata || !downloadFile( artifact, resolver, remoteRepos, localRepo ) )
+<a name="388" href="#388">388</a>         {
+<a name="389" href="#389">389</a>             <strong class="jxr_keyword">return</strong> false;
+<a name="390" href="#390">390</a>         }
+<a name="391" href="#391">391</a> 
+<a name="392" href="#392">392</a>         <strong class="jxr_keyword">try</strong>
+<a name="393" href="#393">393</a>         {
+<a name="394" href="#394">394</a>             <strong class="jxr_keyword">return</strong> isBundleArtifact( <strong class="jxr_keyword">new</strong> JarFile( artifact.getFile() ).getManifest() );
+<a name="395" href="#395">395</a>         }
+<a name="396" href="#396">396</a>         <strong class="jxr_keyword">catch</strong>( IOException e )
+<a name="397" href="#397">397</a>         {
+<a name="398" href="#398">398</a>             <strong class="jxr_keyword">return</strong> false;
+<a name="399" href="#399">399</a>         }
+<a name="400" href="#400">400</a>     }
+<a name="401" href="#401">401</a> 
+<a name="402" href="#402">402</a>     <em class="jxr_javadoccomment">/**</em>
+<a name="403" href="#403">403</a> <em class="jxr_javadoccomment">     * @param manifest jar manifest, possibly null</em>
+<a name="404" href="#404">404</a> <em class="jxr_javadoccomment">     * @return true if this is an OSGi bundle artifact, otherwise false</em>
+<a name="405" href="#405">405</a> <em class="jxr_javadoccomment">     */</em>
+<a name="406" href="#406">406</a>     <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">boolean</strong> isBundleArtifact( Manifest manifest )
+<a name="407" href="#407">407</a>     {
+<a name="408" href="#408">408</a>         <strong class="jxr_keyword">if</strong>( <strong class="jxr_keyword">null</strong> == manifest )
+<a name="409" href="#409">409</a>         {
+<a name="410" href="#410">410</a>             <strong class="jxr_keyword">return</strong> false;
+<a name="411" href="#411">411</a>         }
+<a name="412" href="#412">412</a> 
+<a name="413" href="#413">413</a>         Attributes mainAttributes = manifest.getMainAttributes();
+<a name="414" href="#414">414</a> 
+<a name="415" href="#415">415</a>         <strong class="jxr_keyword">return</strong> mainAttributes.getValue( <span class="jxr_string">"Bundle-SymbolicName"</span> ) != <strong class="jxr_keyword">null</strong>
+<a name="416" href="#416">416</a>             || mainAttributes.getValue( <span class="jxr_string">"Bundle-Name"</span> ) != <strong class="jxr_keyword">null</strong>;
+<a name="417" href="#417">417</a>     }
+<a name="418" href="#418">418</a> 
+<a name="419" href="#419">419</a>     <em class="jxr_javadoccomment">/**</em>
+<a name="420" href="#420">420</a> <em class="jxr_javadoccomment">     * Look for the artifact in local Maven repository</em>
+<a name="421" href="#421">421</a> <em class="jxr_javadoccomment">     * </em>
+<a name="422" href="#422">422</a> <em class="jxr_javadoccomment">     * @param artifact Maven artifact</em>
+<a name="423" href="#423">423</a> <em class="jxr_javadoccomment">     * @param resolver artifact resolver</em>
+<a name="424" href="#424">424</a> <em class="jxr_javadoccomment">     * @param localRepo local Maven repository</em>
+<a name="425" href="#425">425</a> <em class="jxr_javadoccomment">     * @return true if the artifact is available, otherwise false</em>
+<a name="426" href="#426">426</a> <em class="jxr_javadoccomment">     */</em>
+<a name="427" href="#427">427</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">boolean</strong> getFile( Artifact artifact, ArtifactResolver resolver, ArtifactRepository localRepo )
+<a name="428" href="#428">428</a>     {
+<a name="429" href="#429">429</a>         <strong class="jxr_keyword">return</strong> downloadFile( artifact, resolver, Collections.EMPTY_LIST, localRepo );
+<a name="430" href="#430">430</a>     }
+<a name="431" href="#431">431</a> 
+<a name="432" href="#432">432</a>     <em class="jxr_javadoccomment">/**</em>
+<a name="433" href="#433">433</a> <em class="jxr_javadoccomment">     * Look for the artifact in local and remote Maven repositories</em>
+<a name="434" href="#434">434</a> <em class="jxr_javadoccomment">     * </em>
+<a name="435" href="#435">435</a> <em class="jxr_javadoccomment">     * @param artifact Maven artifact</em>
+<a name="436" href="#436">436</a> <em class="jxr_javadoccomment">     * @param resolver artifact resolver</em>
+<a name="437" href="#437">437</a> <em class="jxr_javadoccomment">     * @param remoteRepos sequence of remote repositories</em>
+<a name="438" href="#438">438</a> <em class="jxr_javadoccomment">     * @param localRepo local Maven repository</em>
+<a name="439" href="#439">439</a> <em class="jxr_javadoccomment">     * @return true if the artifact is available, otherwise false</em>
+<a name="440" href="#440">440</a> <em class="jxr_javadoccomment">     */</em>
+<a name="441" href="#441">441</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">boolean</strong> downloadFile( Artifact artifact, ArtifactResolver resolver, List remoteRepos,
+<a name="442" href="#442">442</a>         ArtifactRepository localRepo )
+<a name="443" href="#443">443</a>     {
+<a name="444" href="#444">444</a>         <strong class="jxr_keyword">if</strong>( artifact.getFile() == <strong class="jxr_keyword">null</strong> || !artifact.getFile().exists() )
+<a name="445" href="#445">445</a>         {
+<a name="446" href="#446">446</a>             <strong class="jxr_keyword">try</strong>
+<a name="447" href="#447">447</a>             {
+<a name="448" href="#448">448</a>                 resolver.resolve( artifact, remoteRepos, localRepo );
+<a name="449" href="#449">449</a>             }
+<a name="450" href="#450">450</a>             <strong class="jxr_keyword">catch</strong>( AbstractArtifactResolutionException e )
+<a name="451" href="#451">451</a>             {
+<a name="452" href="#452">452</a>                 <strong class="jxr_keyword">return</strong> false;
+<a name="453" href="#453">453</a>             }
+<a name="454" href="#454">454</a>             <strong class="jxr_keyword">catch</strong>( NullPointerException e )
+<a name="455" href="#455">455</a>             {
+<a name="456" href="#456">456</a>                 <strong class="jxr_keyword">return</strong> false;
+<a name="457" href="#457">457</a>             }
+<a name="458" href="#458">458</a>         }
+<a name="459" href="#459">459</a> 
+<a name="460" href="#460">460</a>         <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">true</strong>;
+<a name="461" href="#461">461</a>     }
+<a name="462" href="#462">462</a> 
+<a name="463" href="#463">463</a>     <em class="jxr_javadoccomment">/**</em>
+<a name="464" href="#464">464</a> <em class="jxr_javadoccomment">     * Try to combine overlapping group and artifact identifiers to remove duplicate elements</em>
+<a name="465" href="#465">465</a> <em class="jxr_javadoccomment">     * </em>
+<a name="466" href="#466">466</a> <em class="jxr_javadoccomment">     * @param groupId project group id</em>
+<a name="467" href="#467">467</a> <em class="jxr_javadoccomment">     * @param artifactId project artifact id</em>
+<a name="468" href="#468">468</a> <em class="jxr_javadoccomment">     * @return the combined group and artifact sequence</em>
+<a name="469" href="#469">469</a> <em class="jxr_javadoccomment">     */</em>
+<a name="470" href="#470">470</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> String getCompoundId( String groupId, String artifactId )
+<a name="471" href="#471">471</a>     {
+<a name="472" href="#472">472</a>         <em class="jxr_comment">// treat any dashes like dots</em>
+<a name="473" href="#473">473</a>         String lhs = groupId.replace( '-', '.' );
+<a name="474" href="#474">474</a>         String rhs = artifactId.replace( '-', '.' );
+<a name="475" href="#475">475</a> 
+<a name="476" href="#476">476</a>         <em class="jxr_comment">// simple common prefix check</em>
+<a name="477" href="#477">477</a>         <strong class="jxr_keyword">if</strong>( rhs.equals( lhs ) || rhs.startsWith( lhs + '.' ) )
+<a name="478" href="#478">478</a>         {
+<a name="479" href="#479">479</a>             <strong class="jxr_keyword">return</strong> artifactId;
+<a name="480" href="#480">480</a>         }
+<a name="481" href="#481">481</a> 
+<a name="482" href="#482">482</a>         rhs = '.' + rhs; <em class="jxr_comment">// optimization when testing for overlap</em>
+<a name="483" href="#483">483</a> 
+<a name="484" href="#484">484</a>         <em class="jxr_comment">// check for overlapping segments by repeated chopping of artifactId</em>
+<a name="485" href="#485">485</a>         <strong class="jxr_keyword">for</strong>( <strong class="jxr_keyword">int</strong> i = rhs.length(); i &gt; 0; i = rhs.lastIndexOf( '.', i - 1 ) )
+<a name="486" href="#486">486</a>         {
+<a name="487" href="#487">487</a>             <strong class="jxr_keyword">if</strong>( lhs.endsWith( rhs.substring( 0, i ) ) )
+<a name="488" href="#488">488</a>             {
+<a name="489" href="#489">489</a>                 <strong class="jxr_keyword">if</strong>( rhs.length() == i )
+<a name="490" href="#490">490</a>                 {
+<a name="491" href="#491">491</a>                     <strong class="jxr_keyword">return</strong> groupId;
+<a name="492" href="#492">492</a>                 }
+<a name="493" href="#493">493</a> 
+<a name="494" href="#494">494</a>                 <strong class="jxr_keyword">return</strong> groupId + '.' + artifactId.substring( i );
+<a name="495" href="#495">495</a>             }
+<a name="496" href="#496">496</a>         }
+<a name="497" href="#497">497</a> 
+<a name="498" href="#498">498</a>         <em class="jxr_comment">// no common segments, so append</em>
+<a name="499" href="#499">499</a>         <strong class="jxr_keyword">return</strong> groupId + '.' + artifactId;
+<a name="500" href="#500">500</a>     }
+<a name="501" href="#501">501</a> 
+<a name="502" href="#502">502</a>     <em class="jxr_javadoccomment">/**</em>
+<a name="503" href="#503">503</a> <em class="jxr_javadoccomment">     * Find the symbolic (meta) Maven version, such as 1.0-SNAPSHOT</em>
+<a name="504" href="#504">504</a> <em class="jxr_javadoccomment">     * </em>
+<a name="505" href="#505">505</a> <em class="jxr_javadoccomment">     * @param artifact Maven artifact</em>
+<a name="506" href="#506">506</a> <em class="jxr_javadoccomment">     * @return meta version for the artifact</em>
+<a name="507" href="#507">507</a> <em class="jxr_javadoccomment">     */</em>
+<a name="508" href="#508">508</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> String getMetaVersion( Artifact artifact )
+<a name="509" href="#509">509</a>     {
+<a name="510" href="#510">510</a>         <strong class="jxr_keyword">if</strong>( artifact.isSnapshot() )
+<a name="511" href="#511">511</a>         {
+<a name="512" href="#512">512</a>             <strong class="jxr_keyword">try</strong>
+<a name="513" href="#513">513</a>             {
+<a name="514" href="#514">514</a>                 <strong class="jxr_keyword">return</strong> artifact.getSelectedVersion().toString();
+<a name="515" href="#515">515</a>             }
+<a name="516" href="#516">516</a>             <strong class="jxr_keyword">catch</strong>( OverConstrainedVersionException e )
+<a name="517" href="#517">517</a>             {
+<a name="518" href="#518">518</a>                 <strong class="jxr_keyword">return</strong> artifact.getVersion();
+<a name="519" href="#519">519</a>             }
+<a name="520" href="#520">520</a>             <strong class="jxr_keyword">catch</strong>( NullPointerException e )
+<a name="521" href="#521">521</a>             {
+<a name="522" href="#522">522</a>                 <strong class="jxr_keyword">return</strong> artifact.getVersion();
+<a name="523" href="#523">523</a>             }
+<a name="524" href="#524">524</a>         }
+<a name="525" href="#525">525</a> 
+<a name="526" href="#526">526</a>         <strong class="jxr_keyword">return</strong> artifact.getVersion();
+<a name="527" href="#527">527</a>     }
+<a name="528" href="#528">528</a> 
+<a name="529" href="#529">529</a>     <em class="jxr_javadoccomment">/**</em>
+<a name="530" href="#530">530</a> <em class="jxr_javadoccomment">     * @param version project version</em>
+<a name="531" href="#531">531</a> <em class="jxr_javadoccomment">     * @return true if we need to resolve this version</em>
+<a name="532" href="#532">532</a> <em class="jxr_javadoccomment">     */</em>
+<a name="533" href="#533">533</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">boolean</strong> needReleaseVersion( String version )
+<a name="534" href="#534">534</a>     {
+<a name="535" href="#535">535</a>         <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">null</strong> == version || version.length() == 0 || <span class="jxr_string">"RELEASE"</span>.equals( version ) || <span class="jxr_string">"LATEST"</span>.equals( version );
+<a name="536" href="#536">536</a>     }
+<a name="537" href="#537">537</a> 
+<a name="538" href="#538">538</a>     <em class="jxr_javadoccomment">/**</em>
+<a name="539" href="#539">539</a> <em class="jxr_javadoccomment">     * @param artifact Maven artifact</em>
+<a name="540" href="#540">540</a> <em class="jxr_javadoccomment">     * @param source metadata source</em>
+<a name="541" href="#541">541</a> <em class="jxr_javadoccomment">     * @param remoteRepos sequence of remote repositories</em>
+<a name="542" href="#542">542</a> <em class="jxr_javadoccomment">     * @param localRepo local Maven repository</em>
+<a name="543" href="#543">543</a> <em class="jxr_javadoccomment">     * @param range acceptable versions</em>
+<a name="544" href="#544">544</a> <em class="jxr_javadoccomment">     * @return the release version if available, otherwise throws {@link MojoExecutionException}</em>
+<a name="545" href="#545">545</a> <em class="jxr_javadoccomment">     * @throws MojoExecutionException</em>
+<a name="546" href="#546">546</a> <em class="jxr_javadoccomment">     */</em>
+<a name="547" href="#547">547</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> String getReleaseVersion( Artifact artifact, ArtifactMetadataSource source, List remoteRepos,
+<a name="548" href="#548">548</a>         ArtifactRepository localRepo, VersionRange range )
+<a name="549" href="#549">549</a>         <strong class="jxr_keyword">throws</strong> MojoExecutionException
+<a name="550" href="#550">550</a>     {
+<a name="551" href="#551">551</a>         <strong class="jxr_keyword">try</strong>
+<a name="552" href="#552">552</a>         {
+<a name="553" href="#553">553</a>             List versions = source.retrieveAvailableVersions( artifact, localRepo, remoteRepos );
+<a name="554" href="#554">554</a>             ArtifactVersion releaseVersion = getLatestReleaseInRange( versions, range );
+<a name="555" href="#555">555</a>             <strong class="jxr_keyword">if</strong>( <strong class="jxr_keyword">null</strong> == releaseVersion )
+<a name="556" href="#556">556</a>             {
+<a name="557" href="#557">557</a>                 <strong class="jxr_keyword">throw</strong> <strong class="jxr_keyword">new</strong> MojoExecutionException( <span class="jxr_string">"Unable to find release version for "</span> + artifact );
+<a name="558" href="#558">558</a>             }
+<a name="559" href="#559">559</a>             <strong class="jxr_keyword">return</strong> releaseVersion.toString();
+<a name="560" href="#560">560</a>         }
+<a name="561" href="#561">561</a>         <strong class="jxr_keyword">catch</strong>( ArtifactMetadataRetrievalException e )
+<a name="562" href="#562">562</a>         {
+<a name="563" href="#563">563</a>             <strong class="jxr_keyword">throw</strong> <strong class="jxr_keyword">new</strong> MojoExecutionException( <span class="jxr_string">"Unable to find artifact "</span> + artifact );
+<a name="564" href="#564">564</a>         }
+<a name="565" href="#565">565</a>     }
+<a name="566" href="#566">566</a> 
+<a name="567" href="#567">567</a>     <em class="jxr_javadoccomment">/**</em>
+<a name="568" href="#568">568</a> <em class="jxr_javadoccomment">     * @param versions list of available versions</em>
+<a name="569" href="#569">569</a> <em class="jxr_javadoccomment">     * @param range acceptable range of versions</em>
+<a name="570" href="#570">570</a> <em class="jxr_javadoccomment">     * @return latest acceptable release, otherwise null</em>
+<a name="571" href="#571">571</a> <em class="jxr_javadoccomment">     */</em>
+<a name="572" href="#572">572</a>     <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> ArtifactVersion getLatestReleaseInRange( List versions, VersionRange range )
+<a name="573" href="#573">573</a>     {
+<a name="574" href="#574">574</a>         <strong class="jxr_keyword">final</strong> ArtifactVersion baseline = <strong class="jxr_keyword">new</strong> DefaultArtifactVersion( <span class="jxr_string">"0"</span> );
+<a name="575" href="#575">575</a> 
+<a name="576" href="#576">576</a>         ArtifactVersion releaseVersion = baseline;
+<a name="577" href="#577">577</a>         <strong class="jxr_keyword">for</strong>( Iterator i = versions.iterator(); i.hasNext(); )
+<a name="578" href="#578">578</a>         {
+<a name="579" href="#579">579</a>             ArtifactVersion v = (ArtifactVersion) i.next();
+<a name="580" href="#580">580</a>             <strong class="jxr_keyword">if</strong>( range != <strong class="jxr_keyword">null</strong> &amp;&amp; !range.containsVersion( v ) )
+<a name="581" href="#581">581</a>             {
+<a name="582" href="#582">582</a>                 <strong class="jxr_keyword">continue</strong>; <em class="jxr_comment">// ignore this version</em>
+<a name="583" href="#583">583</a>             }
+<a name="584" href="#584">584</a>             <strong class="jxr_keyword">else</strong> <strong class="jxr_keyword">if</strong>( releaseVersion.compareTo( v ) &lt;= 0 &amp;&amp; !ArtifactUtils.isSnapshot( v.toString() ) )
+<a name="585" href="#585">585</a>             {
+<a name="586" href="#586">586</a>                 releaseVersion = v;
+<a name="587" href="#587">587</a>             }
+<a name="588" href="#588">588</a>         }
+<a name="589" href="#589">589</a> 
+<a name="590" href="#590">590</a>         <strong class="jxr_keyword">if</strong>( baseline == releaseVersion )
+<a name="591" href="#591">591</a>         {
+<a name="592" href="#592">592</a>             <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">null</strong>;
+<a name="593" href="#593">593</a>         }
+<a name="594" href="#594">594</a>         <strong class="jxr_keyword">return</strong> releaseVersion;
+<a name="595" href="#595">595</a>     }
+<a name="596" href="#596">596</a> }
+</pre>
+<hr/><div id="footer">This page was automatically generated by <a href="http://maven.apache.org/">Maven</a></div></body>
+</html>
+

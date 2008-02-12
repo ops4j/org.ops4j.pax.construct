@@ -1,0 +1,440 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+
+
+
+
+
+
+
+
+<html>
+  <head>
+    <title>Pax Construct - Spring Dynamic Modules for OSGi(tm)</title>
+    <style type="text/css" media="all">
+      @import url("../css/maven-base.css");
+      @import url("../css/maven-theme.css");
+      @import url("../css/site.css");
+    </style>
+    <link rel="stylesheet" href="../css/print.css" type="text/css" media="print" />
+          <meta name="author" content="Stuart McCulloch" />
+        <meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1" />
+                            <?xml version="1.0" encoding="UTF-8"?>
+<script type="text/javascript" src="http://www.google-analytics.com/urchin.js"></script>
+                                <?xml version="1.0" encoding="UTF-8"?>
+<script type="text/javascript">_uacct = "UA-2623231-3";
+        urchinTracker();</script>
+                    </head>
+  <body class="composite">
+    <div id="banner">
+                  <a href="http://www.ops4j.org/index.html" id="bannerLeft">
+    
+                                            <img src="../images/logos/ops4j.png" alt="" />
+    
+            </a>
+                        <a href="index.html" id="bannerRight">
+    
+            Pax-Construct
+    
+            </a>
+            <div class="clear">
+        <hr/>
+      </div>
+    </div>
+    <div id="breadcrumbs">
+          
+  
+
+  
+    
+  
+  
+            <div class="xleft">
+        Last Published: 02/12/2008
+                      </div>
+            <div class="xright">      <a href="http://wiki.ops4j.org/confluence/display/ops4j/Pax">Pax</a>
+          |
+          <a href="http://www.osgi.org/">OSGi</a>
+          |
+          <a href="http://maven.apache.org/">Maven 2</a>
+          
+  
+
+  
+    
+  
+  
+  </div>
+      <div class="clear">
+        <hr/>
+      </div>
+    </div>
+    <div id="leftColumn">
+      <div id="navcolumn">
+           
+  
+
+  
+    
+  
+  
+                   <h5>Getting Started</h5>
+        <ul>
+              
+    <li class="none">
+              <a href="../index.html">Quickstart</a>
+        </li>
+              
+    <li class="none">
+              <a href="../settings.html">Settings</a>
+        </li>
+              
+    <li class="none">
+              <a href="http://wiki.ops4j.org/confluence/x/8Q">Wiki/FAQ</a>
+        </li>
+          </ul>
+          <h5>Examples</h5>
+        <ul>
+              
+    <li class="none">
+              <strong>Spring DM</strong>
+        </li>
+          </ul>
+          <h5>Script Help</h5>
+        <ul>
+              
+    <li class="none">
+              <a href="../help/create-project.html">pax-create-project</a>
+        </li>
+              
+    <li class="none">
+              <a href="../help/add-repository.html">pax-add-repository</a>
+        </li>
+              
+    <li class="none">
+              <a href="../help/create-bundle.html">pax-create-bundle</a>
+        </li>
+              
+    <li class="none">
+              <a href="../help/import-bundle.html">pax-import-bundle</a>
+        </li>
+              
+    <li class="none">
+              <a href="../help/embed-jar.html">pax-embed-jar</a>
+        </li>
+              
+    <li class="none">
+              <a href="../help/wrap-jar.html">pax-wrap-jar</a>
+        </li>
+              
+    <li class="none">
+              <a href="../help/move-bundle.html">pax-move-bundle</a>
+        </li>
+              
+    <li class="none">
+              <a href="../help/remove-bundle.html">pax-remove-bundle</a>
+        </li>
+              
+    <li class="none">
+              <a href="../help/update.html">pax-update</a>
+        </li>
+              
+    <li class="none">
+              <a href="../help/clone.html">pax-clone</a>
+        </li>
+          </ul>
+          <h5>M2 Plugins</h5>
+        <ul>
+              
+    <li class="none">
+              <a href="../maven-pax-plugin/index.html">maven-pax-plugin</a>
+        </li>
+              
+    <li class="none">
+              <a href="../maven-inherit-plugin/index.html">maven-inherit-plugin</a>
+        </li>
+          </ul>
+          <h5>Mailing List</h5>
+        <ul>
+              
+    <li class="none">
+              <a href="mailto:general@lists.ops4j.org">general@lists.ops4j.org</a>
+        </li>
+          </ul>
+          <h5>Issue Tracking</h5>
+        <ul>
+              
+    <li class="none">
+              <a href="http://issues.ops4j.org/jira/browse/PAXCONSTRUCT?report=com.atlassian.jira.plugin.system.project:changelog-panel">http://issues.ops4j.org</a>
+        </li>
+          </ul>
+                                       <a href="http://maven.apache.org/" title="Built by Maven" id="poweredBy">
+            <img alt="Built by Maven" src="../images/logos/maven-feather.png"></img>
+          </a>
+                       
+  
+
+  
+    
+  
+  
+        </div>
+    </div>
+    <div id="bodyColumn">
+      <div id="contentBox">
+        <div class="section"><h2>Spring Dynamic Modules for OSGi(tm)</h2><p>The following scripts use Pax-Construct to build and provision a minimal Spring Dynamic Modules for OSGi(tm) project using the current release candidate. It includes the sample weather service from the Spring DM build, as well as an example bean template.</p><p>This setup requires a Java5 runtime. Some advanced features of Spring Dynamic Modules may require additional bundles to be imported, or extra third-party libraries wrapped.</p><div class="section"><h3>Download <a href="SPRING_OSGI_EXAMPLE">UNIX</a> shell script</h3></div><div class="section"><h3>Download <a href="SPRING_OSGI_EXAMPLE.bat">Windows</a> batch file</h3><div class="section"><h4>Using the scripts:</h4><p>If you have the Pax-Construct scripts installed and on your path, all you need to do is go to a temporary/working directory and run the script - it will create a new Maven project, populate it with various bundles and deploy them on the Felix OSGi framework. You can deploy to other frameworks by using -Dframework=<i>name</i></p></div><div class="section"><h4>Create Eclipse project files for the various imported, wrapped and compiled bundles:</h4><div class="source"><pre>cd spring
+
+mvn clean install pax:eclipse -DdownloadSources</pre></div><p>Use <i>&quot;Import... Existing Projects into Workspace&quot;</i> and point it to the top-most directory to import the bundle projects into your Eclipse Workspace.</p></div><div class="section"><h4>Example output when provisioning (assumes 'mvn clean install' has already been run)</h4><div class="source"><pre>cd spring
+
+mvn pax:provision
+
+[INFO] Scanning for projects...
+[INFO] Reactor build order: 
+[INFO]   examples.spring (OSGi project)
+[INFO]   spring - plugin configuration
+[INFO]   spring - wrapper instructions
+[INFO]   spring - bundle instructions
+[INFO]   spring - imported bundles
+[INFO]   asm 2.2.3 [osgi]
+[INFO]   aopalliance 1.0 [osgi]
+[INFO]   javax.servlet.jsp-api 2.0 [osgi]
+[INFO]   javax.servlet.api 2.5 [osgi]
+[INFO]   
+[INFO]   org.example.service
+[INFO]   org.example.bean
+[INFO] Searching repository for plugin with prefix: 'pax'.
+[INFO] ----------------------------------------------------------------------------
+[INFO] Building examples.spring (OSGi project)
+[INFO]    task-segment: [pax:provision]
+[INFO] ----------------------------------------------------------------------------
+[INFO] [pax:provision]
+[INFO] ----------------------------------------------------------------------------
+[INFO] Building spring - plugin configuration
+[INFO]    task-segment: [pax:provision]
+[INFO] ----------------------------------------------------------------------------
+[INFO] [pax:provision]
+[INFO] ----------------------------------------------------------------------------
+[INFO] Building spring - wrapper instructions
+[INFO]    task-segment: [pax:provision]
+[INFO] ----------------------------------------------------------------------------
+[INFO] [pax:provision]
+[INFO] ----------------------------------------------------------------------------
+[INFO] Building spring - bundle instructions
+[INFO]    task-segment: [pax:provision]
+[INFO] ----------------------------------------------------------------------------
+[INFO] [pax:provision]
+[INFO] ----------------------------------------------------------------------------
+[INFO] Building spring - imported bundles
+[INFO]    task-segment: [pax:provision]
+[INFO] ----------------------------------------------------------------------------
+[INFO] [pax:provision]
+[INFO] ----------------------------------------------------------------------------
+[INFO] Building asm 2.2.3 [osgi]
+[INFO]    task-segment: [pax:provision]
+[INFO] ----------------------------------------------------------------------------
+[INFO] [pax:provision]
+[INFO] ----------------------------------------------------------------------------
+[INFO] Building aopalliance 1.0 [osgi]
+[INFO]    task-segment: [pax:provision]
+[INFO] ----------------------------------------------------------------------------
+[INFO] [pax:provision]
+[INFO] ----------------------------------------------------------------------------
+[INFO] Building javax.servlet.jsp-api 2.0 [osgi]
+[INFO]    task-segment: [pax:provision]
+[INFO] ----------------------------------------------------------------------------
+[INFO] [pax:provision]
+[INFO] ----------------------------------------------------------------------------
+[INFO] Building javax.servlet.api 2.5 [osgi]
+[INFO]    task-segment: [pax:provision]
+[INFO] ----------------------------------------------------------------------------
+[INFO] [pax:provision]
+[INFO] ----------------------------------------------------------------------------
+[INFO] Building 
+[INFO]    task-segment: [pax:provision]
+[INFO] ----------------------------------------------------------------------------
+[INFO] [pax:provision]
+[INFO] ----------------------------------------------------------------------------
+[INFO] Building org.example.service
+[INFO]    task-segment: [pax:provision]
+[INFO] ----------------------------------------------------------------------------
+[INFO] [pax:provision]
+[INFO] ----------------------------------------------------------------------------
+[INFO] Building org.example.bean
+[INFO]    task-segment: [pax:provision]
+[INFO] ----------------------------------------------------------------------------
+[INFO] [pax:provision]
+[INFO] Installing /tmp/spring/target/deployment/pom.xml to /home/stuart/.m2/repository/examples/spring/build/deployment/1.0-SNAPSHOT/deployment-1.0-SNAPSHOT.pom
+    ______  ________  __  __
+   / __  / /  __   / / / / /
+  /  ___/ /  __   / _\ \ _/
+ /  /    /  / /  / / _\ \
+/__/    /__/ /__/ /_/ /_/
+
+Pax Runner from OPS4J - http://www.ops4j.org
+--------------------------------------------
+
+ -&gt; Using config [classpath:META-INF/runner.properties]
+ -&gt; Provision from [/tmp/spring/target/deployment/pom.xml]
+ -&gt; Provision from [scan-pom:file:/tmp/spring/target/deployment/pom.xml]
+ -&gt; Using property [org.osgi.service.http.port=8080]
+ -&gt; Using property [org.osgi.service.http.port.secure=8443]
+ -&gt; Installing bundle [{location=mvn:org.springframework.osgi/spring-osgi-extender/1.0,startlevel=null,shouldStart=true,shouldUpdate=false}]
+ -&gt; Installing bundle [{location=mvn:org.slf4j/slf4j-api/1.4.3,startlevel=null,shouldStart=true,shouldUpdate=false}]
+ -&gt; Installing bundle [{location=mvn:org.slf4j/jcl104-over-slf4j/1.4.3,startlevel=null,shouldStart=true,shouldUpdate=false}]
+ -&gt; Installing bundle [{location=mvn:org.springframework.osgi/spring-osgi-core/1.0,startlevel=null,shouldStart=true,shouldUpdate=false}]
+ -&gt; Installing bundle [{location=mvn:org.springframework.osgi/spring-osgi-io/1.0,startlevel=null,shouldStart=true,shouldUpdate=false}]
+ -&gt; Installing bundle [{location=mvn:org.springframework/spring-aop/2.5.1,startlevel=null,shouldStart=true,shouldUpdate=false}]
+ -&gt; Installing bundle [{location=mvn:org.springframework/spring-beans/2.5.1,startlevel=null,shouldStart=true,shouldUpdate=false}]
+ -&gt; Installing bundle [{location=mvn:org.springframework/spring-context/2.5.1,startlevel=null,shouldStart=true,shouldUpdate=false}]
+ -&gt; Installing bundle [{location=mvn:org.springframework/spring-core/2.5.1,startlevel=null,shouldStart=true,shouldUpdate=false}]
+ -&gt; Installing bundle [{location=mvn:org.springframework/spring-test/2.5.1,startlevel=null,shouldStart=true,shouldUpdate=false}]
+ -&gt; Installing bundle [{location=mvn:org.slf4j/slf4j-simple/1.4.3,startlevel=null,shouldStart=true,shouldUpdate=false}]
+ -&gt; Installing bundle [{location=mvn:examples.spring.wrappers/asm-2.2.3/001-SNAPSHOT,startlevel=null,shouldStart=true,shouldUpdate=false}]
+ -&gt; Installing bundle [{location=mvn:examples.spring.wrappers/aopalliance-1.0/001-SNAPSHOT,startlevel=null,shouldStart=true,shouldUpdate=false}]
+ -&gt; Installing bundle [{location=mvn:examples.spring.wrappers/javax.servlet.jsp-api-2.0/001-SNAPSHOT,startlevel=null,shouldStart=true,shouldUpdate=false}]
+ -&gt; Installing bundle [{location=mvn:examples.spring.wrappers/javax.servlet.api-2.5/001-SNAPSHOT,startlevel=null,shouldStart=true,shouldUpdate=false}]
+ -&gt; Installing bundle [{location=mvn:examples.spring/org.example.service/1.0-SNAPSHOT,startlevel=null,shouldStart=true,shouldUpdate=false}]
+ -&gt; Installing bundle [{location=mvn:examples.spring/org.example.bean/1.0-SNAPSHOT,startlevel=null,shouldStart=true,shouldUpdate=false}]
+ -&gt; Downloading bundles...
+ -&gt; mvn:org.springframework.osgi/spring-osgi-extender/1.0 : 64816 bytes @ [ 1157kBps ]
+ -&gt; mvn:org.slf4j/slf4j-api/1.4.3 : 15345 bytes @ [ 341kBps ]
+ -&gt; mvn:org.slf4j/jcl104-over-slf4j/1.4.3 : 15435 bytes @ [ 964kBps ]
+ -&gt; mvn:org.springframework.osgi/spring-osgi-core/1.0 : 244381 bytes @ [ 4213kBps ]
+ -&gt; mvn:org.springframework.osgi/spring-osgi-io/1.0 : 17667 bytes @ [ 8833kBps ]]
+ -&gt; mvn:org.springframework/spring-aop/2.5.1 : 323289 bytes @ [ 4825kBps ]
+ -&gt; mvn:org.springframework/spring-beans/2.5.1 : 467331 bytes @ [ 6401kBps ]
+ -&gt; mvn:org.springframework/spring-context/2.5.1 : 455159 bytes @ [ 6896kBps ]
+ -&gt; mvn:org.springframework/spring-core/2.5.1 : 275073 bytes @ [ 5393kBps ]
+ -&gt; mvn:org.springframework/spring-test/2.5.1 : 177608 bytes @ [ 9867kBps ]
+ -&gt; mvn:org.slf4j/slf4j-simple/1.4.3 : 7449 bytes @ [ 7449kBps ]
+ -&gt; mvn:examples.spring.wrappers/asm-2.2.3/001-SNAPSHOT : 37635 bytes @ [ 2688kBps ]
+ -&gt; mvn:examples.spring.wrappers/aopalliance-1.0/001-SNAPSHOT : 6437 bytes @ [ 6437kBps ]
+ -&gt; mvn:examples.spring.wrappers/javax.servlet.jsp-api-2.0/001-SNAPSHOT : 53386 bytes @ [ 2224kBps ]
+ -&gt; mvn:examples.spring.wrappers/javax.servlet.api-2.5/001-SNAPSHOT : 108101 bytes @ [ 3487kBps ]
+ -&gt; mvn:examples.spring/org.example.service/1.0-SNAPSHOT : 5072 bytes @ [ 5072kBps ]
+ -&gt; mvn:examples.spring/org.example.bean/1.0-SNAPSHOT : 4601 bytes @ [ 4601kBps ]
+ -&gt; Execution environment [J2SE-1.5]
+ -&gt; Starting platform [Felix 1.0.1]. Runner has succesfully finished his job!
+
+Welcome to Felix.
+=================
+
+-&gt; 441 [FelixStartLevel] INFO org.springframework.osgi.extender.internal.ContextLoaderListener - Starting org.springframework.osgi.extender bundle v.[1.0.0]
+STARTING org.example.service
+REGISTER org.example.service.ExampleService
+584 [FelixStartLevel] INFO org.springframework.osgi.extender.internal.ContextLoaderListener - disabled automatic Spring-DM annotation processing; [ org.springframework.osgi.extender.annotation.auto.processing=null]
+637 [SpringOsgiExtenderThread-1] INFO org.springframework.osgi.context.support.OsgiBundleXmlApplicationContext - Refreshing org.springframework.osgi.context.support.OsgiBundleXmlApplicationContext@53065306: display name [OsgiBundleXmlApplicationContext(bundle=org.example.bean, config=osgibundle:/META-INF/spring/*.xml)]; startup date [Wed Feb 06 18:36:31 GMT+08:00 2008]; root of context hierarchy
+788 [SpringOsgiExtenderThread-1] INFO org.springframework.beans.factory.xml.XmlBeanDefinitionReader - Loading XML bean definitions from URL [bundle://20.0:0/META-INF/spring/bundle-context-osgi.xml]
+1206 [SpringOsgiExtenderThread-1] INFO org.springframework.beans.factory.xml.XmlBeanDefinitionReader - Loading XML bean definitions from URL [bundle://20.0:0/META-INF/spring/bundle-context.xml]
+1312 [SpringOsgiExtenderThread-1] INFO org.springframework.osgi.context.support.OsgiBundleXmlApplicationContext - Bean factory for application context [org.springframework.osgi.context.support.OsgiBundleXmlApplicationContext@53065306]: org.springframework.beans.factory.support.DefaultListableBeanFactory@26b026b0
+1391 [SpringOsgiExtenderThread-2] INFO org.springframework.beans.factory.support.DefaultListableBeanFactory - Pre-instantiating singletons in org.springframework.beans.factory.support.DefaultListableBeanFactory@26b026b0: defining beans [myExampleBean]; root of factory hierarchy
+1417 [SpringOsgiExtenderThread-2] INFO org.springframework.osgi.context.support.OsgiBundleXmlApplicationContext - Publishing application context with properties (org.springframework.context.service.name=org.example.bean)
+
+-&gt; ps
+
+START LEVEL 6
+   ID   State         Level  Name
+[   0] [Active     ] [    0] System Bundle (1.0.1)
+[   1] [Active     ] [    1] R4 Compendium (1.0.0)
+[   2] [Active     ] [    1] Apache Felix Shell Service (1.0.0)
+[   3] [Active     ] [    1] Apache Felix Shell TUI (1.0.0)
+[   4] [Active     ] [    5] spring-osgi-extender (1.0)
+[   5] [Active     ] [    5] slf4j-api (1.4.3)
+[   6] [Active     ] [    5] jcl104-over-slf4j (1.4.3)
+[   7] [Active     ] [    5] spring-osgi-core (1.0)
+[   8] [Active     ] [    5] spring-osgi-io (1.0)
+[   9] [Active     ] [    5] spring-aop (2.5.1)
+[  10] [Active     ] [    5] spring-beans (2.5.1)
+[  11] [Active     ] [    5] spring-context (2.5.1)
+[  12] [Active     ] [    5] spring-core (2.5.1)
+[  13] [Active     ] [    5] spring-test (2.5.1)
+[  14] [Active     ] [    5] slf4j-simple (1.4.3)
+[  15] [Active     ] [    5] asm 2.2.3 [osgi] (2.2.3)
+[  16] [Active     ] [    5] aopalliance 1.0 [osgi] (1.0)
+[  17] [Active     ] [    5] javax.servlet.jsp-api 2.0 [osgi] (2.0)
+[  18] [Active     ] [    5] javax.servlet.api 2.5 [osgi] (2.5)
+[  19] [Active     ] [    5] org.example.service (1.0.0.SNAPSHOT)
+[  20] [Active     ] [    5] org.example.bean (1.0.0.SNAPSHOT)
+
+-&gt; services
+
+System Bundle (0) provides:
+---------------------------
+org.osgi.service.packageadmin.PackageAdmin
+org.osgi.service.startlevel.StartLevel
+
+Apache Felix Shell Service (2) provides:
+----------------------------------------
+org.apache.felix.shell.ShellService, org.ungoverned.osgi.service.shell.ShellService
+
+spring-osgi-extender (4) provides:
+----------------------------------
+org.springframework.beans.factory.xml.NamespaceHandlerResolver
+org.xml.sax.EntityResolver
+
+org.example.service (19) provides:
+----------------------------------
+org.example.service.ExampleService
+
+org.example.bean (20) provides:
+-------------------------------
+org.springframework.osgi.context.support.OsgiBundleXmlApplicationContext, org.springframework.osgi.context.support.AbstractDelegatedExecutionApplicationContext, org.springframework.osgi.context.DelegatedExecutionOsgiBundleApplicationContext, org.springframework.osgi.context.ConfigurableOsgiBundleApplicationContext, org.springframework.context.ConfigurableApplicationContext, org.springframework.context.ApplicationContext, org.springframework.context.Lifecycle, org.springframework.beans.factory.ListableBeanFactory, org.springframework.beans.factory.HierarchicalBeanFactory, org.springframework.context.MessageSource, org.springframework.context.ApplicationEventPublisher, org.springframework.core.io.support.ResourcePatternResolver, org.springframework.beans.factory.BeanFactory, org.springframework.core.io.ResourceLoader, org.springframework.osgi.context.support.AbstractOsgiBundleApplicationContext, org.springframework.context.support.AbstractRefreshableApplicationContext, org.springframework.context.support.AbstractApplicationContext, org.springframework.beans.factory.DisposableBean, org.springframework.core.io.DefaultResourceLoader
+
+-&gt; stop 0
+
+7887 [Felix Shell TUI] INFO org.springframework.osgi.extender.internal.ContextLoaderListener - Stopping org.springframework.osgi.extender bundle
+7894 [Thread-2] INFO org.springframework.osgi.context.support.OsgiBundleXmlApplicationContext - Closing org.springframework.osgi.context.support.OsgiBundleXmlApplicationContext@53065306: display name [OsgiBundleXmlApplicationContext(bundle=org.example.bean, config=osgibundle:/META-INF/spring/*.xml)]; startup date [Wed Feb 06 18:36:31 GMT+08:00 2008]; root of context hierarchy
+7895 [Thread-2] INFO org.springframework.beans.factory.support.DefaultListableBeanFactory - Destroying singletons in org.springframework.beans.factory.support.DefaultListableBeanFactory@26b026b0: defining beans [myExampleBean]; root of factory hierarchy
+-&gt; STOPPING org.example.service
+[INFO] 
+[INFO] 
+[INFO] ------------------------------------------------------------------------
+[INFO] Reactor Summary:
+[INFO] ------------------------------------------------------------------------
+[INFO] examples.spring (OSGi project) ........................ SUCCESS [3.995s]
+[INFO] spring - plugin configuration ......................... SUCCESS [0.001s]
+[INFO] spring - wrapper instructions ......................... SUCCESS [0.001s]
+[INFO] spring - bundle instructions .......................... SUCCESS [0.001s]
+[INFO] spring - imported bundles ............................. SUCCESS [0.193s]
+[INFO] asm 2.2.3 [osgi] ...................................... SUCCESS [0.019s]
+[INFO] aopalliance 1.0 [osgi] ................................ SUCCESS [0.003s]
+[INFO] javax.servlet.jsp-api 2.0 [osgi] ...................... SUCCESS [0.031s]
+[INFO] javax.servlet.api 2.5 [osgi] .......................... SUCCESS [0.004s]
+[INFO]  ...................................................... SUCCESS [0.002s]
+[INFO] org.example.service ................................... SUCCESS [0.003s]
+[INFO] org.example.bean ...................................... SUCCESS [10.604s]
+[INFO] ------------------------------------------------------------------------
+[INFO] ------------------------------------------------------------------------
+[INFO] BUILD SUCCESSFUL
+[INFO] ------------------------------------------------------------------------
+[INFO] Total time: 15 seconds
+[INFO] Finished at: Wed Feb 06 18:36:38 GMT+08:00 2008
+[INFO] Final Memory: 9M/41M
+[INFO] ------------------------------------------------------------------------
+ -&gt; Shuting down platform...
+ -&gt; Destroying platform process...</pre></div></div></div></div>
+      </div>
+    </div>
+    <div class="clear">
+      <hr/>
+    </div>
+    <div id="footer">
+      <div class="xright">&#169;  
+          2007-2008
+    
+          OPS4J
+          
+  
+
+  
+    
+  
+  
+  </div>
+      <div class="clear">
+        <hr/>
+      </div>
+    </div>
+  </body>
+</html>

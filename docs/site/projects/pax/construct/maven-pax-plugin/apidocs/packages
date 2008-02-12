@@ -1,0 +1,6 @@
+org.ops4j.pax.construct.lifecycle
+org.ops4j.pax.construct.project
+org.ops4j.pax.construct.clone
+org.ops4j.pax.construct.util
+org.ops4j.pax.construct.bundle
+org.ops4j.pax.construct.archetype

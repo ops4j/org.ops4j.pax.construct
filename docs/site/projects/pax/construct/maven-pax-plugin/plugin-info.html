@@ -1,0 +1,291 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+
+
+
+
+
+
+
+
+<html>
+  <head>
+    <title>maven-pax-plugin - Plugin documentation</title>
+    <style type="text/css" media="all">
+      @import url("./css/maven-base.css");
+      @import url("./css/maven-theme.css");
+      @import url("./css/site.css");
+    </style>
+    <link rel="stylesheet" href="./css/print.css" type="text/css" media="print" />
+        <meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1" />
+                            <?xml version="1.0" encoding="UTF-8"?>
+<script type="text/javascript" src="http://www.google-analytics.com/urchin.js"></script>
+                                <?xml version="1.0" encoding="UTF-8"?>
+<script type="text/javascript" src="http://www.google-analytics.com/urchin.js">_uacct = "UA-2623231-3";
+        urchinTracker();</script>
+                    </head>
+  <body class="composite">
+    <div id="banner">
+                  <a href="http://www.ops4j.org/index.html" id="bannerLeft">
+    
+                                            <img src="../images/logos/ops4j.png" alt="" />
+    
+            </a>
+                        <a href="../index.html" id="bannerRight">
+    
+            Pax-Construct
+    
+            </a>
+            <div class="clear">
+        <hr/>
+      </div>
+    </div>
+    <div id="breadcrumbs">
+          
+  
+
+  
+    
+  
+  
+            <div class="xleft">
+        Last Published: 02/12/2008
+                      </div>
+            <div class="xright">      <a href="http://wiki.ops4j.org/confluence/display/ops4j/Pax">Pax</a>
+          |
+          <a href="http://www.osgi.org/">OSGi</a>
+          |
+          <a href="http://maven.apache.org/">Maven 2</a>
+          
+  
+
+  
+    
+  
+  
+  </div>
+      <div class="clear">
+        <hr/>
+      </div>
+    </div>
+    <div id="leftColumn">
+      <div id="navcolumn">
+           
+  
+
+  
+    
+  
+  
+                   <h5>Pax Construct</h5>
+        <ul>
+              
+    <li class="none">
+              <a href="../index.html">Getting Started</a>
+        </li>
+          </ul>
+          <h5>Documentation</h5>
+        <ul>
+              
+    <li class="none">
+              <a href="index.html">Introduction</a>
+        </li>
+              
+    <li class="none">
+              <strong>Goals</strong>
+        </li>
+              
+    <li class="none">
+              <a href="usage.html">Usage</a>
+        </li>
+          </ul>
+          <h5>Status</h5>
+        <ul>
+              
+                
+              
+      
+            
+      
+            
+      
+            
+      
+            
+      
+            
+      
+            
+      
+            
+      
+            
+      
+              
+        <li class="collapsed">
+              <a href="project-info.html">Project Information</a>
+              </li>
+              
+                
+              
+      
+            
+      
+            
+      
+            
+            
+            
+      
+            
+      
+              
+            <li class="expanded">
+              <a href="project-reports.html">Project Reports</a>
+                <ul>
+                  
+    <li class="none">
+              <a href="checkstyle.html">Checkstyle</a>
+        </li>
+                  
+    <li class="none">
+              <a href="cpd.html">CPD Report</a>
+        </li>
+                  
+    <li class="none">
+              <a href="apidocs/index.html">JavaDocs</a>
+        </li>
+                  
+    <li class="none">
+              <strong>Plugin documentation</strong>
+        </li>
+                  
+    <li class="none">
+              <a href="pmd.html">PMD Report</a>
+        </li>
+                  
+    <li class="none">
+              <a href="xref/index.html">Source Xref</a>
+        </li>
+              </ul>
+        </li>
+          </ul>
+          <h5>Mailing List</h5>
+        <ul>
+              
+    <li class="none">
+              <a href="mailto:general@lists.ops4j.org">general@lists.ops4j.org</a>
+        </li>
+          </ul>
+          <h5>Issue Tracking</h5>
+        <ul>
+              
+    <li class="none">
+              <a href="http://issues.ops4j.org/jira/browse/PAXCONSTRUCT">http://issues.ops4j.org</a>
+        </li>
+          </ul>
+                                       <a href="http://maven.apache.org/" title="Built by Maven" id="poweredBy">
+            <img alt="Built by Maven" src="./images/logos/maven-feather.png"></img>
+          </a>
+                       
+  
+
+  
+    
+  
+  
+        </div>
+    </div>
+    <div id="bodyColumn">
+      <div id="contentBox">
+        <div class="section"><h2>Plugin documentation</h2><p>Goals available:</p><table class="bodyTable"><tr class="a"><th>Goal</th><th>Description</th></tr><tr class="b"><td><a href="clean-mojo.html">pax:clean</a></td><td>Remove generated IDE files, but support limited recovery during the same build session.<br/>So 'mvn pax:clean
+pax:eclipse' won't wipe out your Eclipse metadata on a compile error.</td></tr><tr class="a"><td><a href="testCompile-mojo.html">pax:testCompile</a></td><td>Extends <a href="http://maven.apache.org/plugins/maven-compiler-plugin/testCompile-mojo.html">TestCompilerMojo</a>
+to support compiling against OSGi bundles with embedded jars.<br/>Inherited parameters can still be used, but
+unfortunately don't appear in the generated docs.</td></tr><tr class="b"><td><a href="provision-mojo.html">pax:provision</a></td><td>Provision all local and imported bundles onto the selected OSGi framework
+
+<code><pre>
+mvn pax:provision [-Dframework=...] [-Drunner=...]
+</pre></code></td></tr><tr class="a"><td><a href="eclipse-mojo.html">pax:eclipse</a></td><td>Extends <a href="http://maven.apache.org/plugins/maven-eclipse-plugin/eclipse-mojo.html">EclipsePlugin</a> to
+provide customized Eclipse project files for Pax-Construct projects.<br/>Inherited parameters can still be used, but
+unfortunately don't appear in the generated docs.</td></tr><tr class="b"><td><a href="compile-mojo.html">pax:compile</a></td><td>Extends <a href="http://maven.apache.org/plugins/maven-compiler-plugin/compile-mojo.html">CompilerMojo</a> to
+support compiling against OSGi bundles with embedded jars.<br/>Inherited parameters can still be used, but
+unfortunately don't appear in the generated docs.</td></tr><tr class="a"><td><a href="import-bundle-mojo.html">pax:import-bundle</a></td><td>Import an OSGi bundle as a project dependency and mark it for deployment
+
+<code><pre>
+mvn pax:import-bundle [-DgroupId=...] -DartifactId=... [-Dversion=...]
+</pre></code></td></tr><tr class="b"><td><a href="add-repository-mojo.html">pax:add-repository</a></td><td>Add a Maven repository element to a project
+
+<code><pre>
+mvn pax:add-repository -DrepositoryId=... -DrepositoryURL=...
+</pre></code></td></tr><tr class="a"><td><a href="update-mojo.html">pax:update</a></td><td>Updates a Pax-Construct project or (when run in the scripts directory) the installed scripts to the latest version
+
+<code><pre>
+mvn pax:update [-Dversion=...]
+</pre></code></td></tr><tr class="b"><td><a href="clone-mojo.html">pax:clone</a></td><td>Clones an existing project and produces a script (plus archetypes) to mimic its structure using Pax-Construct
+
+<code><pre>
+mvn pax:clone
+</pre></code></td></tr><tr class="a"><td><a href="remove-bundle-mojo.html">pax:remove-bundle</a></td><td>Remove a bundle project and any references to it in the project tree, updating POMs as necessary
+
+<code><pre>
+mvn pax:remove-bundle -DbundleName=...
+</pre></code></td></tr><tr class="b"><td><a href="embed-jar-mojo.html">pax:embed-jar</a></td><td>Embed a jarfile inside a bundle project
+
+<code><pre>
+mvn pax:embed-jar [-DgroupId=...] -DartifactId=... [-Dversion=...]
+</pre></code></td></tr><tr class="a"><td><a href="move-bundle-mojo.html">pax:move-bundle</a></td><td>Move a bundle project to a new directory, updating and creating POMs as necessary
+
+<code><pre>
+mvn pax:move-bundle -DbundleName=... -DtargetDirectory=...
+</pre></code></td></tr><tr class="b"><td><a href="wrap-jar-mojo.html">pax:wrap-jar</a></td><td>Create a new wrapper project inside an existing Pax-Construct OSGi project
+
+<code><pre>
+mvn pax:wrap-jar [-DgroupId=...] -DartifactId=... [-Dversion=...]
+</pre></code>
+
+or create a standalone version which doesn't require an existing project
+
+<code><pre>
+cd some-empty-folder
+mvn org.ops4j:maven-pax-plugin:wrap-jar ...etc...
+</pre></code></td></tr><tr class="a"><td><a href="create-project-mojo.html">pax:create-project</a></td><td>Create a new OSGi project tree that supports wrapping, compiling and provisioning of bundles
+
+<code><pre>
+mvn org.ops4j:maven-pax-plugin:create-project -DgroupId=... -DartifactId=... [-Dversion=...]
+</pre></code></td></tr><tr class="b"><td><a href="create-bundle-mojo.html">pax:create-bundle</a></td><td>Create a new bundle project inside an existing Pax-Construct OSGi project
+
+<code><pre>
+mvn pax:create-bundle -Dpackage=... [-DbundleName=...] [-Dversion=...]
+</pre></code>
+
+or create a standalone version which doesn't require an existing project
+
+<code><pre>
+cd some-empty-folder
+mvn org.ops4j:maven-pax-plugin:create-bundle ...etc...
+</pre></code></td></tr></table></div>
+      </div>
+    </div>
+    <div class="clear">
+      <hr/>
+    </div>
+    <div id="footer">
+      <div class="xright">&#169;  
+          2007-2008
+    
+          OPS4J
+          
+  
+
+  
+    
+  
+  
+  </div>
+      <div class="clear">
+        <hr/>
+      </div>
+    </div>
+  </body>
+</html>
