@@ -31,12 +31,9 @@
               <pomIncludes>
                 <pomInclude>**/pom.xml</pomInclude>
               </pomIncludes>
-              <testProperties>
-                <property>
-                  <name>sandpit</name>
-                  <value>${basedir}/target</value>
-                </property>
-              </testProperties>
+              <properties>
+                <sandpit>${basedir}/target</sandpit>
+              </properties>
             </configuration>
           </execution>
         </executions>

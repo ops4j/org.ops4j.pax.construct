@@ -47,20 +47,11 @@
               <goals>
                 <goal>pax:create-bundle</goal>
               </goals>
-              <testProperties>
-                <property>
-                  <name>bundleName</name>
-                  <value>simple</value>
-                </property>
-                <property>
-                  <name>package</name>
-                  <value>org.example.simple</value>
-                </property>
-                <property>
-                  <name>overwrite</name>
-                  <value>true</value>
-                </property>
-              </testProperties>
+              <properties>
+                <bundleName>simple</bundleName>
+                <package>org.example.simple</package>
+                <overwrite>true</overwrite>
+              </properties>
             </configuration>
           </execution>
           <execution>
@@ -75,24 +66,12 @@
               <goals>
                 <goal>pax:create-bundle</goal>
               </goals>
-              <testProperties>
-                <property>
-                  <name>bundleName</name>
-                  <value>simple-api</value>
-                </property>
-                <property>
-                  <name>package</name>
-                  <value>org.example.simple</value>
-                </property>
-                <property>
-                  <name>internals</name>
-                  <value>false</value>
-                </property>
-                <property>
-                  <name>overwrite</name>
-                  <value>true</value>
-                </property>
-              </testProperties>
+              <properties>
+                <bundleName>simple-api</bundleName>
+                <package>org.example.simple</package>
+                <internals>false</internals>
+                <overwrite>true</overwrite>
+              </properties>
             </configuration>
           </execution>
           <execution>
@@ -107,24 +86,12 @@
               <goals>
                 <goal>pax:create-bundle</goal>
               </goals>
-              <testProperties>
-                <property>
-                  <name>bundleName</name>
-                  <value>simple-impl</value>
-                </property>
-                <property>
-                  <name>package</name>
-                  <value>org.example.simple</value>
-                </property>
-                <property>
-                  <name>interface</name>
-                  <value>false</value>
-                </property>
-                <property>
-                  <name>overwrite</name>
-                  <value>true</value>
-                </property>
-              </testProperties>
+              <properties>
+                <bundleName>simple-impl</bundleName>
+                <package>org.example.simple</package>
+                <interface>false</interface>
+                <overwrite>true</overwrite>
+              </properties>
             </configuration>
           </execution>
           <execution>
@@ -139,20 +106,11 @@
               <goals>
                 <goal>pax:import-bundle</goal>
               </goals>
-              <testProperties>
-                <property>
-                  <name>groupId</name>
-                  <value>my.example.project</value>
-                </property>
-                <property>
-                  <name>artifactId</name>
-                  <value>simple-api</value>
-                </property>
-                <property>
-                  <name>version</name>
-                  <value>1.0-SNAPSHOT</value>
-                </property>
-              </testProperties>
+              <properties>
+                <groupId>my.example.project</groupId>
+                <artifactId>simple-api</artifactId>
+                <version>1.0-SNAPSHOT</version>
+              </properties>
             </configuration>
           </execution>
           <execution>

@@ -61,7 +61,7 @@ limitations under the License.
       </modules>
     </profile>
     <profile>
-      <id>dist</id>
+      <id>test</id>
       <modules>
         <module>maven-inherit-plugin</module>
         <module>maven-pax-plugin</module>
