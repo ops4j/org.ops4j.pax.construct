@@ -93,7 +93,7 @@ public final class RoundTripXml
 
             int type = super.nextToken();
 
-            if( COMMENT == eventType )
+            if( COMMENT == eventType && 0 < depth )
             {
                 // start pseudo-tag
                 m_handleComment = true;
