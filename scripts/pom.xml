@@ -22,6 +22,14 @@
         <directory>src/bin</directory>
         <filtering>true</filtering>
       </resource>
+      <resource>
+        <directory>.</directory>
+        <targetPath>META-INF</targetPath>
+        <includes>
+          <include>LICENSE*</include>
+          <include>NOTICE*</include>
+        </includes>
+      </resource>
     </resources>
     <plugins>
       <plugin>
