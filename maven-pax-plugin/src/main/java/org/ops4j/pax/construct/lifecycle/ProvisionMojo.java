@@ -185,6 +185,13 @@ public class ProvisionMojo extends AbstractMojo
     private String deployPoms;
 
     /**
+     * Comma separated list of Pax-Runner profiles to deploy at the same time.
+     * 
+     * @parameter expression="${deployProfile}" default-value="minimal"
+     */
+    private String deployProfile;
+
+    /**
      * The version of Pax-Runner to use for provisioning.
      * 
      * @parameter expression="${runner}" default-value="RELEASE"
@@ -581,7 +588,8 @@ public class ProvisionMojo extends AbstractMojo
         String[] defaultCmds = new String[]
         {
             "--repositories=" + repositories, "--localRepository=" + m_localRepo.getBasedir(),
-            "--platform=" + framework, project.getFile().getAbsolutePath(), "--overwriteUserBundles"
+            "--platform=" + framework, project.getFile().getAbsolutePath(), "--overwriteUserBundles",
+            "--profiles=" + deployProfile
         };
 
         deployAppCmds = new String[provision.length + defaultCmds.length];
