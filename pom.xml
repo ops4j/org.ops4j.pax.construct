@@ -42,7 +42,7 @@ limitations under the License.
 
   <profiles>
     <profile>
-      <id>build</id>
+      <id>dist</id>
       <activation>
         <activeByDefault>true</activeByDefault>
       </activation>
