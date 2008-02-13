@@ -335,9 +335,11 @@ public class ProvisionMojo extends AbstractMojo
 
         if( !deploy )
         {
-            getLog().info( "Deployment complete" );
+            getLog().info( "Skipping deployment" );
             return;
         }
+
+        m_remoteRepos.add( getOps4jRepository() ); // can remove this once runner is on central
 
         String delim = "";
         StringBuffer repoListBuilder = new StringBuffer();
@@ -358,9 +360,6 @@ public class ProvisionMojo extends AbstractMojo
 
             delim = ",";
         }
-
-        // can remove this once runner is on central
-        m_remoteRepos.add( getOps4jRepository() );
 
         if( PomUtils.needReleaseVersion( runner ) )
         {
