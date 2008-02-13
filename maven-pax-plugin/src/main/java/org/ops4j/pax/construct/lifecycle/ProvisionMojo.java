@@ -360,7 +360,7 @@ public class ProvisionMojo extends AbstractMojo
         }
 
         // can remove this once runner is on central
-        m_remoteRepos.add( 0, getOps4jRepository() );
+        m_remoteRepos.add( getOps4jRepository() );
 
         if( PomUtils.needReleaseVersion( runner ) )
         {
