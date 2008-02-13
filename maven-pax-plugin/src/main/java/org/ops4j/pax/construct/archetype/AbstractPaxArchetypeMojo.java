@@ -113,7 +113,7 @@ public abstract class AbstractPaxArchetypeMojo extends MavenArchetypeMojo
     /**
      * Comma-separated list of additional remote repository URLs.
      * 
-     * @parameter expression="${remoteArchetypeRepositories}"
+     * @parameter expression="${remoteArchetypeRepositories}" default-value="http://repository.ops4j.org/maven2"
      */
     private String remoteArchetypeRepositories;
 

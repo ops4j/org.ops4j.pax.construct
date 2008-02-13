@@ -35,6 +35,9 @@ import org.apache.maven.artifact.installer.ArtifactInstallationException;
 import org.apache.maven.artifact.installer.ArtifactInstaller;
 import org.apache.maven.artifact.metadata.ArtifactMetadataSource;
 import org.apache.maven.artifact.repository.ArtifactRepository;
+import org.apache.maven.artifact.repository.ArtifactRepositoryFactory;
+import org.apache.maven.artifact.repository.ArtifactRepositoryPolicy;
+import org.apache.maven.artifact.repository.layout.ArtifactRepositoryLayout;
 import org.apache.maven.artifact.resolver.ArtifactResolver;
 import org.apache.maven.model.Dependency;
 import org.apache.maven.plugin.AbstractMojo;
@@ -196,6 +199,18 @@ public class ProvisionMojo extends AbstractMojo
     private String[] provision;
 
     /**
+     * Component factory for Maven repositories.
+     * 
+     * @component
+     */
+    private ArtifactRepositoryFactory m_repoFactory;
+
+    /**
+     * @component roleHint="default"
+     */
+    private ArtifactRepositoryLayout m_defaultLayout;
+
+    /**
      * {@inheritDoc}
      */
     public void execute()
@@ -343,6 +358,9 @@ public class ProvisionMojo extends AbstractMojo
 
             delim = ",";
         }
+
+        // can remove this once runner is on central
+        m_remoteRepos.add( 0, getOps4jRepository() );
 
         if( PomUtils.needReleaseVersion( runner ) )
         {
@@ -609,5 +627,18 @@ public class ProvisionMojo extends AbstractMojo
         {
             throw new MojoExecutionException( "Pax-Runner exception", e );
         }
+    }
+
+    /**
+     * @return backup OPS4J remote repository
+     */
+    ArtifactRepository getOps4jRepository()
+    {
+        ArtifactRepositoryPolicy noSnapshots = new ArtifactRepositoryPolicy( false, null, null );
+        ArtifactRepositoryPolicy releases = new ArtifactRepositoryPolicy( true,
+            ArtifactRepositoryPolicy.UPDATE_POLICY_NEVER, null );
+
+        return m_repoFactory.createArtifactRepository( "ops4j-repository", "http://repository.ops4j.org/maven2",
+            m_defaultLayout, noSnapshots, releases );
     }
 }
