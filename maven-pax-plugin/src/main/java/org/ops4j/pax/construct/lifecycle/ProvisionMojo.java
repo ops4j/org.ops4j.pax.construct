@@ -25,6 +25,7 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
@@ -176,6 +177,13 @@ public class ProvisionMojo extends AbstractMojo
      * @parameter expression="${deploy}" default-value="minimal"
      */
     private String deploy;
+
+    /**
+     * URL of file containing additional Pax-Runner arguments.
+     * 
+     * @parameter expression="${args}"
+     */
+    private String args;
 
     /**
      * Comma separated list of additional POMs with bundles as provided dependencies.
@@ -414,6 +422,7 @@ public class ProvisionMojo extends AbstractMojo
             dep.setGroupId( fields[0] );
             dep.setArtifactId( fields[1] );
             dep.setVersion( fields[2] );
+            dep.setScope( "provided" );
 
             dependencies.add( dep );
         }
@@ -576,7 +585,7 @@ public class ProvisionMojo extends AbstractMojo
     private void deployRunnerNG( Class mainClass, MavenProject project, String repositories )
         throws MojoExecutionException
     {
-        String[] deployAppCmds = provision;
+        List deployAppCmds = new ArrayList();
 
         String[] defaultCmds = new String[]
         {
@@ -585,13 +594,28 @@ public class ProvisionMojo extends AbstractMojo
             "--overwriteUserBundles"
         };
 
-        deployAppCmds = new String[provision.length + defaultCmds.length];
-
         // combine both sets of Pax-Runner settings (put defaults last)
-        System.arraycopy( provision, 0, deployAppCmds, 0, provision.length );
-        System.arraycopy( defaultCmds, 0, deployAppCmds, provision.length, defaultCmds.length );
+        deployAppCmds.addAll( Arrays.asList( provision ) );
+        deployAppCmds.addAll( Arrays.asList( defaultCmds ) );
 
-        invokePaxRunner( mainClass, deployAppCmds );
+        if( null != args )
+        {
+            try
+            {
+                new URL( args ); // check syntax
+            }
+            catch( MalformedURLException e )
+            {
+                // assume it's a local filename
+                File argsFile = new File( args );
+                args = argsFile.toURI().toString();
+            }
+
+            deployAppCmds.add( "--args=" + args );
+        }
+
+        getLog().debug( "Starting Pax-Runner " + runner + " with: " + deployAppCmds.toString() );
+        invokePaxRunner( mainClass, (String[]) deployAppCmds.toArray( new String[deployAppCmds.size()] ) );
     }
 
     /**
