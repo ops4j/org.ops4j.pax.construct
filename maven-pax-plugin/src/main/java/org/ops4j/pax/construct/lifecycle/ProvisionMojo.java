@@ -171,11 +171,11 @@ public class ProvisionMojo extends AbstractMojo
     private String framework;
 
     /**
-     * When true, start the OSGi framework and deploy the provisioned bundles.
+     * Comma separated list of additional Pax-Runner profiles to deploy.
      * 
-     * @parameter expression="${deploy}" default-value="true"
+     * @parameter expression="${deploy}" default-value="minimal"
      */
-    private boolean deploy;
+    private String deploy;
 
     /**
      * Comma separated list of additional POMs with bundles as provided dependencies.
@@ -183,13 +183,6 @@ public class ProvisionMojo extends AbstractMojo
      * @parameter expression="${deployPoms}"
      */
     private String deployPoms;
-
-    /**
-     * Comma separated list of Pax-Runner profiles to deploy at the same time.
-     * 
-     * @parameter expression="${deployProfile}" default-value="minimal"
-     */
-    private String deployProfile;
 
     /**
      * The version of Pax-Runner to use for provisioning.
@@ -340,7 +333,7 @@ public class ProvisionMojo extends AbstractMojo
         MavenProject deployProject = createDeploymentProject( bundles );
         installDeploymentPom( deployProject );
 
-        if( !deploy )
+        if( "false".equalsIgnoreCase( deploy ) )
         {
             getLog().info( "Skipping deployment" );
             return;
@@ -588,8 +581,8 @@ public class ProvisionMojo extends AbstractMojo
         String[] defaultCmds = new String[]
         {
             "--repositories=" + repositories, "--localRepository=" + m_localRepo.getBasedir(),
-            "--platform=" + framework, project.getFile().getAbsolutePath(), "--overwriteUserBundles",
-            "--profiles=" + deployProfile
+            "--platform=" + framework, project.getFile().getAbsolutePath(), "--profiles=" + deploy,
+            "--overwriteUserBundles"
         };
 
         deployAppCmds = new String[provision.length + defaultCmds.length];
