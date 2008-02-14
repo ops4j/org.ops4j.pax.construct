@@ -1,0 +1,13 @@
+f {
+  name = 'framework'
+  example = ''
+  optional = true
+}
+
+d {
+  name = 'deploy'
+  example = ''
+  optional = true
+}
+
+order = [ 'f', 'd' ]
