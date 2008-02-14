@@ -594,7 +594,7 @@ public class CloneMojo extends AbstractMojo
         }
 
         // should we look for additional non-Maven resources?
-        if( includeResources != null && includeResources.length() > 0 )
+        if( PomUtils.isNotEmpty( includeResources ) )
         {
             String[] includes = includeResources.split( "," );
             fragment.addResources( baseDir, baseDir.getPath(), Arrays.asList( includes ), null, false );

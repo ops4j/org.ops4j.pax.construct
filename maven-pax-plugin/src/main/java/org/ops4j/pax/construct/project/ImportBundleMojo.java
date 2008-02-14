@@ -290,7 +290,7 @@ public class ImportBundleMojo extends AbstractMojo
     private void populateMissingFields()
         throws MojoExecutionException
     {
-        if( null == groupId || groupId.length() == 0 )
+        if( PomUtils.isEmpty( groupId ) )
         {
             Pom localPom = DirUtils.findPom( targetDirectory, artifactId );
             if( localPom != null )
@@ -530,7 +530,7 @@ public class ImportBundleMojo extends AbstractMojo
      */
     private void excludeCandidates( String artifacts )
     {
-        if( null == artifacts || artifacts.length() == 0 )
+        if( PomUtils.isEmpty( artifacts ) )
         {
             return;
         }

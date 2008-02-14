@@ -238,7 +238,7 @@ public abstract class AbstractPaxArchetypeMojo extends MavenArchetypeMojo
      */
     protected final boolean hasCustomContent()
     {
-        return null != contents;
+        return PomUtils.isNotEmpty( contents );
     }
 
     /**
@@ -247,7 +247,7 @@ public abstract class AbstractPaxArchetypeMojo extends MavenArchetypeMojo
      */
     protected final String getInternalGroupId( String bundleGroupId )
     {
-        if( null != bundleGroupId && bundleGroupId.trim().length() > 0 )
+        if( PomUtils.isNotEmpty( bundleGroupId ) )
         {
             return bundleGroupId;
         }
@@ -473,7 +473,7 @@ public abstract class AbstractPaxArchetypeMojo extends MavenArchetypeMojo
      */
     protected final void setMainArchetype( String archetypeArtifactId )
     {
-        if( null == archetypeVersion || archetypeVersion.length() == 0 )
+        if( PomUtils.isEmpty( archetypeVersion ) )
         {
             archetypeVersion = getArchetypeVersion( PAX_CONSTRUCT_GROUP_ID, archetypeArtifactId );
         }
@@ -701,7 +701,7 @@ public abstract class AbstractPaxArchetypeMojo extends MavenArchetypeMojo
         m_customArchetypeIds = new ArrayList();
 
         // use default content
-        if( !hasCustomContent() || contents.trim().length() == 0 )
+        if( !hasCustomContent() )
         {
             return;
         }
@@ -740,7 +740,7 @@ public abstract class AbstractPaxArchetypeMojo extends MavenArchetypeMojo
      */
     protected final void scheduleArchetype( String groupId, String artifactId, String version )
     {
-        if( null == version || version.length() == 0 )
+        if( PomUtils.isEmpty( version ) )
         {
             m_customArchetypeIds.add( groupId + ':' + artifactId + ':' + archetypeVersion );
         }

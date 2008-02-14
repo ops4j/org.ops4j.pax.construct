@@ -532,7 +532,7 @@ public final class PomUtils
      */
     public static boolean needReleaseVersion( String version )
     {
-        return null == version || version.length() == 0 || "RELEASE".equals( version ) || "LATEST".equals( version );
+        return isEmpty( version ) || "RELEASE".equals( version ) || "LATEST".equals( version );
     }
 
     /**
@@ -592,5 +592,23 @@ public final class PomUtils
             return null;
         }
         return releaseVersion;
+    }
+
+    /**
+     * @param param Maven plugin parameter
+     * @return true if parameter is empty, otherwise false
+     */
+    public static boolean isEmpty( String param )
+    {
+        return null == param || param.trim().length() == 0;
+    }
+
+    /**
+     * @param param Maven plugin parameter
+     * @return false if parameter is empty, otherwise true
+     */
+    public static boolean isNotEmpty( String param )
+    {
+        return null != param && param.trim().length() > 0;
     }
 }

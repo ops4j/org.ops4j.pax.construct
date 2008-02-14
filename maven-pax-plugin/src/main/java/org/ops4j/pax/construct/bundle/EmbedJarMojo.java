@@ -148,7 +148,7 @@ public class EmbedJarMojo extends AbstractMojo
     private void populateMissingFields()
         throws MojoExecutionException
     {
-        if( null == groupId || groupId.length() == 0 )
+        if( PomUtils.isEmpty( groupId ) )
         {
             // this is a common assumption
             groupId = artifactId;

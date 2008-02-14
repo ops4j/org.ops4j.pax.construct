@@ -180,19 +180,19 @@ public class OSGiBundleArchetypeMojo extends AbstractPaxArchetypeMojo
     private void populateMissingFields()
     {
         // use the Java package as the symbolic name if no name given
-        if( null == bundleName || bundleName.trim().length() == 0 )
+        if( PomUtils.isEmpty( bundleName ) )
         {
             bundleName = packageName;
         }
 
         // default to the classic version of JUnit
-        if( "true".equals( junitVersion ) || "".equals( junitVersion ) )
+        if( PomUtils.isEmpty( junitVersion ) || "true".equals( junitVersion ) )
         {
             junitVersion = "3.8.2";
         }
 
         // default to a recent version of Spring
-        if( "true".equals( springVersion ) || "".equals( springVersion ) )
+        if( PomUtils.isEmpty( springVersion ) || "true".equals( springVersion ) )
         {
             springVersion = "2.5.1";
         }

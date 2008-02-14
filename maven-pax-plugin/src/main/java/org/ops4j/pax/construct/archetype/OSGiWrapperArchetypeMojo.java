@@ -281,7 +281,7 @@ public class OSGiWrapperArchetypeMojo extends AbstractPaxArchetypeMojo
      */
     public String getBundleSymbolicName()
     {
-        if( null != bundleName && bundleName.trim().length() > 0 )
+        if( PomUtils.isNotEmpty( bundleName ) )
         {
             return bundleName;
         }
@@ -296,7 +296,7 @@ public class OSGiWrapperArchetypeMojo extends AbstractPaxArchetypeMojo
      */
     public String getBundleVersion()
     {
-        if( null != bundleVersion && bundleVersion.trim().length() > 0 )
+        if( PomUtils.isNotEmpty( bundleVersion ) )
         {
             return bundleVersion;
         }
@@ -338,7 +338,7 @@ public class OSGiWrapperArchetypeMojo extends AbstractPaxArchetypeMojo
     private void populateMissingFields()
         throws MojoExecutionException
     {
-        if( null == groupId || groupId.length() == 0 )
+        if( PomUtils.isEmpty( groupId ) )
         {
             // this is a common assumption
             groupId = artifactId;
@@ -647,7 +647,7 @@ public class OSGiWrapperArchetypeMojo extends AbstractPaxArchetypeMojo
      */
     private void excludeCandidates( String artifacts )
     {
-        if( null == artifacts || artifacts.length() == 0 )
+        if( PomUtils.isEmpty( artifacts ) )
         {
             return;
         }

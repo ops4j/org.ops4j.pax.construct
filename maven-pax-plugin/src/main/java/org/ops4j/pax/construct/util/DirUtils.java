@@ -92,7 +92,7 @@ public final class DirUtils
     public static Pom findPom( File baseDir, String pomId )
     {
         // no searching required
-        if( null == pomId || pomId.length() == 0 )
+        if( PomUtils.isEmpty( pomId ) )
         {
             return null;
         }
