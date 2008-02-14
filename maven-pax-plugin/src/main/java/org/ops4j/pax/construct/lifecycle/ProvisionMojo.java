@@ -167,14 +167,14 @@ public class ProvisionMojo extends AbstractMojo
     /**
      * Name of the OSGi framework to deploy onto.
      * 
-     * @parameter expression="${framework}" default-value="felix"
+     * @parameter expression="${framework}"
      */
     private String framework;
 
     /**
      * Comma separated list of additional Pax-Runner profiles to deploy.
      * 
-     * @parameter expression="${deploy}" default-value="minimal"
+     * @parameter expression="${deploy}"
      */
     private String deploy;
 
@@ -564,6 +564,11 @@ public class ProvisionMojo extends AbstractMojo
         // Force reload of pom
         cachedPomFile.delete();
 
+        if( PomUtils.isEmpty( framework ) )
+        {
+            framework = "felix";
+        }
+
         String[] deployAppCmds =
         {
             "--dir=" + workDir, "--no-md5", "--platform=" + framework, "--profile=default",
@@ -587,16 +592,15 @@ public class ProvisionMojo extends AbstractMojo
     {
         List deployAppCmds = new ArrayList();
 
-        String[] defaultCmds = new String[]
+        // only apply if explicitly configured
+        if( PomUtils.isNotEmpty( framework ) )
         {
-            "--repositories=" + repositories, "--localRepository=" + m_localRepo.getBasedir(),
-            "--platform=" + framework, project.getFile().getAbsolutePath(), "--profiles=" + deploy,
-            "--overwriteUserBundles"
-        };
-
-        // combine both sets of Pax-Runner settings (put defaults last)
-        deployAppCmds.addAll( Arrays.asList( provision ) );
-        deployAppCmds.addAll( Arrays.asList( defaultCmds ) );
+            deployAppCmds.add( "--platform=" + framework );
+        }
+        if( PomUtils.isNotEmpty( deploy ) )
+        {
+            deployAppCmds.add( "--profiles=" + deploy );
+        }
 
         if( null != args )
         {
@@ -611,8 +615,20 @@ public class ProvisionMojo extends AbstractMojo
                 args = argsFile.toURI().toString();
             }
 
+            // custom Pax-Runner arguments file
             deployAppCmds.add( "--args=" + args );
         }
+
+        // apply project provision settings before defaults
+        deployAppCmds.addAll( Arrays.asList( provision ) );
+
+        // main deployment pom with project bundles as dependencies
+        deployAppCmds.add( project.getFile().getAbsolutePath() );
+
+        // use project settings to access remote/local repositories
+        deployAppCmds.add( "--localRepository=" + m_localRepo.getBasedir() );
+        deployAppCmds.add( "--repositories=" + repositories );
+        deployAppCmds.add( "--overwriteUserBundles" );
 
         getLog().debug( "Starting Pax-Runner " + runner + " with: " + deployAppCmds.toString() );
         invokePaxRunner( mainClass, (String[]) deployAppCmds.toArray( new String[deployAppCmds.size()] ) );
