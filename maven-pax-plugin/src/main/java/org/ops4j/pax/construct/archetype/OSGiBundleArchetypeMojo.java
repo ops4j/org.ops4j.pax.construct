@@ -186,13 +186,13 @@ public class OSGiBundleArchetypeMojo extends AbstractPaxArchetypeMojo
         }
 
         // default to the classic version of JUnit
-        if( PomUtils.isEmpty( junitVersion ) || "true".equals( junitVersion ) )
+        if( "true".equals( junitVersion ) || "".equals( junitVersion ) )
         {
             junitVersion = "3.8.2";
         }
 
         // default to a recent version of Spring
-        if( PomUtils.isEmpty( springVersion ) || "true".equals( springVersion ) )
+        if( "true".equals( springVersion ) || "".equals( springVersion ) )
         {
             springVersion = "2.5.1";
         }
