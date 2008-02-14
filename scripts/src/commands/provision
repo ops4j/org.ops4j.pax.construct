@@ -1,3 +1,5 @@
+recursive = true
+
 f {
   name = 'framework'
   example = ''

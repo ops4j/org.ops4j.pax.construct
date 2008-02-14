@@ -61,6 +61,9 @@ import org.ops4j.pax.construct.util.StreamFactory;
  * </pre></code>
  * 
  * @goal provision
+ * @aggregator true
+ * 
+ * @requiresProject false
  */
 public class ProvisionMojo extends AbstractMojo
 {
@@ -147,15 +150,6 @@ public class ProvisionMojo extends AbstractMojo
     private ArtifactRepository m_localRepo;
 
     /**
-     * The current Maven project.
-     * 
-     * @parameter expression="${project}"
-     * @required
-     * @readonly
-     */
-    private MavenProject m_project;
-
-    /**
      * The current Maven reactor.
      * 
      * @parameter expression="${reactorProjects}"
@@ -224,22 +218,19 @@ public class ProvisionMojo extends AbstractMojo
     public void execute()
         throws MojoExecutionException
     {
-        if( null == m_bundleIds )
-        {
-            m_bundleIds = new ArrayList();
+        m_bundleIds = new ArrayList();
 
-            if( deployPoms != null )
-            {
-                addAdditionalPoms();
-            }
+        if( deployPoms != null )
+        {
+            addAdditionalPoms();
         }
 
-        addBundleDependencies( m_project );
-
-        if( m_reactorProjects.indexOf( m_project ) == m_reactorProjects.size() - 1 )
+        for( Iterator i = m_reactorProjects.iterator(); i.hasNext(); )
         {
-            deployBundles();
+            addBundleDependencies( (MavenProject) i.next() );
         }
+
+        deployBundles();
     }
 
     /**
@@ -440,9 +431,21 @@ public class ProvisionMojo extends AbstractMojo
         throws MojoExecutionException
     {
         MavenProject rootProject = (MavenProject) m_reactorProjects.get( 0 );
-        MavenProject deployProject = new MavenProject( rootProject );
+        MavenProject deployProject;
 
-        String internalId = PomUtils.getCompoundId( rootProject.getGroupId(), rootProject.getArtifactId() );
+        if( null == rootProject.getFile() )
+        {
+            deployProject = new MavenProject();
+            deployProject.setGroupId( "examples" );
+            deployProject.setArtifactId( "pax-provision" );
+            deployProject.setVersion( "1.0-SNAPSHOT" );
+        }
+        else
+        {
+            deployProject = new MavenProject( rootProject );
+        }
+
+        String internalId = PomUtils.getCompoundId( deployProject.getGroupId(), deployProject.getArtifactId() );
         deployProject.setGroupId( internalId + ".build" );
         deployProject.setArtifactId( "deployment" );
 
@@ -454,7 +457,7 @@ public class ProvisionMojo extends AbstractMojo
         deployProject.getModel().setReporting( null );
         deployProject.setBuild( null );
 
-        File deployFile = new File( rootProject.getBasedir(), "target/deployment/pom.xml" );
+        File deployFile = new File( deployProject.getBasedir(), "runner/pom.xml" );
 
         deployFile.getParentFile().mkdirs();
         deployProject.setFile( deployFile );
