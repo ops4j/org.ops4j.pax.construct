@@ -180,7 +180,14 @@ public class ProvisionMojo extends AbstractMojo
     private String args;
 
     /**
-     * Comma separated list of additional POMs with bundles as provided dependencies.
+     * Ignore bundle dependencies when deploying project.
+     * 
+     * @parameter expression="${noDependencies}"
+     */
+    private boolean noDependencies;
+
+    /**
+     * Comma separated list of additional POMs with bundles as dependencies.
      * 
      * @parameter expression="${deployPoms}"
      */
@@ -227,31 +234,75 @@ public class ProvisionMojo extends AbstractMojo
 
         for( Iterator i = m_reactorProjects.iterator(); i.hasNext(); )
         {
-            addBundleDependencies( (MavenProject) i.next() );
+            addProjectBundles( (MavenProject) i.next(), false == noDependencies );
         }
 
         deployBundles();
     }
 
     /**
-     * Adds project artifact (if it's a bundle) to the deploy list as well as any provided, non-optional dependencies
+     * Does this look like a provisioning POM? ie. artifactId of 'provision', packaging type 'pom', with dependencies
      * 
      * @param project a Maven project
+     * @return true if this looks like a provisioning POM, otherwise false
      */
-    private void addBundleDependencies( MavenProject project )
+    public static boolean isProvisioningPom( MavenProject project )
+    {
+        // ignore POMs which don't have provision as their artifactId
+        if( !"provision".equals( project.getArtifactId() ) )
+        {
+            return false;
+        }
+
+        // ignore POMs that produce actual artifacts
+        if( !"pom".equals( project.getPackaging() ) )
+        {
+            return false;
+        }
+
+        // ignore POMs with no dependencies at all
+        List dependencies = project.getDependencies();
+        if( dependencies == null || dependencies.size() == 0 )
+        {
+            return false;
+        }
+
+        return true;
+    }
+
+    /**
+     * Adds project artifact (if it's a bundle) to the deploy list as well as any non-optional bundle dependencies
+     * 
+     * @param project a Maven project
+     * @param checkDependencies when true, check project dependencies for other bundles to provision
+     */
+    private void addProjectBundles( MavenProject project, boolean checkDependencies )
     {
         if( PomUtils.isBundleProject( project ) )
         {
             provisionBundle( project.getArtifact() );
         }
 
+        if( checkDependencies || isProvisioningPom( project ) )
+        {
+            addProjectDependencies( project );
+        }
+    }
+
+    /**
+     * Adds any non-optional bundle dependencies to the deploy list
+     * 
+     * @param project a Maven project
+     */
+    private void addProjectDependencies( MavenProject project )
+    {
         try
         {
             Set artifacts = project.createArtifacts( m_factory, null, null );
             for( Iterator i = artifacts.iterator(); i.hasNext(); )
             {
                 Artifact artifact = (Artifact) i.next();
-                if( Artifact.SCOPE_PROVIDED.equals( artifact.getScope() ) && !artifact.isOptional() )
+                if( !artifact.isOptional() && !Artifact.SCOPE_TEST.equals( artifact.getScope() ) )
                 {
                     provisionBundle( artifact );
                 }
@@ -303,7 +354,7 @@ public class ProvisionMojo extends AbstractMojo
             {
                 try
                 {
-                    addBundleDependencies( m_projectBuilder.build( pomFile, m_localRepo, null ) );
+                    addProjectBundles( m_projectBuilder.build( pomFile, m_localRepo, null ), true );
                 }
                 catch( ProjectBuildingException e )
                 {
