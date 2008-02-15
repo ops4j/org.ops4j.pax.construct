@@ -23,13 +23,17 @@
 ~~ NOTE: For help with the syntax of this file, see:
 ~~ http://maven.apache.org/guides/mini/guide-apt-format.html
 
-<<<pax-provision [-f felix|equinox|kf|concierge] [-d minimal,log,war,...] [-o] [-- mvnOpts ...]>>>
+<<<pax-provision [-f felix|equinox|kf] [-d minimal,log,war,...] [-i url,...] [-- mvnOpts ...]>>>
 
  Provisions the current project onto the selected OSGi framework using the latest released version of {{{http://wiki.ops4j.org/confluence/display/ops4j/Pax+Runner}Pax-Runner}}.
 
- * Use the <<<-d>>> option to select which platform {{{http://wiki.ops4j.org/confluence/display/ops4j/Platform+-+Felix}profiles}} to deploy
+ * Use the <<-d>> option to select which platform {{{http://wiki.ops4j.org/confluence/display/ops4j/Platform+-+Felix}profiles}} to deploy
 
- * Can be used with non-Pax-Construct projects, or on its own
+ * Use the <<-i>> option to deploy additional bundles from a list of URLs
+
+ []
+
+ This script can also be used with non-Pax-Construct projects, as well as standalone (ie. without any Maven project).
 
 * Additional Maven options
 

@@ -194,6 +194,13 @@ public class ProvisionMojo extends AbstractMojo
     private String deployPoms;
 
     /**
+     * Comma separated list of additional bundle URLs to deploy.
+     * 
+     * @parameter expression="${deployURLs}"
+     */
+    private String deployURLs;
+
+    /**
      * The version of Pax-Runner to use for provisioning.
      * 
      * @parameter expression="${runner}" default-value="RELEASE"
@@ -656,7 +663,7 @@ public class ProvisionMojo extends AbstractMojo
             deployAppCmds.add( "--profiles=" + deploy );
         }
 
-        if( null != args )
+        if( PomUtils.isNotEmpty( args ) )
         {
             try
             {
@@ -678,6 +685,16 @@ public class ProvisionMojo extends AbstractMojo
 
         // main deployment pom with project bundles as dependencies
         deployAppCmds.add( project.getFile().getAbsolutePath() );
+
+        if( PomUtils.isNotEmpty( deployURLs ) )
+        {
+            // additional (external) bundle URLs
+            String[] urls = deployURLs.split( "," );
+            for( int i = 0; i < urls.length; i++ )
+            {
+                deployAppCmds.add( urls[i].trim() );
+            }
+        }
 
         // use project settings to access remote/local repositories
         deployAppCmds.add( "--localRepository=" + m_localRepo.getBasedir() );

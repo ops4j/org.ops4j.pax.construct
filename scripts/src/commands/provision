@@ -14,4 +14,11 @@ d {
   optional = true
 }
 
-order = [ 'f', 'd' ]
+i {
+  name = 'deployURLs'
+  help = 'url,...'
+  example = ''
+  optional = true
+}
+
+order = [ 'f', 'd', 'i' ]
