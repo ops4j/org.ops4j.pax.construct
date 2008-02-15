@@ -1,0 +1,51 @@
+ ------
+ pax-provision
+ ------
+ Stuart McCulloch
+ ------
+ 15 February 2008
+ ------
+
+~~ Copyright 2008 Stuart McCulloch
+~~
+~~ Licensed under the Apache License, Version 2.0 (the "License");
+~~ you may not use this file except in compliance with the License.
+~~ You may obtain a copy of the License at
+~~
+~~      http://www.apache.org/licenses/LICENSE-2.0
+~~
+~~ Unless required by applicable law or agreed to in writing, software
+~~ distributed under the License is distributed on an "AS IS" BASIS,
+~~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+~~ See the License for the specific language governing permissions and
+~~ limitations under the License.
+
+~~ NOTE: For help with the syntax of this file, see:
+~~ http://maven.apache.org/guides/mini/guide-apt-format.html
+
+<<<pax-provision [-f felix|equinox|kf|concierge] [-d minimal,log,war,...] [-o] [-- mvnOpts ...]>>>
+
+ Provisions the current project onto the selected OSGi framework using the latest released version of {{{http://wiki.ops4j.org/confluence/display/ops4j/Pax+Runner}Pax-Runner}}.
+
+ * Use the <<<-d>>> option to select which platform {{{http://wiki.ops4j.org/confluence/display/ops4j/Platform+-+Felix}profiles}} to deploy
+
+* Additional Maven options
+
+*-----------------------------------*----------------------------------------------------------------+
+| <<<-Dargs=>>><filename-or-url>    | file containing extra Pax-Runner options (one option per line) |
+*-----------------------------------*----------------------------------------------------------------+
+| <<<-Drunner=>>><version>          | use a specific version of Pax-Runner                           |
+*-----------------------------------*----------------------------------------------------------------+
+| <<<-DdeployPoms=>>><filename,...> | additional poms listing more bundles to deploy                 |
+*-----------------------------------*----------------------------------------------------------------+
+| <<<-DnoDependencies>>>            | ignore bundle dependencies when deploying                      |
+*-----------------------------------*----------------------------------------------------------------+
+
+* Examples
+
++---+
+pax-provision -f felix -d war
+
+pax-provision -f equinox -- -Dargs=runner.args
++---+
+

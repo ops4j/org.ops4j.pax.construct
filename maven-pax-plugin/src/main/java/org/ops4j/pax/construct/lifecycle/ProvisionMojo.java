@@ -57,7 +57,7 @@ import org.ops4j.pax.construct.util.StreamFactory;
  * Provision all local and imported bundles onto the selected OSGi framework
  * 
  * <code><pre>
- *   mvn pax:provision [-Dframework={felix|equinox|kf...}] [-Ddeploy={minimal,spring-dm,war,...}]
+ *   mvn pax:provision [-Dframework=felix|equinox|kf|concierge] [-Ddeploy=minimal,log,war,...]
  * </pre></code>
  * 
  * @goal provision

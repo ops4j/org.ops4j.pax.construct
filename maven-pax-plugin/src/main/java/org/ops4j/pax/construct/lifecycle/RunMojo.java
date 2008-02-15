@@ -20,7 +20,7 @@ package org.ops4j.pax.construct.lifecycle;
  * Provision all local and imported bundles onto the selected OSGi framework
  * 
  * <code><pre>
- *   mvn pax:run [-Dframework={felix|equinox|kf...}] [-Ddeploy={minimal,spring-dm,war,...}]
+ *   mvn pax:run [-Dframework=felix|equinox|kf|concierge] [-Ddeploy=minimal,log,war,...]
  * </pre></code>
  * 
  * @goal run
