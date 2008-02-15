@@ -29,6 +29,8 @@
 
  * Use the <<<-d>>> option to select which platform {{{http://wiki.ops4j.org/confluence/display/ops4j/Platform+-+Felix}profiles}} to deploy
 
+ * Can be used with non-Pax-Construct projects, or on its own
+
 * Additional Maven options
 
 *-----------------------------------*----------------------------------------------------------------+
