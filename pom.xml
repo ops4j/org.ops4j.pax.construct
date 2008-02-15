@@ -165,6 +165,22 @@ limitations under the License.
       </roles>
       <timezone>UTC+8</timezone>
     </developer>
+    <developer>
+      <id>niclas@hedhman.org</id>
+      <name>Niclas Hedhman</name>
+      <email>niclas@hedhman.org</email>
+      <organization>Jayway Malaysia Sdn Bhd</organization>
+      <organizationUrl>http://malaysia.jayway.net</organizationUrl>
+      <timezone>+8</timezone>
+    </developer>
+    <developer>
+      <id>edward.yakop@gmail.com</id>
+      <name>Edward Yakop</name>
+      <email>edward.yakop@gmail.com</email>
+      <organization>Jayway Malaysia Sdn Bhd</organization>
+      <organizationUrl>http://malaysia.jayway.net</organizationUrl>
+      <timezone>+8</timezone>
+    </developer>
   </developers>
 
   <distributionManagement>
