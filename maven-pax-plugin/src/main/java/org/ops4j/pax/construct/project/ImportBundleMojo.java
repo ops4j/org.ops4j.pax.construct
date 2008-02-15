@@ -514,11 +514,11 @@ public class ImportBundleMojo extends AbstractMojo
             m_provisionPom.addDependency( dependency, overwrite );
         }
 
-        // use provided scope when adding to bundle pom
-        dependency.setScope( Artifact.SCOPE_PROVIDED );
-
         if( m_localBundlePom != null )
         {
+            // use provided scope when adding to bundle pom
+            dependency.setScope( Artifact.SCOPE_PROVIDED );
+
             getLog().info( "Adding " + project.getName() + " as dependency to " + m_localBundlePom );
             m_localBundlePom.addDependency( dependency, overwrite );
         }
