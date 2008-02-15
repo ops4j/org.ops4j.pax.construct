@@ -55,9 +55,12 @@
                   options = new ConfigSlurper().parse( it.toURL() )
                   options.order.each
                   {
+                    // support customized help without affecting parameter name
+                    if( !options[it].help ) options[it].help = options[it].name
+
                     print ' '
                     if( options[it].optional ) print '['
-                    print "-${it} ${options[it].name}"
+                    print "-${it} ${options[it].help}"
                     if( options[it].optional ) print ']'
                   }
                   println ''

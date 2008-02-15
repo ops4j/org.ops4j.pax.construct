@@ -2,12 +2,14 @@ recursive = true
 
 f {
   name = 'framework'
+  help = '{felix|equinox|kf...}'
   example = ''
   optional = true
 }
 
 d {
   name = 'deploy'
+  help = '{minimal,log,war,...}'
   example = ''
   optional = true
 }

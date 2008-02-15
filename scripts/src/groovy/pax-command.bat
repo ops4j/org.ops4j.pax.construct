@@ -37,7 +37,7 @@ echo pax-${mojo}<%
     if( options[it].optional ) {
       %>[<%
     }
-    %>-${it} ${options[it].name}<%
+    %>-${it} ${options[it].help}<%
     if( options[it].optional ) {
       %>]<%
     }
