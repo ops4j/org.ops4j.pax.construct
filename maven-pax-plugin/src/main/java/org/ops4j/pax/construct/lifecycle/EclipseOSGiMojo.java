@@ -118,7 +118,7 @@ public class EclipseOSGiMojo extends EclipsePlugin
         {
             enablePDE(); // compiled OSGi bundle
         }
-        else if( isProvisioningPom() )
+        else if( ProvisionMojo.isProvisioningPom( executedProject ) )
         {
             try
             {
@@ -155,35 +155,6 @@ public class EclipseOSGiMojo extends EclipsePlugin
 
         m_eclipseMojo.setField( "pde", Boolean.TRUE );
         setWtpversion( "none" );
-    }
-
-    /**
-     * Does this look like a provisioning POM? ie. artifactId of 'provision', packaging type 'pom', with dependencies
-     * 
-     * @return true if this looks like a provisioning POM, otherwise false
-     */
-    private boolean isProvisioningPom()
-    {
-        // ignore POMs which don't have provision as their artifactId
-        if( !"provision".equals( executedProject.getArtifactId() ) )
-        {
-            return false;
-        }
-
-        // ignore POMs that produce actual artifacts
-        if( !"pom".equals( executedProject.getPackaging() ) )
-        {
-            return false;
-        }
-
-        // ignore POMs with no dependencies at all
-        List dependencies = executedProject.getDependencies();
-        if( dependencies == null || dependencies.size() == 0 )
-        {
-            return false;
-        }
-
-        return true;
     }
 
     /**
@@ -594,47 +565,43 @@ public class EclipseOSGiMojo extends EclipsePlugin
         {
             Artifact artifact = (Artifact) i.next();
 
-            // assume provided dependencies are OSGi bundles
-            if( Artifact.SCOPE_PROVIDED.equals( artifact.getScope() ) )
+            // store project locally underneath the provisioning POM's directory
+            File groupDir = new File( m_provisionProject.getBasedir(), "target/" + artifact.getGroupId() );
+            File baseDir = new File( groupDir, artifact.getArtifactId() + '-' + artifact.getVersion() );
+
+            // download and unpack the bundle
+            if( !PomUtils.downloadFile( artifact, artifactResolver, remoteArtifactRepositories, localRepository ) )
             {
-                // store project locally underneath the provisioning POM's directory
-                File groupDir = new File( m_provisionProject.getBasedir(), "target/" + artifact.getGroupId() );
-                File baseDir = new File( groupDir, artifact.getArtifactId() + '-' + artifact.getVersion() );
+                getLog().warn( "Skipping missing bundle " + artifact );
+                continue;
+            }
 
-                // download and unpack the bundle
-                if( !PomUtils.downloadFile( artifact, artifactResolver, remoteArtifactRepositories, localRepository ) )
-                {
-                    getLog().warn( "Skipping missing bundle " + artifact );
-                    continue;
-                }
+            DirUtils.unpackBundle( artifact.getFile(), baseDir, null );
 
-                DirUtils.unpackBundle( artifact.getFile(), baseDir, null );
+            // download the bundle POM and store locally
+            MavenProject dependencyProject = writeProjectPom( baseDir, artifact );
+            if( null == dependencyProject )
+            {
+                getLog().warn( "Skipping missing bundle " + artifact );
+                continue;
+            }
 
-                // download the bundle POM and store locally
-                MavenProject dependencyProject = writeProjectPom( baseDir, artifact );
-                if( null == dependencyProject )
-                {
-                    getLog().warn( "Skipping missing bundle " + artifact );
-                    continue;
-                }
+            setExecutedProject( dependencyProject );
+            setProject( dependencyProject );
 
-                setExecutedProject( dependencyProject );
-                setProject( dependencyProject );
+            // trick Eclipse plugin to do the right thing
+            setBuildOutputDirectory( new File( baseDir, ".ignore" ) );
+            setEclipseProjectDir( baseDir );
 
-                // trick Eclipse plugin to do the right thing
-                setBuildOutputDirectory( new File( baseDir, ".ignore" ) );
-                setEclipseProjectDir( baseDir );
-
-                try
-                {
-                    // call the Eclipse plugin
-                    getLog().info( "Generating Eclipse project for bundle " + artifact );
-                    execute();
-                }
-                catch( MojoFailureException e )
-                {
-                    getLog().warn( "Problem generating Eclipse files for artifact " + artifact );
-                }
+            try
+            {
+                // call the Eclipse plugin
+                getLog().info( "Generating Eclipse project for bundle " + artifact );
+                execute();
+            }
+            catch( MojoFailureException e )
+            {
+                getLog().warn( "Problem generating Eclipse files for artifact " + artifact );
             }
         }
     }
