@@ -3,6 +3,7 @@
   xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 
   <!--
+   | put company details here
   <organization>
     <name>...</name>
     <url>http://...</url>
@@ -10,6 +11,7 @@
   -->
 
   <!--
+   | put license details here
   <licenses>
     <license>
       <name>...</name>
@@ -28,13 +30,16 @@
   <name>${package} (OSGi project)</name>
 #literal()
 
+  <!--
+   | describe your project here
+  -->
   <description>
-    Generated using Pax-Construct v2
+    Generated using Pax-Construct
   </description>
 
   <properties>
     <!--
-      example OSGi runtime properties
+     | some example OSGi runtime properties
     -->
     <org.osgi.service.http.port>8080</org.osgi.service.http.port>
     <org.osgi.service.http.port.secure>8443</org.osgi.service.http.port.secure>

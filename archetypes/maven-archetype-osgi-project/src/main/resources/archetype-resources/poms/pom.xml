@@ -28,7 +28,11 @@
         <plugin>
           <groupId>org.ops4j</groupId>
           <artifactId>maven-pax-plugin</artifactId>
-          <!-- enable pax life-cycle (includes bundle) -->
+          <!--
+           | enable improved OSGi compilation support for the bundle life-cycle.
+           | to switch back to the standard bundle life-cycle, move this setting
+           | down to the maven-bundle-plugin section
+          -->
           <extensions>true</extensions>
         </plugin>
         <plugin>
@@ -42,6 +46,19 @@
 
   <dependencyManagement>
     <dependencies>
+      <dependency>
+        <!--
+         | dependency pom representing the global classpath of imported bundles
+        -->
+        <type>pom</type>
+#end
+        <groupId>${package}.build</groupId>
+        <artifactId>provision</artifactId>
+        <version>${version}</version>
+#literal()
+        <scope>provided</scope>
+        <optional>true</optional>
+      </dependency>
       <dependency>
         <groupId>org.osgi</groupId>
         <artifactId>osgi_R4_core</artifactId>
