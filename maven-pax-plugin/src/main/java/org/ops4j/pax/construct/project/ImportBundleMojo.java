@@ -502,11 +502,9 @@ public class ImportBundleMojo extends AbstractMojo
     {
         Dependency dependency = new Dependency();
 
-        // use provided scope for OSGi bundles
         dependency.setGroupId( project.getGroupId() );
         dependency.setArtifactId( project.getArtifactId() );
         dependency.setVersion( project.getVersion() );
-        dependency.setScope( Artifact.SCOPE_PROVIDED );
         dependency.setOptional( !deploy );
 
         // only add non-local bundles to the provisioning POM
@@ -515,6 +513,9 @@ public class ImportBundleMojo extends AbstractMojo
             getLog().info( "Importing " + project.getName() + " to " + m_provisionPom );
             m_provisionPom.addDependency( dependency, overwrite );
         }
+
+        // use provided scope when adding to bundle pom
+        dependency.setScope( Artifact.SCOPE_PROVIDED );
 
         if( m_localBundlePom != null )
         {
