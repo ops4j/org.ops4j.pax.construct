@@ -471,7 +471,7 @@ public class ProvisionMojo extends AbstractMojo
             dep.setGroupId( fields[0] );
             dep.setArtifactId( fields[1] );
             dep.setVersion( fields[2] );
-            dep.setScope( "provided" );
+            dep.setScope( Artifact.SCOPE_PROVIDED );
 
             dependencies.add( dep );
         }
