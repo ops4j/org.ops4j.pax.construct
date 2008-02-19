@@ -359,6 +359,20 @@ public class XppPom
     /**
      * {@inheritDoc}
      */
+    public void setVersion( String newVersion )
+    {
+        Xpp3Dom version = m_pom.getChild( "version" );
+        if( null == version )
+        {
+            version = new Xpp3Dom( "version" );
+            m_pom.addChild( version );
+        }
+        version.setValue( newVersion );
+    }
+
+    /**
+     * {@inheritDoc}
+     */
     public void addRepository( Repository repository, boolean snapshots, boolean releases, boolean overwrite,
         boolean pluginRepo )
         throws ExistingElementException

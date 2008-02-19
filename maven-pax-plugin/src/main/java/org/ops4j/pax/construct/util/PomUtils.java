@@ -152,6 +152,11 @@ public final class PomUtils
         void setGroupId( String newGroupId );
 
         /**
+         * @param newVersion the new project version
+         */
+        void setVersion( String newVersion );
+
+        /**
          * @param repository a Maven repository
          * @param snapshots enable snapshots for this repository
          * @param releases enable releases for this repository

@@ -54,9 +54,10 @@
       <item name="pax-import-bundle" href="help/import-bundle.html"/>
       <item name="pax-embed-jar" href="help/embed-jar.html"/>
       <item name="pax-wrap-jar" href="help/wrap-jar.html"/>
+      <item name="pax-provision" href="help/provision.html"/>
+      <item name="pax-create-module" href="help/create-module.html"/>
       <item name="pax-move-bundle" href="help/move-bundle.html"/>
       <item name="pax-remove-bundle" href="help/remove-bundle.html"/>
-      <item name="pax-provision" href="help/provision.html"/>
       <item name="pax-update" href="help/update.html"/>
       <item name="pax-clone" href="help/clone.html"/>
     </menu>

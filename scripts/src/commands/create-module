@@ -1,0 +1,19 @@
+g {
+  name = 'groupId'
+  example = ''
+  optional = true
+}
+
+a {
+  name = 'artifactId'
+  help = 'modulePath'
+  example = 'myModule'
+}
+
+v {
+  name = 'version'
+  example = ''
+  optional = true
+}
+
+order = [ 'g', 'a', 'v' ]
