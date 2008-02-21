@@ -41,9 +41,4 @@
     </plugins>
   </build>
 
-  <scm>
-    <connection>scm:svn:https://scm.ops4j.org/repos/ops4j/projects/pax/construct/tests</connection>
-    <developerConnection>scm:svn:https://scm.ops4j.org/repos/ops4j/projects/pax/construct/tests</developerConnection>
-  </scm>
-
 </project>

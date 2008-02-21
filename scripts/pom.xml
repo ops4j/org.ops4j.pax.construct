@@ -136,9 +136,4 @@
     </plugins>
   </build>
 
-  <scm>
-    <connection>scm:svn:https://scm.ops4j.org/repos/ops4j/projects/pax/construct/scripts</connection>
-    <developerConnection>scm:svn:https://scm.ops4j.org/repos/ops4j/projects/pax/construct/scripts</developerConnection>
-  </scm>
-
 </project>

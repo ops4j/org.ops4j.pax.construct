@@ -13,6 +13,10 @@
 
   <name>OPS4J - Pax Mojos: OSGi project helpers</name>
 
+  <description>
+    A combo plugin that provides mojos to create, manage and provision OSGi projects
+  </description>
+
   <packaging>maven-plugin</packaging>
 
   <build>
@@ -182,10 +186,5 @@
       <version>0.0.238</version>
     </dependency>
   </dependencies>
-
-  <scm>
-    <connection>scm:svn:https://scm.ops4j.org/repos/ops4j/projects/pax/construct/maven-pax-plugin</connection>
-    <developerConnection>scm:svn:https://scm.ops4j.org/repos/ops4j/projects/pax/construct/maven-pax-plugin</developerConnection>
-  </scm>
 
 </project>
