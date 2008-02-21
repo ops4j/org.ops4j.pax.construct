@@ -58,7 +58,7 @@ Maven Inherit Plugin
   </pluginRepositories>
 +---+
 
-  Releases are deployed to the main OPS4J repository and announced on the {{{http://wiki.ops4j.org}OPS4J wiki}}:
+  Release candidates are deployed to the main OPS4J repository and announced on the {{{http://wiki.ops4j.org}OPS4J wiki}}:
 
 +---+
   <pluginRepositories>

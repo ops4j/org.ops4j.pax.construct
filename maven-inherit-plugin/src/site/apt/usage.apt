@@ -35,7 +35,7 @@ Maven 2 Inherit Plugin: Usage
       <plugin>
         <groupId>org.ops4j</groupId>
         <artifactId>maven-inherit-plugin</artifactId>
-        <version>0.6.4</version>
+        <version>1.0.0</version>
         <executions>
           <execution>
             <goals>
@@ -46,16 +46,6 @@ Maven 2 Inherit Plugin: Usage
       </plugin>
     </plugins>
   </build>
-
-  <pluginRepositories>
-    <pluginRepository>
-      <id>ops4j-repository</id>
-      <url>http://repository.ops4j.org/maven2</url>
-      <snapshots>
-        <enabled>false</enabled>
-      </snapshots>
-    </pluginRepository>
-  </pluginRepositories>
 +---+
 
 * Extending a goal from an existing plugin
@@ -68,7 +58,13 @@ Maven 2 Inherit Plugin: Usage
  */
 public class EclipseOSGiMojo extends EclipsePlugin
 {
-   // if you override member fields, remember to propagate the values using reflection
+   // NOTE: if your plugin has a field with the same name as a private field in the inherited mojo
+   // (ie. it's "hiding" the field) then your field will be injected with the parameter value, not
+   // the one from the original mojo.
+
+   // You'll then need to push the value into the hidden field, either with a setter (if available)
+   // or by using reflection. To access private fields, you need to use "Field.setAccessible(true)".
+   // An example of this can be seen in the "maven-pax-plugin" code.
 }
 +---+
 
@@ -83,7 +79,7 @@ public class EclipseOSGiMojo extends EclipsePlugin
  */
 public class OSGiProjectArchetypeMojo extends MavenArchetypeMojo
 {
-   // if you override member fields, remember to propagate the values using reflection
+   // See the "maven-pax-plugin" code for other examples.
 }
 +---+
 

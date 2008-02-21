@@ -35,20 +35,10 @@ Maven 2 Pax Plugin: Usage
       <plugin>
         <groupId>org.ops4j</groupId>
         <artifactId>maven-pax-plugin</artifactId>
-        <version>0.6.4</version>
+        <version>1.0.0</version>
       </plugin>
     </plugins>
   </build>
-
-  <pluginRepositories>
-    <pluginRepository>
-      <id>ops4j-standard</id>
-      <url>http://repository.ops4j.org/maven2</url>
-      <snapshots>
-        <enabled>false</enabled>
-      </snapshots>
-    </pluginRepository>
-  </pluginRepositories>
 +---+
 
 * Using the Pax Plugin from the command line
@@ -135,7 +125,7 @@ mvn clean install pax:provision
       <plugin>
         <groupId>org.ops4j</groupId>
         <artifactId>maven-pax-plugin</artifactId>
-        <version>0.6.4</version>
+        <version>1.0.0</version>
         <executions>
           <execution>
             <phase>package</phase>
@@ -177,24 +167,12 @@ mvn clean install pax:provision
               <goals>
                 <goal>pax:wrap-jar</goal>
               </goals>
-              <testProperties>
-                <property>
-                  <name>artifactId</name>
-                  <value>commons-logging</value>
-                </property>
-                <property>
-                  <name>version</name>
-                  <value>1.1</value>
-                </property>
-                <property>
-                  <name>wrapTransitive</name>
-                  <value>true</value>
-                </property>
-                <property>
-                  <name>importPackage</name>
-                  <value>javax.*|com.sun.jdmk.comm;resolution:=optional,*</value>
-                </property>
-              </testProperties>
+              <properties>
+                <artifactId>commons-logging</artifactId>
+                <version>1.1</version>
+                <wrapTransitive>true</wrapTransitive>
+                <importPackage>javax.\*\|com.sun.jdmk.comm\;resolution:=optional,\*</importPackage>
+              </properties>
             </configuration>
           </execution>
           <execution>
@@ -212,20 +190,11 @@ mvn clean install pax:provision
               <goals>
                 <goal>pax:create-bundle</goal>
               </goals>
-              <testProperties>
-                <property>
-                  <name>bundleName</name>
-                  <value>simple-api</value>
-                </property>
-                <property>
-                  <name>package</name>
-                  <value>org.example.simple</value>
-                </property>
-                <property>
-                  <name>internals</name>
-                  <value>false</value>
-                </property>
-              </testProperties>
+              <properties>
+                <bundleName>simple-api</bundleName>
+                <package>org.example.simple</package>
+                <internals>false</internals>
+              </properties>
             </configuration>
           </execution>
           <execution>
@@ -243,20 +212,11 @@ mvn clean install pax:provision
               <goals>
                 <goal>pax:create-bundle</goal>
               </goals>
-              <testProperties>
-                <property>
-                  <name>bundleName</name>
-                  <value>simple-impl</value>
-                </property>
-                <property>
-                  <name>package</name>
-                  <value>org.example.simple</value>
-                </property>
-                <property>
-                  <name>interface</name>
-                  <value>false</value>
-                </property>
-              </testProperties>
+              <properties>
+                <bundleName>simple-impl</bundleName>
+                <package>org.example.simple</package>
+                <interface>false</interface>
+              </properties>
             </configuration>
           </execution>
           <execution>
@@ -274,16 +234,10 @@ mvn clean install pax:provision
               <goals>
                 <goal>pax:embed-jar</goal>
               </goals>
-              <testProperties>
-                <property>
-                  <name>artifactId</name>
-                  <value>junit</value>
-                </property>
-                <property>
-                  <name>version</name>
-                  <value>3.8.2</value>
-                </property>
-              </testProperties>
+              <properties>
+                <artifactId>junit</artifactId>
+                <version>3.8.2</version>
+              </properties>
             </configuration>
           </execution>
           <execution>
@@ -301,12 +255,9 @@ mvn clean install pax:provision
               <goals>
                 <goal>pax:import-bundle</goal>
               </goals>
-              <testProperties>
-                <property>
-                  <name>artifactId</name>
-                  <value>simple-api</value>
-                </property>
-              </testProperties>
+              <properties>
+                <artifactId>simple-api</artifactId>
+              </properties>
             </configuration>
           </execution>
           <execution>
@@ -330,17 +281,6 @@ mvn clean install pax:provision
       </plugin>
     </plugins>
   </build>
-
-  <pluginRepositories>
-    <pluginRepository>
-      <id>ops4j-standard</id>
-      <url>http://repository.ops4j.org/maven2</url>
-      <snapshots>
-        <enabled>false</enabled>
-      </snapshots>
-    </pluginRepository>
-  </pluginRepositories>
-
 </project>
 +---+
 
