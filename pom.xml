@@ -184,6 +184,25 @@ limitations under the License.
     </developer>
   </developers>
 
+  <contributors>
+    <contributor>
+      <name>Ingo Meyer</name>
+      <timezone>+1</timezone>
+    </contributor>
+    <contributor>
+      <name>Peter Neubauer</name>
+      <timezone>+1</timezone>
+    </contributor>
+    <contributor>
+      <name>Toni Menzel</name>
+      <timezone>+1</timezone>
+    </contributor>
+    <contributor>
+      <name>Wouter de Vaal</name>
+      <timezone>+1</timezone>
+    </contributor>
+  </contributors>
+
   <distributionManagement>
     <repository>
       <id>ops4j-releases</id>
