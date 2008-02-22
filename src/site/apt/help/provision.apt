@@ -23,13 +23,13 @@
 ~~ NOTE: For help with the syntax of this file, see:
 ~~ http://maven.apache.org/guides/mini/guide-apt-format.html
 
-<<<pax-provision [-f felix|equinox|kf] [-d minimal,log,war,...] [-i url,...] [-- mvnOpts ...]>>>
+<<<pax-provision [-f felix|equinox|kf] [-p minimal,log,war,...] [-u url,...] [-- mvnOpts ...]>>>
 
  Provisions the current project onto the selected OSGi framework using the latest released version of {{{http://wiki.ops4j.org/confluence/display/ops4j/Pax+Runner}Pax-Runner}}.
 
- * Use the <<-d>> option to select which platform {{{http://wiki.ops4j.org/confluence/display/ops4j/Platform+-+Felix}profiles}} to deploy
+ * Use the <<-p>> option to select which {{{http://wiki.ops4j.org/confluence/display/ops4j/Platform+-+Felix}profiles}} to deploy
 
- * Use the <<-i>> option to deploy additional bundles from a list of URLs
+ * Use the <<-u>> option to deploy additional bundles from a list of URLs
 
  []
 
@@ -42,6 +42,8 @@
 *-----------------------------------*----------------------------------------------------------------+
 | <<<-Drunner=>>><version>          | use a specific version of Pax-Runner                           |
 *-----------------------------------*----------------------------------------------------------------+
+| <<<-Ddeploy=false>>>              | create deployment POM but don't start OSGi framework           |
+*-----------------------------------*----------------------------------------------------------------+
 | <<<-DdeployPoms=>>><filename,...> | additional poms listing more bundles to deploy                 |
 *-----------------------------------*----------------------------------------------------------------+
 | <<<-DnoDependencies>>>            | ignore bundle dependencies when deploying                      |
@@ -50,8 +52,8 @@
 * Examples
 
 +---+
-pax-provision -f felix -d war
-
 pax-provision -f equinox -- -Dargs=runner.args
+
+pax-provision -p war -u war:file:petclinic.war
 +---+
 

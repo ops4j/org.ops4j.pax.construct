@@ -57,7 +57,7 @@ import org.ops4j.pax.construct.util.StreamFactory;
  * Provision all local and imported bundles onto the selected OSGi framework
  * 
  * <code><pre>
- *   mvn pax:provision [-Dframework=felix|equinox|kf|concierge] [-Ddeploy=minimal,log,war,...]
+ *   mvn pax:provision [-Dframework=felix|equinox|kf|concierge] [-Dprofiles=minimal,log,war,...]
  * </pre></code>
  * 
  * @goal provision
@@ -166,11 +166,18 @@ public class ProvisionMojo extends AbstractMojo
     private String framework;
 
     /**
+     * When true, start the OSGi framework and deploy the provisioned bundles.
+     * 
+     * @parameter expression="${deploy}" default-value="true"
+     */
+    private boolean deploy;
+
+    /**
      * Comma separated list of additional Pax-Runner profiles to deploy.
      * 
-     * @parameter expression="${deploy}"
+     * @parameter expression="${profiles}"
      */
-    private String deploy;
+    private String profiles;
 
     /**
      * URL of file containing additional Pax-Runner arguments.
@@ -390,7 +397,7 @@ public class ProvisionMojo extends AbstractMojo
         MavenProject deployProject = createDeploymentProject( bundles );
         installDeploymentPom( deployProject );
 
-        if( "false".equalsIgnoreCase( deploy ) )
+        if( !deploy )
         {
             getLog().info( "Skipping deployment" );
             return;
@@ -658,9 +665,9 @@ public class ProvisionMojo extends AbstractMojo
         {
             deployAppCmds.add( "--platform=" + framework );
         }
-        if( PomUtils.isNotEmpty( deploy ) )
+        if( PomUtils.isNotEmpty( profiles ) )
         {
-            deployAppCmds.add( "--profiles=" + deploy );
+            deployAppCmds.add( "--profiles=" + profiles );
         }
 
         if( PomUtils.isNotEmpty( args ) )

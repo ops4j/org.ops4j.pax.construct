@@ -7,18 +7,18 @@ f {
   optional = true
 }
 
-d {
-  name = 'deploy'
+p {
+  name = 'profiles'
   help = 'minimal,log,war,...'
   example = ''
   optional = true
 }
 
-i {
+u {
   name = 'deployURLs'
   help = 'url,...'
   example = ''
   optional = true
 }
 
-order = [ 'f', 'd', 'i' ]
+order = [ 'f', 'p', 'u' ]
