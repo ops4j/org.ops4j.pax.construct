@@ -399,7 +399,7 @@ public class ProvisionMojo extends AbstractMojo
 
         if( !deploy )
         {
-            getLog().info( "Skipping deployment" );
+            getLog().info( "Skipping OSGi deployment" );
             return;
         }
 
