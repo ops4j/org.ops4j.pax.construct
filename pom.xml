@@ -70,11 +70,11 @@ limitations under the License.
       <id>local</id>
       <distributionManagement>
         <repository>
-          <id>ops4j-releases</id>
+          <id>ops4j.releases</id>
           <url>file:/tmp/REPO/m2release</url>
         </repository>
         <snapshotRepository>
-          <id>ops4j-snapshots</id>
+          <id>ops4j.snapshots</id>
           <url>file:/tmp/REPO/mvn-snapshots</url>
         </snapshotRepository>
         <site>
@@ -87,11 +87,11 @@ limitations under the License.
       <id>server</id>
       <distributionManagement>
         <repository>
-          <id>ops4j-releases</id>
+          <id>ops4j.releases</id>
           <url>file:/var/http/repository.ops4j.org/m2release</url>
         </repository>
         <snapshotRepository>
-          <id>ops4j-snapshots</id>
+          <id>ops4j.snapshots</id>
           <url>file:/var/http/repository.ops4j.org/mvn-snapshots</url>
         </snapshotRepository>
         <site>
@@ -225,11 +225,11 @@ limitations under the License.
 
   <distributionManagement>
     <repository>
-      <id>ops4j-releases</id>
+      <id>ops4j.releases</id>
       <url>scpexe://repository.ops4j.org/var/http/repository.ops4j.org/m2release</url>
     </repository>
     <snapshotRepository>
-      <id>ops4j-snapshots</id>
+      <id>ops4j.snapshots</id>
       <url>scpexe://repository.ops4j.org/var/http/repository.ops4j.org/mvn-snapshots</url>
     </snapshotRepository>
     <site>
