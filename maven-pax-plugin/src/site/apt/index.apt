@@ -79,7 +79,7 @@ Maven Pax Plugin
 +---+
   <pluginRepositories>
     <pluginRepository>
-      <id>ops4j-snapshots</id>
+      <id>ops4j.snapshots</id>
       <url>http://repository.ops4j.org/mvn-snapshots</url>
       <releases>
         <enabled>false</enabled>
@@ -93,7 +93,7 @@ Maven Pax Plugin
 +---+
   <pluginRepositories>
     <pluginRepository>
-      <id>ops4j-repository</id>
+      <id>ops4j.releases</id>
       <url>http://repository.ops4j.org/maven2</url>
       <snapshots>
         <enabled>false</enabled>
