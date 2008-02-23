@@ -55,7 +55,7 @@
 *---------------------------------------------------*---------------------------------------------------+
 | <<<-Dcontents=>>><groupId:artifactId:version,...> | include content from selected archetypes          |
 *---------------------------------------------------*---------------------------------------------------+
-| <<<-DremoteArchetypeRepositories=>>><url list>    | where to download the bundle archetype(s)         |
+| <<<-DremoteRepositories=>>><url list>             | where to download the bundle archetype(s)         |
 *---------------------------------------------------*---------------------------------------------------+
 | <<<-DarchetypeVersion=>>><version>                | use a different release of the Pax archetype      |
 *---------------------------------------------------*---------------------------------------------------+

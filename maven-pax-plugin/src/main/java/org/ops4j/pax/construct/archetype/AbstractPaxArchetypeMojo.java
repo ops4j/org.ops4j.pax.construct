@@ -111,13 +111,6 @@ public abstract class AbstractPaxArchetypeMojo extends MavenArchetypeMojo
     private String archetypeVersion;
 
     /**
-     * Comma-separated list of additional remote repository URLs.
-     * 
-     * @parameter expression="${remoteArchetypeRepositories}" default-value="http://repository.ops4j.org/maven2"
-     */
-    private String remoteArchetypeRepositories;
-
-    /**
      * Target directory where the project should be created.
      * 
      * @parameter expression="${targetDirectory}" default-value="${project.basedir}"
@@ -327,7 +320,6 @@ public abstract class AbstractPaxArchetypeMojo extends MavenArchetypeMojo
          * common shared settings
          */
         m_archetypeMojo = new ReflectMojo( this, MavenArchetypeMojo.class );
-        m_archetypeMojo.setField( "remoteRepositories", remoteArchetypeRepositories );
         m_project = (MavenProject) m_archetypeMojo.getField( "project" );
         targetDirectory = DirUtils.resolveFile( targetDirectory, true );
         m_archetypeMojo.setField( "basedir", targetDirectory.getPath() );
