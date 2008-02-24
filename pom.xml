@@ -40,6 +40,10 @@ limitations under the License.
 
   <packaging>pom</packaging>
 
+  <properties>
+    <distributionScheme>scpexe://repository.ops4j.org</distributionScheme>
+  </properties>
+
   <profiles>
     <profile>
       <id>dist</id>
@@ -65,40 +69,6 @@ limitations under the License.
       <modules>
         <module>tests</module>
       </modules>
-    </profile>
-    <profile>
-      <id>local</id>
-      <distributionManagement>
-        <repository>
-          <id>ops4j.releases</id>
-          <url>file:/tmp/REPO/m2release</url>
-        </repository>
-        <snapshotRepository>
-          <id>ops4j.snapshots</id>
-          <url>file:/tmp/REPO/mvn-snapshots</url>
-        </snapshotRepository>
-        <site>
-          <id>pax-construct-website</id>
-          <url>file:/tmp/SITE/projects/pax/construct</url>
-        </site>
-      </distributionManagement>
-    </profile>
-    <profile>
-      <id>server</id>
-      <distributionManagement>
-        <repository>
-          <id>ops4j.releases</id>
-          <url>file:/var/http/repository.ops4j.org/m2release</url>
-        </repository>
-        <snapshotRepository>
-          <id>ops4j.snapshots</id>
-          <url>file:/var/http/repository.ops4j.org/mvn-snapshots</url>
-        </snapshotRepository>
-        <site>
-          <id>pax-construct-website</id>
-          <url>file:/var/http/www.ops4j.org/projects/pax/construct</url>
-        </site>
-      </distributionManagement>
     </profile>
     <profile>
       <id>release</id>
@@ -226,15 +196,15 @@ limitations under the License.
   <distributionManagement>
     <repository>
       <id>ops4j.releases</id>
-      <url>scpexe://repository.ops4j.org/var/http/repository.ops4j.org/m2release</url>
+      <url>${distributionScheme}/var/http/repository.ops4j.org/m2release</url>
     </repository>
     <snapshotRepository>
       <id>ops4j.snapshots</id>
-      <url>scpexe://repository.ops4j.org/var/http/repository.ops4j.org/mvn-snapshots</url>
+      <url>${distributionScheme}/var/http/repository.ops4j.org/mvn-snapshots</url>
     </snapshotRepository>
     <site>
       <id>pax-construct-website</id>
-      <url>scpexe://www.ops4j.org/var/http/www.ops4j.org/projects/pax/construct</url>
+      <url>${distributionScheme}/var/http/www.ops4j.org/projects/pax/construct</url>
     </site>
   </distributionManagement>
 
