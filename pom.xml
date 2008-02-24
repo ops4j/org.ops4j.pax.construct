@@ -245,8 +245,4 @@ limitations under the License.
     </extensions>
   </build>
 
-  <reporting>
-    <plugins/>
-  </reporting>
-
 </project>
