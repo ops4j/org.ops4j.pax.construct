@@ -34,6 +34,9 @@
   <reporting>
     <plugins>
       <plugin>
+        <artifactId>maven-project-info-reports-plugin</artifactId>
+      </plugin>
+      <plugin>
         <artifactId>maven-plugin-plugin</artifactId>
       </plugin>
       <plugin>

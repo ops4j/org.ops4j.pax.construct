@@ -46,6 +46,9 @@
   <reporting>
     <plugins>
       <plugin>
+        <artifactId>maven-project-info-reports-plugin</artifactId>
+      </plugin>
+      <plugin>
         <artifactId>maven-plugin-plugin</artifactId>
       </plugin>
       <plugin>
@@ -186,5 +189,4 @@
       <version>0.0.238</version>
     </dependency>
   </dependencies>
-
 </project>
