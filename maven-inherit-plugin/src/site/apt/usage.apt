@@ -59,12 +59,12 @@ Maven 2 Inherit Plugin: Usage
 public class EclipseOSGiMojo extends EclipsePlugin
 {
    // NOTE: if your plugin has a field with the same name as a private field in the inherited mojo
-   // (ie. it's "hiding" the field) then your field will be injected with the parameter value, not
-   // the one from the original mojo.
+   // (ie. it's hiding the original field) then your new field will be injected with the parameter
+   // value, not the one from the original mojo.
 
    // You'll then need to push the value into the hidden field, either with a setter (if available)
-   // or by using reflection. To access private fields, you need to use "Field.setAccessible(true)".
-   // An example of this can be seen in the "maven-pax-plugin" code.
+   // or by reflection. To access private fields with reflection, you should use "setAccessible" on
+   // the reflected field. An example of this can be seen in the maven-pax-plugin code.
 }
 +---+
 
