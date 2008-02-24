@@ -18,6 +18,7 @@ package org.ops4j.pax.construct.clone;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.List;
 
 /**
  * Builder interface for a build script based on Pax-Construct commands
@@ -61,8 +62,9 @@ public interface PaxScript
      * Write the current script to a file, the file extension is used to customize the contents for the target system
      * 
      * @param scriptFile where the script should be saved
+     * @param setupCommands sequence of setup commands
      * @throws IOException
      */
-    void write( File scriptFile )
+    void write( File scriptFile, List setupCommands )
         throws IOException;
 }

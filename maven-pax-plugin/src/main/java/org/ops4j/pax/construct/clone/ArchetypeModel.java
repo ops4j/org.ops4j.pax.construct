@@ -138,6 +138,7 @@ public class ArchetypeModel
     public void write( File file )
         throws IOException
     {
+        file.getParentFile().mkdirs();
         Writer writer = StreamFactory.newXmlWriter( file );
         Xpp3DomWriter.write( writer, m_dom );
         IOUtil.close( writer );

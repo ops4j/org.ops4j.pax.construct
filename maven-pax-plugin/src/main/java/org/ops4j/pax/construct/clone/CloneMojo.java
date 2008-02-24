@@ -26,10 +26,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 
-import org.apache.maven.artifact.Artifact;
-import org.apache.maven.artifact.factory.ArtifactFactory;
-import org.apache.maven.artifact.installer.ArtifactInstaller;
-import org.apache.maven.artifact.repository.ArtifactRepository;
 import org.apache.maven.model.Dependency;
 import org.apache.maven.model.Resource;
 import org.apache.maven.plugin.AbstractMojo;
@@ -59,34 +55,11 @@ import org.ops4j.pax.construct.util.PomUtils.Pom;
 public class CloneMojo extends AbstractMojo
 {
     /**
-     * Component factory for Maven artifacts
-     * 
-     * @component
-     */
-    private ArtifactFactory m_factory;
-
-    /**
      * Component factory for various archivers
      * 
      * @component
      */
     private ArchiverManager m_archiverManager;
-
-    /**
-     * Component for installing Maven artifacts
-     * 
-     * @component
-     */
-    private ArtifactInstaller m_installer;
-
-    /**
-     * The local Maven repository.
-     * 
-     * @parameter expression="${localRepository}"
-     * @required
-     * @readonly
-     */
-    private ArtifactRepository m_localRepo;
 
     /**
      * Initiating groupId.
@@ -118,7 +91,7 @@ public class CloneMojo extends AbstractMojo
     /**
      * Temporary directory, where scripts and templates will be saved.
      * 
-     * @parameter expression="${project.build.directory}"
+     * @parameter expression="${project.build.directory}/clone"
      * @required
      * @readonly
      */
@@ -158,6 +131,11 @@ public class CloneMojo extends AbstractMojo
     private Map m_bundleProjectMap;
 
     /**
+     * Sequence of archetypes with project/bundle content
+     */
+    private List m_installCommands;
+
+    /**
      * {@inheritDoc}
      */
     public void execute()
@@ -169,13 +147,17 @@ public class CloneMojo extends AbstractMojo
         m_bundleProjectMap = new HashMap();
         m_majorProjectMap = new HashMap();
 
+        m_installCommands = new ArrayList();
+
+        getFragmentDir().mkdirs();
+
         for( Iterator i = m_reactorProjects.iterator(); i.hasNext(); )
         {
             // potential project to be converted / captured
             MavenProject project = (MavenProject) i.next();
             String packaging = project.getPackaging();
 
-            if( "bundle".equals( packaging ) )
+            if( "bundle".equals( packaging ) || ( "jar".equals( packaging ) && m_reactorProjects.size() == 1 ) )
             {
                 handleBundleProject( buildScript, project );
             }
@@ -218,7 +200,7 @@ public class CloneMojo extends AbstractMojo
         try
         {
             getLog().info( "Saving UNIX shell script " + nixScript );
-            script.write( nixScript );
+            script.write( nixScript, m_installCommands );
         }
         catch( IOException e )
         {
@@ -228,7 +210,7 @@ public class CloneMojo extends AbstractMojo
         try
         {
             getLog().info( "Saving Windows batch file " + winScript );
-            script.write( winScript );
+            script.write( winScript, m_installCommands );
         }
         catch( IOException e )
         {
@@ -251,7 +233,6 @@ public class CloneMojo extends AbstractMojo
     {
         PaxCommandBuilder command;
         String bundleName;
-        String contents;
 
         String namespace = findBundleNamespace( project );
         if( null != namespace )
@@ -260,7 +241,10 @@ public class CloneMojo extends AbstractMojo
 
             command = script.call( PaxScript.CREATE_BUNDLE );
             command.option( 'p', namespace );
-            command.option( 'n', bundleName );
+            if( !bundleName.equals( namespace ) )
+            {
+                command.option( 'n', bundleName );
+            }
             command.option( 'v', project.getVersion() );
         }
         else
@@ -300,12 +284,12 @@ public class CloneMojo extends AbstractMojo
             }
         }
 
-        Pom pom = null;
+        Pom customizedPom = null;
 
         if( repair )
         {
             // fix references to local bundles by re-importing
-            pom = repairBundleImports( script, project );
+            customizedPom = repairBundleImports( script, project );
         }
         else
         {
@@ -313,9 +297,7 @@ public class CloneMojo extends AbstractMojo
             command.maven().option( "bundleGroupId", project.getGroupId() );
         }
 
-        // customized sources, POMs, Bnd instructions
-        contents = createBundleArchetype( project, namespace, pom );
-        command.maven().option( "contents", contents );
+        addFragmentToCommand( command, createBundleArchetype( project, namespace, customizedPom ) );
 
         // enable overwrite
         command.flag( 'o' );
@@ -561,19 +543,19 @@ public class CloneMojo extends AbstractMojo
      * Create a new archetype for a bundle project, with potentially customized POM and Bnd settings
      * 
      * @param project Maven project
-     * @param namespace Java namespace, can be null
-     * @param pom customized Maven project model
+     * @param namespace Java namespace, may be null
+     * @param customizedPom customized Maven project model, may be null
      * @return clause identifying the archetype fragment
      * @throws MojoExecutionException
      */
-    private String createBundleArchetype( MavenProject project, String namespace, Pom pom )
+    private String createBundleArchetype( MavenProject project, String namespace, Pom customizedPom )
         throws MojoExecutionException
     {
         File baseDir = project.getBasedir();
 
         ArchetypeFragment fragment = new ArchetypeFragment( getFragmentDir(), namespace );
 
-        fragment.addPom( baseDir, pom );
+        fragment.addPom( baseDir, customizedPom );
         fragment.addResources( baseDir, "osgi.bnd", false );
 
         if( null != namespace )
@@ -605,14 +587,11 @@ public class CloneMojo extends AbstractMojo
         String artifactId = project.getArtifactId() + "-archetype";
         String version = project.getVersion();
 
-        // install in local repository so it's accessible to the Pax-Construct scripts later on
-        Artifact artifact = m_factory.createBuildArtifact( groupId, artifactId, version, "jar" );
-        fragment.install( artifact, newJarArchiver(), m_installer, m_localRepo );
+        // archive customized bundle sources, POM and Bnd instructions
+        String fragmentId = groupId + ':' + artifactId + ':' + version;
+        fragment.createArchive( fragmentId.replace( ':', '_' ), newJarArchiver() );
 
-        // attach in case of later deployment
-        project.addAttachedArtifact( artifact );
-
-        return groupId + ':' + artifactId + ':' + version;
+        return fragmentId;
     }
 
     /**
@@ -699,7 +678,7 @@ public class CloneMojo extends AbstractMojo
             if( m_majorProjectMap.containsKey( getCloneId( pom ) ) )
             {
                 // flush previous major archetype to local repo
-                createMajorArchetype( majorPom, command, resourcePaths );
+                addFragmentToCommand( command, createMajorArchetype( majorPom, resourcePaths ) );
 
                 command = script.call( PaxScript.CREATE_PROJECT );
                 command.option( 'g', pom.getGroupId() );
@@ -730,24 +709,24 @@ public class CloneMojo extends AbstractMojo
         }
 
         // flush previous major archetype to local repo
-        createMajorArchetype( majorPom, command, resourcePaths );
+        addFragmentToCommand( command, createMajorArchetype( majorPom, resourcePaths ) );
     }
 
     /**
      * Archive all the selected resources under a single Maven archetype
      * 
      * @param majorPom containing Maven project
-     * @param command create-project command
      * @param resourcePaths selected resources
+     * @return clause identifying the archetype fragment
      * @throws MojoExecutionException
      */
-    private void createMajorArchetype( Pom majorPom, PaxCommandBuilder command, List resourcePaths )
+    private String createMajorArchetype( Pom majorPom, List resourcePaths )
         throws MojoExecutionException
     {
         // nothing to do!
         if( null == majorPom )
         {
-            return;
+            return null;
         }
 
         ArchetypeFragment fragment = new ArchetypeFragment( getFragmentDir(), null );
@@ -763,20 +742,11 @@ public class CloneMojo extends AbstractMojo
         String artifactId = majorPom.getArtifactId() + "-archetype";
         String version = majorPom.getVersion();
 
-        // install in local repository so it's accessible to the Pax-Construct scripts later on
-        Artifact artifact = m_factory.createBuildArtifact( groupId, artifactId, version, "jar" );
-        fragment.install( artifact, newJarArchiver(), m_installer, m_localRepo );
+        // archive all the customized non-bundle POMs and projects
         String fragmentId = groupId + ':' + artifactId + ':' + version;
+        fragment.createArchive( fragmentId.replace( ':', '_' ), newJarArchiver() );
 
-        // customized POMs and non-bundle projects
-        command.maven().option( "contents", fragmentId );
-
-        MavenProject project = (MavenProject) m_majorProjectMap.get( getCloneId( majorPom ) );
-        if( null != project )
-        {
-            // attach in case of later deployment
-            project.addAttachedArtifact( artifact );
-        }
+        return fragmentId;
     }
 
     /**
@@ -828,5 +798,33 @@ public class CloneMojo extends AbstractMojo
     private void addHandledProject( MavenProject project, String bundleName )
     {
         m_bundleProjectMap.put( project.getGroupId() + ':' + project.getArtifactId(), bundleName );
+    }
+
+    /**
+     * @param command one of the create commands
+     * @param fragmentId archetype fragment id
+     */
+    private void addFragmentToCommand( PaxCommandBuilder command, String fragmentId )
+    {
+        if( null != fragmentId )
+        {
+            command.maven().option( "contents", fragmentId );
+
+            StringBuffer buffer = new StringBuffer();
+            String[] ids = fragmentId.split( ":" );
+
+            // add Maven command to install the archetype fragment before using it
+            buffer.append( "mvn install:install-file \"-Dpackaging=jar\" \"-DgroupId=" );
+            buffer.append( ids[0] );
+            buffer.append( "\" \"-DartifactId=" );
+            buffer.append( ids[1] );
+            buffer.append( "\" \"-Dversion=" );
+            buffer.append( ids[2] );
+            buffer.append( "\" \"-Dfile=${_SCRIPTDIR_}/fragments/" );
+            buffer.append( fragmentId.replace( ':', '_' ) );
+            buffer.append( ".jar\"" );
+
+            m_installCommands.add( buffer );
+        }
     }
 }

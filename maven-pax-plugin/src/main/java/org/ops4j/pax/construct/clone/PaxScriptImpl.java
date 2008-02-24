@@ -355,20 +355,50 @@ public class PaxScriptImpl
     /**
      * {@inheritDoc}
      */
-    public void write( File scriptFile )
+    public void write( File scriptFile, List setupCommands )
         throws IOException
     {
         scriptFile.getParentFile().mkdirs();
 
         BufferedWriter writer = new BufferedWriter( StreamFactory.newPlatformWriter( scriptFile ) );
 
-        // standard UNIX shell script header
-        if( !scriptFile.getName().endsWith( ".bat" ) )
+        if( scriptFile.getName().endsWith( ".bat" ) )
+        {
+            writer.write( "@echo off" );
+            writer.newLine();
+            writer.write( "SETLOCAL" );
+            writer.newLine();
+            writer.write( "set _SCRIPTDIR_=%~dp0" );
+            writer.newLine();
+        }
+        else
         {
             writer.write( "#!/bin/sh" );
             writer.newLine();
+            writer.write( "_SCRIPTDIR_=`dirname \"$0\"`" );
             writer.newLine();
         }
+
+        writer.newLine();
+
+        for( Iterator i = setupCommands.iterator(); i.hasNext(); )
+        {
+            String cmd = i.next().toString();
+
+            if( scriptFile.getName().endsWith( ".bat" ) )
+            {
+                // need this in batch files
+                writer.write( "call " );
+
+                // fix variable references to use %FOO% not ${FOO}
+                cmd = cmd.replaceAll( "\\$\\{([^}]*)\\}", "%$1%" );
+            }
+
+            writer.write( cmd );
+            writer.newLine();
+        }
+
+        writer.newLine();
 
         // Sort so projects are created before their bundles
         Collections.sort( m_commands, new ByTargetDir() );

@@ -25,10 +25,6 @@ import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
 
-import org.apache.maven.artifact.Artifact;
-import org.apache.maven.artifact.installer.ArtifactInstallationException;
-import org.apache.maven.artifact.installer.ArtifactInstaller;
-import org.apache.maven.artifact.repository.ArtifactRepository;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.codehaus.plexus.archiver.Archiver;
 import org.codehaus.plexus.archiver.ArchiverException;
@@ -310,23 +306,20 @@ public class ArchetypeFragment
     }
 
     /**
-     * Install archetype fragment to the local repository under the given build artifact
+     * Create archive of archetype fragment
      * 
-     * @param artifact build artifact
+     * @param fragmentId unique archetype identifier
      * @param archiver Jar archiver
-     * @param installer Maven artifact installer
-     * @param repo local Maven repository
      * @throws MojoExecutionException
      */
-    public void install( Artifact artifact, Archiver archiver, ArtifactInstaller installer, ArtifactRepository repo )
+    public void createArchive( String fragmentId, Archiver archiver )
         throws MojoExecutionException
     {
-        m_model.setId( artifact.getGroupId() + '.' + artifact.getArtifactId() );
         File modelFile = new File( m_tempDir, "META-INF/archetype.xml" );
-        modelFile.getParentFile().mkdirs();
 
         try
         {
+            m_model.setId( fragmentId );
             m_model.write( modelFile );
         }
         catch( IOException e )
@@ -334,9 +327,7 @@ public class ArchetypeFragment
             throw new MojoExecutionException( "I/O error saving archetype model", e );
         }
 
-        // mimic directory structure in local repository
-        File jarFile = new File( m_tempDir.getParentFile(), repo.pathOf( artifact ) );
-        jarFile.getParentFile().mkdirs();
+        File jarFile = new File( m_tempDir.getParentFile(), fragmentId + ".jar" );
 
         try
         {
@@ -345,9 +336,6 @@ public class ArchetypeFragment
             archiver.setIncludeEmptyDirs( false );
             archiver.addDirectory( m_tempDir );
             archiver.createArchive();
-
-            // in case we want to deploy
-            artifact.setFile( jarFile );
         }
         catch( ArchiverException e )
         {
@@ -356,16 +344,6 @@ public class ArchetypeFragment
         catch( IOException e )
         {
             throw new MojoExecutionException( "I/O error archiving archetype directory", e );
-        }
-
-        try
-        {
-            // install fragment to local repository
-            installer.install( jarFile, artifact, repo );
-        }
-        catch( ArtifactInstallationException e )
-        {
-            throw new MojoExecutionException( "Unable to install archetype in local repository", e );
         }
 
         try
