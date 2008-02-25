@@ -358,11 +358,37 @@ public class PaxScriptImpl
     public void write( File scriptFile, List setupCommands )
         throws IOException
     {
+        // Sort so projects are created before their bundles
+        Collections.sort( m_commands, new ByTargetDir() );
+
         scriptFile.getParentFile().mkdirs();
-
         BufferedWriter writer = new BufferedWriter( StreamFactory.newPlatformWriter( scriptFile ) );
+        boolean isBatchFile = scriptFile.getName().endsWith( ".bat" );
 
-        if( scriptFile.getName().endsWith( ".bat" ) )
+        writeHeader( writer, isBatchFile );
+        writer.newLine();
+
+        writeArgumentCheck( writer, isBatchFile );
+        writer.newLine();
+
+        writeCommands( writer, isBatchFile, setupCommands );
+        writer.newLine();
+
+        writeCommands( writer, isBatchFile, m_commands );
+        IOUtil.close( writer );
+    }
+
+    /**
+     * Write standard script header
+     * 
+     * @param writer script writer
+     * @param isBatchFile true if it's a batch file, false if it's a shell script
+     * @throws IOException
+     */
+    private static void writeHeader( BufferedWriter writer, boolean isBatchFile )
+        throws IOException
+    {
+        if( isBatchFile )
         {
             writer.write( "@echo off" );
             writer.newLine();
@@ -378,14 +404,34 @@ public class PaxScriptImpl
             writer.write( "_SCRIPTDIR_=`dirname \"$0\"`" );
             writer.newLine();
         }
+    }
 
-        writer.newLine();
+    /**
+     * Write instructions to check script arguments
+     * 
+     * @param writer script writer
+     * @param isBatchFile true if it's a batch file, false if it's a shell script
+     */
+    private void writeArgumentCheck( BufferedWriter writer, boolean isBatchFile )
+    {
+    }
 
-        for( Iterator i = setupCommands.iterator(); i.hasNext(); )
+    /**
+     * Write sequence of commands
+     * 
+     * @param writer script writer
+     * @param isBatchFile true if it's a batch file, false if it's a shell script
+     * @param commands sequence of commands
+     * @throws IOException
+     */
+    private static void writeCommands( BufferedWriter writer, boolean isBatchFile, List commands )
+        throws IOException
+    {
+        for( Iterator i = commands.iterator(); i.hasNext(); )
         {
             String cmd = i.next().toString();
 
-            if( scriptFile.getName().endsWith( ".bat" ) )
+            if( isBatchFile )
             {
                 // need this in batch files
                 writer.write( "call " );
@@ -397,24 +443,5 @@ public class PaxScriptImpl
             writer.write( cmd );
             writer.newLine();
         }
-
-        writer.newLine();
-
-        // Sort so projects are created before their bundles
-        Collections.sort( m_commands, new ByTargetDir() );
-
-        for( Iterator i = m_commands.iterator(); i.hasNext(); )
-        {
-            if( scriptFile.getName().endsWith( ".bat" ) )
-            {
-                // need this in batch files
-                writer.write( "call " );
-            }
-
-            writer.write( i.next().toString() );
-            writer.newLine();
-        }
-
-        IOUtil.close( writer );
     }
 }
