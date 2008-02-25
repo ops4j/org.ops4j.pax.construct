@@ -136,6 +136,11 @@ public class OSGiBundleArchetypeMojo extends AbstractPaxArchetypeMojo
     private boolean noDependencies;
 
     /**
+     * Have we added an example Bundle-Activator?
+     */
+    private boolean m_haveExampleActivator;
+
+    /**
      * {@inheritDoc}
      */
     protected String getParentId()
@@ -165,6 +170,7 @@ public class OSGiBundleArchetypeMojo extends AbstractPaxArchetypeMojo
             {
                 // OSGi service + activator example
                 scheduleArchetype( PAX_CONSTRUCT_GROUP_ID, OSGI_SERVICE_ARCHETYPE_ID, null );
+                m_haveExampleActivator = provideActivator && provideInternals;
             }
             else
             {
@@ -416,7 +422,6 @@ public class OSGiBundleArchetypeMojo extends AbstractPaxArchetypeMojo
      */
     private void updateBndInstructions( Bnd bnd )
     {
-        boolean haveActivator = false;
         boolean haveInternals = false;
         boolean haveInterface = false;
 
@@ -428,11 +433,6 @@ public class OSGiBundleArchetypeMojo extends AbstractPaxArchetypeMojo
         {
             String name = (String) i.next();
 
-            if( SelectorUtils.matchPath( fixPathPattern( "src/main/java/**/*Activator.java" ), name ) )
-            {
-                haveActivator = true;
-            }
-
             if( SelectorUtils.matchPath( fixPathPattern( "src/main/java/**/internal/*.java" ), name ) )
             {
                 haveInternals = true;
@@ -443,7 +443,7 @@ public class OSGiBundleArchetypeMojo extends AbstractPaxArchetypeMojo
             }
         }
 
-        applyBndInstructions( bnd, haveActivator, haveInternals, haveInterface );
+        applyBndInstructions( bnd, m_haveExampleActivator, haveInternals, haveInterface );
     }
 
     /**
