@@ -246,6 +246,7 @@ public class CloneMojo extends AbstractMojo
                 command.option( 'n', bundleName );
             }
             command.option( 'v', project.getVersion() );
+            command.maven().flag( "noDeps" );
         }
         else
         {
@@ -465,8 +466,7 @@ public class CloneMojo extends AbstractMojo
     {
         String[] pathInclude = new String[]
         {
-            // look for bundle activators or any internal source code
-            "**/*Activator.java", "**/internal/*.java", "**/impl/*.java"
+            "**/*.java" // consider all Java sources
         };
 
         DirectoryScanner scanner = new DirectoryScanner();
@@ -478,24 +478,44 @@ public class CloneMojo extends AbstractMojo
 
         scanner.scan();
 
-        String javaFile = null;
+        String path = null;
 
         String[] candidates = scanner.getIncludedFiles();
         for( int i = 0; i < scanner.getIncludedFiles().length; i++ )
         {
-            // favour bundle activators over everything
-            if( null == javaFile || candidates[i].endsWith( "Activator.java" ) )
+            String newPath = candidates[i];
+            if( null == path || ( validCandidate( path, newPath ) && path.length() > newPath.length() ) )
             {
-                javaFile = candidates[i];
-            }
-            // otherwise pick the internal package with the shortest path
-            else if( !javaFile.endsWith( "Activator.java" ) && candidates[i].length() < javaFile.length() )
-            {
-                javaFile = candidates[i];
+                path = newPath;
             }
         }
 
-        return getJavaNamespace( javaFile );
+        return getJavaNamespace( path );
+    }
+
+    /**
+     * @param current current primary java path
+     * @param candidate candidate java path
+     * @return true if the candidate might be a better primary java path, otherwise false
+     */
+    private boolean validCandidate( String current, String candidate )
+    {
+        // internal packages are good candidates to find the primary package
+        String candidateFolder = new File( candidate ).getParentFile().getName();
+        if( "internal".equalsIgnoreCase( candidateFolder ) || "impl".equalsIgnoreCase( candidateFolder ) )
+        {
+            return true;
+        }
+
+        // but if we already have an internal package, ignore non-internal packages
+        String currentFolder = new File( current ).getParentFile().getName();
+        if( "internal".equalsIgnoreCase( currentFolder ) || "impl".equalsIgnoreCase( currentFolder ) )
+        {
+            return false;
+        }
+
+        // neither is an internal package, so candidate package may be better
+        return true;
     }
 
     /**
@@ -729,12 +749,21 @@ public class CloneMojo extends AbstractMojo
             return null;
         }
 
+        File baseDir = majorPom.getBasedir();
+
         ArchetypeFragment fragment = new ArchetypeFragment( getFragmentDir(), null );
-        fragment.addPom( majorPom.getBasedir(), null );
+        fragment.addPom( baseDir, null );
 
         for( Iterator i = resourcePaths.iterator(); i.hasNext(); )
         {
-            fragment.addResources( majorPom.getBasedir(), i.next().toString(), false );
+            fragment.addResources( baseDir, i.next().toString(), false );
+        }
+
+        // should we look for additional non-Maven resources?
+        if( PomUtils.isNotEmpty( includeResources ) )
+        {
+            String[] includes = includeResources.split( "," );
+            fragment.addResources( baseDir, baseDir.getPath(), Arrays.asList( includes ), null, false );
         }
 
         // archetype must use different id
