@@ -247,16 +247,16 @@ public class RoundTripBndFile
         {
             String line = (String) i.next();
 
-            if( isWhitespaceOrComment( line ) )
-            {
-                needSpace = false;
-            }
-            else if( needSpace )
+            boolean isSpace = isWhitespaceOrComment( line );
+
+            if( needSpace && !isSpace )
             {
                 bndWriter.newLine();
-                needSpace = false;
             }
-            else if( !isLineContinuation( line ) )
+
+            needSpace = false;
+
+            if( !isSpace && !isLineContinuation( line ) )
             {
                 needSpace = true;
             }
