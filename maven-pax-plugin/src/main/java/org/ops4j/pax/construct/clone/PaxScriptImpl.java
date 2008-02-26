@@ -368,9 +368,6 @@ public class PaxScriptImpl
         writeHeader( writer, isBatchFile );
         writer.newLine();
 
-        writeArgumentCheck( writer, isBatchFile );
-        writer.newLine();
-
         writeCommands( writer, isBatchFile, setupCommands );
         writer.newLine();
 
@@ -404,16 +401,6 @@ public class PaxScriptImpl
             writer.write( "_SCRIPTDIR_=`dirname \"$0\"`" );
             writer.newLine();
         }
-    }
-
-    /**
-     * Write instructions to check script arguments
-     * 
-     * @param writer script writer
-     * @param isBatchFile true if it's a batch file, false if it's a shell script
-     */
-    private void writeArgumentCheck( BufferedWriter writer, boolean isBatchFile )
-    {
     }
 
     /**
