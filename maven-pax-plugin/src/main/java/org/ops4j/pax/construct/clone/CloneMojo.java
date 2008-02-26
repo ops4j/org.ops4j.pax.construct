@@ -435,9 +435,18 @@ public class CloneMojo extends AbstractMojo
         List dependencies = project.getDependencies();
         String sourcePath = project.getBuild().getSourceDirectory();
 
-        // assume first dependency is wrapped artifact (unless has source)
+        // try to find a dependency that relates to the wrapper project
         if( dependencies.size() > 0 && !new File( sourcePath ).exists() )
         {
+            for( Iterator i = dependencies.iterator(); i.hasNext(); )
+            {
+                Dependency dependency = (Dependency) i.next();
+                if( project.getArtifactId().indexOf( dependency.getArtifactId() ) >= 0 )
+                {
+                    return dependency; // closest match
+                }
+            }
+
             return (Dependency) dependencies.get( 0 );
         }
 
