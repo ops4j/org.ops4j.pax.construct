@@ -612,7 +612,7 @@ public class CloneMojo extends AbstractMojo
         File baseDir = project.getBasedir();
 
         getLog().info( "Cloning bundle project " + project.getArtifactId() );
-        ArchetypeFragment fragment = new ArchetypeFragment( getFragmentDir(), namespace );
+        ArchetypeFragment fragment = new ArchetypeFragment( getFragmentDir(), namespace, false );
         fragment.addPom( baseDir, customizedPom );
 
         if( null != namespace )
@@ -741,7 +741,7 @@ public class CloneMojo extends AbstractMojo
         File baseDir = project.getBasedir();
 
         getLog().info( "Cloning primary project " + project.getArtifactId() );
-        ArchetypeFragment fragment = new ArchetypeFragment( getFragmentDir(), null );
+        ArchetypeFragment fragment = new ArchetypeFragment( getFragmentDir(), null, unify );
         fragment.addPom( baseDir, null );
 
         List excludes = new ArrayList();

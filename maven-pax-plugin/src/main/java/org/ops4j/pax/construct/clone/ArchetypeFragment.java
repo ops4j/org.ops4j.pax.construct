@@ -71,12 +71,18 @@ public class ArchetypeFragment
     private List m_includedFiles;
 
     /**
+     * When true, comment out the 'poms' module from any non-root Maven POMs
+     */
+    private boolean m_unify;
+
+    /**
      * Create a new archetype fragment
      * 
      * @param tempDir some temporary directory
      * @param namespace primary namespace, may be null
+     * @param unify set true when unifying Maven projects
      */
-    public ArchetypeFragment( File tempDir, String namespace )
+    public ArchetypeFragment( File tempDir, String namespace, boolean unify )
     {
         // always allow partial use
         m_model = new ArchetypeModel();
@@ -88,6 +94,8 @@ public class ArchetypeFragment
         // unique scratch directory for the fragment assembly
         m_tempDir = new File( tempDir, "fragment" + ( m_fragmentCount++ ) );
         m_includedFiles = new ArrayList();
+
+        m_unify = unify;
     }
 
     /**
@@ -370,9 +378,10 @@ public class ArchetypeFragment
      * Translate file content to work with Pax-Construct v2 archetype processing
      * 
      * @param text original text
+     * @param path mapped file path
      * @return translated text
      */
-    private String translateTextFile( String text )
+    private String translateTextFile( String text, String path )
     {
         String content = text;
 
@@ -391,6 +400,12 @@ public class ArchetypeFragment
         content = StringUtils.replace( content, "jar.groupId", "wrapped.groupId" );
         content = StringUtils.replace( content, "jar.artifactId", "wrapped.artifactId" );
         content = StringUtils.replace( content, "jar.version", "wrapped.version" );
+
+        if( m_unify && path.endsWith( "/pom.xml" ) )
+        {
+            // when unifying projects we need to comment out the 'poms' modules from contained projects
+            content = StringUtils.replace( content, "module>poms</module", "!-- module>poms</module --" );
+        }
 
         return content;
     }
@@ -432,7 +447,7 @@ public class ArchetypeFragment
                 file.getParentFile().mkdirs();
 
                 out = new FileOutputStream( file );
-                IOUtil.copy( translateTextFile( text ), out );
+                IOUtil.copy( translateTextFile( text, mappedPath ), out );
 
                 return TEXT_FILE;
             }
