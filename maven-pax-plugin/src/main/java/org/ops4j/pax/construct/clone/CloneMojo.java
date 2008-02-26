@@ -19,7 +19,6 @@ package org.ops4j.pax.construct.clone;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -38,7 +37,6 @@ import org.codehaus.plexus.util.DirectoryScanner;
 import org.codehaus.plexus.util.FileUtils;
 import org.codehaus.plexus.util.StringUtils;
 import org.ops4j.pax.construct.util.DirUtils;
-import org.ops4j.pax.construct.util.PomIterator;
 import org.ops4j.pax.construct.util.PomUtils;
 import org.ops4j.pax.construct.util.PomUtils.Pom;
 
@@ -109,26 +107,32 @@ public class CloneMojo extends AbstractMojo
     /**
      * When true, replace any local bundle dependencies with pax-import-bundle commands.
      * 
-     * @parameter expression="${repair}" default-value="false"
+     * @parameter expression="${repair}"
      */
     private boolean repair;
 
     /**
-     * Comma-separated list of additional non-Maven resources that should be captured.
+     * When true, unify multiple projects under one single pax-create-project command. Warning: this doesn't merge
+     * settings from sub-projects, such as &lt;dependencyManagement&gt;, so some manually editing will be necessary.
      * 
-     * @parameter expression="${includeResources}"
+     * @parameter expression="${unify}"
      */
-    private String includeResources;
+    private boolean unify;
 
     /**
-     * Maps groupId:artifactId to major Maven projects
+     * List of directories that have already been processed
+     */
+    private List m_handledDirs;
+
+    /**
+     * Maps Maven POMs to pax-create-project commands
      */
     private Map m_majorProjectMap;
 
     /**
      * Maps groupId:artifactId to local bundle names
      */
-    private Map m_bundleProjectMap;
+    private Map m_bundleNameMap;
 
     /**
      * Sequence of archetypes with project/bundle content
@@ -144,8 +148,9 @@ public class CloneMojo extends AbstractMojo
         // general purpose Pax-Construct script
         PaxScript buildScript = new PaxScriptImpl();
 
-        m_bundleProjectMap = new HashMap();
+        m_bundleNameMap = new HashMap();
         m_majorProjectMap = new HashMap();
+        m_handledDirs = new ArrayList();
 
         m_installCommands = new ArrayList();
 
@@ -165,7 +170,7 @@ public class CloneMojo extends AbstractMojo
             {
                 if( isMajorProject( project ) )
                 {
-                    markMajorProject( project );
+                    handleMajorProject( buildScript, project );
                 }
                 else
                 {
@@ -175,8 +180,9 @@ public class CloneMojo extends AbstractMojo
             // else handled by the major project(s)
         }
 
-        // collect up all non-bundle projects and settings
-        archiveMajorProjects( buildScript );
+        // grab everything else
+        archiveMajorProjects();
+
         writePlatformScripts( buildScript );
     }
 
@@ -219,6 +225,36 @@ public class CloneMojo extends AbstractMojo
 
         getLog().info( "" );
         getLog().info( "FRAGMENT DIRECTORY " + getFragmentDir() );
+    }
+
+    /**
+     * Analyze major project and build the right pax-create-project call
+     * 
+     * @param script build script
+     * @param project major Maven project
+     */
+    private void handleMajorProject( PaxScript script, MavenProject project )
+    {
+        if( unify && !project.isExecutionRoot() )
+        {
+            // exclude the local poms settings from the unified project
+            m_handledDirs.add( new File( project.getBasedir(), "poms" ) );
+            return;
+        }
+
+        PaxCommandBuilder command = script.call( PaxScript.CREATE_PROJECT );
+
+        command.option( 'g', project.getGroupId() );
+        command.option( 'a', project.getArtifactId() );
+        command.option( 'v', project.getVersion() );
+
+        // enable overwrite
+        command.flag( 'o' );
+
+        setTargetDirectory( command, project.getBasedir().getParentFile() );
+        registerProject( project );
+
+        m_majorProjectMap.put( project, command );
     }
 
     /**
@@ -304,7 +340,9 @@ public class CloneMojo extends AbstractMojo
         command.flag( 'o' );
 
         setTargetDirectory( command, project.getBasedir().getParentFile() );
-        addHandledProject( project, bundleName );
+        registerProject( project );
+
+        registerBundleName( project, bundleName );
     }
 
     /**
@@ -330,7 +368,7 @@ public class CloneMojo extends AbstractMojo
 
             // imported bundles now in provision POM
             setTargetDirectory( command, m_basedir );
-            addHandledProject( project, null );
+            registerProject( project );
         }
         // else handled by the major project
     }
@@ -551,7 +589,7 @@ public class CloneMojo extends AbstractMojo
     private void setTargetDirectory( PaxCommandBuilder command, File targetDir )
     {
         String[] pivot = DirUtils.calculateRelativePath( m_basedir.getParentFile(), targetDir );
-        if( pivot != null && pivot[2].length() > 0 )
+        if( pivot != null && pivot[0].length() == 0 && pivot[2].length() > 0 )
         {
             // fix path to use the correct artifactId, in case directory tree has been renamed
             String relativePath = StringUtils.replaceOnce( pivot[2], m_basedir.getName(), m_rootArtifactId );
@@ -573,10 +611,9 @@ public class CloneMojo extends AbstractMojo
     {
         File baseDir = project.getBasedir();
 
+        getLog().info( "Cloning bundle project " + project.getArtifactId() );
         ArchetypeFragment fragment = new ArchetypeFragment( getFragmentDir(), namespace );
-
         fragment.addPom( baseDir, customizedPom );
-        fragment.addResources( baseDir, "osgi.bnd", false );
 
         if( null != namespace )
         {
@@ -584,23 +621,19 @@ public class CloneMojo extends AbstractMojo
             fragment.addSources( baseDir, project.getBuild().getTestSourceDirectory(), true );
         }
 
-        for( Iterator i = project.getResources().iterator(); i.hasNext(); )
-        {
-            Resource r = (Resource) i.next();
-            fragment.addResources( baseDir, r.getDirectory(), r.getIncludes(), r.getExcludes(), false );
-        }
         for( Iterator i = project.getTestResources().iterator(); i.hasNext(); )
         {
             Resource r = (Resource) i.next();
             fragment.addResources( baseDir, r.getDirectory(), r.getIncludes(), r.getExcludes(), true );
         }
 
-        // should we look for additional non-Maven resources?
-        if( PomUtils.isNotEmpty( includeResources ) )
-        {
-            String[] includes = includeResources.split( "," );
-            fragment.addResources( baseDir, baseDir.getPath(), Arrays.asList( includes ), null, false );
-        }
+        List excludes = new ArrayList();
+        excludes.addAll( fragment.getIncludedFiles() );
+        excludes.add( "target/" );
+        excludes.add( "pom.xml" );
+
+        // consider everything else in the bundle directory to be a resource
+        fragment.addResources( baseDir, baseDir.getPath(), null, excludes, false );
 
         // archetype must use different id
         String groupId = project.getGroupId();
@@ -641,7 +674,7 @@ public class CloneMojo extends AbstractMojo
             Dependency dependency = (Dependency) i.next();
 
             String bundleId = dependency.getGroupId() + ':' + dependency.getArtifactId();
-            String bundleName = (String) m_bundleProjectMap.get( bundleId );
+            String bundleName = (String) m_bundleNameMap.get( bundleId );
 
             // is this a local bundle project?
             if( null != bundleName )
@@ -679,103 +712,80 @@ public class CloneMojo extends AbstractMojo
     }
 
     /**
-     * Go through local project tree looking for non-bundle files to archive
+     * Create archetype fragments for all recorded major projects (as well as any non-bundle modules)
      * 
-     * @param script build script
      * @throws MojoExecutionException
      */
-    private void archiveMajorProjects( PaxScript script )
+    private void archiveMajorProjects()
         throws MojoExecutionException
     {
-        PaxCommandBuilder command = null;
-        List resourcePaths = new ArrayList();
-
-        Pom majorPom = null;
-        for( Iterator i = new PomIterator( m_basedir, true ); i.hasNext(); )
+        for( Iterator i = m_majorProjectMap.entrySet().iterator(); i.hasNext(); )
         {
-            Pom pom = (Pom) i.next();
+            Map.Entry entry = (Map.Entry) i.next();
+            MavenProject project = (MavenProject) entry.getKey();
 
-            if( m_majorProjectMap.containsKey( getCloneId( pom ) ) )
-            {
-                // flush previous major archetype to local repo
-                addFragmentToCommand( command, createMajorArchetype( majorPom, resourcePaths ) );
-
-                command = script.call( PaxScript.CREATE_PROJECT );
-                command.option( 'g', pom.getGroupId() );
-                command.option( 'a', pom.getArtifactId() );
-                command.option( 'v', pom.getVersion() );
-
-                // enable overwrite
-                command.flag( 'o' );
-
-                setTargetDirectory( command, pom.getBasedir().getParentFile() );
-
-                resourcePaths.clear();
-                majorPom = pom;
-            }
-            else if( !m_bundleProjectMap.containsKey( getCloneId( pom ) ) )
-            {
-                if( "pom".equals( pom.getPackaging() ) )
-                {
-                    // only copy the POM, not subfolders
-                    resourcePaths.add( pom.getFile() );
-                }
-                else
-                {
-                    // add the entire non-bundle project
-                    resourcePaths.add( pom.getBasedir() );
-                }
-            }
+            addFragmentToCommand( (PaxCommandBuilder) entry.getValue(), createProjectArchetype( project ) );
         }
-
-        // flush previous major archetype to local repo
-        addFragmentToCommand( command, createMajorArchetype( majorPom, resourcePaths ) );
     }
 
     /**
      * Archive all the selected resources under a single Maven archetype
      * 
-     * @param majorPom containing Maven project
-     * @param resourcePaths selected resources
+     * @param project containing Maven project
      * @return clause identifying the archetype fragment
      * @throws MojoExecutionException
      */
-    private String createMajorArchetype( Pom majorPom, List resourcePaths )
+    private String createProjectArchetype( MavenProject project )
         throws MojoExecutionException
     {
-        // nothing to do!
-        if( null == majorPom )
-        {
-            return null;
-        }
+        File baseDir = project.getBasedir();
 
-        File baseDir = majorPom.getBasedir();
-
+        getLog().info( "Cloning primary project " + project.getArtifactId() );
         ArchetypeFragment fragment = new ArchetypeFragment( getFragmentDir(), null );
         fragment.addPom( baseDir, null );
 
-        for( Iterator i = resourcePaths.iterator(); i.hasNext(); )
-        {
-            fragment.addResources( baseDir, i.next().toString(), false );
-        }
+        List excludes = new ArrayList();
+        excludes.addAll( getExcludedPaths( project ) );
+        excludes.add( "**/target/" );
+        excludes.add( "pom.xml" );
 
-        // should we look for additional non-Maven resources?
-        if( PomUtils.isNotEmpty( includeResources ) )
-        {
-            String[] includes = includeResources.split( "," );
-            fragment.addResources( baseDir, baseDir.getPath(), Arrays.asList( includes ), null, false );
-        }
+        // consider everything else that's not been handled to be a resource
+        fragment.addResources( baseDir, baseDir.getPath(), null, excludes, false );
 
         // archetype must use different id
-        String groupId = majorPom.getGroupId();
-        String artifactId = majorPom.getArtifactId() + "-archetype";
-        String version = majorPom.getVersion();
+        String groupId = project.getGroupId();
+        String artifactId = project.getArtifactId() + "-archetype";
+        String version = project.getVersion();
 
         // archive all the customized non-bundle POMs and projects
         String fragmentId = groupId + ':' + artifactId + ':' + version;
         fragment.createArchive( fragmentId.replace( ':', '_' ), newJarArchiver() );
 
         return fragmentId;
+    }
+
+    /**
+     * Find which paths in this Maven project have already been collected, and should therefore be excluded
+     * 
+     * @param project major Maven project
+     * @return list of excluded paths
+     */
+    private List getExcludedPaths( MavenProject project )
+    {
+        List excludes = new ArrayList();
+        File baseDir = project.getBasedir();
+
+        for( Iterator i = m_handledDirs.iterator(); i.hasNext(); )
+        {
+            File dir = (File) i.next();
+            String[] pivot = DirUtils.calculateRelativePath( baseDir, dir );
+            if( pivot != null && pivot[0].length() == 0 && pivot[2].length() > 0 )
+            {
+                excludes.add( pivot[2] );
+            }
+        }
+
+        return excludes;
     }
 
     /**
@@ -804,29 +814,20 @@ public class CloneMojo extends AbstractMojo
     }
 
     /**
-     * @param pom Maven POM
-     * @return clone id for the POM
+     * @param project Maven project
      */
-    private static String getCloneId( Pom pom )
+    private void registerProject( MavenProject project )
     {
-        return pom.getGroupId() + ':' + pom.getArtifactId();
+        m_handledDirs.add( project.getBasedir() );
     }
 
     /**
-     * @param project Maven project which provides settings to other projects
-     */
-    private void markMajorProject( MavenProject project )
-    {
-        m_majorProjectMap.put( project.getGroupId() + ':' + project.getArtifactId(), project );
-    }
-
-    /**
-     * @param project Maven project that's been handled
+     * @param project Maven bundle project
      * @param bundleName expected symbolic name of the bundle (null if imported)
      */
-    private void addHandledProject( MavenProject project, String bundleName )
+    private void registerBundleName( MavenProject project, String bundleName )
     {
-        m_bundleProjectMap.put( project.getGroupId() + ':' + project.getArtifactId(), bundleName );
+        m_bundleNameMap.put( project.getGroupId() + ':' + project.getArtifactId(), bundleName );
     }
 
     /**
@@ -835,25 +836,27 @@ public class CloneMojo extends AbstractMojo
      */
     private void addFragmentToCommand( PaxCommandBuilder command, String fragmentId )
     {
-        if( null != fragmentId )
+        if( null == fragmentId )
         {
-            command.maven().option( "contents", fragmentId );
-
-            StringBuffer buffer = new StringBuffer();
-            String[] ids = fragmentId.split( ":" );
-
-            // add Maven command to install the archetype fragment before using it
-            buffer.append( "mvn install:install-file \"-Dpackaging=jar\" \"-DgroupId=" );
-            buffer.append( ids[0] );
-            buffer.append( "\" \"-DartifactId=" );
-            buffer.append( ids[1] );
-            buffer.append( "\" \"-Dversion=" );
-            buffer.append( ids[2] );
-            buffer.append( "\" \"-Dfile=${_SCRIPTDIR_}/fragments/" );
-            buffer.append( fragmentId.replace( ':', '_' ) );
-            buffer.append( ".jar\"" );
-
-            m_installCommands.add( buffer );
+            return;
         }
+
+        command.maven().option( "contents", fragmentId );
+
+        StringBuffer buffer = new StringBuffer();
+        String[] ids = fragmentId.split( ":" );
+
+        // add Maven command to install the archetype fragment before using it
+        buffer.append( "mvn install:install-file \"-Dpackaging=jar\" \"-DgroupId=" );
+        buffer.append( ids[0] );
+        buffer.append( "\" \"-DartifactId=" );
+        buffer.append( ids[1] );
+        buffer.append( "\" \"-Dversion=" );
+        buffer.append( ids[2] );
+        buffer.append( "\" \"-Dfile=${_SCRIPTDIR_}/fragments/" );
+        buffer.append( fragmentId.replace( ':', '_' ) );
+        buffer.append( ".jar\"" );
+
+        m_installCommands.add( buffer );
     }
 }

@@ -227,7 +227,7 @@ public class ArchetypeFragment
     {
         DirectoryScanner scanner = new DirectoryScanner();
 
-        String[] pathExclude = parseFilter( path, excludes, "**/target/" );
+        String[] pathExclude = parseFilter( path, excludes, null );
         String[] pathInclude = parseFilter( path, includes, "**" );
 
         scanner.setExcludes( pathExclude );
@@ -258,20 +258,20 @@ public class ArchetypeFragment
      */
     private static String[] parseFilter( String path, List filters, String defaultFilter )
     {
-        String[] filterArray;
+        String[] filterArray = null;
 
-        if( null == filters || filters.size() == 0 )
-        {
-            filterArray = new String[1];
-            filterArray[0] = path + defaultFilter;
-        }
-        else
+        if( null != filters )
         {
             filterArray = (String[]) filters.toArray( new String[filters.size()] );
             for( int i = 0; i < filterArray.length; i++ )
             {
                 filterArray[i] = path + filterArray[i];
             }
+        }
+        else if( null != defaultFilter )
+        {
+            filterArray = new String[1];
+            filterArray[0] = path + defaultFilter;
         }
 
         return filterArray;
