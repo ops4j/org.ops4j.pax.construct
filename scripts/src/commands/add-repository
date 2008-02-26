@@ -5,7 +5,7 @@ i {
 
 u {
   name = 'repositoryURL'
-  example = 'http://repository.ops4j.org/maven2'
+  example = 'http://repository.ops4j.org/maven2/'
 }
 
 order = [ 'i', 'u' ]
