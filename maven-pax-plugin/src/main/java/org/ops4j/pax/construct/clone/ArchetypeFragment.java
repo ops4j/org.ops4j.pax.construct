@@ -22,6 +22,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 
@@ -65,6 +66,11 @@ public class ArchetypeFragment
     private File m_tempDir;
 
     /**
+     * Sequence of included filenames
+     */
+    private List m_includedFiles;
+
+    /**
      * Create a new archetype fragment
      * 
      * @param tempDir some temporary directory
@@ -81,6 +87,7 @@ public class ArchetypeFragment
 
         // unique scratch directory for the fragment assembly
         m_tempDir = new File( tempDir, "fragment" + ( m_fragmentCount++ ) );
+        m_includedFiles = new ArrayList();
     }
 
     /**
@@ -117,7 +124,7 @@ public class ArchetypeFragment
     public void addSources( File projectDir, String path, boolean isTest )
     {
         String[] pivot = DirUtils.calculateRelativePath( projectDir, new File( path ) );
-        if( null == pivot || pivot[2].length() == 0 )
+        if( null == pivot || pivot[0].length() > 0 || pivot[2].length() == 0 )
         {
             return;
         }
@@ -132,6 +139,7 @@ public class ArchetypeFragment
         for( Iterator i = getFilenames( projectDir, sourcePath, null, null ).iterator(); i.hasNext(); )
         {
             String filename = (String) i.next();
+            m_includedFiles.add( filename );
 
             // relocate to 'classic' archetype location (primary package gets trimmed)
             String target = StringUtils.replace( filename, packagePath, sourcePath );
@@ -176,7 +184,7 @@ public class ArchetypeFragment
     public void addResources( File projectDir, String path, List includes, List excludes, boolean isTest )
     {
         String[] pivot = DirUtils.calculateRelativePath( projectDir, new File( path ) );
-        if( null == pivot )
+        if( null == pivot || pivot[0].length() > 0 ) // can handle pivot[2] zero-length
         {
             return;
         }
@@ -188,6 +196,7 @@ public class ArchetypeFragment
         for( Iterator i = getFilenames( projectDir, resourcePath, includes, excludes ).iterator(); i.hasNext(); )
         {
             String filename = (String) i.next();
+            m_includedFiles.add( filename );
 
             // special case for Bnd instructions
             String target = filename;
@@ -446,5 +455,13 @@ public class ArchetypeFragment
         {
             IOUtil.close( out );
         }
+    }
+
+    /**
+     * @return list of filenames included in this fragment
+     */
+    public List getIncludedFiles()
+    {
+        return Collections.unmodifiableList( m_includedFiles );
     }
 }
