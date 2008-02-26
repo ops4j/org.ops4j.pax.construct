@@ -200,7 +200,7 @@ public class ArchetypeFragment
 
             // special case for Bnd instructions
             String target = filename;
-            if( target.endsWith( ".bnd" ) || target.endsWith( "osgi.bundle" ) )
+            if( target.endsWith( "details.bnd" ) || target.endsWith( "osgi.bundle" ) )
             {
                 target = "osgi.bnd";
             }
