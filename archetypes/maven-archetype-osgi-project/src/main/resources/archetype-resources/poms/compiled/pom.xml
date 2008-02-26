@@ -17,6 +17,27 @@
   <packaging>pom</packaging>
 
   <build>
+    <resources>
+      <resource>
+        <directory>src/main/resources</directory>
+      </resource>
+      <!--
+       | example additional resource entries, useful when building Eclipse RCP applications
+      -->
+      <resource>
+        <directory>.</directory>
+        <includes>
+          <include>NOTICE*</include>
+          <include>LICENSE*</include>
+          <include>plugin.xml</include>
+          <include>plugin.properties</include>
+          <include>icons/**</include>
+          <include>splash.bmp</include>
+          <include>*.product</include>
+          <include>*.ini</include>
+        </includes>
+      </resource>
+    </resources>
     <plugins>
       <plugin>
         <!--

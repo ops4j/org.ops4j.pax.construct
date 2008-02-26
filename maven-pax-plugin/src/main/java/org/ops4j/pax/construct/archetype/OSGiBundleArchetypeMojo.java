@@ -316,7 +316,8 @@ public class OSGiBundleArchetypeMojo extends AbstractPaxArchetypeMojo
             throw new MojoExecutionException( "Unable to find settings POM" );
         }
 
-        // Must merge plugin fragment first, so child elements combine properly!
+        // Merge in the following order, so child elements combine properly!
+        pom.mergeSection( customSettings, "build/resources", "build", false );
         pom.mergeSection( pluginSettings, "build/pluginManagement/plugins", "build", false );
         pom.mergeSection( customSettings, "build/plugins", "build", false );
 
