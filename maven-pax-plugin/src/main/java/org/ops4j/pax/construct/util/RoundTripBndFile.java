@@ -254,6 +254,7 @@ public class RoundTripBndFile
             else if( needSpace )
             {
                 bndWriter.newLine();
+                needSpace = false;
             }
             else if( !isLineContinuation( line ) )
             {
