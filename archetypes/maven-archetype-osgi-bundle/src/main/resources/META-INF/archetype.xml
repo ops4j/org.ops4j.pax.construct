@@ -8,5 +8,9 @@
     <resource>osgi.bnd</resource>
     <resource>poms/compiled/pom.xml</resource>
     <resource>poms/pom.xml</resource>
+    <!--
+      Resource directory placeholder
+    -->
+    <resource>src/main/resources/readme.txt</resource>
   </resources>
 </archetype>

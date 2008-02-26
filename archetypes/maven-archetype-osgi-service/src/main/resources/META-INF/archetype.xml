@@ -9,9 +9,6 @@
   <testSources>
     <source>src/test/java/internal/ExampleServiceImplTest.java</source>
   </testSources>
-  <resources>
-    <resource>src/main/resources/readme.txt</resource>
-  </resources>
   <testResources>
     <resource>src/test/resources/readme.txt</resource>
   </testResources>
