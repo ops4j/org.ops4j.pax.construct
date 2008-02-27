@@ -5,12 +5,10 @@
 $o.name.toUpperCase()#end
 ##-----------------------------------------------------------------------------
 #macro( help $o )
-#set( $help = false )
-#set( $help = $o.help )
-#if( ! $help )
-  #set( $help = $o.name )
+#if( ! $o.help )
+  #set( $o.help = $o.name )
 #end
-#if( $o.optional )[#end-$o.key ${help}#if( $o.optional )]#end
+#if( $o.optional )[#end-$o.key $o.help#if( $o.optional )]#end
 #end
 ##-----------------------------------------------------------------------------
 #macro( checkOptions )
