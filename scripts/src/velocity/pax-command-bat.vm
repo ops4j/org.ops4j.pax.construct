@@ -1,15 +1,18 @@
+##-----------------------------------------------------------------------------
+#parse( "commands/${mojo}" )
+##-----------------------------------------------------------------------------
 @echo off
 SETLOCAL
 set _SCRIPTS_=%~dp0
-call "%_SCRIPTS_%\\pax-validate"
+call "%_SCRIPTS_%\pax-validate"
 
 if ""=="%PAX_CONSTRUCT_VERSION%" set PAX_CONSTRUCT_VERSION=${version}
 set PAX_PLUGIN=org.ops4j:maven-pax-plugin:%PAX_CONSTRUCT_VERSION%
 
-set _BATFILE_=%0<%
-  options.order.each {
-%>
-set _${options[it].name.toUpperCase()}_=<% } %>
+set _BATFILE_=%0
+#foreach( $o in $opts )
+set #VAR( $o )=
+#end
 set _OVERWRITE_=
 
 goto getopts
@@ -18,11 +21,11 @@ shift
 :shift_1
 shift
 
-:getopts<%
-  options.order.each {
-%>
-if "%1"=="-${it}" set _${options[it].name.toUpperCase()}_=%2
-if "%1"=="-${it}" goto shift_2<% } %>
+:getopts
+#foreach( $o in $opts )
+if "%1"=="-$o.key" set #VAR( $o )=%2
+if "%1"=="-$o.key" goto shift_2
+#end
 if "%1"=="-o" set _OVERWRITE_=-Doverwrite
 if "%1"=="-o" goto shift_1
 if "%1"=="-h" goto help
@@ -31,17 +34,7 @@ if "%1"=="" goto endopts
 
 echo %_BATFILE_%: illegal option -- %1
 :help
-echo pax-${mojo}<%
-  options.order.each {
-    %> <%
-    if( options[it].optional ) {
-      %>[<%
-    }
-    %>-${it} ${options[it].help}<%
-    if( options[it].optional ) {
-      %>]<%
-    }
-  } %> [-o] [-- mvnOpts ...]
+echo pax-${mojo}#foreach( $o in $opts ) #help( $o )#end [-o] [-- mvnOpts ...]
 goto done
 :endopts
 
@@ -49,43 +42,32 @@ shift
 shift
 
 set _EXTRA_=%PAX_CONSTRUCT_OPTIONS% %_OVERWRITE_% %0 %1 %2 %3 %4 %5 %6 %7 %8 %9
-<%
-  allRequired = true
-  allOptional = true
-  options.order.each {
-    if( options[it].optional )
-      allRequired = false
-    else
-      allOptional = false
-  }
+#checkOptions()
+#if( $required )
 
-  if( !allOptional ) {
-    if( !allRequired ) {
-      options.order.each {
-        if( !options[it].optional ) {
-%>
-if ""=="%_${options[it].name.toUpperCase()}_%" goto request_input<% } } %>
+#if( $optional )
+#foreach( $o in $opts )
+#if( ! $o.optional )
+if ""=="%#VAR( $o )%" goto request_input
+#end
+#end
 goto skip_input
 
-:request_input<%
-    }
-    options.order.each {
-%>
-if ""=="%_${options[it].name.toUpperCase()}_%" set /p _${options[it].name.toUpperCase()}_="${options[it].name} (${options[it].example}) ? "<%
-    }
-    if( !allRequired ) {
-%>
-:skip_input<%
-    }
-%>
-<%
-  }
-  options.order.each {
-%>
-if ""=="%_${options[it].name.toUpperCase()}_%" set _${options[it].name.toUpperCase()}_=${options[it].example}<% } %>
+:request_input
+#end
+#foreach( $o in $opts )
+if ""=="%#VAR( $o )%" set /p #VAR( $o )="$o.name ($o.example) ? "
+#end
+#if( $optional )
+:skip_input
+#end
+#end
+
+#foreach( $o in $opts )
+if ""=="%#VAR( $o )%" set #VAR( $o )=$o.example
+#end
 
 @echo on
-mvn ${non_recursive} %PAX_PLUGIN%:${mojo}<%
-  options.order.each {
-%> -D${options[it].name}=%_${options[it].name.toUpperCase()}_%<% } %> %_EXTRA_%
+mvn $!{maven} %PAX_PLUGIN%:${mojo}#foreach( $o in $opts ) -D$o.name=%#VAR( $o )%#end %_EXTRA_%
 :done
+##-----------------------------------------------------------------------------

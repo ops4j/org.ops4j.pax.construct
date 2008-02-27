@@ -2,7 +2,7 @@
 #set( $dollar = '$' )
 ##-----------------------------------------------------------------------------
 #macro( VAR $o )
-$o.name.toUpperCase()#end
+#if( $batch )_$o.name.toUpperCase()_#else$o.name.toUpperCase()#end#end
 ##-----------------------------------------------------------------------------
 #macro( help $o )
 #if( ! $o.help )
@@ -28,8 +28,10 @@ $o.name.toUpperCase()#end
 #foreach( $cmd in $commands )
   #if( $cmd.isFile() )
     #set( $mojo = $cmd.name )
+    #set( $batch = false )
     $generator.parse( "pax-command-sh.vm", "pax-${mojo}", "mojo", $mojo )
-##  $generator.parse( "pax-command-bat.vm", "pax-${mojo}.bat", "mojo", $mojo )
+    #set( $batch = true )
+    $generator.parse( "pax-command-bat.vm", "pax-${mojo}.bat", "mojo", $mojo )
   #end
 #end
 ##-----------------------------------------------------------------------------
