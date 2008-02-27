@@ -6,8 +6,8 @@
 
     #set( $name = $cmd.getName() )
 
-    $generator.parse( "shell_script.vm", "pax-${name}", "config", "commands/$name" )
-##  $generator.parse( "batch_file.vm", "pax-${name}.bat", "config", "commands/$name" )
+    $generator.parse( "pax-command-sh.vm", "pax-${name}", "config", "commands/$name" )
+##  $generator.parse( "pax-command-bat.vm", "pax-${name}.bat", "config", "commands/$name" )
 
   #end
 
