@@ -1,18 +1,16 @@
-p {
-  name = 'package'
-  example = 'org.example.pkg'
-}
-
-n {
-  name = 'bundleName'
-  example = ''
-  optional = true
-}
-
-v {
-  name = 'version'
-  example = '1.0-SNAPSHOT'
-  optional = true
-}
-
-order = [ 'p', 'n', 'v' ]
+#set( $opts = [{
+  'key' : 'p',
+  'name' : 'package',
+  'example' : 'org.example.pkg'
+},{
+  'key' : 'n',
+  'name' : 'bundleName',
+  'example' : '',
+  'optional' : true
+},{
+  'key' : 'v',
+  'name' : 'version',
+  'example' : '1.0-SNAPSHOT',
+  'optional' : true
+}] )
+#set( $maven = '-N' )

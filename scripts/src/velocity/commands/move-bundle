@@ -1,11 +1,10 @@
-n {
-  name = 'bundleName'
-  example = 'myBundle'
-}
-
-d {
-  name = 'targetDirectory'
-  example = '.'
-}
-
-order = [ 'n', 'd' ]
+#set( $opts = [{
+  'key' : 'n',
+  'name' : 'bundleName',
+  'example' : 'myBundle'
+},{
+  'key' : 'd',
+  'name' : 'targetDirectory',
+  'example' : '.'
+}] )
+#set( $maven = '-N' )

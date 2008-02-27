@@ -1,7 +1,7 @@
-v {
-  name = 'version'
-  example = 'RELEASE'
-  optional = true
-}
-
-order = [ 'v' ]
+#set( $opts = [{
+  'key' : 'v',
+  'name' : 'version',
+  'example' : 'RELEASE',
+  'optional' : true
+}] )
+#set( $maven = '-N' )

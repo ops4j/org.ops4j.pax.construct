@@ -1,24 +1,20 @@
-recursive = true
-
-f {
-  name = 'framework'
-  help = 'felix|equinox|kf|concierge'
-  example = ''
-  optional = true
-}
-
-p {
-  name = 'profiles'
-  help = 'minimal,log,war,...'
-  example = ''
-  optional = true
-}
-
-u {
-  name = 'deployURLs'
-  help = 'url,...'
-  example = ''
-  optional = true
-}
-
-order = [ 'f', 'p', 'u' ]
+#set( $opts = [{
+  'key' : 'f',
+  'name' : 'framework',
+  'example' : '',
+  'help' : 'felix|equinox|kf|concierge',
+  'optional' : true
+},{
+  'key' : 'p',
+  'name' : 'profiles',
+  'example' : '',
+  'help' : 'minimal,log,war,...',
+  'optional' : true
+},{
+  'key' : 'u',
+  'name' : 'deployURLs',
+  'example' : '',
+  'help' : 'url,...',
+  'optional' : true
+}] )
+#set( $maven = '' )

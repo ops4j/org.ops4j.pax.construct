@@ -1,17 +1,15 @@
-g {
-  name = 'groupId'
-  example = 'examples'
-}
-
-a {
-  name = 'artifactId'
-  example = 'myProject'
-}
-
-v {
-  name = 'version'
-  example = '1.0-SNAPSHOT'
-  optional = true
-}
-
-order = [ 'g', 'a', 'v' ]
+#set( $opts = [{
+  'key' : 'g',
+  'name' : 'groupId',
+  'example' : 'examples'
+},{
+  'key' : 'a',
+  'name' : 'artifactId',
+  'example' : 'myProject'
+},{
+  'key' : 'v',
+  'name' : 'version',
+  'example' : '1.0-SNAPSHOT',
+  'optional' : true
+}] )
+#set( $maven = '-N' )

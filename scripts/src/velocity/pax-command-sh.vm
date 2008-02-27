@@ -41,7 +41,7 @@ shift ${dollar}((${dollar}{OPTIND}-1))
 #if( $optional )
 #set( $sep = 'if' )
 #foreach( $o in $opts )
-#if( $o.optional )${sep} [ -z "${#VAR( $o )}" ]#set( $sep = ' ||' )
+#if( ! $o.optional )${sep} [ -z "${#VAR( $o )}" ]#set( $sep = ' ||' )
 #end
 #end
 
