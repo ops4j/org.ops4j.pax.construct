@@ -10,6 +10,9 @@
       <outputDirectory>bin</outputDirectory>
       <directoryMode>0755</directoryMode>
       <fileMode>0755</fileMode>
+      <excludes>
+        <exclude>script.properties</exclude>
+      </excludes>
     </fileSet>
   </fileSets>
 </assembly>

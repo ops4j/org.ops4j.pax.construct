@@ -1,11 +1,10 @@
-i {
-  name = 'repositoryId'
-  example = 'ops4j.releases'
-}
-
-u {
-  name = 'repositoryURL'
-  example = 'http://repository.ops4j.org/maven2/'
-}
-
-order = [ 'i', 'u' ]
+#set( $opts = [{
+  'key' : 'i',
+  'name' : 'repositoryId',
+  'example' : 'ops4j.releases'
+},{
+  'key' : 'u',
+  'name' : 'repositoryURL',
+  'example' : 'http://repository.ops4j.org/maven2/'
+}] )
+#set( $maven = '-N' )

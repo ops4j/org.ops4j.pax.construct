@@ -33,6 +33,18 @@
     </resources>
     <plugins>
       <plugin>
+        <artifactId>maven-resources-plugin</artifactId>
+        <executions>
+          <execution>
+            <id>filter-scripts</id>
+            <phase>generate-resources</phase>
+            <goals>
+              <goal>resources</goal>
+            </goals>
+          </execution>
+        </executions>
+      </plugin>
+      <plugin>
         <artifactId>maven-antrun-plugin</artifactId>
         <executions>
           <execution>
@@ -47,6 +59,7 @@
                 <texen
                   templatePath="src/velocity"
                   controlTemplate="control.vm"
+                  contextProperties="${project.build.outputDirectory}/script.properties"
                   outputDirectory="${project.build.outputDirectory}"
                   outputFile="../texen.log"
                 />
@@ -61,18 +74,6 @@
             <version>1.0</version>
           </dependency>
         </dependencies>
-      </plugin>
-      <plugin>
-        <artifactId>maven-resources-plugin</artifactId>
-        <executions>
-          <execution>
-            <id>filter-scripts</id>
-            <phase>process-resources</phase>
-            <goals>
-              <goal>resources</goal>
-            </goals>
-          </execution>
-        </executions>
       </plugin>
       <plugin>
         <artifactId>maven-assembly-plugin</artifactId>

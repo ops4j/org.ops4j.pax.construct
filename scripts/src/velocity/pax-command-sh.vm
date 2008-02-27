@@ -1,86 +1,69 @@
+##-----------------------------------------------------------------------------
+#parse( "commands/${mojo}" )
+##-----------------------------------------------------------------------------
 #!/bin/sh
-SCRIPTS=`dirname "\$0"`
-. "\${SCRIPTS}/pax-validate"
+SCRIPTS=`dirname "${dollar}0"`
+. "${dollar}{SCRIPTS}/pax-validate"
 
-if [ -z "\${PAX_CONSTRUCT_VERSION}" ]
+if [ -z "${dollar}{PAX_CONSTRUCT_VERSION}" ]
 then
   PAX_CONSTRUCT_VERSION=${version}
 fi
 
-PAX_PLUGIN=org.ops4j:maven-pax-plugin:\${PAX_CONSTRUCT_VERSION}
-<%
-  options.order.each {
-%>
-unset ${options[it].name.toUpperCase()}<% } %>
+PAX_PLUGIN=org.ops4j:maven-pax-plugin:${dollar}{PAX_CONSTRUCT_VERSION}
+
+#foreach( $o in $opts )
+unset #VAR( $o )
+
+#end
 unset OVERWRITE
 
 while
-  getopts <% options.order.each { %>${it}:<% } %>oh- SETTING
+  getopts #foreach( $o in $opts )$o.key:#end
+oh- SETTING
 do
-  case \${SETTING} in
-    h|\\?) echo "pax-${mojo}<%
-  options.order.each {
-    %> <%
-    if( options[it].optional ) {
-      %>[<%
-    }
-    %>-${it} ${options[it].help}<%
-    if( options[it].optional ) {
-      %>]<%
-    }
-  } %> [-o] [-- mvnOpts ...]" ; exit ;;
-<%
-  options.order.each {
-%>
-    ${it}) ${options[it].name.toUpperCase()}=\${OPTARG} ;;<% } %>
+  case ${dollar}{SETTING} in
+    h|\?) echo "pax-${mojo}#foreach( $o in $opts ) #help( $o )#end [-o] [-- mvnOpts ...]" ; exit ;;
+
+#foreach( $o in $opts )
+    $o.key) #VAR( $o )=${dollar}{OPTARG} ;;
+#end
     o) OVERWRITE=-Doverwrite ;;
 
     -) break ;;
   esac
 done
 
-shift \$((\${OPTIND}-1))
-<%
-  allRequired = true
-  allOptional = true
-  options.order.each {
-    if( options[it].optional )
-      allRequired = false
-    else
-      allOptional = false
-  }
+shift ${dollar}((${dollar}{OPTIND}-1))
+#checkOptions()
+#if( $required )
 
-  if( !allOptional ) {
-%>
-<%
-    pad = ''
-    if( !allRequired ) {
-      op = 'if'
-      options.order.each {
-        if( !options[it].optional ) {
-          %>${op} [ -z "\${${options[it].name.toUpperCase()}}" ]<%
-          op = ' ||'
-        }
-      }
-%>
+#if( $optional )
+#set( $sep = 'if' )
+#foreach( $o in $opts )
+#if( $o.optional )${sep} [ -z "${#VAR( $o )}" ]#set( $sep = ' ||' )
+#end
+#end
+
 then
-<%    pad = '  '
-    }
-    options.order.each {
-%>${pad}if [ -z "\${${options[it].name.toUpperCase()}}" ]
-${pad}then
-${pad}  read -p "${options[it].name} (${options[it].example}) ? " ${options[it].name.toUpperCase()}
-${pad}fi
-<%
-    }
-    if( !allRequired ) {
-%>fi
-<%  }
-  }
-%>
-mvn ${non_recursive} \${PAX_PLUGIN}:${mojo} \\<%
-  options.order.each {
-%>
-  "-D${options[it].name}=\${${options[it].name.toUpperCase()}:=${options[it].example}}" \\<% } %>
-  \${PAX_CONSTRUCT_OPTIONS} \${OVERWRITE} "\$@"
+#set( $pad = '  ' )
+#end
+#foreach( $o in $opts )
+$!{pad}if [ -z "${dollar}{#VAR( $o )}" ]
+$!{pad}then
+$!{pad}  read -p "$o.name ($o.example) ? " #VAR( $o )
 
+$!{pad}fi
+#end
+#if( $optional )
+fi
+#end
+#end
+
+mvn $!{maven} ${dollar}{PAX_PLUGIN}:${mojo} \
+#foreach( $o in $opts )
+  "-D$o.name=${dollar}{#VAR( $o ):=$o.example}" \
+#end
+  ${dollar}{PAX_CONSTRUCT_OPTIONS} ${dollar}{OVERWRITE} "${dollar}@"
+
+##-----------------------------------------------------------------------------
