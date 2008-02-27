@@ -33,60 +33,34 @@
     </resources>
     <plugins>
       <plugin>
-        <groupId>org.codehaus.mojo.groovy</groupId>
-        <artifactId>groovy-maven-plugin</artifactId>
+        <artifactId>maven-antrun-plugin</artifactId>
         <executions>
           <execution>
             <id>generate-scripts</id>
             <phase>generate-resources</phase>
             <goals>
-              <goal>execute</goal>
+              <goal>run</goal>
             </goals>
             <configuration>
-              <source>
-                println 'Generate scripts'
-                println '================'
-                new File( pom.build.directory, "bin" ).mkdirs()
-
-                engine = new groovy.text.SimpleTemplateEngine()
-                new File( pom.basedir, "src/commands" ).eachFileMatch( ~/[^.]+/ )
-                {
-                  print "${it.name}\t"
-                  options = new ConfigSlurper().parse( it.toURL() )
-                  options.order.each
-                  {
-                    // support customized help without affecting parameter name
-                    if( !options[it].help ) options[it].help = options[it].name
-
-                    print ' '
-                    if( options[it].optional ) print '['
-                    print "-${it} ${options[it].help}"
-                    if( options[it].optional ) print ']'
-                  }
-                  println ''
-
-                  properties = [:]
-                  properties.version = "${version}"
-                  properties.options = options
-                  properties.mojo = "${it.name}"
-
-                  if( options.recursive )
-                    properties.non_recursive = ""
-                  else
-                    properties.non_recursive = "-N"
-
-                  nix = new File( pom.basedir, "src/groovy/pax-command" )
-                  template = engine.createTemplate( nix ).make( properties )
-                  new File( pom.build.directory, "bin/pax-${it.name}" ).write( template.toString() )
-
-                  bat = new File( pom.basedir, "src/groovy/pax-command.bat" )
-                  template = engine.createTemplate( bat ).make( properties )
-                  new File( pom.build.directory, "bin/pax-${it.name}.bat" ).write( template.toString() )
-                }
-              </source>
+              <tasks>
+                <taskdef name="texen" classname="org.apache.texen.ant.TexenTask"/>
+                <texen
+                  templatePath="src/velocity"
+                  controlTemplate="control.vm"
+                  outputDirectory="${project.build.outputDirectory}"
+                  outputFile="../texen.log"
+                />
+              </tasks>
             </configuration>
           </execution>
         </executions>
+        <dependencies>
+          <dependency>
+            <groupId>org.apache.texen</groupId>
+            <artifactId>texen</artifactId>
+            <version>1.0</version>
+          </dependency>
+        </dependencies>
       </plugin>
       <plugin>
         <artifactId>maven-resources-plugin</artifactId>

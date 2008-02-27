@@ -1,0 +1,14 @@
+#set( $commands = $files.file( "src/velocity/commands" ).listFiles() )
+
+#foreach( $cmd in $commands )
+
+  #if( $cmd.isFile() )
+
+    #set( $name = $cmd.getName() )
+
+    $generator.parse( "shell_script.vm", "pax-${name}", "config", "commands/$name" )
+##  $generator.parse( "batch_file.vm", "pax-${name}.bat", "config", "commands/$name" )
+
+  #end
+
+#end
