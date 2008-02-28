@@ -46,7 +46,7 @@
 *-----------------------------------*----------------------------------------------------------------+
 | <<<-DdeployPoms=>>><filename,...> | additional poms listing more bundles to deploy                 |
 *-----------------------------------*----------------------------------------------------------------+
-| <<<-DnoDependencies>>>            | ignore bundle dependencies when deploying                      |
+| <<<-DnoDeps>>>                    | ignore bundle dependencies when deploying                      |
 *-----------------------------------*----------------------------------------------------------------+
 
 * Examples

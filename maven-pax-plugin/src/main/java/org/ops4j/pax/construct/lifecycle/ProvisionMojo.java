@@ -189,7 +189,7 @@ public class ProvisionMojo extends AbstractMojo
     /**
      * Ignore bundle dependencies when deploying project.
      * 
-     * @parameter expression="${noDependencies}"
+     * @parameter expression="${noDeps}"
      */
     private boolean noDependencies;
 
