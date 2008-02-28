@@ -132,7 +132,7 @@ public class ArchetypeFragment
     public void addSources( File projectDir, String path, boolean isTest )
     {
         String[] pivot = DirUtils.calculateRelativePath( projectDir, new File( path ) );
-        if( null == pivot || pivot[0].length() > 0 || pivot[2].length() == 0 )
+        if( null == pivot || pivot[2].length() == 0 )
         {
             return;
         }

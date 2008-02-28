@@ -19,6 +19,7 @@ package org.ops4j.pax.construct.lifecycle;
 import java.io.File;
 import java.util.List;
 
+import org.apache.maven.model.Plugin;
 import org.apache.maven.plugin.AbstractCompilerMojo;
 import org.apache.maven.plugin.CompilationFailureException;
 import org.apache.maven.plugin.CompilerMojo;
@@ -89,17 +90,26 @@ public class BundleCompilerMojo extends CompilerMojo
      */
     protected static void mergeCompilerConfiguration( AbstractCompilerMojo mojo, MavenProject project )
     {
-        String mavenPluginGroup = "org.apache.maven.plugins";
-        String paxPluginGroup = "org.ops4j";
+        Plugin core = new Plugin();
+        core.setGroupId( "org.apache.maven.plugins" );
+        core.setArtifactId( "maven-compiler-plugin" );
 
-        Xpp3Dom mavenConfig = project.getGoalConfiguration( mavenPluginGroup, "maven-compiler-plugin", null, null );
-        Xpp3Dom paxConfig = project.getGoalConfiguration( paxPluginGroup, "maven-pax-plugin", null, null );
+        Plugin pax = new Plugin();
+        pax.setGroupId( "org.ops4j" );
+        pax.setArtifactId( "maven-pax-plugin" );
 
-        if( null != mavenConfig )
+        // load pluginManagement
+        project.addPlugin( core );
+        project.addPlugin( pax );
+
+        Xpp3Dom coreConfig = project.getGoalConfiguration( core.getGroupId(), core.getArtifactId(), null, null );
+        Xpp3Dom paxConfig = project.getGoalConfiguration( pax.getGroupId(), pax.getArtifactId(), null, null );
+
+        if( null != coreConfig )
         {
             ReflectMojo baseMojo = new ReflectMojo( mojo, AbstractCompilerMojo.class );
 
-            Xpp3Dom[] configuration = mavenConfig.getChildren();
+            Xpp3Dom[] configuration = coreConfig.getChildren();
             for( int i = 0; i < configuration.length; i++ )
             {
                 // don't override pax settings
