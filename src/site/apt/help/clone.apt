@@ -30,9 +30,9 @@
 * Additional Maven options
 
 *---------------------------------------------*-------------------------------------------------------------------+
-| <<<-DincludeResources=>>><filterstring,...> | additional (non-Maven) resources that should also be captured     |
-*---------------------------------------------*-------------------------------------------------------------------+
 | <<<-Drepair>>>                              | attempt to fix dependencies to local bundles by re-importing them |
+*---------------------------------------------*-------------------------------------------------------------------+
+| <<<-Dunify>>>                               | try to unify a tree of Pax-Construct projects under one project   |
 *---------------------------------------------*-------------------------------------------------------------------+
 
 * Examples
