@@ -23,7 +23,7 @@
 #end
 #end
 ##-----------------------------------------------------------------------------
-#set( $commands = $files.file( "src/velocity/commands" ).listFiles() )
+#set( $commands = $files.file( "${basedir}/src/velocity/commands" ).listFiles() )
 ##-----------------------------------------------------------------------------
 #foreach( $cmd in $commands )
   #if( $cmd.isFile() )
