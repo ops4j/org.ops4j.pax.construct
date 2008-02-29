@@ -28,10 +28,11 @@
 #else
   <name>${dollar}{bundle.symbolicName} [${dollar}{bundle.namespace}]</name>
 #end
-#literal()
 
   <packaging>bundle</packaging>
 
+#if( $mojo.isMultiModuleProject() )
+#literal()
   <dependencies>
     <!--
      | uncomment to add all imported (non-local) bundles to your compilation classpath
@@ -44,5 +45,6 @@
     -->
   </dependencies>
 
+#end
 #end
 </project>

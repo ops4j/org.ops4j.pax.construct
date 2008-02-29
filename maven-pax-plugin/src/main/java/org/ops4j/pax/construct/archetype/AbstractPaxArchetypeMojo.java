@@ -791,4 +791,12 @@ public abstract class AbstractPaxArchetypeMojo extends MavenArchetypeMojo
         // remove any empty directories after the cleanup
         DirUtils.pruneEmptyFolders( scanner.getBasedir() );
     }
+
+    /**
+     * @return true when part of a multi-module project, otherwise false
+     */
+    public boolean isMultiModuleProject()
+    {
+        return null != m_modulesPom;
+    }
 }
