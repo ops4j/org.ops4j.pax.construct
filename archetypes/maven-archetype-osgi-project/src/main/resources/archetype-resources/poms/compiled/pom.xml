@@ -32,9 +32,6 @@
           <include>plugin.xml</include>
           <include>plugin.properties</include>
           <include>icons/**</include>
-          <include>splash.bmp</include>
-          <include>*.product</include>
-          <include>*.ini</include>
         </includes>
       </resource>
     </resources>
