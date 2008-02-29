@@ -27,8 +27,6 @@
       <resource>
         <directory>.</directory>
         <includes>
-          <include>NOTICE*</include>
-          <include>LICENSE*</include>
           <include>plugin.xml</include>
           <include>plugin.properties</include>
           <include>icons/**</include>
