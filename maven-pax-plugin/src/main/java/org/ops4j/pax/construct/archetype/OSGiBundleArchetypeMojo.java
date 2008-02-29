@@ -23,7 +23,6 @@ import java.util.Set;
 
 import org.apache.maven.artifact.Artifact;
 import org.apache.maven.model.Dependency;
-import org.apache.maven.model.Repository;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.codehaus.plexus.util.SelectorUtils;
 import org.ops4j.pax.construct.util.BndUtils.Bnd;
@@ -364,13 +363,6 @@ public class OSGiBundleArchetypeMojo extends AbstractPaxArchetypeMojo
      */
     private void addSpringBeanSupport( Pom pom )
     {
-        // Spring milestone repository
-        Repository repository = new Repository();
-        repository.setId( "spring-milestones" );
-        repository.setUrl( "http://s3.amazonaws.com/maven.springframework.org/milestone" );
-
-        pom.addRepository( repository, false, true, canOverwrite(), false );
-
         // Use property so it's easy to switch versions later on
         pom.setProperty( SPRING_VERSION_PROPERTY, springVersion );
 
