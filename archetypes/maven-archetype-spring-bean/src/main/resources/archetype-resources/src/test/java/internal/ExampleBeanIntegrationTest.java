@@ -10,20 +10,20 @@ import org.springframework.test.AbstractDependencyInjectionSpringContextTests;
  */
 public class ExampleBeanIntegrationTest extends AbstractDependencyInjectionSpringContextTests
 {
-    private ExampleBean myExampleBean;
+    private ExampleBean myBean;
 
     protected String[] getConfigLocations()
     {
         return new String[] { "META-INF/spring/bundle-context.xml" };
     }
 
-    public void setExampleBean( ExampleBean bean )
+    public void setBean( ExampleBean bean )
     {
-        this.myExampleBean = bean;
+        this.myBean = bean;
     }
 
-    public void testExampleBeanIsABean()
+    public void testBeanIsABean()
     {
-        assertTrue( this.myExampleBean.isABean() );
+        assertTrue( this.myBean.isABean() );
     }
 }

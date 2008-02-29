@@ -5,9 +5,9 @@ import ${package}.ExampleBean;
 
 public class ExampleBeanImplTest extends TestCase
 {
-    public void testExampleBeanIsABean()
+    public void testBeanIsABean()
     {
-        ExampleBean anExampleBean = new ExampleBeanImpl();
-        assertTrue( anExampleBean.isABean() );
+        ExampleBean aBean = new ExampleBeanImpl();
+        assertTrue( aBean.isABean() );
     }
 }
