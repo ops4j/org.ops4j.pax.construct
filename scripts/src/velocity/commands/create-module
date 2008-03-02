@@ -1,7 +1,6 @@
 #set( $opts = [{
   'key' : 'g',
   'name' : 'groupId',
-  'example' : '',
   'optional' : true
 },{
   'key' : 'a',
@@ -11,7 +10,6 @@
 },{
   'key' : 'v',
   'name' : 'version',
-  'example' : '',
   'optional' : true
 }] )
 #set( $maven = '-N' )

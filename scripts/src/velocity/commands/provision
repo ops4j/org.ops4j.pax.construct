@@ -1,19 +1,16 @@
 #set( $opts = [{
   'key' : 'f',
   'name' : 'framework',
-  'example' : '',
   'help' : 'felix|equinox|kf|concierge',
   'optional' : true
 },{
   'key' : 'p',
   'name' : 'profiles',
-  'example' : '',
   'help' : 'minimal,log,war,...',
   'optional' : true
 },{
   'key' : 'u',
   'name' : 'deployURLs',
-  'example' : '',
   'help' : 'url,...',
   'optional' : true
 }] )

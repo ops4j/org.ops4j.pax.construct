@@ -5,7 +5,6 @@
 },{
   'key' : 'n',
   'name' : 'bundleName',
-  'example' : '',
   'optional' : true
 },{
   'key' : 'v',
