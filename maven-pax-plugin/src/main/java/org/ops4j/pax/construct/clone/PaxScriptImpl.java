@@ -26,6 +26,7 @@ import java.util.Iterator;
 import java.util.List;
 
 import org.codehaus.plexus.util.IOUtil;
+import org.codehaus.plexus.util.StringUtils;
 import org.ops4j.pax.construct.util.StreamFactory;
 
 /**
@@ -435,6 +436,7 @@ public class PaxScriptImpl
     private static void writeCommands( BufferedWriter writer, boolean isBatchFile, List commands )
         throws IOException
     {
+        boolean standalone = ( commands.size() == 1 );
         for( Iterator i = commands.iterator(); i.hasNext(); )
         {
             String cmd = i.next().toString();
@@ -446,6 +448,19 @@ public class PaxScriptImpl
 
                 // fix variable references to use %FOO% not ${FOO}
                 cmd = cmd.replaceAll( "\\$\\{([^}]*)\\}", "%$1%" );
+            }
+
+            if( standalone )
+            {
+                // allow customization
+                if( isBatchFile )
+                {
+                    cmd = StringUtils.replace( cmd, " -- ", " %0 %1 %2 %3 %4 %5 %6 %7 %8 %9 -- " );
+                }
+                else
+                {
+                    cmd = StringUtils.replace( cmd, " -- ", " \"$@\" -- " );
+                }
             }
 
             writer.write( cmd );

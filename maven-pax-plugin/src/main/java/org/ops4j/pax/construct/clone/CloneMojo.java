@@ -162,7 +162,20 @@ public class CloneMojo extends AbstractMojo
             MavenProject project = (MavenProject) i.next();
             String packaging = project.getPackaging();
 
-            if( "bundle".equals( packaging ) || ( "jar".equals( packaging ) && m_reactorProjects.size() == 1 ) )
+            // fixup standalone maven project
+            if( m_reactorProjects.size() == 1 )
+            {
+                // always repair
+                repair = true;
+
+                // provide basic jar conversion
+                if( "jar".equals( packaging ) )
+                {
+                    packaging = "bundle";
+                }
+            }
+
+            if( "bundle".equals( packaging ) )
             {
                 handleBundleProject( buildScript, project );
             }
@@ -203,10 +216,12 @@ public class CloneMojo extends AbstractMojo
         getLog().info( "SUCCESSFULLY CLONED " + cloneId );
         getLog().info( "" );
 
+        String title = m_rootGroupId + ':' + m_rootArtifactId;
+
         try
         {
             getLog().info( "Saving UNIX shell script " + nixScript );
-            script.write( cloneId, nixScript, m_installCommands );
+            script.write( title, nixScript, m_installCommands );
         }
         catch( IOException e )
         {
@@ -216,7 +231,7 @@ public class CloneMojo extends AbstractMojo
         try
         {
             getLog().info( "Saving Windows batch file " + winScript );
-            script.write( cloneId, winScript, m_installCommands );
+            script.write( title, winScript, m_installCommands );
         }
         catch( IOException e )
         {
@@ -668,7 +683,7 @@ public class CloneMojo extends AbstractMojo
         Pom pom;
         try
         {
-            File tempFile = new File( m_tempdir, "pom.temp" );
+            File tempFile = File.createTempFile( "pom", ".xml", m_tempdir );
             FileUtils.copyFile( project.getFile(), tempFile );
             pom = PomUtils.readPom( tempFile );
             tempFile.deleteOnExit();
@@ -856,7 +871,7 @@ public class CloneMojo extends AbstractMojo
         String[] ids = fragmentId.split( ":" );
 
         // add Maven command to install the archetype fragment before using it
-        buffer.append( "mvn install:install-file \"-Dpackaging=jar\" \"-DgroupId=" );
+        buffer.append( "mvn -N install:install-file \"-Dpackaging=jar\" \"-DgroupId=" );
         buffer.append( ids[0] );
         buffer.append( "\" \"-DartifactId=" );
         buffer.append( ids[1] );

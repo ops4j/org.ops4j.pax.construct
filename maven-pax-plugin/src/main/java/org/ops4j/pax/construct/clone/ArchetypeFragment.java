@@ -106,20 +106,20 @@ public class ArchetypeFragment
      */
     public void addPom( File projectDir, Pom pom )
     {
-        File to = new File( m_tempDir, "archetype-resources" );
+        File toDir = new File( m_tempDir, "archetype-resources" );
 
-        File baseDir;
+        File pomFile;
         if( null == pom )
         {
-            baseDir = projectDir;
+            pomFile = new File( projectDir, "pom.xml" );
         }
         else
         {
-            baseDir = pom.getBasedir();
+            pomFile = pom.getFile();
         }
 
         // relocate to 'classic' archetype location
-        translateFile( baseDir, "pom.xml", to, "pom.xml" );
+        translateFile( pomFile.getParentFile(), pomFile.getName(), toDir, "pom.xml" );
     }
 
     /**

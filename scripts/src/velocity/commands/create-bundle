@@ -7,6 +7,10 @@
   'name' : 'bundleName',
   'optional' : true
 },{
+  'key' : 'g',
+  'name' : 'bundleGroupId',
+  'optional' : true
+},{
   'key' : 'v',
   'name' : 'version',
   'example' : '1.0-SNAPSHOT',
