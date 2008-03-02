@@ -2,8 +2,8 @@
 #parse( "commands/${mojo}" )
 ##-----------------------------------------------------------------------------
 #!/bin/sh
-SCRIPTS=`dirname "${dollar}0"`
-. "${dollar}{SCRIPTS}/pax-validate"
+_SCRIPTS_=`dirname "${dollar}0"`
+. "${dollar}{_SCRIPTS_}/pax-validate"
 
 if [ -z "${dollar}{PAX_CONSTRUCT_VERSION}" ]
 then
@@ -16,19 +16,19 @@ PAX_PLUGIN=org.ops4j:maven-pax-plugin:${dollar}{PAX_CONSTRUCT_VERSION}
 unset #VAR( $o )
 
 #end
-unset OVERWRITE
+unset _OVERWRITE_
 
 while
   getopts #foreach( $o in $opts )$o.key:#end
-oh- SETTING
+oh- _SETTING_
 do
-  case ${dollar}{SETTING} in
+  case ${dollar}{_SETTING_} in
     h|\?) echo "pax-${mojo}#foreach( $o in $opts ) #help( $o )#end [-o] [-- mvnOpts ...]" ; exit ;;
 
 #foreach( $o in $opts )
     $o.key) #VAR( $o )=${dollar}{OPTARG} ;;
 #end
-    o) OVERWRITE=-Doverwrite ;;
+    o) _OVERWRITE_=-Doverwrite ;;
 
     -) break ;;
   esac
@@ -64,6 +64,6 @@ mvn $!{maven} ${dollar}{PAX_PLUGIN}:${mojo} \
 #foreach( $o in $opts )
   "-D$o.name=${dollar}{#VAR( $o ):=$o.example}" \
 #end
-  ${dollar}{PAX_CONSTRUCT_OPTIONS} ${dollar}{OVERWRITE} "${dollar}@"
+  ${dollar}{PAX_CONSTRUCT_OPTIONS} ${dollar}{_OVERWRITE_} "${dollar}@"
 
 ##-----------------------------------------------------------------------------

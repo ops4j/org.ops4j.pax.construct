@@ -1,9 +1,9 @@
 #!/bin/sh
-SCRIPTS=`dirname "$0"`
+_SCRIPTS_=`dirname "$0"`
 
-POM="${SCRIPTS}/pax-bootstrap-pom.xml"
+_POM_="${_SCRIPTS_}/pax-bootstrap-pom.xml"
 case "`uname`" in
-  CYGWIN*) POM=`cygpath --path --mixed "${POM}"` ;;
+  CYGWIN*) _POM_=`cygpath --path --mixed "${_POM_}"` ;;
 esac
 
 if [ -z "${PAX_CONSTRUCT_VERSION}" ]
@@ -11,12 +11,12 @@ then
   PAX_CONSTRUCT_VERSION=${project.version}
 fi
 
-if mvn -o -npu -N -f "${POM}" -DPAX_CONSTRUCT_VERSION=${PAX_CONSTRUCT_VERSION} validate 2>/dev/null 1>&2
+if mvn -o -npu -N -f "${_POM_}" -DPAX_CONSTRUCT_VERSION=${PAX_CONSTRUCT_VERSION} validate 2>/dev/null 1>&2
 then
   : # already installed and validated
 else
   echo BOOTSTRAP PAX-CONSTRUCT PLUGIN
   echo ==============================
-  mvn -up -N -f "${POM}" -DPAX_CONSTRUCT_VERSION=${PAX_CONSTRUCT_VERSION} validate
+  mvn -up -N -f "${_POM_}" -DPAX_CONSTRUCT_VERSION=${PAX_CONSTRUCT_VERSION} validate
 fi
 

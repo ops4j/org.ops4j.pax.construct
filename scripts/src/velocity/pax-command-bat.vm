@@ -15,6 +15,8 @@ set #VAR( $o )=
 #end
 set _OVERWRITE_=
 
+shift
+
 goto getopts
 :shift_2
 shift
@@ -23,22 +25,21 @@ shift
 
 :getopts
 #foreach( $o in $opts )
-if "%1"=="-$o.key" set #VAR( $o )=%2
-if "%1"=="-$o.key" goto shift_2
+if "%0"=="-$o.key" set #VAR( $o )=%1
+if "%0"=="-$o.key" goto shift_2
 #end
-if "%1"=="-o" set _OVERWRITE_=-Doverwrite
-if "%1"=="-o" goto shift_1
-if "%1"=="-h" goto help
-if "%1"=="--" goto endopts
-if "%1"=="" goto endopts
+if "%0"=="-o" set _OVERWRITE_=-Doverwrite
+if "%0"=="-o" goto shift_1
+if "%0"=="-h" goto help
+if "%0"=="--" goto endopts
+if "%0"=="" goto endopts
 
-echo %_BATFILE_%: illegal option -- %1
+echo %_BATFILE_%: illegal option -- %0
 :help
 echo pax-${mojo}#foreach( $o in $opts ) #help( $o )#end [-o] [-- mvnOpts ...]
 goto done
 :endopts
 
-shift
 shift
 
 set _EXTRA_=%PAX_CONSTRUCT_OPTIONS% %_OVERWRITE_% %0 %1 %2 %3 %4 %5 %6 %7 %8 %9
