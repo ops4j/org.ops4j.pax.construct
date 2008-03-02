@@ -53,6 +53,8 @@ public class OSGiWrapperArchetypeMojo extends AbstractPaxArchetypeMojo
 {
     private static final String OSGI_WRAPPER_ARCHETYPE_ID = "maven-archetype-osgi-wrapper";
 
+    private static final String TEMP_SETTINGS_PATH = "target/settings/";
+
     /**
      * Support POM versioning by using an additional version field
      */
@@ -360,8 +362,8 @@ public class OSGiWrapperArchetypeMojo extends AbstractPaxArchetypeMojo
         updatePomDependencies( pom );
         updateBndInstructions( bnd );
 
-        // temporary files no longer needed
-        addTempFiles( OSGiBundleArchetypeMojo.TEMP_SETTINGS_PATH );
+        // these settings no longer needed
+        addTempFiles( TEMP_SETTINGS_PATH );
     }
 
     /**

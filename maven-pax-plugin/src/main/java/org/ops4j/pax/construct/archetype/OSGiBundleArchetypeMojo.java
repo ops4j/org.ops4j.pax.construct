@@ -54,7 +54,7 @@ public class OSGiBundleArchetypeMojo extends AbstractPaxArchetypeMojo
     private static final String SPRING_VERSION_PROPERTY = "spring.maven.artifact.version";
     private static final String SPRING_VERSION_VARIABLE = "${" + SPRING_VERSION_PROPERTY + "}";
 
-    protected static final String TEMP_SETTINGS_PATH = "target/settings/";
+    private static final String TEMP_SETTINGS_PATH = "target/settings/";
 
     /**
      * The logical parent of the new project (use artifactId or groupId:artifactId).
@@ -286,7 +286,7 @@ public class OSGiBundleArchetypeMojo extends AbstractPaxArchetypeMojo
             addTempFiles( "src/main/java/" + packagePath + "/internal/*Activator.java" );
         }
 
-        // temporary files no longer needed
+        // these settings no longer needed
         addTempFiles( TEMP_SETTINGS_PATH );
     }
 
