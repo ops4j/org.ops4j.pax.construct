@@ -2,8 +2,8 @@
 #parse( "commands/${mojo}" )
 ##-----------------------------------------------------------------------------
 #!/bin/sh
-_SCRIPTS_=`dirname "${dollar}0"`
-. "${dollar}{_SCRIPTS_}/pax-validate"
+_SCRIPTDIR_=`dirname "${dollar}0"`
+. "${dollar}{_SCRIPTDIR_}/pax-validate"
 
 if [ -z "${dollar}{PAX_CONSTRUCT_VERSION}" ]
 then

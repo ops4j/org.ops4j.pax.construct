@@ -3,8 +3,8 @@
 ##-----------------------------------------------------------------------------
 @echo off
 SETLOCAL
-set _SCRIPTS_=%~dp0
-call "%_SCRIPTS_%\pax-validate"
+set _SCRIPTDIR_=%~dp0
+call "%_SCRIPTDIR_%\pax-validate"
 
 if ""=="%PAX_CONSTRUCT_VERSION%" set PAX_CONSTRUCT_VERSION=${version}
 set PAX_PLUGIN=org.ops4j:maven-pax-plugin:%PAX_CONSTRUCT_VERSION%

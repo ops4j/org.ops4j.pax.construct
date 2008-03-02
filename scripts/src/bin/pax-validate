@@ -1,7 +1,7 @@
 #!/bin/sh
-_SCRIPTS_=`dirname "$0"`
+_SCRIPTDIR_=`dirname "$0"`
 
-_POM_="${_SCRIPTS_}/pax-bootstrap-pom.xml"
+_POM_="${_SCRIPTDIR_}/pax-bootstrap-pom.xml"
 case "`uname`" in
   CYGWIN*) _POM_=`cygpath --path --mixed "${_POM_}"` ;;
 esac
