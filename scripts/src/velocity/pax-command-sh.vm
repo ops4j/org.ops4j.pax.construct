@@ -35,34 +35,43 @@ do
 done
 
 shift ${dollar}((${dollar}{OPTIND}-1))
-#checkOptions()
-#if( $required )
+#if( $opts )
 
-#if( $optional )
 #set( $sep = 'if' )
 #foreach( $o in $opts )
-#if( ! $o.optional )${sep} [ -z "${#VAR( $o )}" ]#set( $sep = ' ||' )
+#if( ! $o.optional )$sep [ -z "${dollar}{#VAR( $o )}" ]#set( $sep = ' ||' )#end
 #end
-#end
+#if( $sep == ' ||' )
 
 then
-#set( $pad = '  ' )
+  PAX_PROMPT=true
+fi
+
 #end
 #foreach( $o in $opts )
-$!{pad}if [ -z "${dollar}{#VAR( $o )}" ]
-$!{pad}then
-$!{pad}  read -p "$o.name ($o.example) ? " #VAR( $o )
+#if( $o.example )
+#set( $gap = true )
+#VAR( $o )=${dollar}{#VAR( $o ):-$o.example}
+#end
+#end
+#if( $gap )
 
-$!{pad}fi
 #end
-#if( $optional )
+if [ -n "${dollar}{PAX_PROMPT}" ]
+then
+  echo pax-${mojo}
+
+#foreach( $o in $opts )
+  read -p "$o.name (${dollar}{#VAR( $o )}) ? " _INPUT_
+  #VAR( $o )=${dollar}{_INPUT_:-${dollar}{#VAR( $o )}}
+
+#end
 fi
-#end
 #end
 
 mvn $!{maven} ${dollar}{PAX_PLUGIN}:${mojo} \
 #foreach( $o in $opts )
-  "-D$o.name=${dollar}{#VAR( $o ):=$o.example}" \
+  "-D$o.name=${dollar}{#VAR( $o )}" \
 #end
   ${dollar}{PAX_CONSTRUCT_OPTIONS} ${dollar}{_OVERWRITE_} "${dollar}@"
 

@@ -11,18 +11,6 @@ _$o.name.toUpperCase()_#end
 #if( $o.optional )[#end-$o.key $o.help#if( $o.optional )]#end
 #end
 ##-----------------------------------------------------------------------------
-#macro( checkOptions )
-#set( $required = false )
-#set( $optional = false )
-#foreach( $o in $opts )
-#if( $o.optional )
-  #set( $optional = true )
-#else
-  #set( $required = true )
-#end
-#end
-#end
-##-----------------------------------------------------------------------------
 #set( $commands = $files.file( "${basedir}/src/velocity/commands" ).listFiles() )
 ##-----------------------------------------------------------------------------
 #foreach( $cmd in $commands )

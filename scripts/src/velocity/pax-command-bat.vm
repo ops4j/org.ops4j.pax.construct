@@ -43,29 +43,35 @@ goto done
 shift
 
 set _EXTRA_=%PAX_CONSTRUCT_OPTIONS% %_OVERWRITE_% %0 %1 %2 %3 %4 %5 %6 %7 %8 %9
-#checkOptions()
-#if( $required )
+#if( $opts )
 
-#if( $optional )
 #foreach( $o in $opts )
 #if( ! $o.optional )
-if ""=="%#VAR( $o )%" goto request_input
+#set( $gap = true )
+if ""=="%#VAR( $o )%" set PAX_PROMPT=true
 #end
 #end
-goto skip_input
+#if( $gap )
 
-:request_input
 #end
 #foreach( $o in $opts )
-if ""=="%#VAR( $o )%" set /p #VAR( $o )="$o.name ($o.example) ? "
-#end
-#if( $optional )
-:skip_input
-#end
-#end
-
-#foreach( $o in $opts )
+#if( $o.example )
+#set( $gap = true )
 if ""=="%#VAR( $o )%" set #VAR( $o )=$o.example
+#end
+#end
+#if( $gap )
+
+#end
+if ""=="%PAX_PROMPT%" goto skip_input
+  echo pax-${mojo}
+
+#foreach( $o in $opts )
+  set /p _INPUT_="$o.name (%#VAR( $o )%) ? "
+  if not ""=="%_INPUT_%" set #VAR( $o )=%_INPUT_%
+
+#end
+:skip_input
 #end
 
 @echo on
