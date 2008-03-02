@@ -206,7 +206,7 @@ public class CloneMojo extends AbstractMojo
         try
         {
             getLog().info( "Saving UNIX shell script " + nixScript );
-            script.write( nixScript, m_installCommands );
+            script.write( cloneId, nixScript, m_installCommands );
         }
         catch( IOException e )
         {
@@ -216,7 +216,7 @@ public class CloneMojo extends AbstractMojo
         try
         {
             getLog().info( "Saving Windows batch file " + winScript );
-            script.write( winScript, m_installCommands );
+            script.write( cloneId, winScript, m_installCommands );
         }
         catch( IOException e )
         {

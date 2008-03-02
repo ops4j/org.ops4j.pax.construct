@@ -355,7 +355,7 @@ public class PaxScriptImpl
     /**
      * {@inheritDoc}
      */
-    public void write( File scriptFile, List setupCommands )
+    public void write( String title, File scriptFile, List setupCommands )
         throws IOException
     {
         // Sort so projects are created before their bundles
@@ -368,7 +368,13 @@ public class PaxScriptImpl
         writeHeader( writer, isBatchFile );
         writer.newLine();
 
+        writeMessage( writer, "INSTALLING ARCHETYPES CLONED FROM [" + title + ']' );
+        writer.newLine();
+
         writeCommands( writer, isBatchFile, setupCommands );
+        writer.newLine();
+
+        writeMessage( writer, "RECREATING MAVEN PROJECT BASED ON [" + title + ']' );
         writer.newLine();
 
         writeCommands( writer, isBatchFile, m_commands );
@@ -385,22 +391,37 @@ public class PaxScriptImpl
     private static void writeHeader( BufferedWriter writer, boolean isBatchFile )
         throws IOException
     {
+        final String scriptHeader;
         if( isBatchFile )
         {
-            writer.write( "@echo off" );
-            writer.newLine();
-            writer.write( "SETLOCAL" );
-            writer.newLine();
-            writer.write( "set _SCRIPTDIR_=%~dp0" );
-            writer.newLine();
+            scriptHeader = "/header.bat";
         }
         else
         {
-            writer.write( "#!/bin/sh" );
-            writer.newLine();
-            writer.write( "_SCRIPTDIR_=`dirname \"$0\"`" );
-            writer.newLine();
+            scriptHeader = "/header.sh";
         }
+
+        String header = IOUtil.toString( PaxScriptImpl.class.getResourceAsStream( scriptHeader ) );
+
+        writer.write( header );
+    }
+
+    /**
+     * @param writer script writer
+     * @param message the message
+     * @throws IOException
+     */
+    private static void writeMessage( BufferedWriter writer, String message )
+        throws IOException
+    {
+        String border = "++++" + message.replaceAll( ".", "+" );
+
+        writer.write( "echo " + border );
+        writer.newLine();
+        writer.write( "echo + " + message + " +" );
+        writer.newLine();
+        writer.write( "echo " + border );
+        writer.newLine();
     }
 
     /**

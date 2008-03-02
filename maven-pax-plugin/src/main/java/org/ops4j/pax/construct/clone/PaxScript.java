@@ -61,10 +61,11 @@ public interface PaxScript
     /**
      * Write the current script to a file, the file extension is used to customize the contents for the target system
      * 
+     * @param title descriptive name for the script
      * @param scriptFile where the script should be saved
      * @param setupCommands sequence of setup commands
      * @throws IOException
      */
-    void write( File scriptFile, List setupCommands )
+    void write( String title, File scriptFile, List setupCommands )
         throws IOException;
 }
