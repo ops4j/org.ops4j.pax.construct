@@ -752,7 +752,8 @@ public class ProvisionMojo extends AbstractMojo
      */
     ArtifactRepository getOps4jRepository()
     {
-        ArtifactRepositoryPolicy noSnapshots = new ArtifactRepositoryPolicy( false, null, null );
+        ArtifactRepositoryPolicy noSnapshots = new ArtifactRepositoryPolicy( false,
+            ArtifactRepositoryPolicy.UPDATE_POLICY_DAILY, null );
         ArtifactRepositoryPolicy releases = new ArtifactRepositoryPolicy( true,
             ArtifactRepositoryPolicy.UPDATE_POLICY_NEVER, null );
 

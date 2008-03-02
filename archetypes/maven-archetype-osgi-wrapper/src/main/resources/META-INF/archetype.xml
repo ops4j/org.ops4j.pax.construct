@@ -6,7 +6,10 @@
       Pax-Construct Infrastructure
     -->
     <resource>osgi.bnd</resource>
-    <resource>poms/wrappers/pom.xml</resource>
-    <resource>poms/pom.xml</resource>
+    <!--
+      Temporary files with standalone settings
+    -->
+    <resource>target/settings/wrappers/pom.xml</resource>
+    <resource>target/settings/pom.xml</resource>
   </resources>
 </archetype>

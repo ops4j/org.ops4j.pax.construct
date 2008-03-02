@@ -18,10 +18,11 @@
         <directory>src/main/resources</directory>
       </resource>
       <resource>
-        <directory>../maven-archetype-osgi-project/src/main/resources</directory>
+        <directory>../maven-archetype-osgi-project/src/main/resources/archetype-resources/poms</directory>
+        <targetPath>archetype-resources/target/settings</targetPath>
         <includes>
-          <include>archetype-resources/poms/compiled/pom.xml</include>
-          <include>archetype-resources/poms/pom.xml</include>
+          <include>compiled/pom.xml</include>
+          <include>pom.xml</include>
         </includes>
       </resource>
     </resources>

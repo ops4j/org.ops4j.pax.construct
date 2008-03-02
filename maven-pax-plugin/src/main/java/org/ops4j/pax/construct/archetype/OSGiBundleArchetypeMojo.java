@@ -43,8 +43,6 @@ import org.ops4j.pax.construct.util.PomUtils.Pom;
  *   mvn org.ops4j:maven-pax-plugin:create-bundle ...etc...
  * </pre></code>
  * 
- * @extendsPlugin archetype
- * @extendsGoal create
  * @goal create-bundle
  */
 public class OSGiBundleArchetypeMojo extends AbstractPaxArchetypeMojo
@@ -55,6 +53,8 @@ public class OSGiBundleArchetypeMojo extends AbstractPaxArchetypeMojo
 
     private static final String SPRING_VERSION_PROPERTY = "spring.maven.artifact.version";
     private static final String SPRING_VERSION_VARIABLE = "${" + SPRING_VERSION_PROPERTY + "}";
+
+    protected static final String TEMP_SETTINGS_PATH = "target/settings/";
 
     /**
      * The logical parent of the new project (use artifactId or groupId:artifactId).
@@ -156,11 +156,11 @@ public class OSGiBundleArchetypeMojo extends AbstractPaxArchetypeMojo
 
         setMainArchetype( OSGI_BUNDLE_ARCHETYPE_ID );
 
-        getArchetypeMojo().setField( "groupId", getInternalGroupId( bundleGroupId ) );
-        getArchetypeMojo().setField( "artifactId", bundleName );
-        getArchetypeMojo().setField( "version", version );
+        setArchetypeProperty( "groupId", getInternalGroupId( bundleGroupId ) );
+        setArchetypeProperty( "artifactId", bundleName );
+        setArchetypeProperty( "version", version );
 
-        getArchetypeMojo().setField( "packageName", packageName );
+        setArchetypeProperty( "packageName", packageName );
 
         // should we provide code samples?
         if( !hasCustomContent() && ( provideInterface || provideInternals ) )
@@ -177,6 +177,9 @@ public class OSGiBundleArchetypeMojo extends AbstractPaxArchetypeMojo
                 scheduleArchetype( PAX_CONSTRUCT_GROUP_ID, SPRING_BEAN_ARCHETYPE_ID, null );
             }
         }
+
+        // custom properties, not supported by classic archetype plugin
+        setArchetypeProperty( "symbolicName", getBundleSymbolicName() );
     }
 
     /**
@@ -283,8 +286,8 @@ public class OSGiBundleArchetypeMojo extends AbstractPaxArchetypeMojo
             addTempFiles( "src/main/java/" + packagePath + "/internal/*Activator.java" );
         }
 
-        // poms no longer needed
-        addTempFiles( "poms/" );
+        // temporary files no longer needed
+        addTempFiles( TEMP_SETTINGS_PATH );
     }
 
     /**
@@ -299,7 +302,7 @@ public class OSGiBundleArchetypeMojo extends AbstractPaxArchetypeMojo
         throws MojoExecutionException
     {
         File baseDir = pom.getBasedir();
-        File pluginSettingsDir = new File( baseDir, "poms" );
+        File pluginSettingsDir = new File( baseDir, TEMP_SETTINGS_PATH );
         File customSettingsDir = new File( pluginSettingsDir, bundleType );
 
         Pom pluginSettings;

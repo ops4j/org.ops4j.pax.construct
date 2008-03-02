@@ -24,19 +24,27 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Properties;
 import java.util.Set;
 
+import org.apache.maven.archetype.Archetype;
+import org.apache.maven.archetype.ArchetypeDescriptorException;
+import org.apache.maven.archetype.ArchetypeNotFoundException;
+import org.apache.maven.archetype.ArchetypeTemplateProcessingException;
 import org.apache.maven.artifact.Artifact;
 import org.apache.maven.artifact.factory.ArtifactFactory;
 import org.apache.maven.artifact.metadata.ArtifactMetadataSource;
 import org.apache.maven.artifact.repository.ArtifactRepository;
+import org.apache.maven.artifact.repository.ArtifactRepositoryFactory;
+import org.apache.maven.artifact.repository.ArtifactRepositoryPolicy;
+import org.apache.maven.artifact.repository.layout.ArtifactRepositoryLayout;
 import org.apache.maven.artifact.resolver.ArtifactResolver;
 import org.apache.maven.artifact.versioning.ArtifactVersion;
 import org.apache.maven.artifact.versioning.DefaultArtifactVersion;
 import org.apache.maven.artifact.versioning.InvalidVersionSpecificationException;
 import org.apache.maven.artifact.versioning.VersionRange;
+import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
-import org.apache.maven.plugin.archetype.MavenArchetypeMojo;
 import org.apache.maven.project.MavenProject;
 import org.apache.maven.shared.model.fileset.FileSet;
 import org.codehaus.plexus.util.DirectoryScanner;
@@ -46,23 +54,28 @@ import org.ops4j.pax.construct.util.BndUtils.Bnd;
 import org.ops4j.pax.construct.util.DirUtils;
 import org.ops4j.pax.construct.util.PomUtils;
 import org.ops4j.pax.construct.util.PomUtils.Pom;
-import org.ops4j.pax.construct.util.ReflectMojo;
 
 /**
- * Extends <a href="http://maven.apache.org/plugins/maven-archetype-plugin/create-mojo.html">MavenArchetypeMojo</a> to
- * provide flexible custom archetypes for Pax-Construct projects.<br/>Inherited parameters can still be used, but
- * unfortunately don't appear in the generated docs.
+ * Based on <a href="http://maven.apache.org/plugins/maven-archetype-plugin/create-mojo.html">MavenArchetypeMojo</a>,
+ * this abstract mojo adds support for additional archetype properties, needed to provide multi-module archetypes.
  * 
  * @aggregator true
  * 
  * @requiresProject false
  */
-public abstract class AbstractPaxArchetypeMojo extends MavenArchetypeMojo
+public abstract class AbstractPaxArchetypeMojo extends AbstractMojo
 {
     /**
      * Our local archetype group
      */
     public static final String PAX_CONSTRUCT_GROUP_ID = "org.ops4j.pax.construct";
+
+    /**
+     * Component factory for Maven archetypes.
+     * 
+     * @component
+     */
+    private Archetype m_archetypeFactory;
 
     /**
      * Component factory for Maven artifacts
@@ -86,6 +99,18 @@ public abstract class AbstractPaxArchetypeMojo extends MavenArchetypeMojo
     private ArtifactMetadataSource m_source;
 
     /**
+     * Component factory for Maven repositories.
+     * 
+     * @component
+     */
+    private ArtifactRepositoryFactory m_repoFactory;
+
+    /**
+     * @component roleHint="default"
+     */
+    private ArtifactRepositoryLayout m_defaultLayout;
+
+    /**
      * The local Maven repository for the containing project.
      * 
      * @parameter expression="${localRepository}"
@@ -93,6 +118,22 @@ public abstract class AbstractPaxArchetypeMojo extends MavenArchetypeMojo
      * @readonly
      */
     private ArtifactRepository m_localRepo;
+
+    /**
+     * List of remote Maven repositories for the containing project.
+     * 
+     * @parameter expression="${project.remoteArtifactRepositories}"
+     * @required
+     * @readonly
+     */
+    private List m_remoteRepos;
+
+    /**
+     * Other remote repositories available for discovering dependencies and extensions.
+     * 
+     * @parameter expression="${remoteRepositories}"
+     */
+    private String remoteRepositories;
 
     /**
      * The version of the currently executing plugin.
@@ -148,13 +189,12 @@ public abstract class AbstractPaxArchetypeMojo extends MavenArchetypeMojo
 
     /**
      * The current Maven project (will be Maven super-POM if no existing project)
+     * 
+     * @parameter expression="${project}"
+     * @required
+     * @readonly
      */
     private MavenProject m_project;
-
-    /**
-     * Provide access to the private fields of the archetype mojo
-     */
-    private ReflectMojo m_archetypeMojo;
 
     /**
      * The new project's POM file
@@ -185,6 +225,11 @@ public abstract class AbstractPaxArchetypeMojo extends MavenArchetypeMojo
      * Working copy of current Bnd instructions
      */
     private Bnd m_bnd;
+
+    /**
+     * Working set of archetype properties
+     */
+    private Properties m_archetypeProperties;
 
     /**
      * @return component factory for Maven artifacts
@@ -264,14 +309,6 @@ public abstract class AbstractPaxArchetypeMojo extends MavenArchetypeMojo
     }
 
     /**
-     * @return Access to the archetype mojo
-     */
-    protected final ReflectMojo getArchetypeMojo()
-    {
-        return m_archetypeMojo;
-    }
-
-    /**
      * @param pathExpression Ant-style path expression, can include wildcards
      */
     protected final void addTempFiles( String pathExpression )
@@ -285,9 +322,6 @@ public abstract class AbstractPaxArchetypeMojo extends MavenArchetypeMojo
     public final void execute()
         throws MojoExecutionException
     {
-        // to support better templates
-        VelocityBridge.setMojo( this );
-
         updateFields();
         createModuleTree();
 
@@ -300,7 +334,7 @@ public abstract class AbstractPaxArchetypeMojo extends MavenArchetypeMojo
             updateExtensionFields();
 
             prepareTarget();
-            super.execute();
+            generateArchetype();
             cacheSettings();
 
             runCustomArchetypes();
@@ -316,24 +350,24 @@ public abstract class AbstractPaxArchetypeMojo extends MavenArchetypeMojo
      */
     private void updateFields()
     {
+        m_archetypeProperties = new Properties();
+
         /*
          * common shared settings
          */
-        m_archetypeMojo = new ReflectMojo( this, MavenArchetypeMojo.class );
-        m_project = (MavenProject) m_archetypeMojo.getField( "project" );
         targetDirectory = DirUtils.resolveFile( targetDirectory, true );
-        m_archetypeMojo.setField( "basedir", targetDirectory.getPath() );
+        setArchetypeProperty( "basedir", targetDirectory.getPath() );
 
         /*
          * these must be set by the various archetype sub-classes
          */
         // setMainArchetype( archetypeArtifactId );
         //
-        // getArchetypeMojo().setField( "groupId", groupId );
-        // getArchetypeMojo().setField( "artifactId", artifactId );
-        // getArchetypeMojo().setField( "version", version );
+        // setArchetypeProperty( "groupId", groupId );
+        // setArchetypeProperty( "artifactId", artifactId );
+        // setArchetypeProperty( "version", version );
         //
-        // getArchetypeMojo().setField( "packageName", packageName );
+        // setArchetypeProperty( "packageName", packageName );
     }
 
     /**
@@ -470,9 +504,9 @@ public abstract class AbstractPaxArchetypeMojo extends MavenArchetypeMojo
             archetypeVersion = getArchetypeVersion( PAX_CONSTRUCT_GROUP_ID, archetypeArtifactId );
         }
 
-        m_archetypeMojo.setField( "archetypeGroupId", PAX_CONSTRUCT_GROUP_ID );
-        m_archetypeMojo.setField( "archetypeArtifactId", archetypeArtifactId );
-        m_archetypeMojo.setField( "archetypeVersion", archetypeVersion );
+        setArchetypeProperty( "archetypeGroupId", PAX_CONSTRUCT_GROUP_ID );
+        setArchetypeProperty( "archetypeArtifactId", archetypeArtifactId );
+        setArchetypeProperty( "archetypeVersion", archetypeVersion );
     }
 
     /**
@@ -483,7 +517,7 @@ public abstract class AbstractPaxArchetypeMojo extends MavenArchetypeMojo
     private void prepareTarget()
         throws MojoExecutionException
     {
-        String artifactId = (String) m_archetypeMojo.getField( "artifactId" );
+        String artifactId = getArchetypeProperty( "artifactId" );
         File pomDirectory = new File( targetDirectory, artifactId );
 
         // support overwriting of existing projects
@@ -508,6 +542,8 @@ public abstract class AbstractPaxArchetypeMojo extends MavenArchetypeMojo
 
         if( null != m_modulesPom )
         {
+            setArchetypeProperty( "isMultiModuleProject", "true" );
+
             try
             {
                 // attach new project to its physical parent
@@ -605,11 +641,11 @@ public abstract class AbstractPaxArchetypeMojo extends MavenArchetypeMojo
         {
             String[] fields = ( (String) i.next() ).split( ":" );
 
-            m_archetypeMojo.setField( "archetypeGroupId", fields[0] );
-            m_archetypeMojo.setField( "archetypeArtifactId", fields[1] );
-            m_archetypeMojo.setField( "archetypeVersion", fields[2] );
+            setArchetypeProperty( "archetypeGroupId", fields[0] );
+            setArchetypeProperty( "archetypeArtifactId", fields[1] );
+            setArchetypeProperty( "archetypeVersion", fields[2] );
 
-            super.execute();
+            generateArchetype();
         }
     }
 
@@ -793,10 +829,84 @@ public abstract class AbstractPaxArchetypeMojo extends MavenArchetypeMojo
     }
 
     /**
-     * @return true when part of a multi-module project, otherwise false
+     * @param name property name
+     * @param value property value
      */
-    public boolean isMultiModuleProject()
+    protected final void setArchetypeProperty( String name, String value )
     {
-        return null != m_modulesPom;
+        m_archetypeProperties.setProperty( name, value );
+        if( "packageName".equals( name ) )
+        {
+            m_archetypeProperties.setProperty( "package", value );
+        }
+    }
+
+    /**
+     * @param name property name
+     * @return property value
+     */
+    protected final String getArchetypeProperty( String name )
+    {
+        return m_archetypeProperties.getProperty( name );
+    }
+
+    /**
+     * Generate Pax-Construct archetype (derived from classic archetype plugin)
+     * 
+     * @throws MojoExecutionException
+     */
+    private void generateArchetype()
+        throws MojoExecutionException
+    {
+        List archetypeRemoteRepositories = new ArrayList();
+
+        if( remoteRepositories != null )
+        {
+            getLog().info( "We are using command line specified remote repositories: " + remoteRepositories );
+
+            String[] s = remoteRepositories.split( "," );
+            for( int i = 0; i < s.length; i++ )
+            {
+                archetypeRemoteRepositories.add( createRemoteRepository( "id" + i, s[i] ) );
+            }
+        }
+        else
+        {
+            archetypeRemoteRepositories.addAll( m_remoteRepos );
+        }
+
+        try
+        {
+            m_archetypeFactory.createArchetype( getArchetypeProperty( "archetypeGroupId" ),
+                getArchetypeProperty( "archetypeArtifactId" ), archetypeVersion, m_localRepo,
+                archetypeRemoteRepositories, m_archetypeProperties );
+        }
+        catch( ArchetypeNotFoundException e )
+        {
+            throw new MojoExecutionException( "Error creating from archetype", e );
+        }
+        catch( ArchetypeDescriptorException e )
+        {
+            throw new MojoExecutionException( "Error creating from archetype", e );
+        }
+        catch( ArchetypeTemplateProcessingException e )
+        {
+            throw new MojoExecutionException( "Error creating from archetype", e );
+        }
+    }
+
+    /**
+     * @param id repository id
+     * @param url repository url
+     * @return repository instance
+     */
+    private ArtifactRepository createRemoteRepository( String id, String url )
+    {
+        ArtifactRepositoryPolicy snapshots = new ArtifactRepositoryPolicy( true,
+            ArtifactRepositoryPolicy.UPDATE_POLICY_ALWAYS, null );
+        ArtifactRepositoryPolicy releases = new ArtifactRepositoryPolicy( true,
+            ArtifactRepositoryPolicy.UPDATE_POLICY_ALWAYS, null );
+
+        return m_repoFactory.createArtifactRepository( id, url, m_defaultLayout, snapshots, releases );
     }
 }

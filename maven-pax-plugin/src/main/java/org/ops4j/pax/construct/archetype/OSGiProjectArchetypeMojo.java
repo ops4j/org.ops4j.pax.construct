@@ -33,8 +33,6 @@ import org.ops4j.pax.construct.util.PomUtils.Pom;
  *   mvn org.ops4j:maven-pax-plugin:create-project -DgroupId=... -DartifactId=... [-Dversion=...]
  * </pre></code>
  * 
- * @extendsPlugin archetype
- * @extendsGoal create
  * @goal create-project
  */
 public class OSGiProjectArchetypeMojo extends AbstractPaxArchetypeMojo
@@ -83,11 +81,11 @@ public class OSGiProjectArchetypeMojo extends AbstractPaxArchetypeMojo
     {
         setMainArchetype( OSGI_PROJECT_ARCHETYPE_ID );
 
-        getArchetypeMojo().setField( "groupId", groupId );
-        getArchetypeMojo().setField( "artifactId", artifactId );
-        getArchetypeMojo().setField( "version", version );
+        setArchetypeProperty( "groupId", groupId );
+        setArchetypeProperty( "artifactId", artifactId );
+        setArchetypeProperty( "version", version );
 
-        getArchetypeMojo().setField( "packageName", getCompoundId( groupId, artifactId ) );
+        setArchetypeProperty( "packageName", getCompoundId( groupId, artifactId ) );
     }
 
     /**

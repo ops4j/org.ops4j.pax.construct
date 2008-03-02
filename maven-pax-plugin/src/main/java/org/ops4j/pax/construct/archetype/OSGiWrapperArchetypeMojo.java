@@ -47,8 +47,6 @@ import org.ops4j.pax.construct.util.PomUtils.Pom;
  *   mvn org.ops4j:maven-pax-plugin:wrap-jar ...etc...
  * </pre></code>
  * 
- * @extendsPlugin archetype
- * @extendsGoal create
  * @goal wrap-jar
  */
 public class OSGiWrapperArchetypeMojo extends AbstractPaxArchetypeMojo
@@ -239,7 +237,7 @@ public class OSGiWrapperArchetypeMojo extends AbstractPaxArchetypeMojo
             setMainArchetype( OSGI_WRAPPER_ARCHETYPE_ID );
 
             // only need to set this once: the same groupId is used for extra wrappers
-            getArchetypeMojo().setField( "groupId", getInternalGroupId( bundleGroupId ) );
+            setArchetypeProperty( "groupId", getInternalGroupId( bundleGroupId ) );
 
             // bootstrap with the initial wrapper artifact
             String rootId = groupId + ':' + artifactId + ':' + version;
@@ -269,9 +267,15 @@ public class OSGiWrapperArchetypeMojo extends AbstractPaxArchetypeMojo
         }
 
         // common groupId shared between all wrappers in same session
-        getArchetypeMojo().setField( "artifactId", compoundWrapperId );
-        getArchetypeMojo().setField( "packageName", artifactId );
-        getArchetypeMojo().setField( "version", version );
+        setArchetypeProperty( "artifactId", compoundWrapperId );
+        setArchetypeProperty( "packageName", artifactId );
+        setArchetypeProperty( "version", version );
+
+        // custom properties, not supported by classic archetype plugin
+        setArchetypeProperty( "wrappedGroupId", getWrappedGroupId() );
+        setArchetypeProperty( "wrappedArtifactId", getWrappedArtifactId() );
+        setArchetypeProperty( "symbolicName", getBundleSymbolicName() );
+        setArchetypeProperty( "bundleVersion", getBundleVersion() );
     }
 
     /**
@@ -365,8 +369,8 @@ public class OSGiWrapperArchetypeMojo extends AbstractPaxArchetypeMojo
         updatePomDependencies( pom );
         updateBndInstructions( bnd );
 
-        // poms no longer needed
-        addTempFiles( "poms/" );
+        // temporary files no longer needed
+        addTempFiles( OSGiBundleArchetypeMojo.TEMP_SETTINGS_PATH );
     }
 
     /**

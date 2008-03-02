@@ -111,19 +111,8 @@
       <version>2.0.7</version>
     </dependency>
     <dependency>
-      <groupId>org.apache.maven.plugins</groupId>
-      <artifactId>maven-archetype-plugin</artifactId>
-      <type>maven-plugin</type>
-      <version>1.0-alpha-7</version>
-    </dependency>
-    <dependency>
       <groupId>org.apache.maven.archetype</groupId>
       <artifactId>maven-archetype-core</artifactId>
-      <version>1.0-alpha-7</version>
-    </dependency>
-    <dependency>
-      <groupId>org.apache.maven.archetype</groupId>
-      <artifactId>maven-archetype-creator</artifactId>
       <version>1.0-alpha-7</version>
     </dependency>
     <dependency>

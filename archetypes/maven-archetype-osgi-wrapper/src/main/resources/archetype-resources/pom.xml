@@ -2,34 +2,24 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
   xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 
-##=====================================================
-## call back into current mojo for Bundle-SymbolicName
-##-----------------------------------------------------
-#set( $bridge = $artifactId.getClass().forName("org.ops4j.pax.construct.archetype.VelocityBridge") )
-#set( $mojo = $bridge.newInstance().getMojo() )
-##=====================================================
   <properties>
-#set( $bsn = $mojo.getBundleSymbolicName() )
-#if( !$bsn )
-#set( $bsn = $artifactId )
+#if( !$symbolicName )
+#set( $symbolicName = "${groupId}.${artifactId}" )
 #end
-    <bundle.symbolicName>${bsn}</bundle.symbolicName>
-#set( $wrappedGroupId = $mojo.getWrappedGroupId() )
+    <bundle.symbolicName>${symbolicName}</bundle.symbolicName>
 #if( !$wrappedGroupId )
-#set( $wrappedGroupId = $package )
+#set( $wrappedGroupId = ${package} )
 #end
-#set( $wrappedArtifactId = $mojo.getWrappedArtifactId() )
 #if( !$wrappedArtifactId )
-#set( $wrappedArtifactId = $package )
+#set( $wrappedArtifactId = ${package} )
 #end
     <wrapped.groupId>${wrappedGroupId}</wrapped.groupId>
     <wrapped.artifactId>${wrappedArtifactId}</wrapped.artifactId>
     <wrapped.version>${version}</wrapped.version>
   </properties>
 
-#set( $bundleVersion = $mojo.getBundleVersion() )
 #if( !$bundleVersion )
-#set( $bundleVersion = $version )
+#set( $bundleVersion = ${version} )
 #end
   <modelVersion>4.0.0</modelVersion>
   <groupId>${groupId}</groupId>
