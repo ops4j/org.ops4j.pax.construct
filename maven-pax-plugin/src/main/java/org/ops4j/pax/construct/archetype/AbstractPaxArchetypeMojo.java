@@ -264,6 +264,14 @@ public abstract class AbstractPaxArchetypeMojo extends AbstractMojo
     }
 
     /**
+     * @return remote Maven repositories
+     */
+    protected final List getRemoteRepos()
+    {
+        return m_remoteRepos;
+    }
+
+    /**
      * @return true if existing files can be overwritten, otherwise false
      */
     protected final boolean canOverwrite()
@@ -859,7 +867,6 @@ public abstract class AbstractPaxArchetypeMojo extends AbstractMojo
         throws MojoExecutionException
     {
         List archetypeRemoteRepositories = new ArrayList();
-
         if( remoteRepositories != null )
         {
             getLog().info( "We are using command line specified remote repositories: " + remoteRepositories );

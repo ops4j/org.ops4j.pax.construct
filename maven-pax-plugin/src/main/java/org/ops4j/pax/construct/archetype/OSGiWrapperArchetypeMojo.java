@@ -66,15 +66,6 @@ public class OSGiWrapperArchetypeMojo extends AbstractPaxArchetypeMojo
     private MavenProjectBuilder m_projectBuilder;
 
     /**
-     * List of remote Maven repositories for the containing project.
-     * 
-     * @parameter expression="${project.remoteArtifactRepositories}"
-     * @required
-     * @readonly
-     */
-    private List m_remoteRepos;
-
-    /**
      * The logical parent of the new project (use artifactId or groupId:artifactId).
      * 
      * @parameter expression="${parentId}" default-value="wrapper-bundle-settings"
@@ -351,7 +342,7 @@ public class OSGiWrapperArchetypeMojo extends AbstractPaxArchetypeMojo
         if( PomUtils.needReleaseVersion( version ) )
         {
             Artifact artifact = getFactory().createBuildArtifact( groupId, artifactId, "RELEASE", "jar" );
-            version = PomUtils.getReleaseVersion( artifact, getSource(), m_remoteRepos, getLocalRepo(), null );
+            version = PomUtils.getReleaseVersion( artifact, getSource(), getRemoteRepos(), getLocalRepo(), null );
         }
     }
 
@@ -456,7 +447,7 @@ public class OSGiWrapperArchetypeMojo extends AbstractPaxArchetypeMojo
             try
             {
                 // Standard Maven code to get direct dependencies for a given POM
-                MavenProject p = m_projectBuilder.buildFromRepository( pomArtifact, m_remoteRepos, getLocalRepo() );
+                MavenProject p = m_projectBuilder.buildFromRepository( pomArtifact, getRemoteRepos(), getLocalRepo() );
                 Set artifacts = p.createArtifacts( getFactory(), null, null );
 
                 // look for new artifacts to wrap
@@ -578,7 +569,7 @@ public class OSGiWrapperArchetypeMojo extends AbstractPaxArchetypeMojo
             pom.addExclusion( artifact.getGroupId(), artifact.getArtifactId(), true );
             return false;
         }
-        else if( PomUtils.isBundleArtifact( artifact, getResolver(), m_remoteRepos, getLocalRepo(), testMetadata ) )
+        else if( PomUtils.isBundleArtifact( artifact, getResolver(), getRemoteRepos(), getLocalRepo(), testMetadata ) )
         {
             pom.addDependency( getBundleDependency( artifact ), true );
             return false;
