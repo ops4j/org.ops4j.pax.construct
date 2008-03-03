@@ -152,6 +152,8 @@ public final class RoundTripXml
      */
     private static final class RoundTripSerializer extends MXSerializer
     {
+        private static final String NEWLINE = System.getProperty( "line.separator" );
+
         /**
          * Are we serializing a comment?
          */
@@ -165,7 +167,7 @@ public final class RoundTripXml
             super();
 
             setProperty( PROPERTY_SERIALIZER_INDENTATION, "  " );
-            setProperty( PROPERTY_SERIALIZER_LINE_SEPARATOR, System.getProperty( "line.separator" ) );
+            setProperty( PROPERTY_SERIALIZER_LINE_SEPARATOR, NEWLINE );
         }
 
         /**
@@ -187,7 +189,8 @@ public final class RoundTripXml
                 }
                 writeIndent();
 
-                comment( name.substring( 3 ) );
+                String text = name.substring( 3 );
+                comment( text.replaceAll( "[\r\n\f]", NEWLINE ) );
                 return this;
             }
 
