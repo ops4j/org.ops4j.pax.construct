@@ -67,6 +67,7 @@ if ""=="%PAX_PROMPT%" goto skip_input
   echo pax-${mojo}
 
 #foreach( $o in $opts )
+  set _INPUT_=
   set /p _INPUT_="$o.name (%#VAR( $o )%) ? "
   if not ""=="%_INPUT_%" set #VAR( $o )=%_INPUT_%
 
