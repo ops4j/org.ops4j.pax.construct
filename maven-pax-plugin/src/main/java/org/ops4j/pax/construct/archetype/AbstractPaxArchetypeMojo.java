@@ -75,7 +75,7 @@ public abstract class AbstractPaxArchetypeMojo extends AbstractMojo
      * 
      * @component
      */
-    private Archetype m_archetypeFactory;
+    private Archetype m_archetype;
 
     /**
      * Component factory for Maven artifacts
@@ -866,7 +866,7 @@ public abstract class AbstractPaxArchetypeMojo extends AbstractMojo
     private void generateArchetype()
         throws MojoExecutionException
     {
-        List archetypeRemoteRepositories = new ArrayList();
+        List repos = new ArrayList();
         if( remoteRepositories != null )
         {
             getLog().info( "We are using command line specified remote repositories: " + remoteRepositories );
@@ -874,19 +874,21 @@ public abstract class AbstractPaxArchetypeMojo extends AbstractMojo
             String[] s = remoteRepositories.split( "," );
             for( int i = 0; i < s.length; i++ )
             {
-                archetypeRemoteRepositories.add( createRemoteRepository( "id" + i, s[i] ) );
+                repos.add( createRemoteRepository( "id" + i, s[i] ) );
             }
         }
         else
         {
-            archetypeRemoteRepositories.addAll( m_remoteRepos );
+            repos.addAll( m_remoteRepos );
         }
 
         try
         {
-            m_archetypeFactory.createArchetype( getArchetypeProperty( "archetypeGroupId" ),
-                getArchetypeProperty( "archetypeArtifactId" ), archetypeVersion, m_localRepo,
-                archetypeRemoteRepositories, m_archetypeProperties );
+            String groupId = getArchetypeProperty( "archetypeGroupId" );
+            String artifactId = getArchetypeProperty( "archetypeArtifactId" );
+            String version = getArchetypeProperty( "archetypeVersion" );
+
+            m_archetype.createArchetype( groupId, artifactId, version, m_localRepo, repos, m_archetypeProperties );
         }
         catch( ArchetypeNotFoundException e )
         {
