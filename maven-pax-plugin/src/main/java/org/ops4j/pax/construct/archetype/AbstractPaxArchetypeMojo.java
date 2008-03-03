@@ -32,6 +32,7 @@ import org.apache.maven.archetype.ArchetypeDescriptorException;
 import org.apache.maven.archetype.ArchetypeNotFoundException;
 import org.apache.maven.archetype.ArchetypeTemplateProcessingException;
 import org.apache.maven.artifact.Artifact;
+import org.apache.maven.artifact.ArtifactUtils;
 import org.apache.maven.artifact.factory.ArtifactFactory;
 import org.apache.maven.artifact.metadata.ArtifactMetadataSource;
 import org.apache.maven.artifact.repository.ArtifactRepository;
@@ -454,14 +455,25 @@ public abstract class AbstractPaxArchetypeMojo extends AbstractMojo
     private VersionRange getArchetypeVersionRange()
     {
         ArtifactVersion version = new DefaultArtifactVersion( pluginVersion );
+        int thisRelease = version.getMajorVersion();
 
-        int major = version.getMajorVersion();
-        int minor = version.getMinorVersion();
+        int prevRelease = thisRelease - 1;
+        int nextRelease = thisRelease + 1;
+
+        String spec;
+        if( false == ArtifactUtils.isSnapshot( pluginVersion ) )
+        {
+            // keep to same release to avoid potential borkage
+            spec = "[" + thisRelease + ',' + nextRelease + ')';
+        }
+        else
+        {
+            // allow use of previous release during development
+            spec = "[" + prevRelease + ',' + nextRelease + ')';
+        }
 
         try
         {
-            // limit version range to the same major.minor release as the current plugin
-            String spec = "[" + major + '.' + minor + ',' + major + '.' + ( 1 + minor ) + ')';
             return VersionRange.createFromVersionSpec( spec );
         }
         catch( InvalidVersionSpecificationException e )
@@ -486,7 +498,7 @@ public abstract class AbstractPaxArchetypeMojo extends AbstractMojo
             return pluginVersion;
         }
 
-        // limit archetypes to same major and minor version
+        // select archetypes based on the plugin version
         VersionRange range = getArchetypeVersionRange();
 
         try
