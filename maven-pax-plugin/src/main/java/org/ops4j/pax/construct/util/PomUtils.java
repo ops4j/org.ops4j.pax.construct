@@ -582,21 +582,38 @@ public final class PomUtils
         for( Iterator i = versions.iterator(); i.hasNext(); )
         {
             ArtifactVersion v = (ArtifactVersion) i.next();
-            if( range != null && !range.containsVersion( v ) )
-            {
-                continue; // ignore this version
-            }
-            else if( releaseVersion.compareTo( v ) <= 0 && !ArtifactUtils.isSnapshot( v.toString() ) )
+            if( isCompatible( range, v ) && releaseVersion.compareTo( v ) <= 0 )
             {
                 releaseVersion = v;
             }
         }
 
+        // no compatible version found
         if( baseline == releaseVersion )
         {
             return null;
         }
+
         return releaseVersion;
+    }
+
+    /**
+     * @param range compatible range
+     * @param version candidate version
+     * @return true if this version is compatible, otherwise false
+     */
+    private static boolean isCompatible( VersionRange range, ArtifactVersion version )
+    {
+        if( version.getMajorVersion() > 10000000 || ArtifactUtils.isSnapshot( version.toString() ) )
+        {
+            return false; // ignore snapshots and possible timestamped releases
+        }
+        else if( range != null && !range.containsVersion( version ) )
+        {
+            return false; // ignore this version as it's not compatible
+        }
+
+        return true;
     }
 
     /**
