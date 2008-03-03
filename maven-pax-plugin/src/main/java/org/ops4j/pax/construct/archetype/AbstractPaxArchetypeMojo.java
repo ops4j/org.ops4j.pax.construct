@@ -542,9 +542,16 @@ public abstract class AbstractPaxArchetypeMojo extends AbstractMojo
 
         // support overwriting of existing projects
         m_pomFile = new File( pomDirectory, "pom.xml" );
-        if( canOverwrite() && m_pomFile.exists() )
+        if( m_pomFile.exists() )
         {
-            m_pomFile.delete();
+            if( canOverwrite() )
+            {
+                m_pomFile.delete();
+            }
+            else
+            {
+                throw new MojoExecutionException( "Project already exists, use -Doverwrite or -o to replace it" );
+            }
         }
 
         // reset trashcan

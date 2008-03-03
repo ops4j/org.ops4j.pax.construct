@@ -81,6 +81,9 @@ public class OSGiProjectArchetypeMojo extends AbstractPaxArchetypeMojo
     {
         setMainArchetype( OSGI_PROJECT_ARCHETYPE_ID );
 
+        // remove trailing slashes (in case someone did tab-complete)
+        artifactId = artifactId.replaceAll( "[/\\\\]+$", "" );
+
         setArchetypeProperty( "groupId", groupId );
         setArchetypeProperty( "artifactId", artifactId );
         setArchetypeProperty( "version", version );

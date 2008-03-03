@@ -193,6 +193,10 @@ public class OSGiBundleArchetypeMojo extends AbstractPaxArchetypeMojo
             bundleName = packageName;
         }
 
+        // remove trailing slashes (in case someone did tab-complete)
+        packageName = packageName.replaceAll( "[/\\\\]+$", "" );
+        bundleName = bundleName.replaceAll( "[/\\\\]+$", "" );
+
         // default to the classic version of JUnit
         if( "true".equals( junitVersion ) || "".equals( junitVersion ) )
         {
