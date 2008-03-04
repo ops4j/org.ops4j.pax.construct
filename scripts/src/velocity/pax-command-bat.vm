@@ -79,8 +79,6 @@ if ""=="%PAX_PROMPT%" goto skip_input
 :skip_input
 #end
 
-call "%_SCRIPTDIR_%\pax-validate"
-
 @echo on
 mvn $!{maven} %PAX_PLUGIN%:${mojo}#foreach( $o in $opts ) -D$o.name=%#VAR( $o )%#end %_EXTRA_%
 :done

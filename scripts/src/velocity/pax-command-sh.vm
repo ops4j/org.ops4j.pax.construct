@@ -72,8 +72,6 @@ then
 fi
 #end
 
-. "${dollar}{_SCRIPTDIR_}/pax-validate"
-
 mvn $!{maven} ${dollar}{PAX_PLUGIN}:${mojo} \
 #foreach( $o in $opts )
   "-D$o.name=${dollar}{#VAR( $o )}" \

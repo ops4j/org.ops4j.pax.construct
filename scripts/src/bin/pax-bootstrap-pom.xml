@@ -6,7 +6,8 @@
   <artifactId>bootstrap</artifactId>
   <version>1.0</version>
 
-  <name>OPS4J - bootstrap POM to download initial plugin binary</name>
+  <name>Bootstrap Project</name>
+  <packaging>pom</packaging>
 
   <build>
     <plugins>
