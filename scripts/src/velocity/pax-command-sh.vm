@@ -59,13 +59,16 @@ fi
 #end
 if [ -n "${dollar}{PAX_PROMPT}" ]
 then
-  echo pax-${mojo}
+  echo
+  echo "pax-${mojo}#foreach( $o in $opts ) #help( $o )#end [-o] [-- mvnOpts ...]"
+  echo
 
 #foreach( $o in $opts )
   read -p "$o.name (${dollar}{#VAR( $o )}) ? " _INPUT_
   #VAR( $o )=${dollar}{_INPUT_:-${dollar}{#VAR( $o )}}
 
 #end
+  echo
 fi
 #end
 

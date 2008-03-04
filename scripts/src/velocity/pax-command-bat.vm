@@ -64,7 +64,9 @@ if ""=="%#VAR( $o )%" set #VAR( $o )=$o.example
 
 #end
 if ""=="%PAX_PROMPT%" goto skip_input
-  echo pax-${mojo}
+  echo
+  echo pax-${mojo}#foreach( $o in $opts ) #help( $o )#end [-o] [-- mvnOpts ...]
+  echo
 
 #foreach( $o in $opts )
   set _INPUT_=
@@ -72,6 +74,7 @@ if ""=="%PAX_PROMPT%" goto skip_input
   if not ""=="%_INPUT_%" set #VAR( $o )=%_INPUT_%
 
 #end
+  echo
 :skip_input
 #end
 
