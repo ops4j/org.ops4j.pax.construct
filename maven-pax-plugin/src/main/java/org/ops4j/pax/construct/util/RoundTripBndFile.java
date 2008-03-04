@@ -129,17 +129,20 @@ public class RoundTripBndFile
      */
     public void overlayInstructions( Bnd bnd )
     {
-        for( Iterator i = bnd.getDirectives().iterator(); i.hasNext(); )
+        Set directives = bnd.getDirectives();
+
+        if( directives.contains( "Private-Package" ) || directives.contains( "Export-Package" ) )
+        {
+            // maintain behaviour of old wrapper poms
+            removeInstruction( "Embed-Dependency" );
+        }
+
+        for( Iterator i = directives.iterator(); i.hasNext(); )
         {
             String directive = (String) i.next();
-            if( "Private-Package".equals( directive ) || "Export-Package".equals( directive ) )
-            {
-                // old wrapper: maintain behaviour
-                removeInstruction( "Embed-Dependency" );
-            }
 
             String instruction = bnd.getInstruction( directive );
-            m_newInstructions.setProperty( directive, instruction );
+            setInstruction( directive, instruction, true );
         }
     }
 
