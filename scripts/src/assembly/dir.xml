@@ -1,5 +1,4 @@
 <assembly>
-  <id>dir</id>
   <includeBaseDirectory>false</includeBaseDirectory>
   <formats>
     <format>dir</format>

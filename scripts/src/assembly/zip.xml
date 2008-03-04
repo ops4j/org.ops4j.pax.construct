@@ -1,5 +1,4 @@
 <assembly>
-  <id>zip</id>
   <includeBaseDirectory>true</includeBaseDirectory>
   <formats>
     <format>zip</format>

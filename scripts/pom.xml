@@ -44,6 +44,29 @@
         </executions>
       </plugin>
       <plugin>
+        <artifactId>maven-dependency-plugin</artifactId>
+        <version>2.0</version>
+        <executions>
+          <execution>
+            <id>unpack-plugin-descriptor</id>
+            <phase>generate-resources</phase>
+            <goals>
+              <goal>unpack</goal>
+            </goals>
+            <configuration>
+              <includes>**/plugin.xml</includes>
+              <artifactItems>
+                <artifactItem>
+                  <groupId>org.ops4j</groupId>
+                  <artifactId>maven-pax-plugin</artifactId>
+                  <version>${pom.version}</version>
+                </artifactItem>
+              </artifactItems>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
+      <plugin>
         <artifactId>maven-antrun-plugin</artifactId>
         <executions>
           <execution>
@@ -70,6 +93,7 @@
       </plugin>
       <plugin>
         <artifactId>maven-assembly-plugin</artifactId>
+        <version>2.2-beta-2</version>
         <executions>
           <execution>
             <id>make-assembly</id>
@@ -79,7 +103,6 @@
             </goals>
             <configuration>
               <finalName>pax-construct-${version}</finalName>
-              <appendAssemblyId>false</appendAssemblyId>
               <descriptors>
                 <descriptor>src/assembly/zip.xml</descriptor>
               </descriptors>
@@ -89,7 +112,7 @@
             <id>release-scripts</id>
             <phase>package</phase>
             <goals>
-              <goal>single</goal>
+              <goal>directory-single</goal>
             </goals>
             <configuration>
               <finalName>release</finalName>
