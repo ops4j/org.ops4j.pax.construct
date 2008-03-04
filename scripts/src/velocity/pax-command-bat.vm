@@ -4,7 +4,6 @@
 @echo off
 SETLOCAL
 set _SCRIPTDIR_=%~dp0
-call "%_SCRIPTDIR_%\pax-validate"
 
 if ""=="%PAX_CONSTRUCT_VERSION%" set PAX_CONSTRUCT_VERSION=${version}
 set PAX_PLUGIN=org.ops4j:maven-pax-plugin:%PAX_CONSTRUCT_VERSION%
@@ -79,6 +78,8 @@ if ""=="%PAX_PROMPT%" goto skip_input
   echo
 :skip_input
 #end
+
+call "%_SCRIPTDIR_%\pax-validate"
 
 @echo on
 mvn $!{maven} %PAX_PLUGIN%:${mojo}#foreach( $o in $opts ) -D$o.name=%#VAR( $o )%#end %_EXTRA_%

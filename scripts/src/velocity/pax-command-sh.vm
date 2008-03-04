@@ -3,7 +3,6 @@
 ##-----------------------------------------------------------------------------
 #!/bin/sh
 _SCRIPTDIR_=`dirname "${dollar}0"`
-. "${dollar}{_SCRIPTDIR_}/pax-validate"
 
 if [ -z "${dollar}{PAX_CONSTRUCT_VERSION}" ]
 then
@@ -72,6 +71,8 @@ then
   echo
 fi
 #end
+
+. "${dollar}{_SCRIPTDIR_}/pax-validate"
 
 mvn $!{maven} ${dollar}{PAX_PLUGIN}:${mojo} \
 #foreach( $o in $opts )
