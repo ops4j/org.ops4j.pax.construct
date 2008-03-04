@@ -504,7 +504,7 @@ public abstract class AbstractPaxArchetypeMojo extends AbstractMojo
         try
         {
             getLog().info( "Selecting latest archetype release within version range " + range );
-            return PomUtils.getReleaseVersion( artifact, m_source, Collections.EMPTY_LIST, m_localRepo, range );
+            return PomUtils.getReleaseVersion( artifact, m_source, m_remoteRepos, m_localRepo, range );
         }
         catch( MojoExecutionException e )
         {
