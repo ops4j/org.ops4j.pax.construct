@@ -12,7 +12,21 @@
       <fileMode>0755</fileMode>
       <excludes>
         <exclude>script.properties</exclude>
+        <exclude>pax-bootstrap-pom.xml</exclude>
+        <exclude>LICENSE</exclude>
+        <exclude>NOTICE</exclude>
       </excludes>
+    </fileSet>
+    <fileSet>
+      <directory>target/bin</directory>
+      <outputDirectory>bin</outputDirectory>
+      <directoryMode>0755</directoryMode>
+      <fileMode>0644</fileMode>
+      <includes>
+        <include>pax-bootstrap-pom.xml</include>
+        <include>LICENSE</include>
+        <include>NOTICE</include>
+      </includes>
     </fileSet>
   </fileSets>
 </assembly>

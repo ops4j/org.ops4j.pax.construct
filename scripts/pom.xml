@@ -23,7 +23,6 @@
       </resource>
       <resource>
         <directory>.</directory>
-        <targetPath>META-INF</targetPath>
         <includes>
           <include>LICENSE*</include>
           <include>NOTICE*</include>
