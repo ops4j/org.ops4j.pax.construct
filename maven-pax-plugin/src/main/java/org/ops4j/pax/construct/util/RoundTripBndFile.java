@@ -133,7 +133,8 @@ public class RoundTripBndFile
 
         if( directives.contains( "Private-Package" ) || directives.contains( "Export-Package" ) )
         {
-            // maintain behaviour of old wrapper poms
+            // this might be an old converted wrapper project, so remove the default
+            // embed dependency directive (only specified in osgi-wrapper archetype)
             removeInstruction( "Embed-Dependency" );
         }
 
