@@ -36,7 +36,8 @@ if "%0"=="" goto endopts
 
 echo %_BATFILE_%: illegal option -- %0
 :help
-echo pax-${mojo}#foreach( $o in $opts ) #help( $o )#end [-o] [-- mvnOpts ...]
+echo #help( $mojo $opts )
+
 goto done
 :endopts
 
@@ -65,7 +66,8 @@ if ""=="%#VAR( $o )%" set #VAR( $o )=$o.example
 #end
 if ""=="%PAX_PROMPT%" goto skip_input
   echo
-  echo pax-${mojo}#foreach( $o in $opts ) #help( $o )#end [-o] [-- mvnOpts ...]
+  echo #help( $mojo $opts )
+
   echo
 
 #foreach( $o in $opts )

@@ -4,12 +4,15 @@
 #macro( VAR $o )
 _$o.name.toUpperCase()_#end
 ##-----------------------------------------------------------------------------
-#macro( help $o )
+#macro( arg $o )
 #if( ! $o.help )
   #set( $o.help = $o.name )
 #end
 #if( $o.optional )[#end-$o.key $o.help#if( $o.optional )]#end
 #end
+##-----------------------------------------------------------------------------
+#macro( help $mojo $opts )
+pax-${mojo}#foreach( $o in $opts ) #arg( $o )#end [-o] [-- mvnOpts ...]#end
 ##-----------------------------------------------------------------------------
 #set( $commands = $files.file( "${basedir}/src/velocity/commands" ).listFiles() )
 ##-----------------------------------------------------------------------------
