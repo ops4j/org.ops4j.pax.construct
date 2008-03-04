@@ -471,6 +471,7 @@ public class OSGiBundleArchetypeMojo extends AbstractPaxArchetypeMojo
         }
         if( !haveInternals )
         {
+            bnd.setInstruction( "Export-Package", "${bundle.namespace}.*;version=\"${pom.version}\"", canOverwrite() );
             bnd.setInstruction( "Private-Package", null, canOverwrite() );
         }
         if( !haveInterface )
