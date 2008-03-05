@@ -44,30 +44,6 @@
         </executions>
       </plugin>
       <plugin>
-        <artifactId>maven-dependency-plugin</artifactId>
-        <version>2.0</version>
-        <executions>
-          <execution>
-            <id>unpack-plugin-descriptor</id>
-            <phase>generate-resources</phase>
-            <goals>
-              <goal>unpack</goal>
-            </goals>
-            <configuration>
-              <outputDirectory>${project.build.directory}/plugin</outputDirectory>
-              <includes>**/plugin.xml</includes>
-              <artifactItems>
-                <artifactItem>
-                  <groupId>org.ops4j</groupId>
-                  <artifactId>maven-pax-plugin</artifactId>
-                  <version>${pom.version}</version>
-                </artifactItem>
-              </artifactItems>
-            </configuration>
-          </execution>
-        </executions>
-      </plugin>
-      <plugin>
         <artifactId>maven-antrun-plugin</artifactId>
         <executions>
           <execution>
@@ -78,7 +54,6 @@
             </goals>
             <configuration>
               <tasks>
-                <xslt processor="trax" style="src/xslt/mojos.xsl" basedir="${project.build.directory}/plugin/META-INF/maven" destdir="${project.build.outputDirectory}" />
                 <taskdef name="texen" classname="org.apache.texen.ant.TexenTask" />
                 <texen templatePath="src/velocity" controlTemplate="control.vm" contextProperties="${project.build.outputDirectory}/script.properties" outputDirectory="${project.build.outputDirectory}" outputFile="../texen.log" />
               </tasks>
@@ -86,16 +61,6 @@
           </execution>
         </executions>
         <dependencies>
-          <dependency>
-            <groupId>ant</groupId>
-            <artifactId>ant-trax</artifactId>
-            <version>1.6.5</version>
-          </dependency>
-          <dependency>
-            <groupId>net.sf.saxon</groupId>
-            <artifactId>saxon</artifactId>
-            <version>8.7</version>
-          </dependency>
           <dependency>
             <groupId>org.apache.texen</groupId>
             <artifactId>texen</artifactId>
