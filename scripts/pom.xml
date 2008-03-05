@@ -54,6 +54,7 @@
               <goal>unpack</goal>
             </goals>
             <configuration>
+              <outputDirectory>${project.build.directory}/plugin</outputDirectory>
               <includes>**/plugin.xml</includes>
               <artifactItems>
                 <artifactItem>
@@ -77,6 +78,7 @@
             </goals>
             <configuration>
               <tasks>
+                <xslt processor="trax" style="src/xslt/mojos.xsl" basedir="${project.build.directory}/plugin/META-INF/maven" destdir="${project.build.outputDirectory}" />
                 <taskdef name="texen" classname="org.apache.texen.ant.TexenTask" />
                 <texen templatePath="src/velocity" controlTemplate="control.vm" contextProperties="${project.build.outputDirectory}/script.properties" outputDirectory="${project.build.outputDirectory}" outputFile="../texen.log" />
               </tasks>
@@ -84,6 +86,16 @@
           </execution>
         </executions>
         <dependencies>
+          <dependency>
+            <groupId>ant</groupId>
+            <artifactId>ant-trax</artifactId>
+            <version>1.6.5</version>
+          </dependency>
+          <dependency>
+            <groupId>net.sf.saxon</groupId>
+            <artifactId>saxon</artifactId>
+            <version>8.7</version>
+          </dependency>
           <dependency>
             <groupId>org.apache.texen</groupId>
             <artifactId>texen</artifactId>

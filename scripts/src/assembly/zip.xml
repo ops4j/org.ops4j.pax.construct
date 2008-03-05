@@ -10,7 +10,10 @@
       <directoryMode>0755</directoryMode>
       <fileMode>0755</fileMode>
       <excludes>
-        <exclude>script.properties</exclude>
+        <!-- build time artifacts -->
+        <exclude>*.properties</exclude>
+        <exclude>*.html</exclude>
+        <!-- non-executable artifacts -->
         <exclude>pax-bootstrap-pom.xml</exclude>
         <exclude>LICENSE</exclude>
         <exclude>NOTICE</exclude>
@@ -22,6 +25,7 @@
       <directoryMode>0755</directoryMode>
       <fileMode>0644</fileMode>
       <includes>
+        <!-- non-executable artifacts -->
         <include>pax-bootstrap-pom.xml</include>
         <include>LICENSE</include>
         <include>NOTICE</include>
