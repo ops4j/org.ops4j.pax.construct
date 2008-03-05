@@ -394,27 +394,27 @@ public class OSGiWrapperArchetypeMojo extends AbstractPaxArchetypeMojo
     {
         if( embedTransitive )
         {
-            bnd.setInstruction( "Embed-Transitive", "true", canOverwrite() );
+            bnd.setInstruction( "Embed-Transitive", "true", true );
         }
         if( includeResource != null )
         {
-            bnd.setInstruction( "Include-Resource", includeResource, canOverwrite() );
+            bnd.setInstruction( "Include-Resource", includeResource, true );
         }
         if( importPackage != null )
         {
-            bnd.setInstruction( "Import-Package", importPackage, canOverwrite() );
+            bnd.setInstruction( "Import-Package", importPackage, true );
         }
         if( exportContents != null )
         {
-            bnd.setInstruction( "-exportcontents", exportContents, canOverwrite() );
+            bnd.setInstruction( "-exportcontents", exportContents, true );
         }
         if( requireBundle != null )
         {
-            bnd.setInstruction( "Require-Bundle", requireBundle, canOverwrite() );
+            bnd.setInstruction( "Require-Bundle", requireBundle, true );
         }
         if( dynamicImport != null )
         {
-            bnd.setInstruction( "DynamicImport-Package", dynamicImport, canOverwrite() );
+            bnd.setInstruction( "DynamicImport-Package", dynamicImport, true );
         }
     }
 

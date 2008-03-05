@@ -263,9 +263,6 @@ public class CloneMojo extends AbstractMojo
         command.option( 'a', project.getArtifactId() );
         command.option( 'v', project.getVersion() );
 
-        // enable overwrite
-        command.flag( 'o' );
-
         setTargetDirectory( command, project.getBasedir().getParentFile() );
         registerProject( project );
 
@@ -350,9 +347,6 @@ public class CloneMojo extends AbstractMojo
         }
 
         addFragmentToCommand( command, createBundleArchetype( project, namespace, customizedPom ) );
-
-        // enable overwrite
-        command.flag( 'o' );
 
         setTargetDirectory( command, project.getBasedir().getParentFile() );
         registerProject( project );

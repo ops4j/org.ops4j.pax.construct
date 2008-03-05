@@ -272,14 +272,6 @@ public abstract class AbstractPaxArchetypeMojo extends AbstractMojo
     }
 
     /**
-     * @return true if existing files can be overwritten, otherwise false
-     */
-    protected final boolean canOverwrite()
-    {
-        return overwrite;
-    }
-
-    /**
      * @return true if the user has selected one or more custom archetypes
      */
     protected final boolean hasCustomContent()
@@ -557,7 +549,7 @@ public abstract class AbstractPaxArchetypeMojo extends AbstractMojo
         m_pomFile = new File( pomDirectory, "pom.xml" );
         if( m_pomFile.exists() )
         {
-            if( canOverwrite() )
+            if( overwrite )
             {
                 m_pomFile.delete();
             }
@@ -587,7 +579,7 @@ public abstract class AbstractPaxArchetypeMojo extends AbstractMojo
             try
             {
                 // attach new project to its physical parent
-                m_modulesPom.addModule( pomDirectory.getName(), canOverwrite() );
+                m_modulesPom.addModule( pomDirectory.getName(), true );
                 m_modulesPom.write();
             }
             catch( IOException e )

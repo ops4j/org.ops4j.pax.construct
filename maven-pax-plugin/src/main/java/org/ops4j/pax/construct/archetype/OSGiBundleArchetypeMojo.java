@@ -348,7 +348,7 @@ public class OSGiBundleArchetypeMojo extends AbstractPaxArchetypeMojo
         }
         osgiCore.setOptional( true );
 
-        pom.addDependency( osgiCore, canOverwrite() );
+        pom.addDependency( osgiCore, true );
 
         Dependency osgiCompendium = new Dependency();
         osgiCompendium.setGroupId( "org.osgi" );
@@ -360,7 +360,7 @@ public class OSGiBundleArchetypeMojo extends AbstractPaxArchetypeMojo
         }
         osgiCompendium.setOptional( true );
 
-        pom.addDependency( osgiCompendium, canOverwrite() );
+        pom.addDependency( osgiCompendium, true );
     }
 
     /**
@@ -381,7 +381,7 @@ public class OSGiBundleArchetypeMojo extends AbstractPaxArchetypeMojo
             springTest.setVersion( SPRING_VERSION_VARIABLE );
             springTest.setScope( Artifact.SCOPE_TEST );
 
-            pom.addDependency( springTest, canOverwrite() );
+            pom.addDependency( springTest, true );
         }
 
         // mark as optional so we don't force deployment
@@ -392,11 +392,11 @@ public class OSGiBundleArchetypeMojo extends AbstractPaxArchetypeMojo
         springBundle.setOptional( true );
 
         springBundle.setArtifactId( "spring-core" );
-        pom.addDependency( springBundle, canOverwrite() );
+        pom.addDependency( springBundle, true );
         springBundle.setArtifactId( "spring-context" );
-        pom.addDependency( springBundle, canOverwrite() );
+        pom.addDependency( springBundle, true );
         springBundle.setArtifactId( "spring-beans" );
-        pom.addDependency( springBundle, canOverwrite() );
+        pom.addDependency( springBundle, true );
     }
 
     /**
@@ -412,7 +412,7 @@ public class OSGiBundleArchetypeMojo extends AbstractPaxArchetypeMojo
         junit.setVersion( junitVersion );
         junit.setScope( Artifact.SCOPE_TEST );
 
-        pom.addDependency( junit, canOverwrite() );
+        pom.addDependency( junit, true );
     }
 
     /**
@@ -471,12 +471,12 @@ public class OSGiBundleArchetypeMojo extends AbstractPaxArchetypeMojo
         }
         if( !haveInternals )
         {
-            bnd.setInstruction( "Export-Package", "${bundle.namespace}.*;version=\"${pom.version}\"", canOverwrite() );
-            bnd.setInstruction( "Private-Package", null, canOverwrite() );
+            bnd.setInstruction( "Export-Package", "${bundle.namespace}.*;version=\"${pom.version}\"", true );
+            bnd.setInstruction( "Private-Package", null, true );
         }
         if( !haveInterface )
         {
-            bnd.setInstruction( "Export-Package", null, canOverwrite() );
+            bnd.setInstruction( "Export-Package", null, true );
         }
     }
 }
