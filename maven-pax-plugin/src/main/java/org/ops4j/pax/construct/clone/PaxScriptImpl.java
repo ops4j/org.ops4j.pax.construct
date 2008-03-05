@@ -366,13 +366,16 @@ public class PaxScriptImpl
         BufferedWriter writer = new BufferedWriter( StreamFactory.newPlatformWriter( scriptFile ) );
         boolean isBatchFile = scriptFile.getName().endsWith( ".bat" );
 
-        writeHeader( writer, isBatchFile );
+        writeSnippet( writer, isBatchFile, "header" );
         writer.newLine();
 
         writeMessage( writer, "INSTALLING ARCHETYPES CLONED FROM [" + title + ']' );
         writer.newLine();
 
         writeCommands( writer, isBatchFile, setupCommands );
+        writer.newLine();
+
+        writeSnippet( writer, isBatchFile, "postsetup" );
         writer.newLine();
 
         writeMessage( writer, "RECREATING MAVEN PROJECT BASED ON [" + title + ']' );
@@ -383,28 +386,29 @@ public class PaxScriptImpl
     }
 
     /**
-     * Write standard script header
+     * Write script snippet
      * 
      * @param writer script writer
      * @param isBatchFile true if it's a batch file, false if it's a shell script
+     * @param snippet name of the snippet
      * @throws IOException
      */
-    private static void writeHeader( BufferedWriter writer, boolean isBatchFile )
+    private static void writeSnippet( BufferedWriter writer, boolean isBatchFile, String snippet )
         throws IOException
     {
-        final String scriptHeader;
+        final String resourceName;
         if( isBatchFile )
         {
-            scriptHeader = "/header.bat";
+            resourceName = "/snippets/" + snippet + ".bat";
         }
         else
         {
-            scriptHeader = "/header.sh";
+            resourceName = "/snippets/" + snippet + ".sh";
         }
 
-        String header = IOUtil.toString( PaxScriptImpl.class.getResourceAsStream( scriptHeader ) );
+        String snippetText = IOUtil.toString( PaxScriptImpl.class.getResourceAsStream( resourceName ) );
 
-        writer.write( header );
+        writer.write( snippetText );
     }
 
     /**

@@ -207,10 +207,10 @@ public class CloneMojo extends AbstractMojo
     private void writePlatformScripts( PaxScript script )
     {
         String cloneId = PomUtils.getCompoundId( m_rootGroupId, m_rootArtifactId );
-        String scriptName = "pax-clone-" + cloneId;
+        String scriptName = "create-" + cloneId;
 
         File winScript = new File( m_tempdir, scriptName + ".bat" );
-        File nixScript = new File( m_tempdir, scriptName );
+        File nixScript = new File( m_tempdir, scriptName + ".sh" );
 
         getLog().info( "" );
         getLog().info( "SUCCESSFULLY CLONED " + cloneId );
@@ -239,7 +239,9 @@ public class CloneMojo extends AbstractMojo
         }
 
         getLog().info( "" );
-        getLog().info( "FRAGMENT DIRECTORY " + getFragmentDir() );
+        getLog().info( "CLONE DIRECTORY " + m_tempdir );
+        getLog().info( "" );
+        getLog().info( "(this directory can be zipped and shared with other team members)" );
     }
 
     /**
