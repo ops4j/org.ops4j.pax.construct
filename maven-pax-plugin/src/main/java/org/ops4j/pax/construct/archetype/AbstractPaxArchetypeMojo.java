@@ -366,6 +366,20 @@ public abstract class AbstractPaxArchetypeMojo extends AbstractMojo
         targetDirectory = DirUtils.resolveFile( targetDirectory, true );
         setArchetypeProperty( "basedir", targetDirectory.getPath() );
 
+        if( PomUtils.isNotEmpty( remoteRepositories ) )
+        {
+            getLog().info( "We are using command-line specified remote repositories: " + remoteRepositories );
+
+            m_remoteRepos = new ArrayList();
+            String[] s = remoteRepositories.split( "," );
+            for( int i = 0; i < s.length; i++ )
+            {
+                m_remoteRepos.add( createRemoteRepository( "id" + i, s[i] ) );
+            }
+
+            m_remoteRepos.add( createRemoteRepository( "central", "http://repo1.maven.org/maven2" ) );
+        }
+
         /*
          * these must be set by the various archetype sub-classes
          */
@@ -884,29 +898,14 @@ public abstract class AbstractPaxArchetypeMojo extends AbstractMojo
     private void generateArchetype()
         throws MojoExecutionException
     {
-        List repos = new ArrayList();
-        if( remoteRepositories != null )
-        {
-            getLog().info( "We are using command line specified remote repositories: " + remoteRepositories );
-
-            String[] s = remoteRepositories.split( "," );
-            for( int i = 0; i < s.length; i++ )
-            {
-                repos.add( createRemoteRepository( "id" + i, s[i] ) );
-            }
-        }
-        else
-        {
-            repos.addAll( m_remoteRepos );
-        }
-
         try
         {
             String groupId = getArchetypeProperty( "archetypeGroupId" );
             String artifactId = getArchetypeProperty( "archetypeArtifactId" );
             String version = getArchetypeProperty( "archetypeVersion" );
 
-            m_archetype.createArchetype( groupId, artifactId, version, m_localRepo, repos, m_archetypeProperties );
+            m_archetype.createArchetype( groupId, artifactId, version, m_localRepo, m_remoteRepos,
+                m_archetypeProperties );
         }
         catch( ArchetypeNotFoundException e )
         {
