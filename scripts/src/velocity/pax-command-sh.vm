@@ -22,7 +22,9 @@ while
 oh- _SETTING_
 do
   case ${dollar}{_SETTING_} in
-    h|\?) echo "#help( $mojo $opts )" ; exit ;;
+    h|\?) echo "#help( $mojo $opts )"
+          echo "@ http://www.ops4j.org/projects/pax/construct/help/${mojo}.html"
+          exit ;;
 
 #foreach( $o in $opts )
     $o.key) #VAR( $o )=${dollar}{OPTARG} ;;

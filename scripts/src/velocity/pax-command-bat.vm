@@ -36,6 +36,7 @@ if "%0"=="" goto endopts
 echo %_BATFILE_%: illegal option -- %0
 :help
 echo #help( $mojo $opts )
+echo @ http://www.ops4j.org/projects/pax/construct/help/${mojo}.html
 
 goto done
 :endopts
