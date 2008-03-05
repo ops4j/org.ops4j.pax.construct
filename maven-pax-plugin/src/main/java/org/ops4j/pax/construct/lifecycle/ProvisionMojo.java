@@ -757,7 +757,7 @@ public class ProvisionMojo extends AbstractMojo
         ArtifactRepositoryPolicy releases = new ArtifactRepositoryPolicy( true,
             ArtifactRepositoryPolicy.UPDATE_POLICY_NEVER, null );
 
-        return m_repoFactory.createArtifactRepository( "ops4j.releases", "http://repository.ops4j.org/maven2",
+        return m_repoFactory.createArtifactRepository( "ops4j.releases", "http://repository.ops4j.org/maven2/",
             m_defaultLayout, noSnapshots, releases );
     }
 }
