@@ -12,7 +12,7 @@
   <module name="TreeWalker">
     <module name="MutableException"/>
     <module name="CyclomaticComplexity">
-      <property name="max" value="7"/>
+      <property name="max" value="8"/>
     </module>
     <module name="Indentation"/>
     <module name="CovariantEquals"/>

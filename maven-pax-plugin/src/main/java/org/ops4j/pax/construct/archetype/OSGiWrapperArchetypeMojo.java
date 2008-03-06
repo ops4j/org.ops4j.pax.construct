@@ -181,6 +181,13 @@ public class OSGiWrapperArchetypeMojo extends AbstractPaxArchetypeMojo
     private String dynamicImport;
 
     /**
+     * When true, don't add "uses:=" to exports, see <a href="http://aqute.biz/Code/Bnd#directives">Bnd docs</a>.
+     * 
+     * @parameter expression="${noUses}"
+     */
+    private boolean noUses;
+
+    /**
      * When true, check dependency artifacts for OSGi metadata before wrapping them.
      * 
      * @parameter expression="${testMetadata}" default-value="true"
@@ -415,6 +422,10 @@ public class OSGiWrapperArchetypeMojo extends AbstractPaxArchetypeMojo
         if( dynamicImport != null )
         {
             bnd.setInstruction( "DynamicImport-Package", dynamicImport, true );
+        }
+        if( noUses )
+        {
+            bnd.setInstruction( "-nouses", "true", true );
         }
     }
 
