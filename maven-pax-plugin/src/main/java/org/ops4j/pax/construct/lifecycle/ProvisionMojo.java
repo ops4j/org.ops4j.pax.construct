@@ -522,7 +522,7 @@ public class ProvisionMojo extends AbstractMojo
         deployProject.getModel().setReporting( null );
         deployProject.setBuild( null );
 
-        File deployFile = new File( deployProject.getBasedir(), "runner/pom.xml" );
+        File deployFile = new File( deployProject.getBasedir(), "runner/deploy-pom.xml" );
 
         deployFile.getParentFile().mkdirs();
         deployProject.setFile( deployFile );
@@ -624,7 +624,7 @@ public class ProvisionMojo extends AbstractMojo
     private void deployRunnerClassic( Class mainClass, MavenProject project, String repositories )
         throws MojoExecutionException
     {
-        String workDir = project.getBasedir() + "/work";
+        String workDir = project.getBasedir() + "/runner";
 
         String cachedPomName = project.getArtifactId() + '_' + project.getVersion() + ".pom";
         File cachedPomFile = new File( workDir + "/lib/" + cachedPomName );
