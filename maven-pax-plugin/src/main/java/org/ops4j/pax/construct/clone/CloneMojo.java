@@ -650,6 +650,7 @@ public class CloneMojo extends AbstractMojo
         List excludes = new ArrayList();
         excludes.addAll( fragment.getIncludedFiles() );
         excludes.add( "target/" );
+        excludes.add( "runner/" );
         excludes.add( "pom.xml" );
 
         // consider everything else in the bundle directory to be a resource
@@ -767,6 +768,7 @@ public class CloneMojo extends AbstractMojo
         List excludes = new ArrayList();
         excludes.addAll( getExcludedPaths( project ) );
         excludes.add( "**/target/" );
+        excludes.add( "runner/" );
         excludes.add( "pom.xml" );
 
         // consider everything else that's not been handled to be a resource
