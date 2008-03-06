@@ -14,7 +14,7 @@
   <name>OPS4J - Pax Mojos: OSGi project helpers</name>
 
   <description>
-    A combo plugin that provides mojos to create, manage and provision OSGi projects
+    A plugin to help create, manage and provision OSGi projects
   </description>
 
   <packaging>maven-plugin</packaging>
