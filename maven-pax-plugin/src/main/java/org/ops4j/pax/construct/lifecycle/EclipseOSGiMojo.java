@@ -16,9 +16,11 @@ package org.ops4j.pax.construct.lifecycle;
  * limitations under the License.
  */
 
+import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.io.Reader;
 import java.io.Writer;
@@ -406,6 +408,54 @@ public class EclipseOSGiMojo extends EclipsePlugin
         catch( IOException e )
         {
             getLog().warn( "Unable to update Eclipse manifest: " + manifestFile );
+        }
+
+        createBuildProperties( baseDir, tempPath );
+    }
+
+    /**
+     * Create simple build.properties file so the export functionality from Eclipse/PDE works
+     * 
+     * @param baseDir project base directory
+     * @param unpackPath path where the additional bundle contents were unpacked
+     */
+    private void createBuildProperties( File baseDir, String unpackPath )
+    {
+        File buildPropertiesFile = new File( baseDir, "build.properties" );
+        if( !buildPropertiesFile.exists() )
+        {
+            BufferedWriter writer = null;
+            try
+            {
+                writer = new BufferedWriter( new FileWriter( buildPropertiesFile ) );
+
+                File sourceDir = new File( baseDir, "src/main/java" );
+                if( sourceDir.exists() )
+                {
+                    writer.write( "source.. = src/main/java/,src/main/resources/" );
+                    writer.newLine();
+                }
+
+                if( null != unpackPath )
+                {
+                    writer.write( "output.. = target/classes/" );
+                    writer.newLine();
+                    writer.write( "bin.includes = META-INF/,." );
+                    if( new File( baseDir, unpackPath ).exists() )
+                    {
+                        writer.write( ',' + unpackPath + '/' );
+                    }
+                    writer.newLine();
+                }
+            }
+            catch( IOException e )
+            {
+                getLog().warn( "Unable to create build.properties file" );
+            }
+            finally
+            {
+                IOUtil.close( writer );
+            }
         }
     }
 
