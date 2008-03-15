@@ -429,15 +429,16 @@ public class EclipseOSGiMojo extends EclipsePlugin
             {
                 writer = new BufferedWriter( new FileWriter( buildPropertiesFile ) );
 
-                File sourceDir = new File( baseDir, "src/main/java" );
-                if( sourceDir.exists() )
-                {
-                    writer.write( "source.. = src/main/java/,src/main/resources/" );
-                    writer.newLine();
-                }
-
+                /* compiled/wrapped bundle */
                 if( null != unpackPath )
                 {
+                    File sourceDir = new File( baseDir, "src/main/java" );
+                    if( sourceDir.exists() )
+                    {
+                        writer.write( "source.. = src/main/java/,src/main/resources/" );
+                        writer.newLine();
+                    }
+
                     writer.write( "output.. = target/classes/" );
                     writer.newLine();
                     writer.write( "bin.includes = META-INF/,." );
@@ -445,6 +446,22 @@ public class EclipseOSGiMojo extends EclipsePlugin
                     {
                         writer.write( ',' + unpackPath + '/' );
                     }
+                    writer.newLine();
+                }
+                /* imported bundle */
+                else
+                {
+                    File bundleFile = executedProject.getArtifact().getFile();
+                    if( null != bundleFile && bundleFile.isFile() )
+                    {
+                        writer.write( "install.location = " + bundleFile.toURI() );
+                        writer.newLine();
+                    }
+                    writer.write( "source.. = ." );
+                    writer.newLine();
+                    writer.write( "output.. = ." );
+                    writer.newLine();
+                    writer.write( "bin.includes = META-INF/,." );
                     writer.newLine();
                 }
             }
@@ -636,6 +653,8 @@ public class EclipseOSGiMojo extends EclipsePlugin
                 continue;
             }
 
+            dependencyProject.setArtifact( artifact );
+
             setExecutedProject( dependencyProject );
             setProject( dependencyProject );
 
@@ -741,6 +760,8 @@ public class EclipseOSGiMojo extends EclipsePlugin
             // add any embedded entries to the default Eclipse classpath
             addEmbeddedEntriesToEclipseClassPath( baseDir, bundleClassPath );
         }
+
+        createBuildProperties( new File( baseDir ), null );
     }
 
     /**
