@@ -92,7 +92,7 @@ then
 fi
 #end
 
-mvn $!{maven} ${dollar}{PAX_PLUGIN}:${mojo} \
+exec mvn $!{maven} ${dollar}{PAX_PLUGIN}:${mojo} \
 #foreach( $o in $opts )
   "-D$o.name=${dollar}{#VAR( $o )}" \
 #end
