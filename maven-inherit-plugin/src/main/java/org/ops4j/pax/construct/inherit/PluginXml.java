@@ -62,6 +62,14 @@ public class PluginXml
     }
 
     /**
+     * {@inheritDoc}
+     */
+    public String toString()
+    {
+        return m_xml.getChild( "artifactId" ).getValue();
+    }
+
+    /**
      * Gets all mojo descriptors
      * 
      * @return an array of mojo descriptors

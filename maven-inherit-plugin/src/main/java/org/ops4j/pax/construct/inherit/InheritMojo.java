@@ -138,7 +138,7 @@ public class InheritMojo extends AbstractMojo
                 PluginXml superPlugin = (PluginXml) dependentPluginsByName.get( pluginName );
                 if( null == superPlugin )
                 {
-                    getLog().warn( pluginName + " plugin is not a dependency" );
+                    throw new MojoExecutionException( pluginName + " plugin is not a dependency" );
                 }
                 else
                 {
@@ -206,7 +206,9 @@ public class InheritMojo extends AbstractMojo
                 // extract simple plugin name by applying the standard maven naming rules in reverse
                 String name = artifact.getArtifactId().replaceAll( "(?:maven-)?(\\w+)(?:-maven)?-plugin", "$1" );
 
-                pluginsByName.put( name, loadPluginMetadata( unpackDir ) );
+                PluginXml pluginXml = loadPluginMetadata( unpackDir );
+                pluginsByName.put( artifact.getArtifactId(), pluginXml );
+                pluginsByName.put( name, pluginXml ); // short form
             }
         }
 
@@ -253,8 +255,10 @@ public class InheritMojo extends AbstractMojo
      * @param mojoClass local mojo code requiring inheritance
      * @param targetPlugin local plugin metadata
      * @param superPlugin plugin metadata being extended
+     * @throws MojoExecutionException
      */
     private void mergePluginMojo( JavaClass mojoClass, PluginXml targetPlugin, PluginXml superPlugin )
+        throws MojoExecutionException
     {
         DocletTag goalTag = mojoClass.getTagByName( GOAL );
         if( null == goalTag )
@@ -275,6 +279,10 @@ public class InheritMojo extends AbstractMojo
 
         Xpp3Dom targetMojoXml = targetPlugin.findMojo( goal );
         Xpp3Dom superMojoXml = superPlugin.findMojo( superGoal );
+        if( null == superMojoXml )
+        {
+            throw new MojoExecutionException( "cannot find " + superGoal + " goal in " + superPlugin );
+        }
 
         PluginXml.mergeMojo( targetMojoXml, superMojoXml );
     }
