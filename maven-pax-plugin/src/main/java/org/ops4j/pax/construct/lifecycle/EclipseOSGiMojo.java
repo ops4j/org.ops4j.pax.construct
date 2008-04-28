@@ -227,6 +227,8 @@ public class EclipseOSGiMojo extends EclipsePlugin
          * copy bundle manifest to where PDE expects it, but tweak it to fix embedded paths
          */
         refactorForEclipse( getBundleFile( executedProject ) );
+
+        writeAdditionalConfig();
     }
 
     /**
@@ -268,7 +270,8 @@ public class EclipseOSGiMojo extends EclipsePlugin
         // unfortunately there's no setIsOsgiBundle() method, so we have to replace the whole dependency...
         IdeDependency testDependency = new IdeDependency( dependency.getGroupId(), dependency.getArtifactId(),
             dependency.getVersion(), dependency.getClassifier(), dependency.isReferencedProject(), true, false, false,
-            dependency.isAddedToClasspath(), dependency.getFile(), dependency.getType(), false, null, 0 );
+            dependency.isAddedToClasspath(), dependency.getFile(), dependency.getType(), false, null, 0,
+            dependency.getEclipseProjectName() );
 
         testDependency.setSourceAttachment( dependency.getSourceAttachment() );
         testDependency.setJavadocAttachment( dependency.getJavadocAttachment() );
