@@ -119,6 +119,8 @@ public class EclipseOSGiMojo extends EclipsePlugin
         else if( PomUtils.isBundleProject( executedProject ) )
         {
             enablePDE(); // compiled OSGi bundle
+
+            setUseProjectReferences( false );
         }
         else if( ProvisionMojo.isProvisioningPom( executedProject ) )
         {
