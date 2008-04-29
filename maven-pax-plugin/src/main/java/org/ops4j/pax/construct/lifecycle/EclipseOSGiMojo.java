@@ -338,6 +338,11 @@ public class EclipseOSGiMojo extends EclipsePlugin
             {
                 return true;
             }
+            // also select any embedded jars
+            else if( name.endsWith( ".jar" ) )
+            {
+                return true;
+            }
 
             // do we already have this file locally?
             return new File( m_outputDir, name ).exists() == false;
