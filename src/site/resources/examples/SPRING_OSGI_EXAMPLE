@@ -14,7 +14,9 @@ cd spring
 # of all dependencies (normally only "provided" scope dependencies are checked)
 #-----------------------------------------------------------------------------------
 
-pax-import-bundle -g org.springframework.osgi -a spring-osgi-extender -v 1.0 -- -DimportTransitive -DwidenScope
+pax-add-repository -i spring-maven-milestone -u http://maven.springframework.org/milestone
+
+pax-import-bundle -g org.springframework.osgi -a spring-osgi-extender -v 1.1.0-m2 -- -DimportTransitive -DwidenScope
 
 #-------------------------------------------------------------
 # grab the basic SLF4J implementation bundle for this example

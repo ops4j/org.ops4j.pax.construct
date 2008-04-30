@@ -13,7 +13,9 @@ REM  to also import any bundles it depends on and widenScope to do an exhaustive
 REM  of all dependencies (normally only "provided" scope dependencies are checked)
 REM -----------------------------------------------------------------------------------
 
-call pax-import-bundle -g org.springframework.osgi -a spring-osgi-extender -v 1.0 -- -DimportTransitive -DwidenScope
+call pax-add-repository -i spring-maven-milestone -u http://maven.springframework.org/milestone
+
+call pax-import-bundle -g org.springframework.osgi -a spring-osgi-extender -v 1.1.0-m2 -- -DimportTransitive -DwidenScope
 
 REM -------------------------------------------------------------
 REM  grab the basic SLF4J implementation bundle for this example
