@@ -26,8 +26,8 @@
 Spring Dynamic Modules for OSGi(tm)
 
  The following scripts use Pax-Construct to build and provision a minimal Spring Dynamic
- Modules for OSGi(tm) project using the current release candidate. It includes the sample
- weather service from the Spring DM build, as well as an example bean template.
+ Modules for OSGi(tm) project using the 1.1.0-m2 milestone release. It includes an example
+ OSGi enabled Spring bean, created using <<<pax-create-bundle>>>.
 
  This setup requires a Java5 runtime. Some advanced features of Spring Dynamic Modules
  may require additional bundles to be imported, or extra third-party libraries wrapped.
@@ -62,7 +62,7 @@ cd spring
 mvn pax:provision
 
 [INFO] Scanning for projects...
-[INFO] Reactor build order: 
+[INFO] Reactor build order:
 [INFO]   examples.spring (OSGi project)
 [INFO]   spring - plugin configuration
 [INFO]   spring - wrapper instructions
@@ -73,16 +73,17 @@ mvn pax:provision
 [INFO]   javax.servlet.jsp-api 2.0 [osgi]
 [INFO]   javax.servlet.api 2.5 [osgi]
 [INFO]   backport-util-concurrent 3.0 [osgi]
-[INFO]   
+[INFO]
 [INFO]   org.example.service
 [INFO]   org.example.bean
 [INFO] Searching repository for plugin with prefix: 'pax'.
-[INFO] ----------------------------------------------------------------------------
+[INFO] ------------------------------------------------------------------------
 [INFO] Building examples.spring (OSGi project)
 [INFO]    task-segment: [pax:provision] (aggregator-style)
-[INFO] ----------------------------------------------------------------------------
+[INFO] ------------------------------------------------------------------------
 [INFO] [pax:provision]
-[INFO] Installing /tmp/spring/runner/deploy-pom.xml to /home/stuart/.m2/repository/examples/spring/build/deployment/1.0-
+[INFO] Installing T:\cygwin\home\stuart\temp\spring\runner\deploy-pom.xml to C:\Users\stuart\.m2\repository\examples\spr
+ing\build\deployment\1.0-SNAPSHOT\deployment-1.0-SNAPSHOT.pom
     ______  ________  __  __
    / __  / /  __   / / / / /
   /  ___/ /  __   / _\ \ _/
@@ -93,79 +94,113 @@ Pax Runner from OPS4J - http://www.ops4j.org
 --------------------------------------------
 
  -> Using config [classpath:META-INF/runner.properties]
- -> Provision from [/tmp/spring/runner/deploy-pom.xml]
- -> Provision from [scan-pom:file:/tmp/spring/runner/deploy-pom.xml]
+ -> Provision from [T:\cygwin\home\stuart\temp\spring\runner\deploy-pom.xml]
+ -> Provision from [scan-pom:file:/T:/cygwin/home/stuart/temp/spring/runner/deploy-pom.xml]
  -> Using property [org.osgi.service.http.port=8080]
  -> Using property [org.osgi.service.http.port.secure=8443]
- -> Installing bundle [{location=mvn:org.springframework.osgi/spring-osgi-extender/1.0,startlevel=null,shouldStart=true,
- -> Installing bundle [{location=mvn:org.slf4j/slf4j-api/1.4.3,startlevel=null,shouldStart=true,shouldUpdate=false}]
+ -> Installing bundle [{location=mvn:org.springframework.osgi/spring-osgi-extender/1.1.0-m2,startlevel=null,shouldStart=
+true,shouldUpdate=false}]
  -> Installing bundle [{location=mvn:org.slf4j/jcl104-over-slf4j/1.4.3,startlevel=null,shouldStart=true,shouldUpdate=fal
- -> Installing bundle [{location=mvn:org.springframework.osgi/spring-osgi-core/1.0,startlevel=null,shouldStart=true,shou
- -> Installing bundle [{location=mvn:org.springframework.osgi/spring-osgi-io/1.0,startlevel=null,shouldStart=true,should
- -> Installing bundle [{location=mvn:org.springframework/spring-aop/2.5.1,startlevel=null,shouldStart=true,shouldUpdate=
- -> Installing bundle [{location=mvn:org.springframework/spring-beans/2.5.1,startlevel=null,shouldStart=true,shouldUpdat
- -> Installing bundle [{location=mvn:org.springframework/spring-context/2.5.1,startlevel=null,shouldStart=true,shouldUpd
- -> Installing bundle [{location=mvn:org.springframework/spring-core/2.5.1,startlevel=null,shouldStart=true,shouldUpdate
- -> Installing bundle [{location=mvn:org.springframework/spring-test/2.5.1,startlevel=null,shouldStart=true,shouldUpdate
+se}]
+ -> Installing bundle [{location=mvn:org.slf4j/slf4j-api/1.4.3,startlevel=null,shouldStart=true,shouldUpdate=false}]
+ -> Installing bundle [{location=mvn:org.springframework.osgi/spring-osgi-core/1.1.0-m2,startlevel=null,shouldStart=true
+,shouldUpdate=false}]
+ -> Installing bundle [{location=mvn:org.springframework.osgi/spring-osgi-io/1.1.0-m2,startlevel=null,shouldStart=true,s
+houldUpdate=false}]
+ -> Installing bundle [{location=mvn:org.springframework/spring-aop/2.5.4,startlevel=null,shouldStart=true,shouldUpdate=
+false}]
+ -> Installing bundle [{location=mvn:org.springframework/spring-beans/2.5.4,startlevel=null,shouldStart=true,shouldUpdat
+e=false}]
+ -> Installing bundle [{location=mvn:org.springframework/spring-context/2.5.4,startlevel=null,shouldStart=true,shouldUpd
+ate=false}]
+ -> Installing bundle [{location=mvn:org.springframework/spring-core/2.5.4,startlevel=null,shouldStart=true,shouldUpdate
+=false}]
+ -> Installing bundle [{location=mvn:org.springframework/spring-test/2.5.4,startlevel=null,shouldStart=true,shouldUpdate
+=false}]
  -> Installing bundle [{location=mvn:org.slf4j/slf4j-simple/1.4.3,startlevel=null,shouldStart=true,shouldUpdate=false}]
  -> Installing bundle [{location=mvn:examples.spring.wrappers/asm/2.2.3-001-SNAPSHOT,startlevel=null,shouldStart=true,sh
+ouldUpdate=false}]
  -> Installing bundle [{location=mvn:examples.spring.wrappers/aopalliance/1.0-001-SNAPSHOT,startlevel=null,shouldStart=t
+rue,shouldUpdate=false}]
  -> Installing bundle [{location=mvn:examples.spring.wrappers/javax.servlet.jsp-api/2.0-001-SNAPSHOT,startlevel=null,sho
+uldStart=true,shouldUpdate=false}]
  -> Installing bundle [{location=mvn:examples.spring.wrappers/javax.servlet.api/2.5-001-SNAPSHOT,startlevel=null,shouldS
+tart=true,shouldUpdate=false}]
  -> Installing bundle [{location=mvn:examples.spring.wrappers/backport-util-concurrent/3.0-001-SNAPSHOT,startlevel=null,
+shouldStart=true,shouldUpdate=false}]
  -> Installing bundle [{location=mvn:examples.spring/org.example.service/1.0-SNAPSHOT,startlevel=null,shouldStart=true,s
+houldUpdate=false}]
  -> Installing bundle [{location=mvn:examples.spring/org.example.bean/1.0-SNAPSHOT,startlevel=null,shouldStart=true,shou
+ldUpdate=false}]
  -> Downloading bundles...
- -> mvn:org.springframework.osgi/spring-osgi-extender/1.0 : 64816 bytes @ [ 2492kBps ]
- -> mvn:org.slf4j/slf4j-api/1.4.3 : 15345 bytes @ [ 2557kBps ]
+ -> mvn:org.springframework.osgi/spring-osgi-extender/1.1.0-m2 : 79012 bytes @ [ 2079kBps ]
  -> mvn:org.slf4j/jcl104-over-slf4j/1.4.3 : 15435 bytes @ [ 2572kBps ]
- -> mvn:org.springframework.osgi/spring-osgi-core/1.0 : 244381 bytes @ [ 2808kBps ]
- -> mvn:org.springframework.osgi/spring-osgi-io/1.0 : 17667 bytes @ [ 8833kBps ]]
- -> mvn:org.springframework/spring-aop/2.5.1 : 323289 bytes @ [ 9508kBps ]
- -> mvn:org.springframework/spring-beans/2.5.1 : 467331 bytes @ [ 9943kBps ]]
- -> mvn:org.springframework/spring-context/2.5.1 : 455159 bytes @ [ 10344kBps ]
- -> mvn:org.springframework/spring-core/2.5.1 : 275073 bytes @ [ 10187kBps ]
- -> mvn:org.springframework/spring-test/2.5.1 : 177608 bytes @ [ 9867kBps ]]
- -> mvn:org.slf4j/slf4j-simple/1.4.3 : 7449 bytes @ [ 7449kBps ]
- -> mvn:examples.spring.wrappers/asm/2.2.3-001-SNAPSHOT : 37500 bytes @ [ 9375kBps ]]
- -> mvn:examples.spring.wrappers/aopalliance/1.0-001-SNAPSHOT : 6354 bytes @ [ 6354kBps ]
- -> mvn:examples.spring.wrappers/javax.servlet.jsp-api/2.0-001-SNAPSHOT : 53202 bytes @ [ 10640kBps ]
- -> mvn:examples.spring.wrappers/javax.servlet.api/2.5-001-SNAPSHOT : 107951 bytes @ [ 9813kBps ]
- -> mvn:examples.spring.wrappers/backport-util-concurrent/3.0-001-SNAPSHOT : 333894 bytes @ [ 9274kBps ]
- -> mvn:examples.spring/org.example.service/1.0-SNAPSHOT : 5161 bytes @ [ 5161kBps ]
- -> mvn:examples.spring/org.example.bean/1.0-SNAPSHOT : 4749 bytes @ [ 4749kBps ]
+ -> mvn:org.slf4j/slf4j-api/1.4.3 : 15345 bytes @ [ 3069kBps ]
+ -> mvn:org.springframework.osgi/spring-osgi-core/1.1.0-m2 : 270003 bytes @ [ 1646kBps ]
+ -> mvn:org.springframework.osgi/spring-osgi-io/1.1.0-m2 : 29512 bytes @ [ 1736kBps ]
+ -> mvn:org.springframework/spring-aop/2.5.4 : 326030 bytes @ [ 1964kBps ]
+ -> mvn:org.springframework/spring-beans/2.5.4 : 484045 bytes @ [ 2059kBps ]
+ -> mvn:org.springframework/spring-context/2.5.4 : 469327 bytes @ [ 2224kBps ]
+ -> mvn:org.springframework/spring-core/2.5.4 : 285906 bytes @ [ 3529kBps ]
+ -> mvn:org.springframework/spring-test/2.5.4 : 180098 bytes @ [ 3274kBps ]
+ -> mvn:org.slf4j/slf4j-simple/1.4.3 : 7449 bytes @ [ 3724kBps ]
+ -> mvn:examples.spring.wrappers/asm/2.2.3-001-SNAPSHOT : 37514 bytes @ [ 2679kBps ]
+ -> mvn:examples.spring.wrappers/aopalliance/1.0-001-SNAPSHOT : 6366 bytes @ [ 2122kBps ]
+ -> mvn:examples.spring.wrappers/javax.servlet.jsp-api/2.0-001-SNAPSHOT : 53207 bytes @ [ 2533kBps ]
+ -> mvn:examples.spring.wrappers/javax.servlet.api/2.5-001-SNAPSHOT : 107956 bytes @ [ 2633kBps ]
+ -> mvn:examples.spring.wrappers/backport-util-concurrent/3.0-001-SNAPSHOT : 333917 bytes @ [ 3210kBps ]
+ -> mvn:examples.spring/org.example.service/1.0-SNAPSHOT : 5178 bytes @ [ 2589kBps ]
+ -> mvn:examples.spring/org.example.bean/1.0-SNAPSHOT : 4764 bytes @ [ 2382kBps ]
  -> Execution environment [J2SE-1.5]
- -> Starting platform [Felix 1.0.3]. Runner has succesfully finished his job!
+ -> Starting platform [Felix 1.0.3]. Runner has successfully finished his job!
 
 Welcome to Felix.
 =================
 
-42 [FelixStartLevel] INFO org.springframework.osgi.extender.internal.ContextLoaderListener - Starting org.springframewor
+-> 69 [FelixStartLevel] INFO org.springframework.osgi.extender.internal.activator.ContextLoaderListener - Starting [org.
+springframework.bundle.osgi.extender] bundle v.[1.1.0.m2]
+205 [FelixStartLevel] INFO org.springframework.osgi.extender.internal.support.ExtenderConfiguration - No custom configur
+ation detected; using defaults
+224 [FelixStartLevel] INFO org.springframework.osgi.extender.internal.activator.ContextLoaderListener - Disabled automat
+ic Spring-DM annotation processing; [ org.springframework.osgi.extender.annotation.auto.processing=null]
 STARTING org.example.service
 REGISTER org.example.service.ExampleService
-222 [FelixStartLevel] INFO org.springframework.osgi.extender.internal.ContextLoaderListener - disabled automatic Spring-
-272 [SpringOsgiExtenderThread-1] INFO org.springframework.osgi.context.support.OsgiBundleXmlApplicationContext - Refresh
-417 [SpringOsgiExtenderThread-1] INFO org.springframework.beans.factory.xml.XmlBeanDefinitionReader - Loading XML bean d
-849 [SpringOsgiExtenderThread-1] INFO org.springframework.beans.factory.xml.XmlBeanDefinitionReader - Loading XML bean d
-941 [SpringOsgiExtenderThread-1] INFO org.springframework.osgi.context.support.OsgiBundleXmlApplicationContext - Bean fa
-1022 [SpringOsgiExtenderThread-2] INFO org.springframework.beans.factory.support.DefaultListableBeanFactory - Pre-instan
-1045 [SpringOsgiExtenderThread-2] INFO org.springframework.osgi.context.support.OsgiBundleXmlApplicationContext - Publis
+539 [SpringOsgiExtenderThread-1] INFO org.springframework.osgi.context.support.OsgiBundleXmlApplicationContext - Refresh
+ing org.springframework.osgi.context.support.OsgiBundleXmlApplicationContext@9cb0f4: display name [OsgiBundleXmlApplicat
+ionContext(bundle=org.example.bean, config=osgibundle:/META-INF/spring/*.xml)]; startup date [Wed Apr 30 09:59:23 SGT 20
+08]; root of context hierarchy
+774 [SpringOsgiExtenderThread-1] INFO org.springframework.beans.factory.xml.XmlBeanDefinitionReader - Loading XML bean d
+efinitions from URL [bundle://18.0:0/META-INF/spring/bundle-context-osgi.xml]
+1119 [SpringOsgiExtenderThread-1] INFO org.springframework.beans.factory.xml.XmlBeanDefinitionReader - Loading XML bean
+definitions from URL [bundle://18.0:0/META-INF/spring/bundle-context.xml]
+1240 [SpringOsgiExtenderThread-1] INFO org.springframework.osgi.context.support.OsgiBundleXmlApplicationContext - Bean f
+actory for application context [org.springframework.osgi.context.support.OsgiBundleXmlApplicationContext@9cb0f4]: org.sp
+ringframework.beans.factory.support.DefaultListableBeanFactory@1c4f0f8
+1288 [SpringOsgiExtenderThread-1] INFO org.springframework.osgi.extender.internal.dependencies.startup.DependencyWaiterA
+pplicationContextExecutor - No outstanding OSGi service dependencies, completing initialization for OsgiBundleXmlApplica
+tionContext(bundle=org.example.bean, config=osgibundle:/META-INF/spring/*.xml)
+1295 [SpringOsgiExtenderThread-2] INFO org.springframework.beans.factory.support.DefaultListableBeanFactory - Pre-instan
+tiating singletons in org.springframework.beans.factory.support.DefaultListableBeanFactory@1c4f0f8: defining beans [myEx
+ampleBean]; root of factory hierarchy
+1359 [SpringOsgiExtenderThread-2] INFO org.springframework.osgi.context.support.OsgiBundleXmlApplicationContext - Publis
+hing application context as OSGi service with properties {org.springframework.context.service.name=org.example.bean, Bun
+dle-SymbolicName=org.example.bean, Bundle-Version=1.0.0.SNAPSHOT}
 
 -> ps
 
 START LEVEL 6
    ID   State         Level  Name
 [   0] [Active     ] [    0] System Bundle (1.0.3)
-[   1] [Active     ] [    5] spring-osgi-extender (1.0)
-[   2] [Active     ] [    5] slf4j-api (1.4.3)
-[   3] [Active     ] [    5] jcl104-over-slf4j (1.4.3)
-[   4] [Active     ] [    5] spring-osgi-core (1.0)
-[   5] [Active     ] [    5] spring-osgi-io (1.0)
-[   6] [Active     ] [    5] spring-aop (2.5.1)
-[   7] [Active     ] [    5] spring-beans (2.5.1)
-[   8] [Active     ] [    5] spring-context (2.5.1)
-[   9] [Active     ] [    5] spring-core (2.5.1)
-[  10] [Active     ] [    5] spring-test (2.5.1)
+[   1] [Active     ] [    5] spring-osgi-extender (1.1.0.m2)
+[   2] [Active     ] [    5] jcl104-over-slf4j (1.4.3)
+[   3] [Active     ] [    5] slf4j-api (1.4.3)
+[   4] [Active     ] [    5] spring-osgi-core (1.1.0.m2)
+[   5] [Active     ] [    5] spring-osgi-io (1.1.0.m2)
+[   6] [Active     ] [    5] spring-aop (2.5.4)
+[   7] [Active     ] [    5] spring-beans (2.5.4)
+[   8] [Active     ] [    5] spring-context (2.5.4)
+[   9] [Active     ] [    5] spring-core (2.5.4)
+[  10] [Active     ] [    5] spring-test (2.5.4)
 [  11] [Active     ] [    5] slf4j-simple (1.4.3)
 [  12] [Active     ] [    5] asm 2.2.3 [osgi] (2.2.3)
 [  13] [Active     ] [    5] aopalliance 1.0 [osgi] (1.0)
@@ -196,7 +231,12 @@ org.example.service.ExampleService
 
 org.example.bean (18) provides:
 -------------------------------
-org.springframework.osgi.context.support.OsgiBundleXmlApplicationContext, org.springframework.osgi.context.support.Abstr
+org.springframework.osgi.context.DelegatedExecutionOsgiBundleApplicationContext, org.springframework.osgi.context.Config
+urableOsgiBundleApplicationContext, org.springframework.context.ConfigurableApplicationContext, org.springframework.cont
+ext.ApplicationContext, org.springframework.context.Lifecycle, org.springframework.beans.factory.ListableBeanFactory, or
+g.springframework.beans.factory.HierarchicalBeanFactory, org.springframework.context.MessageSource, org.springframework.
+context.ApplicationEventPublisher, org.springframework.core.io.support.ResourcePatternResolver, org.springframework.bean
+s.factory.BeanFactory, org.springframework.core.io.ResourceLoader, org.springframework.beans.factory.DisposableBean
 
 Apache Felix Shell Service (20) provides:
 -----------------------------------------
@@ -204,19 +244,24 @@ org.apache.felix.shell.ShellService, org.ungoverned.osgi.service.shell.ShellServ
 
 -> stop 0
 
-19075 [Felix Shell TUI] INFO org.springframework.osgi.extender.internal.ContextLoaderListener - Stopping org.springframe
-19081 [Thread-2] INFO org.springframework.osgi.context.support.OsgiBundleXmlApplicationContext - Closing org.springframe
-19082 [Thread-2] INFO org.springframework.beans.factory.support.DefaultListableBeanFactory - Destroying singletons in or
+36266 [Felix Shell TUI] INFO org.springframework.osgi.extender.internal.activator.ContextLoaderListener - Stopping [org.
+springframework.bundle.osgi.extender] bundle v.[1.1.0.m2]
+36276 [Thread-1] INFO org.springframework.osgi.context.support.OsgiBundleXmlApplicationContext - Application Context ser
+vice already unpublished
+36276 [Thread-1] INFO org.springframework.osgi.context.support.OsgiBundleXmlApplicationContext - Closing org.springframe
+work.osgi.context.support.OsgiBundleXmlApplicationContext@9cb0f4: display name [OsgiBundleXmlApplicationContext(bundle=o
+rg.example.bean, config=osgibundle:/META-INF/spring/*.xml)]; startup date [Wed Apr 30 09:59:23 SGT 2008]; root of contex
+t hierarchy
+-> 36281 [Thread-1] INFO org.springframework.beans.factory.support.DefaultListableBeanFactory - Destroying singletons in
+ org.springframework.beans.factory.support.DefaultListableBeanFactory@1c4f0f8: defining beans [myExampleBean]; root of f
+actory hierarchy
 STOPPING org.example.service
 [INFO] ------------------------------------------------------------------------
 [INFO] BUILD SUCCESSFUL
 [INFO] ------------------------------------------------------------------------
-[INFO] Total time: 26 seconds
-[INFO] Finished at: Thu Mar 06 22:20:10 MYT 2008
-[INFO] Final Memory: 8M/37M
+[INFO] Total time: 49 seconds
+[INFO] Finished at: Wed Apr 30 09:59:59 SGT 2008
+[INFO] Final Memory: 8M/17M
 [INFO] ------------------------------------------------------------------------
-
- -> Shuting down platform...
- -> Destroying platform process...
 +---+
 
