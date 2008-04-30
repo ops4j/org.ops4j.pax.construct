@@ -206,7 +206,7 @@ public class OSGiBundleArchetypeMojo extends AbstractPaxArchetypeMojo
         // default to a recent version of Spring
         if( "true".equals( springVersion ) || "".equals( springVersion ) )
         {
-            springVersion = "2.5.1";
+            springVersion = "2.5.4";
         }
     }
 
