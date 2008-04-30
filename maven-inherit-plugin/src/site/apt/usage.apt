@@ -83,3 +83,16 @@ public class OSGiProjectArchetypeMojo extends MavenArchetypeMojo
 }
 +---+
 
+* NOTE: extended plugins should be added as dependencies to your pom
+
++---+
+    <dependency>
+      <groupId>org.apache.maven.plugins</groupId>
+      <artifactId>maven-eclipse-plugin</artifactId>
+      <type>maven-plugin</type>
+      <version>2.5.1</version>
+    </dependency>
++---+
+
+ The dependency type has to be set to "maven-plugin" for Maven plugins.
+
