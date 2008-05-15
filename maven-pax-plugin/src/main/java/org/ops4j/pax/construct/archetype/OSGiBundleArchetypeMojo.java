@@ -217,9 +217,9 @@ public class OSGiBundleArchetypeMojo extends AbstractPaxArchetypeMojo
      */
     public String getBundleSymbolicName()
     {
-        if( packageName.equals( bundleName ) )
+        if( bundleName.startsWith( packageName ) )
         {
-            return packageName;
+            return bundleName;
         }
 
         return getCompoundId( getInternalGroupId( bundleGroupId ), bundleName );
