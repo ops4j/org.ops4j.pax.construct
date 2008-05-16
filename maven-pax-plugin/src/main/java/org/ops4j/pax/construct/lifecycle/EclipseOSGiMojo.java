@@ -159,6 +159,12 @@ public class EclipseOSGiMojo extends EclipsePlugin
 
         m_eclipseMojo.setField( "pde", Boolean.TRUE );
         setWtpversion( "none" );
+
+        List containers = getClasspathContainers();
+        if( null != containers && !containers.contains( REQUIRED_PLUGINS_CONTAINER ) )
+        {
+            containers.add( REQUIRED_PLUGINS_CONTAINER );
+        }
     }
 
     /**
