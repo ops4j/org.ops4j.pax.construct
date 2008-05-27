@@ -89,6 +89,13 @@ public class EclipseOSGiMojo extends EclipsePlugin
     private Maven2OsgiConverter m_maven2OsgiConverter;
 
     /**
+     * Switch to turn on/off fixing of dependency entries in the classpath file.
+     *
+     * @parameter expression="${fixDependencies}" default-value="custom"
+     */
+    private String fixDependencies;
+
+    /**
      * Provide access to the private fields of the Eclipse mojo
      */
     private ReflectMojo m_eclipseMojo;
@@ -275,6 +282,20 @@ public class EclipseOSGiMojo extends EclipsePlugin
      */
     private IdeDependency fixOSGiTestDependency( IdeDependency dependency )
     {
+        if( "FALSE".equalsIgnoreCase( fixDependencies ) )
+        {
+            return dependency;
+        }
+
+        String id = dependency.getGroupId() + ':' + dependency.getArtifactId();
+        File baseDir = executedProject.getBasedir();
+
+        // by default, don't fix dependencies pointing to local projects found in the same tree
+        if( "CUSTOM".equalsIgnoreCase( fixDependencies ) && DirUtils.findPom( baseDir, id ) != null )
+        {
+            return dependency;
+        }
+
         // unfortunately there's no setIsOsgiBundle() method, so we have to replace the whole dependency...
         IdeDependency testDependency = new IdeDependency( dependency.getGroupId(), dependency.getArtifactId(),
             dependency.getVersion(), dependency.getClassifier(), dependency.isReferencedProject(), true, false, false,
