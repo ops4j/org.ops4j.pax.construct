@@ -9,7 +9,7 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>org.ops4j.pax.construct</groupId>
   <artifactId>scripts</artifactId>
-  <version>1.3</version>
+  <version>1.4-SNAPSHOT</version>
 
   <name>OPS4J - Generate Pax Scripts</name>
 
@@ -103,10 +103,4 @@
       </plugin>
     </plugins>
   </build>
-
-  <scm>
-    <connection>scm:svn:https://scm.ops4j.org/repos/ops4j/qa/pax/construct/scripts-1.3</connection>
-    <developerConnection>scm:svn:https://scm.ops4j.org/repos/ops4j/qa/pax/construct/scripts-1.3</developerConnection>
-    <url>http://scm.ops4j.org/browse/OPS4J/qa/pax/construct/scripts-1.3</url>
-  </scm>
 </project>
