@@ -29,6 +29,7 @@ import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
+import java.util.regex.Pattern;
 
 import org.apache.maven.artifact.Artifact;
 import org.apache.maven.artifact.factory.ArtifactFactory;
@@ -464,7 +465,8 @@ public class ProvisionMojo extends AbstractMojo
         /*
          * Dynamically load the correct Pax-Runner code
          */
-        if( runner.compareTo( "0.5.0" ) < 0 )
+        Pattern classicVersion = Pattern.compile( "0\\.[1-4]\\.\\d" );
+        if( classicVersion.matcher( runner ).matches() )
         {
             Class clazz = loadRunnerClass( "org.ops4j.pax", "runner", PAX_RUNNER_METHOD, false );
             deployRunnerClassic( clazz, deployProject, repoListBuilder.toString() );
