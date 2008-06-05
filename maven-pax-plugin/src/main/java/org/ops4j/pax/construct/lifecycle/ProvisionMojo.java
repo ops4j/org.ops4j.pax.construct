@@ -34,6 +34,7 @@ import org.apache.maven.artifact.Artifact;
 import org.apache.maven.artifact.factory.ArtifactFactory;
 import org.apache.maven.artifact.installer.ArtifactInstallationException;
 import org.apache.maven.artifact.installer.ArtifactInstaller;
+import org.apache.maven.artifact.manager.WagonManager;
 import org.apache.maven.artifact.metadata.ArtifactMetadataSource;
 import org.apache.maven.artifact.repository.ArtifactRepository;
 import org.apache.maven.artifact.repository.ArtifactRepositoryFactory;
@@ -234,6 +235,18 @@ public class ProvisionMojo extends AbstractMojo
     private ArtifactRepositoryLayout m_defaultLayout;
 
     /**
+     * Component for calculating mirror details.
+     * 
+     * @component
+     */
+    private WagonManager m_wagonManager;
+
+    /**
+     * Runtime helper available on Maven 2.0.9 and above.
+     */
+    private Method m_getMirrorRepository;
+
+    /**
      * {@inheritDoc}
      */
     public void execute()
@@ -251,7 +264,31 @@ public class ProvisionMojo extends AbstractMojo
             addProjectBundles( (MavenProject) i.next(), false == noDependencies );
         }
 
+        setupRuntimeHelpers();
+
         deployBundles();
+    }
+
+    /**
+     * Use reflection to find if certain runtime helper methods are available.
+     */
+    private void setupRuntimeHelpers()
+    {
+        try
+        {
+            m_getMirrorRepository = m_wagonManager.getClass().getMethod( "getMirrorRepository", new Class[]
+            {
+                ArtifactRepository.class
+            } );
+        }
+        catch( RuntimeException e )
+        {
+            m_getMirrorRepository = null;
+        }
+        catch( NoSuchMethodException e )
+        {
+            m_getMirrorRepository = null;
+        }
     }
 
     /**
@@ -412,15 +449,7 @@ public class ProvisionMojo extends AbstractMojo
             repoListBuilder.append( delim );
 
             ArtifactRepository repo = (ArtifactRepository) i.next();
-            Mirror mirror = getRepositoryMirror( repo );
-            if( null == mirror )
-            {
-                repoListBuilder.append( repo.getUrl() );
-            }
-            else
-            {
-                repoListBuilder.append( mirror.getUrl() );
-            }
+            repoListBuilder.append( getRepositoryURL( repo ) );
 
             delim = ",";
         }
@@ -449,16 +478,52 @@ public class ProvisionMojo extends AbstractMojo
 
     /**
      * @param repo remote Maven repository
-     * @return repository mirror, or null if it doesn't have one
+     * @return repository (or mirror) URL
      */
-    private Mirror getRepositoryMirror( ArtifactRepository repo )
+    private String getRepositoryURL( ArtifactRepository repo )
     {
-        Mirror mirror = m_settings.getMirrorOf( repo.getId() );
-        if( null == mirror )
+        if( null != m_getMirrorRepository )
         {
-            mirror = m_settings.getMirrorOf( "*" );
+            try
+            {
+                ArtifactRepository mirror = (ArtifactRepository) m_getMirrorRepository.invoke( m_wagonManager,
+                    new Object[]
+                    {
+                        repo
+                    } );
+
+                if( null != mirror )
+                {
+                    return mirror.getUrl();
+                }
+            }
+            catch( RuntimeException e )
+            {
+                getLog().warn( e );
+            }
+            catch( IllegalAccessException e )
+            {
+                getLog().warn( e );
+            }
+            catch( InvocationTargetException e )
+            {
+                getLog().warn( e );
+            }
         }
-        return mirror;
+
+        Mirror mirror = m_settings.getMirrorOf( repo.getId() );
+        if( null != mirror )
+        {
+            return mirror.getUrl();
+        }
+
+        mirror = m_settings.getMirrorOf( "*" );
+        if( null != mirror )
+        {
+            return mirror.getUrl();
+        }
+
+        return repo.getUrl();
     }
 
     /**
