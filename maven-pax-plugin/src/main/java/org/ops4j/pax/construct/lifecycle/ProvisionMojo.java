@@ -330,7 +330,7 @@ public class ProvisionMojo extends AbstractMojo
      */
     private void addProjectBundles( MavenProject project, boolean checkDependencies )
     {
-        if( PomUtils.isBundleProject( project ) )
+        if( PomUtils.isBundleProject( project, m_resolver, m_remoteRepos, m_localRepo, true ) )
         {
             provisionBundle( project.getArtifact() );
         }
