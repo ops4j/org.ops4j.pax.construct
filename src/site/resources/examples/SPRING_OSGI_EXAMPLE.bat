@@ -13,36 +13,10 @@ REM  to also import any bundles it depends on and widenScope to do an exhaustive
 REM  of all dependencies (normally only "provided" scope dependencies are checked)
 REM -----------------------------------------------------------------------------------
 
-call pax-add-repository -i spring-maven-milestone -u http://maven.springframework.org/milestone
+call pax-add-repository -i springsource-repository-release -u http://repository.springsource.com/maven/bundles/release
+call pax-add-repository -i springsource-repository-external -u http://repository.springsource.com/maven/bundles/external
 
-call pax-import-bundle -g org.springframework.osgi -a spring-osgi-extender -v 1.1.0-m2 -- -DimportTransitive -DwidenScope
-
-REM -------------------------------------------------------------
-REM  grab the basic SLF4J implementation bundle for this example
-REM -------------------------------------------------------------
-
-call pax-import-bundle -g org.slf4j -a slf4j-simple -v 1.4.3
-
-REM -----------------------------------------------------------------------------------------------
-REM  we also need some additional libraries wrapped as bundles - let's put these in a subdirectory
-REM -----------------------------------------------------------------------------------------------
-
-call pax-create-module -a wrappers
-cd wrappers
-
-call pax-wrap-jar -a asm -v 2.2.3
-call pax-wrap-jar -a aopalliance -v 1.0
-
-call pax-wrap-jar -g javax.servlet -a jsp-api -v 2.0
-call pax-wrap-jar -g javax.servlet -a servlet-api -v 2.5
-
-REM ----------------------------------------------------------------------------------------------
-REM  this bundle is used with 1.4 JVMs, it uses a customized import to treat sun.misc as optional
-REM ----------------------------------------------------------------------------------------------
-
-call pax-wrap-jar -a backport-util-concurrent -v 3.0 -- "-DimportPackage=sun.misc;resolution:=optional,*"
-
-cd ..
+call pax-import-bundle -g org.springframework.osgi -a org.springframework.osgi.extender -v 1.1.1.A -- -DimportTransitive -DwidenScope
 
 REM ------------------------------------------------------------
 REM  create new OSGi service bundle with example code and tests
