@@ -11,5 +11,9 @@
   'name' : 'version',
   'example' : 'RELEASE',
   'optional' : true
+},{
+  'key' : 'c',
+  'name' : 'classifier',
+  'optional' : true
 }] )
 #set( $maven = '-N' )
