@@ -21,9 +21,11 @@ import java.io.IOException;
 
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
+import org.apache.maven.project.MavenProject;
 import org.apache.maven.shared.model.fileset.FileSet;
 import org.apache.maven.shared.model.fileset.util.FileSetManager;
 import org.ops4j.pax.construct.util.CacheUtils;
+import org.ops4j.pax.construct.util.PomUtils;
 
 /**
  * Remove generated IDE files, but support limited recovery during the same build session.<br/>So 'mvn pax:clean
@@ -46,11 +48,26 @@ public class SqueakyCleanMojo extends AbstractMojo
     private File m_basedir;
 
     /**
+     * The current Maven project (will be Maven super-POM if no existing project)
+     * 
+     * @parameter expression="${project}"
+     * @required
+     * @readonly
+     */
+    private MavenProject m_project;
+
+    /**
      * {@inheritDoc}
      */
     public void execute()
         throws MojoExecutionException
     {
+        // only bundle projects need special cleaning
+        if( !PomUtils.isBundleProject( m_project ) )
+        {
+            return;
+        }
+
         getLog().info( "[caching meta-data]" );
 
         // cache files that we might have problems re-generating during the current lifecycle
@@ -62,14 +79,13 @@ public class SqueakyCleanMojo extends AbstractMojo
         FileSet generatedPaxFiles = new FileSet();
         generatedPaxFiles.setDirectory( m_basedir.getPath() );
         generatedPaxFiles.setUseDefaultExcludes( true );
-        generatedPaxFiles.setFollowSymlinks( false );
+        generatedPaxFiles.setFollowSymlinks( true );
 
         // remove Eclipse/PDE files (keep .settings)
         generatedPaxFiles.addInclude( "META-INF/" );
         generatedPaxFiles.addInclude( "OSGI-INF/" );
         generatedPaxFiles.addInclude( ".project" );
         generatedPaxFiles.addInclude( ".classpath" );
-        generatedPaxFiles.addInclude( "runner/" );
 
         try
         {
