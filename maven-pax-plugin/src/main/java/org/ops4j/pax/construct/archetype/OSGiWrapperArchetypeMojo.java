@@ -118,6 +118,13 @@ public class OSGiWrapperArchetypeMojo extends AbstractPaxArchetypeMojo
     private String version;
 
     /**
+     * The classifier of the artifact to be wrapped.
+     * 
+     * @parameter expression="${classifier}"
+     */
+    private String classifier;
+
+    /**
      * Comma-separated list of artifacts (use groupId:artifactId) to exclude from wrapping.
      * 
      * @parameter expression="${exclusions}"
@@ -241,6 +248,10 @@ public class OSGiWrapperArchetypeMojo extends AbstractPaxArchetypeMojo
 
             // bootstrap with the initial wrapper artifact
             String rootId = groupId + ':' + artifactId + ':' + version;
+            if( PomUtils.isNotEmpty( classifier ) )
+            {
+                rootId = rootId + ':' + classifier;
+            }
 
             m_candidateIds = new ArrayList();
             m_excludedIds = new HashSet();
@@ -276,6 +287,16 @@ public class OSGiWrapperArchetypeMojo extends AbstractPaxArchetypeMojo
         setArchetypeProperty( "wrappedArtifactId", getWrappedArtifactId() );
         setArchetypeProperty( "symbolicName", getBundleSymbolicName() );
         setArchetypeProperty( "bundleVersion", getBundleVersion() );
+
+        // optional classifier
+        if( fields.length < 4 )
+        {
+            setArchetypeProperty( "wrappedClassifier", null );
+        }
+        else
+        {
+            setArchetypeProperty( "wrappedClassifier", fields[3] );
+        }
     }
 
     /**
@@ -542,7 +563,14 @@ public class OSGiWrapperArchetypeMojo extends AbstractPaxArchetypeMojo
      */
     private static String getCandidateId( Artifact artifact )
     {
-        return artifact.getGroupId() + ':' + artifact.getArtifactId() + ':' + PomUtils.getMetaVersion( artifact );
+        String id = artifact.getGroupId() + ':' + artifact.getArtifactId() + ':' + PomUtils.getMetaVersion( artifact );
+
+        if( artifact.hasClassifier() )
+        {
+            return id + ':' + artifact.getClassifier();
+        }
+
+        return id;
     }
 
     /**

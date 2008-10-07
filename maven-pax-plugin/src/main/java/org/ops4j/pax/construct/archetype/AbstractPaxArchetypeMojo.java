@@ -866,7 +866,15 @@ public abstract class AbstractPaxArchetypeMojo extends AbstractMojo
      */
     protected final void setArchetypeProperty( String name, String value )
     {
-        m_archetypeProperties.setProperty( name, value );
+        if( null != value )
+        {
+            m_archetypeProperties.setProperty( name, value );
+        }
+        else
+        {
+            m_archetypeProperties.remove( name );
+        }
+
         if( "packageName".equals( name ) )
         {
             m_archetypeProperties.setProperty( "package", value );
