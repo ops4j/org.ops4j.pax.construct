@@ -36,9 +36,12 @@
       <groupId>${wrapped.groupId}</groupId>
       <artifactId>${wrapped.artifactId}</artifactId>
       <version>${wrapped.version}</version>
+#end
+#if( $wrappedClassifier )
+      <classifier>${wrappedClassifier}</classifier>
+#end
       <optional>true</optional>
     </dependency>
   </dependencies>
 
-#end
 </project>
