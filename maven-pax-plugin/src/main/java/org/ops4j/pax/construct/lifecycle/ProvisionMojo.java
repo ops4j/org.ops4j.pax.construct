@@ -381,10 +381,10 @@ public class ProvisionMojo extends AbstractMojo
         if( PomUtils.isBundleArtifact( bundle, m_resolver, m_remoteRepos, m_localRepo, true ) )
         {
             String version = PomUtils.getMetaVersion( bundle );
-            String bundleId = bundle.getGroupId() + ':' + bundle.getArtifactId() + ':' + version + ':' + bundle.getType();
-            if( !m_bundleIds.contains( bundleId ) )
+            String id = bundle.getGroupId() + ':' + bundle.getArtifactId() + ':' + version + ':' + bundle.getType();
+            if( !m_bundleIds.contains( id ) )
             {
-                m_bundleIds.add( bundleId );
+                m_bundleIds.add( id );
             }
         }
         else
