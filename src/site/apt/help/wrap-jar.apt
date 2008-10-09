@@ -23,7 +23,7 @@
 ~~ NOTE: For help with the syntax of this file, see:
 ~~ http://maven.apache.org/guides/mini/guide-apt-format.html
 
-<<<pax-wrap-jar [-g groupId] -a artifactId [-v version] [-o] [-- mvnOpts ...]>>>
+<<<pax-wrap-jar [-g groupId] -a artifactId [-v version] [-c classifier] [-o] [-- mvnOpts ...]>>>
 
  Creates a Maven POM to wrap a third-party jar as an OSGi bundle, use -o to overwrite an existing wrapper.
  When this script is used outside of a Pax-Construct project, it creates a standalone POM.
@@ -88,5 +88,7 @@
 pax-wrap-jar -a backport-util-concurrent -v 3.0 -- -DaddVersion "-DimportPackage=sun.misc;resolution:=optional,*"
 
 pax-wrap-jar -a commons-logging -v 1.1 -- -DwrapTransitive "-DimportPackage=javax.*|com.sun.jdmk.comm;resolution:=optional,*"
+
+pax-wrap-jar -g org.testng -a testng -c jdk15
 +---+
 
