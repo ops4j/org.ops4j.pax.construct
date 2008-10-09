@@ -3,12 +3,13 @@
   <parent>
     <groupId>org.ops4j.pax.construct</groupId>
     <artifactId>archetypes</artifactId>
-    <version>1.1-SNAPSHOT</version>
+    <version>1.0</version>
   </parent>
 
   <modelVersion>4.0.0</modelVersion>
   <groupId>org.ops4j.pax.construct</groupId>
   <artifactId>maven-archetype-osgi-wrapper</artifactId>
+  <version>1.0.1-SNAPSHOT</version>
 
   <name>OPS4J - Archetype: OSGi wrapper for third-party jar(s)</name>
 
