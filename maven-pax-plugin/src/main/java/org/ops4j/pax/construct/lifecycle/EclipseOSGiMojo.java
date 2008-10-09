@@ -91,7 +91,7 @@ public class EclipseOSGiMojo extends EclipsePlugin
     /**
      * Switch to turn on/off fixing of dependency entries in the classpath file.
      *
-     * @parameter expression="${fixDependencies}" default-value="custom"
+     * @parameter expression="${fixDependencies}" default-value="EXTERNAL"
      */
     private String fixDependencies;
 
@@ -287,13 +287,22 @@ public class EclipseOSGiMojo extends EclipsePlugin
             return dependency;
         }
 
-        String id = dependency.getGroupId() + ':' + dependency.getArtifactId();
-        File baseDir = executedProject.getBasedir();
-
         // by default, don't fix dependencies pointing to local projects found in the same tree
-        if( "CUSTOM".equalsIgnoreCase( fixDependencies ) && DirUtils.findPom( baseDir, id ) != null )
+        if( "EXTERNAL".equalsIgnoreCase( fixDependencies ) && isReactorDependency( dependency ) )
         {
             return dependency;
+        }
+
+        // previous behaviour in 1.3 was exhaustive search of the poms in the local file-system
+        if( "CUSTOM".equalsIgnoreCase( fixDependencies ) )
+        {
+            String id = dependency.getGroupId() + ':' + dependency.getArtifactId();
+            File baseDir = executedProject.getBasedir();
+
+            if( DirUtils.findPom( baseDir, id ) != null )
+            {
+                return dependency;
+            }
         }
 
         // unfortunately there's no setIsOsgiBundle() method, so we have to replace the whole dependency...
@@ -306,6 +315,25 @@ public class EclipseOSGiMojo extends EclipsePlugin
         testDependency.setJavadocAttachment( dependency.getJavadocAttachment() );
 
         return testDependency;
+    }
+
+    private boolean isReactorDependency( IdeDependency dependency )
+    {
+        // check current reactor...
+        if( reactorProjects != null )
+        {
+            for( Iterator i = reactorProjects.iterator(); i.hasNext(); )
+            {
+                MavenProject reactorProject = (MavenProject) i.next();
+
+                if( reactorProject.getGroupId().equals( dependency.getGroupId() )
+                    && reactorProject.getArtifactId().equals( dependency.getArtifactId() ) )
+                {
+                    return true;
+                }
+            }
+        }
+        return false;
     }
 
     /**
