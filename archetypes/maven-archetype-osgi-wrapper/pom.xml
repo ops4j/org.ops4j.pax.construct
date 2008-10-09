@@ -9,7 +9,7 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>org.ops4j.pax.construct</groupId>
   <artifactId>maven-archetype-osgi-wrapper</artifactId>
-  <version>1.0.1-SNAPSHOT</version>
+  <version>1.0.1</version>
 
   <name>OPS4J - Archetype: OSGi wrapper for third-party jar(s)</name>
 
@@ -29,4 +29,10 @@
     </resources>
   </build>
 
+
+  <scm>
+    <connection>scm:svn:https://scm.ops4j.org/repos/ops4j/qa/pax/construct/maven-archetype-osgi-wrapper-1.0.1</connection>
+    <developerConnection>scm:svn:https://scm.ops4j.org/repos/ops4j/qa/pax/construct/maven-archetype-osgi-wrapper-1.0.1</developerConnection>
+    <url>http://scm.ops4j.org/browse/OPS4J/qa/pax/construct/maven-archetype-osgi-wrapper-1.0.1</url>
+  </scm>
 </project>
