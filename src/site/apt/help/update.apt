@@ -53,12 +53,12 @@ Select files in explorer, right-click -> Properties... deselect the Read Only ch
 * Examples
 
 +---+
-cd pax-construct-1.3/bin
+cd pax-construct-1.4/bin
 
 pax-update
 +---+
 
 +---+
-pax-update -v 1.3 -- "-DtargetDirectory=/tmp/myProject"
+pax-update -v 1.4 -- "-DtargetDirectory=/tmp/myProject"
 +---+
 
