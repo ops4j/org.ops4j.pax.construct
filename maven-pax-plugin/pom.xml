@@ -9,7 +9,7 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>org.ops4j</groupId>
   <artifactId>maven-pax-plugin</artifactId>
-  <version>1.4-SNAPSHOT</version>
+  <version>1.4</version>
 
   <name>OPS4J - Pax Mojos: OSGi project helpers</name>
 
@@ -178,4 +178,10 @@
       <version>0.0.255</version>
     </dependency>
   </dependencies>
+
+  <scm>
+    <connection>scm:svn:https://scm.ops4j.org/repos/ops4j/qa/pax/construct/maven-pax-plugin-1.4</connection>
+    <developerConnection>scm:svn:https://scm.ops4j.org/repos/ops4j/qa/pax/construct/maven-pax-plugin-1.4</developerConnection>
+    <url>http://scm.ops4j.org/browse/OPS4J/qa/pax/construct/maven-pax-plugin-1.4</url>
+  </scm>
 </project>
