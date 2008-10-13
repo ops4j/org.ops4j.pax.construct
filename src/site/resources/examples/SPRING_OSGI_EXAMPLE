@@ -14,10 +14,10 @@ cd spring
 # of all dependencies (normally only "provided" scope dependencies are checked)
 #-----------------------------------------------------------------------------------
 
-pax-add-repository -i springsource-repository-release -u http://repository.springsource.com/maven/bundles/release
-pax-add-repository -i springsource-repository-external -u http://repository.springsource.com/maven/bundles/external
+pax-add-repository -i com.springsource.repository.bundles.release -u http://repository.springsource.com/maven/bundles/release
+pax-add-repository -i com.springsource.repository.bundles.external -u http://repository.springsource.com/maven/bundles/external
 
-pax-import-bundle -g org.springframework.osgi -a org.springframework.osgi.extender -v 1.1.1.A -- -DimportTransitive -DwidenScope
+pax-import-bundle -g org.springframework.osgi -a spring-osgi-extender -v 1.1.2 -- -DimportTransitive -DwidenScope
 
 #------------------------------------------------------------
 # create new OSGi service bundle with example code and tests

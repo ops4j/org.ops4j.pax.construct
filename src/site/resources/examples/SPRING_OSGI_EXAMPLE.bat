@@ -13,10 +13,10 @@ REM  to also import any bundles it depends on and widenScope to do an exhaustive
 REM  of all dependencies (normally only "provided" scope dependencies are checked)
 REM -----------------------------------------------------------------------------------
 
-call pax-add-repository -i springsource-repository-release -u http://repository.springsource.com/maven/bundles/release
-call pax-add-repository -i springsource-repository-external -u http://repository.springsource.com/maven/bundles/external
+call pax-add-repository -i com.springsource.repository.bundles.release -u http://repository.springsource.com/maven/bundles/release
+call pax-add-repository -i com.springsource.repository.bundles.external -u http://repository.springsource.com/maven/bundles/external
 
-call pax-import-bundle -g org.springframework.osgi -a org.springframework.osgi.extender -v 1.1.1.A -- -DimportTransitive -DwidenScope
+call pax-import-bundle -g org.springframework.osgi -a spring-osgi-extender -v 1.1.2 -- -DimportTransitive -DwidenScope
 
 REM ------------------------------------------------------------
 REM  create new OSGi service bundle with example code and tests
