@@ -14,7 +14,6 @@ cd spring
 # of all dependencies (normally only "provided" scope dependencies are checked)
 #-----------------------------------------------------------------------------------
 
-pax-add-repository -i com.springsource.repository.bundles.release -u http://repository.springsource.com/maven/bundles/release
 pax-add-repository -i com.springsource.repository.bundles.external -u http://repository.springsource.com/maven/bundles/external
 
 pax-import-bundle -g org.springframework.osgi -a spring-osgi-extender -v 1.1.2 -- -DimportTransitive -DwidenScope
@@ -35,5 +34,5 @@ pax-create-bundle -p org.example.bean -- -Dspring -Djunit
 # finally, build and deploy!
 #----------------------------
 
-exec mvn clean install pax:provision
+exec mvn clean install pax:provision "-Dframework=equinox"
 
