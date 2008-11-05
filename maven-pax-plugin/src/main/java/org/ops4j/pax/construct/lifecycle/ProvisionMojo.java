@@ -452,6 +452,16 @@ public class ProvisionMojo extends AbstractMojo
             ArtifactRepository repo = (ArtifactRepository) i.next();
             repoListBuilder.append( getRepositoryURL( repo ) );
 
+            if( repo.getSnapshots().isEnabled() )
+            {
+                repoListBuilder.append( "@snapshots" );
+            }
+
+            if( false == repo.getReleases().isEnabled() )
+            {
+                repoListBuilder.append( "@noreleases" );
+            }
+
             delim = ",";
         }
 
