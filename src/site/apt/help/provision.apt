@@ -27,6 +27,8 @@
 
  Provisions the current project onto the selected OSGi framework using the latest released version of {{{http://wiki.ops4j.org/confluence/display/ops4j/Pax+Runner}Pax-Runner}}.
 
+ * Dependencies marked <<<<optional>true</optional>>>> are not provisioned
+
  * Use the <<-p>> option to select which {{{http://wiki.ops4j.org/confluence/display/ops4j/Platform+-+Felix}profiles}} to deploy
 
  * Use the <<-u>> option to deploy additional bundles from a list of URLs
