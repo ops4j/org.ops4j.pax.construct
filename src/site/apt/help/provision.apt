@@ -25,7 +25,7 @@
 
 <<<pax-provision [-f felix|equinox|kf] [-p minimal,log,war,...] [-u url,...] [-- mvnOpts ...]>>>
 
- Provisions the current project onto the selected OSGi framework using the latest released version of {{{http://wiki.ops4j.org/confluence/display/ops4j/Pax+Runner}Pax-Runner}}.
+ Provisions the current Maven project onto the selected OSGi framework using {{{http://wiki.ops4j.org/confluence/display/ops4j/Pax+Runner}Pax-Runner}}.
 
  * Dependencies marked <<<<optional>true</optional>>>> are not provisioned
 
@@ -39,6 +39,8 @@
 
 * Additional Maven options
 
+*-----------------------------------*----------------------------------------------------------------+
+| <<<-U>>>                          | force Maven to fetch the latest RELEASE of Pax-Runner          |
 *-----------------------------------*----------------------------------------------------------------+
 | <<<-Dargs=>>><filename-or-url>    | file containing extra Pax-Runner options (one option per line) |
 *-----------------------------------*----------------------------------------------------------------+
