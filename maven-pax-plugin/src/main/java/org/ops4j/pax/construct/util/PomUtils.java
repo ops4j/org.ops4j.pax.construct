@@ -384,6 +384,11 @@ public final class PomUtils
     public static boolean isBundleArtifact( Artifact artifact, ArtifactResolver resolver, List remoteRepos,
         ArtifactRepository localRepo, boolean testMetadata )
     {
+        if( null == artifact )
+        {
+            return false;
+        }
+
         String type = artifact.getType();
         if( null != type && type.indexOf( "bundle" ) >= 0 )
         {

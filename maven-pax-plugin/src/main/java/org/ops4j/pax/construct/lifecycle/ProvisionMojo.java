@@ -152,6 +152,13 @@ public class ProvisionMojo extends AbstractMojo
     private ArtifactRepository m_localRepo;
 
     /**
+     * @parameter expression="${project}"
+     * @required
+     * @readonly
+     */
+    private MavenProject m_project;
+
+    /**
      * The current Maven reactor.
      * 
      * @parameter expression="${reactorProjects}"
@@ -260,9 +267,12 @@ public class ProvisionMojo extends AbstractMojo
             addAdditionalPoms();
         }
 
-        for( Iterator i = m_reactorProjects.iterator(); i.hasNext(); )
+        if( m_project.getFile() != null )
         {
-            addProjectBundles( (MavenProject) i.next(), false == noDependencies );
+            for( Iterator i = m_reactorProjects.iterator(); i.hasNext(); )
+            {
+                addProjectBundles( (MavenProject) i.next(), false == noDependencies );
+            }
         }
 
         setupRuntimeHelpers();
@@ -371,6 +381,11 @@ public class ProvisionMojo extends AbstractMojo
      */
     private void provisionBundle( Artifact bundle )
     {
+        if( "pom".equals( bundle.getType() ) )
+        {
+            return;
+        }
+
         // force download here, as next check tries to avoid downloading where possible
         if( !PomUtils.downloadFile( bundle, m_resolver, m_remoteRepos, m_localRepo ) )
         {
@@ -573,10 +588,9 @@ public class ProvisionMojo extends AbstractMojo
     private MavenProject createDeploymentProject( List bundles )
         throws MojoExecutionException
     {
-        MavenProject rootProject = (MavenProject) m_reactorProjects.get( 0 );
         MavenProject deployProject;
 
-        if( null == rootProject.getFile() )
+        if( null == m_project.getFile() )
         {
             deployProject = new MavenProject();
             deployProject.setGroupId( "examples" );
@@ -585,7 +599,7 @@ public class ProvisionMojo extends AbstractMojo
         }
         else
         {
-            deployProject = new MavenProject( rootProject );
+            deployProject = new MavenProject( m_project );
         }
 
         String internalId = PomUtils.getCompoundId( deployProject.getGroupId(), deployProject.getArtifactId() );
