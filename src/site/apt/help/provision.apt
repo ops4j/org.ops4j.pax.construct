@@ -27,6 +27,8 @@
 
  Provisions the current Maven project onto the selected OSGi framework using {{{http://wiki.ops4j.org/confluence/display/ops4j/Pax+Runner}Pax-Runner}}.
 
+ If you don't have Pax-Runner in your local Maven repository this command will automatically attempt to download the latest release. It will then continue to use this locally installed version of Pax-Runner unless you add <<<-U>>> to force it to check online for a later release, or <<<-Drunner=>>><version> to temporarily use a different version.
+
  * Dependencies marked <<<<optional>true</optional>>>> are not provisioned
 
  * Use the <<-p>> option to select which {{{http://wiki.ops4j.org/confluence/display/ops4j/Platform+-+Felix}profiles}} to deploy

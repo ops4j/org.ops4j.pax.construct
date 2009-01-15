@@ -61,6 +61,12 @@ import org.ops4j.pax.construct.util.StreamFactory;
  * <code><pre>
  *   mvn pax:provision [-Dframework=felix|equinox|kf|concierge] [-Dprofiles=minimal,log,war,...]
  * </pre></code>
+ *
+ * If you don't have Pax-Runner in your local Maven repository this command
+ * will automatically attempt to download the latest release. It will then
+ * continue to use this locally installed version of Pax-Runner unless you
+ * add <code>-U</code> to force it to check online for a later release, or
+ * <code>-Drunner=version</code> to temporarily use a different version.
  * 
  * @goal provision
  * @aggregator true
