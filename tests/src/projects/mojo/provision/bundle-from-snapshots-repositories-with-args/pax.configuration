@@ -1,0 +1,2 @@
+--log=TRACE
+--repositories=http://domoware.isti.cnr.it/maven2-snap@snapshots
