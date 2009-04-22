@@ -64,7 +64,6 @@
           -->
           <provision>
             <param>--platform=felix</param>
-            <param>--profiles=minimal</param>
           </provision>
         </configuration>
         <executions>
