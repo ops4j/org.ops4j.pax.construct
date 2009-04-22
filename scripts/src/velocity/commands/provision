@@ -6,7 +6,7 @@
 },{
   'key' : 'p',
   'name' : 'profiles',
-  'help' : 'minimal,log,war,...',
+  'help' : 'log,war,spring,...',
   'optional' : true
 },{
   'key' : 'u',

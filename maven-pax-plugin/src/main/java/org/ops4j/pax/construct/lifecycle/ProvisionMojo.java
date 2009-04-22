@@ -59,7 +59,7 @@ import org.ops4j.pax.construct.util.StreamFactory;
  * Provision all local and imported bundles onto the selected OSGi framework
  * 
  * <code><pre>
- *   mvn pax:provision [-Dframework=felix|equinox|kf|concierge] [-Dprofiles=minimal,log,war,...]
+ *   mvn pax:provision [-Dframework=felix|equinox|kf|concierge] [-Dprofiles=log,war,spring,...]
  * </pre></code>
  *
  * If you don't have Pax-Runner in your local Maven repository this command
