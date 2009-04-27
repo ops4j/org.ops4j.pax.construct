@@ -745,6 +745,17 @@ public class ProvisionMojo extends AbstractMojo
         invokePaxRunner( mainClass, deployAppCmds );
     }
 
+	/**
+	 * This method allows subclasses to specify additional
+	 * commands for provisioning.  By default provide no initial 
+	 * deploy commands. 
+	 * @return A List of Strings that represent the deploy commands.
+	 */
+	protected List getDeployCommands() 
+	{
+		return new ArrayList();
+	}
+
     /**
      * Deploy bundles using the new Pax-Runner codebase
      * 
@@ -756,7 +767,7 @@ public class ProvisionMojo extends AbstractMojo
     private void deployRunnerNG( Class mainClass, MavenProject project, String repositories )
         throws MojoExecutionException
     {
-        List deployAppCmds = new ArrayList();
+        List deployAppCmds = getDeployCommands(); 
 
         // only apply if explicitly configured
         if( PomUtils.isNotEmpty( framework ) )
