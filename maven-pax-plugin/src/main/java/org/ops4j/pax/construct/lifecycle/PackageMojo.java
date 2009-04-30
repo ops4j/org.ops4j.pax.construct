@@ -39,16 +39,27 @@ import org.apache.maven.plugin.MojoExecutionException;
  */
 public class PackageMojo extends ProvisionMojo
 {
+	/**
+	 * The packageOutputDirectory name. 
+	 *
+	 * @parameter default-value="pax-runner-${project.build.finalName}"
+	 */
+	private String packageOutputDirectory;
 
-	private File runnerDir = new File("runner");
+	private String runnerDirName; 
+	private File runnerDir; 
 
     public void execute()
 		throws MojoExecutionException
 	{
+		runnerDirName = System.getProperty("project.build.directory","target") + "/" + packageOutputDirectory;
+		runnerDir = new File(runnerDirName);
+
 		super.execute();
+		getLog().info("Zipping runner as: " + runnerDirName);
 
 		try {
-			ZipOutputStream zipStream = new ZipOutputStream(new FileOutputStream("runner.zip"));
+			ZipOutputStream zipStream = new ZipOutputStream(new FileOutputStream(runnerDirName + ".zip"));
 			addFiles( runnerDir, zipStream );	
 			zipStream.close();
 		} catch (IOException ioe) {
@@ -60,7 +71,7 @@ public class PackageMojo extends ProvisionMojo
 		throws IOException
 	{
         File[] files = work.listFiles();
-        int cut = runnerDir.getAbsolutePath().length() + 1;
+        int cut = runnerDir.getAbsolutePath().length() - runnerDir.getName().length();
         for (int i = 0; i < files.length; i++) {
 			File f = files[i];
             if (f.isDirectory()) {
@@ -78,11 +89,11 @@ public class PackageMojo extends ProvisionMojo
         }
 	}
 
-
 	protected List getDeployCommands() 
 	{
 		List l = super.getDeployCommands();
 		l.add("--executor=script");
+		l.add("--workingDirectory=" + runnerDirName);
 		return l;
 	}
 }
