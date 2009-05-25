@@ -47,6 +47,7 @@ import org.apache.maven.project.MavenProject;
 import org.apache.maven.project.MavenProjectBuilder;
 import org.apache.maven.project.ProjectBuildingException;
 import org.apache.maven.project.artifact.InvalidDependencyVersionException;
+import org.apache.maven.project.path.PathTranslator;
 import org.apache.maven.shared.osgi.Maven2OsgiConverter;
 import org.codehaus.plexus.util.FileUtils;
 import org.codehaus.plexus.util.IOUtil;
@@ -87,6 +88,13 @@ public class EclipseOSGiMojo extends EclipsePlugin
      * @component
      */
     private Maven2OsgiConverter m_maven2OsgiConverter;
+
+    /**
+     * Project path translation (needed for backwards compatibility)
+     * 
+     * @component
+     */
+    private PathTranslator m_pathTranslator;
 
     /**
      * Switch to turn on/off fixing of dependency entries in the classpath file.
@@ -760,6 +768,9 @@ public class EclipseOSGiMojo extends EclipsePlugin
         try
         {
             pom = m_mavenProjectBuilder.buildFromRepository( pomArtifact, remoteArtifactRepositories, localRepository );
+
+            // need this when using Maven 2.1 which doesn't do any alignment
+            m_pathTranslator.alignToBaseDirectory( pom.getModel(), baseDir );
 
             File pomFile = new File( baseDir, "pom.xml" );
 
