@@ -1,9 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+
   <parent>
     <groupId>org.ops4j.pax</groupId>
     <artifactId>construct</artifactId>
-    <version>1.0</version>
+    <version>1.1-SNAPSHOT</version>
   </parent>
 
   <modelVersion>4.0.0</modelVersion>
@@ -55,7 +56,12 @@
             <configuration>
               <tasks>
                 <taskdef name="texen" classname="org.apache.texen.ant.TexenTask" />
-                <texen templatePath="src/velocity" controlTemplate="control.vm" contextProperties="${project.build.outputDirectory}/script.properties" outputDirectory="${project.build.outputDirectory}" outputFile="../texen.log" />
+                <texen
+                    templatePath="src/velocity"
+                    controlTemplate="control.vm"
+                    contextProperties="${project.build.outputDirectory}/script.properties"
+                    outputDirectory="${project.build.outputDirectory}"
+                    outputFile="../texen.log" />
               </tasks>
             </configuration>
           </execution>
@@ -103,4 +109,5 @@
       </plugin>
     </plugins>
   </build>
+
 </project>
