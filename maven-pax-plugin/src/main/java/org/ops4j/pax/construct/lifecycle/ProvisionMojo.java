@@ -72,6 +72,7 @@ import org.ops4j.pax.construct.util.StreamFactory;
  * @aggregator true
  * 
  * @requiresProject false
+ * @requiresDependencyResolution test
  */
 public class ProvisionMojo extends AbstractMojo
 {
@@ -364,21 +365,14 @@ public class ProvisionMojo extends AbstractMojo
      */
     private void addProjectDependencies( MavenProject project )
     {
-        try
+        Set artifacts = project.getArtifacts();
+        for( Iterator i = artifacts.iterator(); i.hasNext(); )
         {
-            Set artifacts = project.createArtifacts( m_factory, null, null );
-            for( Iterator i = artifacts.iterator(); i.hasNext(); )
+            Artifact artifact = (Artifact) i.next();
+            if( !artifact.isOptional() && !Artifact.SCOPE_TEST.equals( artifact.getScope() ) )
             {
-                Artifact artifact = (Artifact) i.next();
-                if( !artifact.isOptional() && !Artifact.SCOPE_TEST.equals( artifact.getScope() ) )
-                {
-                    provisionBundle( artifact );
-                }
+                provisionBundle( artifact );
             }
-        }
-        catch( InvalidDependencyVersionException e )
-        {
-            getLog().warn( "Bad version in dependencies for " + project.getId() );
         }
     }
 
