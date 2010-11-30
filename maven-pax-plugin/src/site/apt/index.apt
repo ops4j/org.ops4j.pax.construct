@@ -64,6 +64,7 @@ Maven Pax Plugin
  / {{{provision-mojo.html}pax:provision}}
  / {{{eclipse-mojo.html}pax:eclipse}}
  / {{{clone-mojo.html}pax:clone}}
+ / {{{directory-mojo.html}pax:directory}}
 
  []
 
