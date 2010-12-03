@@ -459,7 +459,7 @@ public class ProvisionMojo extends AbstractMojo
         m_remoteRepos.add( getOps4jRepository() ); // can remove this once runner is on central
 
         String delim = "";
-        StringBuffer repoListBuilder = new StringBuffer();
+        StringBuffer repoListBuilder = new StringBuffer( "+" );
         for( Iterator i = m_remoteRepos.iterator(); i.hasNext(); )
         {
             repoListBuilder.append( delim );
