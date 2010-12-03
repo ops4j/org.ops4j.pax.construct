@@ -25,7 +25,6 @@ import java.util.List;
 import java.util.Set;
 
 import org.apache.maven.artifact.Artifact;
-import org.apache.maven.artifact.ArtifactStatus;
 import org.apache.maven.artifact.factory.ArtifactFactory;
 import org.apache.maven.artifact.metadata.ArtifactMetadataSource;
 import org.apache.maven.artifact.repository.ArtifactRepository;
@@ -393,7 +392,7 @@ public class ImportBundleMojo extends AbstractMojo
          * Repair stubs (ie. when a POM couldn't be found in the various repositories)
          */
         DistributionManagement dm = project.getDistributionManagement();
-        if( dm != null && ArtifactStatus.GENERATED.toString().equals( dm.getStatus() ) )
+        if( dm != null && "generated".equals( dm.getStatus() ) )
         {
             if( localPom != null )
             {

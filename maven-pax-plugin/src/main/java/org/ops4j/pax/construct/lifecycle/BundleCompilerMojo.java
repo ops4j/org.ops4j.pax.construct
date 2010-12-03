@@ -99,8 +99,8 @@ public class BundleCompilerMojo extends CompilerMojo
         pax.setArtifactId( "maven-pax-plugin" );
 
         // load pluginManagement
-        project.addPlugin( core );
-        project.addPlugin( pax );
+        project.getBuild().addPlugin( core );
+        project.getBuild().addPlugin( pax );
 
         Xpp3Dom coreConfig = project.getGoalConfiguration( core.getGroupId(), core.getArtifactId(), null, null );
         Xpp3Dom paxConfig = project.getGoalConfiguration( pax.getGroupId(), pax.getArtifactId(), null, null );
