@@ -23,6 +23,10 @@ import java.util.Iterator;
 import java.util.Map;
 
 import org.apache.maven.artifact.Artifact;
+import org.apache.maven.artifact.repository.ArtifactRepository;
+import org.apache.maven.artifact.resolver.ArtifactNotFoundException;
+import org.apache.maven.artifact.resolver.ArtifactResolutionException;
+import org.apache.maven.artifact.resolver.ArtifactResolver;
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.project.MavenProject;
@@ -104,6 +108,20 @@ public class InheritMojo extends AbstractMojo
      */
     private ArchiverManager m_archiverManager;
 
+    /**
+     * support for artifact resolution 
+     * 
+     * @parameter default-value="${localRepository}" alias="local.repository" 
+     */
+    ArtifactRepository m_localRepository;
+     
+    /** 
+     * support for artifact resolution
+     * 
+     * @component 
+     */
+    ArtifactResolver m_resolver;
+    
     /**
      * Maven plugin entry-point
      */
@@ -198,8 +216,15 @@ public class InheritMojo extends AbstractMojo
         for( Iterator i = m_project.getDependencyArtifacts().iterator(); i.hasNext(); )
         {
             Artifact artifact = (Artifact) i.next();
-            if( "maven-plugin".equals( artifact.getType() ) && artifact.getFile() != null )
+            if( "maven-plugin".equals( artifact.getType() ) )
             {
+                resolve( artifact );
+                
+                if ( artifact.getFile() == null )
+                {
+                  continue;
+                }
+              
                 File unpackDir = new File( buildArea, artifact.getArtifactId() );
                 unpackPlugin( artifact, unpackDir );
 
@@ -214,6 +239,23 @@ public class InheritMojo extends AbstractMojo
 
         return pluginsByName;
     }
+    
+    private void resolve(Artifact artifact)
+    {
+        try
+        {
+            m_resolver.resolve(artifact, m_project.getRemoteArtifactRepositories(), m_localRepository);
+        }
+        catch ( ArtifactResolutionException e )
+        {
+            return;
+        }
+        catch (ArtifactNotFoundException e)
+        {
+           return;
+        }
+    }    
+    
 
     /**
      * Unpacks a maven plugin artifact to the given directory
