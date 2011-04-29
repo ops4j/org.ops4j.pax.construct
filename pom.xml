@@ -2,15 +2,15 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 
   <parent>
-    <groupId>org.ops4j.pax</groupId>
+    <groupId>org.ops4j</groupId>
     <artifactId>master</artifactId>
-    <version>3.1.0</version>
+    <version>1.0.9</version>
   </parent>
 
   <modelVersion>4.0.0</modelVersion>
   <groupId>org.ops4j.pax</groupId>
   <artifactId>construct</artifactId>
-  <version>1.1-SNAPSHOT</version>
+  <version>1.5-SNAPSHOT</version>
 
   <name>OPS4J - Pax Construct</name>
 
@@ -21,6 +21,10 @@
   </description>
 
   <packaging>pom</packaging>
+
+  <properties>
+    <mavenVersion>2.0.7</mavenVersion>
+  </properties>
 
   <profiles>
     <profile>
@@ -53,9 +57,9 @@
   <url>http://www.ops4j.org/projects/pax/construct/</url>
 
   <scm>
-    <connection>scm:svn:https://scm.ops4j.org/repos/ops4j/projects/pax/construct/</connection>
-    <developerConnection>scm:svn:https://scm.ops4j.org/repos/ops4j/projects/pax/construct/</developerConnection>
-    <url>http://scm.ops4j.org/browse/OPS4J/projects/pax/construct/</url>
+    <connection>scm:git:git@github.com:ops4j/org.ops4j.pax.construct.git</connection>
+    <developerConnection>scm:git:git@github.com:ops4j/org.ops4j.pax.construct.git</developerConnection>
+    <url>http://github.com/ops4j/org.ops4j.pax.construct/</url>
   </scm>
 
   <issueManagement>
@@ -64,8 +68,8 @@
   </issueManagement>
 
   <ciManagement>
-    <system>bamboo</system>
-    <url>http://ci.ops4j.org/bamboo/browse/PAXCONSTRUCT</url>
+    <system>hudson</system>
+    <url>http://ci.okidokiteam.com/hudson/job/org.ops4j.pax.construct/</url>
     <notifiers>
       <notifier>
         <type>email</type>
@@ -148,21 +152,34 @@
         </includes>
       </resource>
     </resources>
-    <plugins>
-      <plugin>
-        <artifactId>maven-release-plugin</artifactId>
-        <configuration>
-          <tagBase>https://scm.ops4j.org/repos/ops4j/qa/pax/construct/</tagBase>
-        </configuration>
-      </plugin>
-    </plugins>
+    <pluginManagement>
+      <plugins>
+        <plugin>
+          <artifactId>maven-plugin-plugin</artifactId>
+          <version>2.7</version>
+        </plugin>
+        <plugin>
+          <artifactId>maven-release-plugin</artifactId>
+          <version>2.1</version>
+          <configuration>
+            <preparationGoals>clean install</preparationGoals>
+            <goals>deploy</goals>
+            <autoVersionSubmodules>true</autoVersionSubmodules>
+          </configuration>
+        </plugin>
+      </plugins>
+    </pluginManagement>
   </build>
 
   <reporting>
     <plugins>
       <plugin>
+        <artifactId>maven-plugin-plugin</artifactId>
+        <version>2.7</version>
+      </plugin>
+      <plugin>
         <artifactId>maven-javadoc-plugin</artifactId>
-        <version>2.4</version>
+        <version>2.7</version>
       </plugin>
     </plugins>
   </reporting>
