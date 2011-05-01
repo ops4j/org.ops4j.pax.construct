@@ -4,7 +4,7 @@
   <parent>
     <groupId>org.ops4j.pax</groupId>
     <artifactId>construct</artifactId>
-    <version>1.5-SNAPSHOT</version>
+    <version>1.5</version>
   </parent>
 
   <modelVersion>4.0.0</modelVersion>
@@ -56,12 +56,7 @@
             <configuration>
               <tasks>
                 <taskdef name="texen" classname="org.apache.texen.ant.TexenTask" />
-                <texen
-                    templatePath="src/velocity"
-                    controlTemplate="control.vm"
-                    contextProperties="${project.build.outputDirectory}/script.properties"
-                    outputDirectory="${project.build.outputDirectory}"
-                    outputFile="../texen.log" />
+                <texen templatePath="src/velocity" controlTemplate="control.vm" contextProperties="${project.build.outputDirectory}/script.properties" outputDirectory="${project.build.outputDirectory}" outputFile="../texen.log" />
               </tasks>
             </configuration>
           </execution>
