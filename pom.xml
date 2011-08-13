@@ -23,7 +23,7 @@
   <packaging>pom</packaging>
 
   <properties>
-    <mavenVersion>2.0.7</mavenVersion>
+    <mavenVersion>2.2.1</mavenVersion>
   </properties>
 
   <profiles>
