@@ -18,7 +18,7 @@ managing a Spring Dynamic Modules for OSGiTM system.
 
 ## How to use
 
-See at: http://www.ops4j.org/projects/pax/construct/
+See at: http://team.ops4j.org/browse/PAXCONSTRUCT
 
 ## How to develop
 
