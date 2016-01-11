@@ -59,7 +59,7 @@
   <scm>
     <connection>scm:git:git@github.com:ops4j/org.ops4j.pax.construct.git</connection>
     <developerConnection>scm:git:git@github.com:ops4j/org.ops4j.pax.construct.git</developerConnection>
-    <url>http://github.com/ops4j/org.ops4j.pax.construct/</url>
+    <url>http://github.com/ops4j/org.ops4j.pax.construct/tree/master</url>
   </scm>
 
   <issueManagement>
