@@ -142,7 +142,7 @@
     <dependency>
       <groupId>biz.aQute</groupId>
       <artifactId>bndlib</artifactId>
-      <version>0.0.255</version>
+      <version>3.1.0</version>
     </dependency>
     <dependency>
       <groupId>org.slf4j</groupId>
