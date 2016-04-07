@@ -1,6 +1,6 @@
 # Pax Construct
 
-http://team.ops4j.org/wiki/display/paxconstruct/Pax+Construct
+![](pax-construct.png)
 
 ## Introduction
 
