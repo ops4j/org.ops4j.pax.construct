@@ -1,6 +1,6 @@
 # Pax Construct
 
-http://team.ops4j.org/wiki/display/paxconstruct/Pax+Construct
+https://ops4j1.jira.com/wiki/display/paxconstruct/Pax+Construct
 
 ## Introduction
 
@@ -18,7 +18,7 @@ managing a Spring Dynamic Modules for OSGiTM system.
 
 ## How to use
 
-See at: http://team.ops4j.org/browse/PAXCONSTRUCT
+See at: https://ops4j1.jira.com/wiki/display/paxconstruct/Pax+Construct
 
 ## How to develop
 
@@ -36,7 +36,7 @@ Use this command to build project:
 
 ### Project resources
 
-* Issues management: http://team.ops4j.org/browse/PAXCONSTRUCT
+* Issues management: https://ops4j1.jira.com/projects/PAXCONSTRUCT
 * Jenkins continuous integration build: http://ci.okidokiteam.com/hudson/job/org.ops4j.pax.construct
 * Ohloh report: https://www.ohloh.net/p/paxconstruct
 * Artifact deployment: http://repo1.maven.org/maven2/org/ops4j/pax/construct
